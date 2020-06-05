@@ -1,0 +1,6 @@
+com.tencent.qcloud.core.auth
+com.tencent.qcloud.core.common
+com.tencent.qcloud.core.http
+com.tencent.qcloud.core.logger
+com.tencent.qcloud.core.task
+com.tencent.qcloud.core.util

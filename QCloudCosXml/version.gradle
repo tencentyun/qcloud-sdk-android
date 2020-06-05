@@ -1,0 +1,6 @@
+
+ext {
+
+    sdkVersionCode = 50432
+    sdkVersionName = '5.4.32'
+}
