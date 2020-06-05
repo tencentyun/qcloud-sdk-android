@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_marginTop="10dp"
+        android:id="@+id/titleId"
+        android:text="@string/dialog_title"
+        android:textSize="15sp"
+        android:textColor="#000000"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal|center_vertical"/>
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/titleId"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/noId"
+            android:text="@string/no"
+            android:textSize="15sp"
+            android:textColor="#FF4081"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal|center_vertical" />
+        <Button
+            android:id="@+id/yesId"
+            android:text="@string/yes"
+            android:textSize="15sp"
+            android:textColor="#FF4081"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal|center_vertical" />
+    </LinearLayout>
+
+
+</RelativeLayout>

@@ -1,0 +1,5 @@
+<resources>
+    <string name="dialog_title">是否查看COS本地日志</string>
+    <string name="no">否</string>
+    <string name="yes">是</string>
+</resources>

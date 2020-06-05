@@ -1,0 +1,14 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.tencent.qcloud.mtaUtils">
+    <application>
+
+        <meta-data
+            android:name="TA_APPKEY"
+            tools:node="remove" />
+
+        <meta-data
+            android:name="InstallChannel"
+            tools:node="remove" />
+    </application>
+</manifest>

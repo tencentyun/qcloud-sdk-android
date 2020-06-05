@@ -1,0 +1,136 @@
+apply plugin: 'com.android.library'
+apply from: '../version.gradle'
+
+android {
+
+    compileSdkVersion 28
+
+    defaultConfig {
+
+        minSdkVersion 15
+        targetSdkVersion 28
+
+        versionCode 50503
+        versionName "5.5.3"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+
+        debug {
+            testCoverageEnabled = true
+
+            it.buildConfigField 'String', 'COS_APPID', quotWrapper(System.getenv("COS_APPID"))
+            it.buildConfigField 'String', 'COS_UIN', quotWrapper(System.getenv("COS_UIN"))
+            it.buildConfigField 'String', 'COS_SECRET_ID', quotWrapper(System.getenv("COS_SECRET_ID"))
+            it.buildConfigField 'String', 'COS_SECRET_KEY', quotWrapper(System.getenv("COS_SECRET_KEY"))
+            it.buildConfigField 'String', 'BUCKET_PERSIST', quotWrapper(System.getenv("BUCKET_PERSIST"))
+            it.buildConfigField 'String', 'BUCKET_TEMP', quotWrapper(System.getenv("BUCKET_TEMP"))
+            it.buildConfigField 'String', 'REGION', quotWrapper(System.getenv("REGION"))
+
+            it.buildConfigField 'String', 'CSP_APPID', quotWrapper(System.getenv("CSP_APPID"))
+            it.buildConfigField 'String', 'CSP_UIN', quotWrapper(System.getenv("CSP_UIN"))
+            it.buildConfigField 'String', 'CSP_SECRET_ID', quotWrapper(System.getenv("CSP_SECRET_ID"))
+            it.buildConfigField 'String', 'CSP_SECRET_KEY', quotWrapper(System.getenv("CSP_SECRET_KEY"))
+
+            it.buildConfigField 'String', 'COS_CI_SECRET_ID', quotWrapper(System.getenv("COS_CI_SECRET_ID"))
+            it.buildConfigField 'String', 'COS_CI_SECRET_KEY', quotWrapper(System.getenv("COS_CI_SECRET_KEY"))
+        }
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+    flavorDimensions "production"
+
+    productFlavors {
+        normal { dimension "production" }
+        slim { dimension "production" }
+    }
+    lintOptions {
+        abortOnError false
+    }
+
+    // 切换发 normal 或者 slim 包，需要同步修改 pom.artifactId 信息
+    defaultPublishConfig "normalRelease"
+    //defaultPublishConfig "slimRelease"
+
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+    buildToolsVersion = '28.0.2'
+
+
+}
+
+dependencies {
+
+    compileOnly 'com.android.support:appcompat-v7:28.0.0'
+    testCompileOnly 'junit:junit:4.12'
+
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    api project(path: ':foundation')
+    api project(path: ':mtaUtils')
+    api project(path: ':logUtils')
+//    api project(path: ':quic')
+}
+
+// 发布到 bintray
+
+if (android.defaultPublishConfig.contains("slim")){
+    project.extensions.add('artifactId', 'cosxml-lite')
+    project.extensions.add('packageName', 'QCloudCosXmlLite')
+    project.extensions.add('artifactProduct', 'slim')
+    project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
+}else {
+    project.extensions.add('artifactId', 'cosxml')
+    project.extensions.add('packageName', 'QCloudCosXml')
+    project.extensions.add('artifactProduct', 'normal')
+    project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
+}
+apply from: '../../publish.gradle'
+
+
+// 发布到内部仓库
+// 已经不再需要发布到内部仓库了
+
+//apply plugin: 'maven'
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            repository(url: 'https://mirrors.tencent.com/repository/maven/cos_terminal/com/tencent/qcloud'){
+//                authentication(userName: 'rickenwang', password: 'xxxxxx')
+//                pom.groupId = 'com.tencent.qcloud'
+//                pom.version = "${version_name}"
+//                pom.artifactId = 'cosxml-lite'
+//            }
+//        }
+//    }
+//}
+
+static String quotWrapper(key) {
+    if (key == null) {
+        return "\"\""
+    }
+    return "\"".concat(key).concat("\"")
+}
+
+task(printEnvs) {
+
+    def packageType = project.extensions.findByName('packageType')
+    packageType = packageType == null ? "jar" : packageType
+    if (packageType.equals("aar")) {
+        println('Yes : aar')
+    }
+
+    println('System envs region are :')
+    println(quotWrapper(System.getenv("REGION")))
+}
+
