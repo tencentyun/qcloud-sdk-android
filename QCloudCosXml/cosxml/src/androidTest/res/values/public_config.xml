@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">app name</string>
+    <string name="file_name">file.txt</string>
+    <string name="copy_file_name">copy_file.txt</string>
+    <string name="post_file_name">post_file.txt</string>
+    <string name="multi_file_name">multi_tce.txt</string>
+    <string name="bucket_name">rickenwang</string>
+
+</resources>
