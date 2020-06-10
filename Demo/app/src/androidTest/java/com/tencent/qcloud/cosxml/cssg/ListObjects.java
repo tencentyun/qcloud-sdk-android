@@ -95,7 +95,7 @@ public class ListObjects {
      * 获取下一页对象列表
      */
     private void getBucketNextPage() {
-        //.cssg-snippet-body-start:[get-bucket]
+        //.cssg-snippet-body-start:[get-bucket-next-page]
         String bucketName = "examplebucket-1250000000"; //格式：BucketName-APPID;
 
 
