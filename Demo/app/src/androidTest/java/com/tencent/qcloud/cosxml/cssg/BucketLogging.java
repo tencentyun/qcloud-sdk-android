@@ -62,7 +62,7 @@ public class BucketLogging {
         String targetBucket = "examplebucket-1250000000"; //格式：BucketName-APPID
         PutBucketLoggingRequest putBucketLoggingRequest = new PutBucketLoggingRequest(srcBucket);
         putBucketLoggingRequest.setTargetBucket(targetBucket);
-        putBucketLoggingRequest.setTargetPrefix("objectkey");
+        putBucketLoggingRequest.setTargetPrefix("objectPrefix");
 
         cosXmlService.putBucketLoggingAsync(putBucketLoggingRequest, new CosXmlResultListener() {
             @Override
