@@ -264,7 +264,7 @@ public class BucketInventory {
         putBucketInventoryRequest.setInventoryId("inventoryId");
         putBucketInventoryRequest.setIncludedObjectVersions(InventoryConfiguration.IncludedObjectVersions.ALL);
         putBucketInventoryRequest.setScheduleFrequency(InventoryConfiguration.SCHEDULE_FREQUENCY_DAILY);
-        putBucketInventoryRequest.setDestination("CSV", "1278687956", "bucket-cssg-android-temp-1253653367", "ap-guangzhou", "objectkey");
+        putBucketInventoryRequest.setDestination("CSV", "1278687956", "bucket-cssg-android-temp-1253653367", "ap-guangzhou", "objectPrefix");
 
         // 使用同步方法
         try {
