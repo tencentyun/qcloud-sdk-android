@@ -64,7 +64,7 @@ public class BucketInventory {
         putBucketInventoryRequest.setIncludedObjectVersions(InventoryConfiguration.IncludedObjectVersions.ALL);
         putBucketInventoryRequest.setScheduleFrequency(InventoryConfiguration.SCHEDULE_FREQUENCY_DAILY);
         putBucketInventoryRequest.setDestination("CSV", "1000000000",
-                "examplebucket-1250000000", "region", "objectkey");
+                "examplebucket-1250000000", "region", "objectPrefix");
 
         cosXmlService.putBucketInventoryAsync(putBucketInventoryRequest, new CosXmlResultListener() {
             @Override
