@@ -256,7 +256,7 @@ public class BucketLogging {
         String bucket = "bucket-cssg-android-temp-1253653367"; //格式：BucketName-APPID
         PutBucketLoggingRequest putBucketLoggingRequest = new PutBucketLoggingRequest(bucket);
         putBucketLoggingRequest.setTargetBucket(bucket);
-        putBucketLoggingRequest.setTargetPrefix("objectPrefix");
+        putBucketLoggingRequest.setTargetPrefix("objectkey");
 
         // 使用同步方法
         try {
