@@ -26,7 +26,7 @@ import java.util.*;
 import java.nio.charset.Charset;
 import java.io.*;
 
-public class CopyObject {
+public class ObjectTagging {
 
     private Context context;
     private CosXmlService cosXmlService;
@@ -54,42 +54,32 @@ public class CopyObject {
     }
 
     /**
-     * 简单拷贝对象
+     * 设置对象标签
      */
-    private void copyObject() {
-        //.cssg-snippet-body-start:[copy-object]
-        String sourceAppid = "1250000000"; //账号 APPID
-        String sourceBucket = "sourcebucket-1250000000"; //源对象所在的存储桶
-        String sourceRegion = "COS_REGION"; //源对象的存储桶所在的地域
-        String sourceCosPath = "sourceObject"; //源对象键
-        // 构造源对象属性
-        CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
-                sourceAppid, sourceBucket, sourceRegion, sourceCosPath);
-
-        String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
-        String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即对象键
-        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(bucket, cosPath,
-                copySourceStruct);
-
-        cosXmlService.copyObjectAsync(copyObjectRequest, new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                CopyObjectResult copyObjectResult = (CopyObjectResult) result;
-            }
-        
-            @Override
-            public void onFail(CosXmlRequest cosXmlRequest, CosXmlClientException clientException,
-                               CosXmlServiceException serviceException) {
-                if (clientException != null) {
-                    clientException.printStackTrace();
-                } else {
-                    serviceException.printStackTrace();
-                }
-            }
-        });
+    private void putObjectTagging() {
+        //.cssg-snippet-body-start:[put-object-tagging]
         
         //.cssg-snippet-body-end
     }
+
+    /**
+     * 获取对象标签
+     */
+    private void getObjectTagging() {
+        //.cssg-snippet-body-start:[get-object-tagging]
+        
+        //.cssg-snippet-body-end
+    }
+
+    /**
+     * 删除对象标签
+     */
+    private void deleteObjectTagging() {
+        //.cssg-snippet-body-start:[delete-object-tagging]
+        
+        //.cssg-snippet-body-end
+    }
+
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -104,11 +94,17 @@ public class CopyObject {
     }
 
     @Test
-    public void testCopyObject() {
+    public void testObjectTagging() {
         initService();
 
-        // 简单拷贝对象
-        copyObject();
+        // 设置对象标签
+        putObjectTagging();
+        
+        // 获取对象标签
+        getObjectTagging();
+        
+        // 删除对象标签
+        deleteObjectTagging();
         
     }
 }

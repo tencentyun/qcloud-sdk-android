@@ -61,8 +61,10 @@ public class BucketLogging {
         String srcBucket = "examplebucket-1250000000"; //格式：BucketName-APPID
         String targetBucket = "examplebucket-1250000000"; //格式：BucketName-APPID
         PutBucketLoggingRequest putBucketLoggingRequest = new PutBucketLoggingRequest(srcBucket);
+        // 目标存储桶
         putBucketLoggingRequest.setTargetBucket(targetBucket);
-        putBucketLoggingRequest.setTargetPrefix("objectPrefix");
+        // 日志存储的指定位置
+        putBucketLoggingRequest.setTargetPrefix("dir/");
 
         cosXmlService.putBucketLoggingAsync(putBucketLoggingRequest, new CosXmlResultListener() {
             @Override

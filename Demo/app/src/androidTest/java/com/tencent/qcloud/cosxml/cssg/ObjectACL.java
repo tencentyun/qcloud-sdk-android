@@ -62,7 +62,7 @@ public class ObjectACL {
         String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即对象键。
         PutObjectACLRequest putObjectACLRequest = new PutObjectACLRequest(bucket, cosPath);
         
-        // 设置 bucket 访问权限
+        // 设置 对象 访问权限
         putObjectACLRequest.setXCOSACL("public-read");
         
         // 赋予被授权者读的权限

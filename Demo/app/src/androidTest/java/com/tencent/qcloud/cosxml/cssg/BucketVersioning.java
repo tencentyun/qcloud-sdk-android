@@ -60,7 +60,8 @@ public class BucketVersioning {
         //.cssg-snippet-body-start:[put-bucket-versioning]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
         PutBucketVersioningRequest putBucketVersioningRequest = new PutBucketVersioningRequest(bucket);
-        putBucketVersioningRequest.setEnableVersion(true); //true：开启版本控制; false：暂停版本控制
+        //true：开启版本控制; false：暂停版本控制
+        putBucketVersioningRequest.setEnableVersion(true);
 
         cosXmlService.putBucketVersionAsync(putBucketVersioningRequest, new CosXmlResultListener() {
             @Override
@@ -81,6 +82,7 @@ public class BucketVersioning {
         
         //.cssg-snippet-body-end
     }
+
     /**
      * 获取存储桶多版本状态
      */

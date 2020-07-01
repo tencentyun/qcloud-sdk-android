@@ -60,38 +60,34 @@ public class BucketCORS {
         //.cssg-snippet-body-start:[put-bucket-cors]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
         PutBucketCORSRequest putBucketCORSRequest = new PutBucketCORSRequest(bucket);
-        
-        /**
-         * CORSConfiguration.cORSRule: 跨域访问配置信息
-         * corsRule.id： 配置规则的 ID
-         * corsRule.allowedOrigin: 允许的访问来源，支持通配符 *，格式为：协议://域名[:端口]，例如：http://www.qq.com
-         * corsRule.maxAgeSeconds: 设置 OPTIONS 请求得到结果的有效期
-         * corsRule.allowedMethod: 允许的 HTTP 操作，例如：GET，PUT，HEAD，POST，DELETE
-         * corsRule.allowedHeader：在发送 OPTIONS 请求时告知服务端，接下来的请求可以使用哪些自定义的 HTTP 请求头部，支持通配符 *
-         * corsRule.exposeHeader： 设置浏览器可以接收到的来自服务端的自定义头部信息
-         */
+
         CORSConfiguration.CORSRule corsRule = new CORSConfiguration.CORSRule();
-        
+
+        // 配置规则的 ID
         corsRule.id = "123";
+        // 允许的访问来源，支持通配符 *，格式为：协议://域名[:端口]
         corsRule.allowedOrigin = "https://cloud.tencent.com";
+        // 设置 OPTIONS 请求得到结果的有效期
         corsRule.maxAgeSeconds = 5000;
         
         List<String> methods = new LinkedList<>();
         methods.add("PUT");
         methods.add("POST");
         methods.add("GET");
+        // 允许的 HTTP 操作，例如：GET，PUT，HEAD，POST，DELETE
         corsRule.allowedMethod = methods;
         
         List<String> headers = new LinkedList<>();
         headers.add("host");
         headers.add("content-type");
+        // 在发送 OPTIONS 请求时告知服务端，接下来的请求可以使用哪些自定义的 HTTP 请求头部，支持通配符 *
         corsRule.allowedHeader = headers;
         
         List<String> exposeHeaders = new LinkedList<>();
         exposeHeaders.add("x-cos-meta-1");
+        // 设置浏览器可以接收到的来自服务端的自定义头部信息
         corsRule.exposeHeader = exposeHeaders;
-        
-        // 设置跨域访问配置信息
+
         putBucketCORSRequest.addCORSRule(corsRule);
 
         cosXmlService.putBucketCORSAsync(putBucketCORSRequest, new CosXmlResultListener() {
@@ -112,6 +108,7 @@ public class BucketCORS {
         });
         //.cssg-snippet-body-end
     }
+
     /**
      * 获取存储桶跨域规则
      */
@@ -137,6 +134,7 @@ public class BucketCORS {
         });
         //.cssg-snippet-body-end
     }
+
     /**
      * 实现 Object 跨域访问配置的预请求
      */
@@ -166,6 +164,7 @@ public class BucketCORS {
         });
         //.cssg-snippet-body-end
     }
+
     /**
      * 删除存储桶跨域规则
      */
