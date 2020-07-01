@@ -63,7 +63,7 @@ public class ListObjects {
         final GetBucketRequest getBucketRequest = new GetBucketRequest(bucketName);
         
         // 前缀匹配，用来规定返回的对象前缀地址
-        getBucketRequest.setPrefix("prefix");
+        getBucketRequest.setPrefix("dir/");
         
         // 单次返回最大的条目数量，默认1000
         getBucketRequest.setMaxKeys(100);
@@ -102,7 +102,7 @@ public class ListObjects {
         GetBucketRequest getBucketRequest = new GetBucketRequest(bucketName);
 
         // 前缀匹配，用来规定返回的对象前缀地址
-        getBucketRequest.setPrefix("prefix");
+        getBucketRequest.setPrefix("dir/");
 
         // prevPageResult 是上一页的返回结果，这里的 nextMarker 表示下一页的起始位置
         String nextMarker = prevPageResult.listBucket.nextMarker;
@@ -142,7 +142,7 @@ public class ListObjects {
         GetBucketRequest getBucketRequest = new GetBucketRequest(bucketName);
 
         // 前缀匹配，用来规定返回的对象前缀地址
-        getBucketRequest.setPrefix("prefix");
+        getBucketRequest.setPrefix("dir/");
 
         // 单次返回最大的条目数量，默认1000
         getBucketRequest.setMaxKeys(100);

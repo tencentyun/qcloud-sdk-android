@@ -59,16 +59,23 @@ public class BucketReplication {
     private void putBucketReplication() {
         //.cssg-snippet-body-start:[put-bucket-replication]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
+        PutBucketReplicationRequest putBucketReplicationRequest = new PutBucketReplicationRequest(bucket);
+
         String ownerUin = "100000000001"; //发起者身份标示：OwnerUin
         String subUin = "100000000001"; //发起者身份标示：SubUin
-        PutBucketReplicationRequest putBucketReplicationRequest = new PutBucketReplicationRequest(bucket);
         putBucketReplicationRequest.setReplicationConfigurationWithRole(ownerUin, subUin);
+
         PutBucketReplicationRequest.RuleStruct ruleStruct = new PutBucketReplicationRequest.RuleStruct();
-        ruleStruct.id = "replication_01"; //用来标注具体 Rule 的名称
-        ruleStruct.isEnable = true; //标识 Rule 是否生效。true：生效；false：不生效
-        ruleStruct.region = "ap-beijing"; //目标存储桶地域信息
-        ruleStruct.bucket = "destinationbucket-1250000000";  // 目标存储桶
-        ruleStruct.prefix = "34"; //前缀匹配策略，
+        //用来标注具体 Rule 的名称
+        ruleStruct.id = "replication_01";
+        //标识 Rule 是否生效。true：生效；false：不生效
+        ruleStruct.isEnable = true;
+        //目标存储桶地域信息
+        ruleStruct.region = "ap-beijing";
+        // 目标存储桶
+        ruleStruct.bucket = "destinationbucket-1250000000";
+        //前缀匹配策略
+        ruleStruct.prefix = "dir/";
         putBucketReplicationRequest.setReplicationConfigurationWithRule(ruleStruct);
 
         cosXmlService.putBucketReplicationAsync(putBucketReplicationRequest, new CosXmlResultListener() {
@@ -91,6 +98,7 @@ public class BucketReplication {
         
         //.cssg-snippet-body-end
     }
+
     /**
      * 获取存储桶跨地域复制规则
      */
@@ -119,6 +127,7 @@ public class BucketReplication {
         
         //.cssg-snippet-body-end
     }
+
     /**
      * 删除存储桶跨地域复制规则
      */

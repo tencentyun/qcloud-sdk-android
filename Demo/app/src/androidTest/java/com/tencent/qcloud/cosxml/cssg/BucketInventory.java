@@ -60,11 +60,16 @@ public class BucketInventory {
         //.cssg-snippet-body-start:[put-bucket-inventory]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
         PutBucketInventoryRequest putBucketInventoryRequest = new PutBucketInventoryRequest(bucket);
-        putBucketInventoryRequest.setInventoryId("inventoryId");
+        putBucketInventoryRequest.setInventoryId("exampleInventoryId");
+        // 是否在清单中包含对象版本：
+        // 如果设置为 All，清单中将会包含所有对象版本，并在清单中增加 VersionId，IsLatest，DeleteMarker 这几个字段
+        // 如果设置为 Current，则清单中不包含对象版本信息
         putBucketInventoryRequest.setIncludedObjectVersions(InventoryConfiguration.IncludedObjectVersions.ALL);
+        // 备份频率
         putBucketInventoryRequest.setScheduleFrequency(InventoryConfiguration.SCHEDULE_FREQUENCY_DAILY);
+        // 备份路径
         putBucketInventoryRequest.setDestination("CSV", "1000000000",
-                "examplebucket-1250000000", "region", "objectPrefix");
+                "examplebucket-1250000000", "region", "dir/");
 
         cosXmlService.putBucketInventoryAsync(putBucketInventoryRequest, new CosXmlResultListener() {
             @Override
@@ -85,6 +90,7 @@ public class BucketInventory {
         
         //.cssg-snippet-body-end
     }
+
     /**
      * 获取存储桶清单任务
      */
@@ -92,7 +98,7 @@ public class BucketInventory {
         //.cssg-snippet-body-start:[get-bucket-inventory]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
         GetBucketInventoryRequest getBucketInventoryRequest = new GetBucketInventoryRequest(bucket);
-        getBucketInventoryRequest.setInventoryId("inventoryId");
+        getBucketInventoryRequest.setInventoryId("exampleInventoryId");
 
         cosXmlService.getBucketInventoryAsync(getBucketInventoryRequest, new CosXmlResultListener() {
             @Override
@@ -113,6 +119,7 @@ public class BucketInventory {
         
         //.cssg-snippet-body-end
     }
+
     /**
      * 删除存储桶清单任务
      */
@@ -120,7 +127,7 @@ public class BucketInventory {
         //.cssg-snippet-body-start:[delete-bucket-inventory]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
         DeleteBucketInventoryRequest deleteBucketInventoryRequest = new DeleteBucketInventoryRequest(bucket);
-        deleteBucketInventoryRequest.setInventoryId("inventoryId");
+        deleteBucketInventoryRequest.setInventoryId("exampleInventoryId");
 
         cosXmlService.deleteBucketInventoryAsync(deleteBucketInventoryRequest, new CosXmlResultListener() {
             @Override

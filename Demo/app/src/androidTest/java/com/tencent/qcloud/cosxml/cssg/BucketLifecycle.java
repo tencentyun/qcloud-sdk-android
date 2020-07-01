@@ -65,13 +65,17 @@ public class BucketLifecycle {
         LifecycleConfiguration.Rule rule = new LifecycleConfiguration.Rule();
         rule.id = "Lifecycle ID";
         LifecycleConfiguration.Filter filter = new LifecycleConfiguration.Filter();
-        filter.prefix = "prefix/";
+        // 指定规则所适用的前缀
+        filter.prefix = "dir/";
         rule.filter = filter;
+        // 指明规则是否启用
         rule.status = "Enabled";
+        // 指明规则对应的动作在对象最后的修改日期过后多少天操作
         LifecycleConfiguration.Transition transition = new LifecycleConfiguration.Transition();
         transition.days = 100;
         transition.storageClass = COSStorageClass.STANDARD.getStorageClass();
         rule.transition = transition;
+
         putBucketLifecycleRequest.setRuleList(rule);
 
         cosXmlService.putBucketLifecycleAsync(putBucketLifecycleRequest, new CosXmlResultListener() {

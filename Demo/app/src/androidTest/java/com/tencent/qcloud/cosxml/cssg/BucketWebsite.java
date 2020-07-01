@@ -60,6 +60,7 @@ public class BucketWebsite {
         //.cssg-snippet-body-start:[put-bucket-website]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
         PutBucketWebsiteRequest putBucketWebsiteRequest = new PutBucketWebsiteRequest(bucket);
+        // 设置 index 文档
         putBucketWebsiteRequest.setIndexDocument("index.html");
 
         cosXmlService.putBucketWebsiteAsync(putBucketWebsiteRequest, new CosXmlResultListener() {
@@ -81,6 +82,7 @@ public class BucketWebsite {
         
         //.cssg-snippet-body-end
     }
+
     /**
      * 获取存储桶静态网站
      */
@@ -106,6 +108,7 @@ public class BucketWebsite {
         });
         //.cssg-snippet-body-end
     }
+
     /**
      * 删除存储桶静态网站
      */

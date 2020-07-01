@@ -60,6 +60,7 @@ public class BucketTagging {
         //.cssg-snippet-body-start:[put-bucket-tagging]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
         PutBucketTaggingRequest putBucketTaggingRequest = new PutBucketTaggingRequest(bucket);
+        // 设置标签
         putBucketTaggingRequest.addTag("key", "value");
         putBucketTaggingRequest.addTag("hello", "world");
 
@@ -82,6 +83,7 @@ public class BucketTagging {
         
         //.cssg-snippet-body-end
     }
+
     /**
      * 获取存储桶标签
      */
@@ -109,6 +111,7 @@ public class BucketTagging {
         
         //.cssg-snippet-body-end
     }
+
     /**
      * 删除存储桶标签
      */

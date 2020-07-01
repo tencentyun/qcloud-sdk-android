@@ -88,9 +88,11 @@ public class DeleteObject {
         //.cssg-snippet-body-start:[delete-multi-object]
         String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
         List<String> objectList = new ArrayList<String>();
-        objectList.add("exampleobject"); //对象在存储桶中的位置标识符，即对象键
+        objectList.add("exampleobject1"); //对象在存储桶中的位置标识符，即对象键
+        objectList.add("exampleobject2"); //对象在存储桶中的位置标识符，即对象键
         
         DeleteMultiObjectRequest deleteMultiObjectRequest = new DeleteMultiObjectRequest(bucket, objectList);
+        // Quiet 模式只返回报错的 Object 信息。否则返回每个 Object 的删除结果。
         deleteMultiObjectRequest.setQuiet(true);
         cosXmlService.deleteMultiObjectAsync(deleteMultiObjectRequest, new CosXmlResultListener() {
             @Override

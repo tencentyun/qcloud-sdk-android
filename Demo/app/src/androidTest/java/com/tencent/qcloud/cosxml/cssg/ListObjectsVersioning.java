@@ -64,7 +64,7 @@ public class ListObjectsVersioning {
                 new GetBucketObjectVersionsRequest(bucketName);
 
         // 前缀匹配，用来规定返回的对象前缀地址
-        getBucketRequest.setPrefix("prefix");
+        getBucketRequest.setPrefix("dir/");
 
         // 单次返回最大的条目数量，默认1000
         getBucketRequest.setMaxKeys(100);
@@ -103,7 +103,7 @@ public class ListObjectsVersioning {
                 new GetBucketObjectVersionsRequest(bucketName);
 
         // 前缀匹配，用来规定返回的对象前缀地址
-        getBucketRequest.setPrefix("prefix");
+        getBucketRequest.setPrefix("dir/");
 
         // 单次返回最大的条目数量，默认1000
         getBucketRequest.setMaxKeys(100);
