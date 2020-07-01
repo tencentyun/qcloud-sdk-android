@@ -54,10 +54,10 @@ public class TransferObject {
     }
 
     /**
-     * 高级接口上传对象
+     * 高级接口上传本地文件
      */
-    private void transferUploadObject() {
-        //.cssg-snippet-body-start:[transfer-upload-object]
+    private void transferUploadFile() {
+        //.cssg-snippet-body-start:[transfer-upload-file]
         // 初始化 TransferConfig，这里使用默认配置，如果需要定制，请参考 SDK 接口文档
         TransferConfig transferConfig = new TransferConfig.Builder().build();
         // 初始化 TransferManager
@@ -71,18 +71,6 @@ public class TransferObject {
 
         // 上传文件
         COSXMLUploadTask cosxmlUploadTask = transferManager.upload(bucket, cosPath, srcPath, uploadId);
-        
-        /**
-         * 上传字节数组，则可调用 TransferManager 的 upload(string, string, byte[]) 方法实现;
-         * byte[] bytes = "this is a test".getBytes(Charset.forName("UTF-8"));
-         * cosxmlUploadTask = transferManager.upload(bucket, cosPath, bytes);
-         */
-        
-        /**
-         * 上传字节流，则可调用 TransferManager 的 upload(String, String, InputStream) 方法实现；
-         * InputStream inputStream = new ByteArrayInputStream("this is a test".getBytes(Charset.forName("UTF-8")));
-         * cosxmlUploadTask = transferManager.upload(bucket, cosPath, inputStream);
-         */
         
         //设置上传进度回调
         cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
@@ -128,11 +116,87 @@ public class TransferObject {
         //恢复上传
         // cosxmlUploadTask.resume();
     }
+
+    /**
+     * 高级接口上传字节数组
+     */
+    private void transferUploadBytes() {
+        //.cssg-snippet-body-start:[transfer-upload-bytes]
+        TransferConfig transferConfig = new TransferConfig.Builder().build();
+        TransferManager transferManager = new TransferManager(cosXmlService, transferConfig);
+
+        String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
+        String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即称对象键
+
+        // 上传字节数组
+        byte[] bytes = "this is a test".getBytes(Charset.forName("UTF-8"));
+        COSXMLUploadTask cosxmlUploadTask = transferManager.upload(bucket, cosPath, bytes);
+
+        //设置返回结果回调
+        cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                COSXMLUploadTask.COSXMLUploadTaskResult cOSXMLUploadTaskResult =
+                        (COSXMLUploadTask.COSXMLUploadTaskResult) result;
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException,
+                               CosXmlServiceException serviceException) {
+                if (clientException != null) {
+                    clientException.printStackTrace();
+                } else {
+                    serviceException.printStackTrace();
+                }
+            }
+        });
+        //.cssg-snippet-body-end
+    }
+
+    /**
+     * 高级接口流式上传
+     */
+    private void transferUploadStream() {
+        //.cssg-snippet-body-start:[transfer-upload-stream]
+        TransferConfig transferConfig = new TransferConfig.Builder().build();
+        TransferManager transferManager = new TransferManager(cosXmlService, transferConfig);
+
+        String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
+        String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即称对象键
+
+        // 流式上传
+        InputStream inputStream = new ByteArrayInputStream("this is a test".getBytes(Charset.forName("UTF-8")));
+        COSXMLUploadTask cosxmlUploadTask = transferManager.upload(bucket, cosPath, inputStream);
+
+        //设置返回结果回调
+        cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                COSXMLUploadTask.COSXMLUploadTaskResult cOSXMLUploadTaskResult =
+                        (COSXMLUploadTask.COSXMLUploadTaskResult) result;
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException,
+                               CosXmlServiceException serviceException) {
+                if (clientException != null) {
+                    clientException.printStackTrace();
+                } else {
+                    serviceException.printStackTrace();
+                }
+            }
+        });
+        //.cssg-snippet-body-end
+    }
+
     /**
      * 高级接口下载对象
      */
     private void transferDownloadObject() {
         //.cssg-snippet-body-start:[transfer-download-object]
+        // 高级下载接口支持断点续传，所以会在下载前先发起 HEAD 请求获取文件信息。
+        // 如果您使用的是临时密钥或者使用子账号访问，请确保权限列表中包含 HeadObject 的权限。
+
         // 初始化 TransferConfig，这里使用默认配置，如果需要定制，请参考 SDK 接口文档
         TransferConfig transferConfig = new TransferConfig.Builder().build();
         //初始化 TransferManager
@@ -190,6 +254,7 @@ public class TransferObject {
         //恢复下载
         // cosxmlDownloadTask.resume();
     }
+
     /**
      * 高级接口拷贝对象
      */
@@ -271,7 +336,9 @@ public class TransferObject {
         initService();
 
         // 高级接口上传对象
-        transferUploadObject();
+        transferUploadFile();
+        transferUploadBytes();
+        transferUploadStream();
         
         // 高级接口下载对象
         transferDownloadObject();
