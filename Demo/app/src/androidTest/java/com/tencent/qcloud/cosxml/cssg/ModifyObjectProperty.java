@@ -26,7 +26,7 @@ import java.util.*;
 import java.nio.charset.Charset;
 import java.io.*;
 
-public class CopyObject {
+public class ModifyObjectProperty {
 
     private Context context;
     private CosXmlService cosXmlService;
@@ -54,61 +54,22 @@ public class CopyObject {
     }
 
     /**
-     * 复制对象时保留对象属性
+     * 修改对象元数据
      */
-    private void copyObject() {
-        //.cssg-snippet-body-start:[copy-object]
-        String sourceAppid = "1250000000"; //账号 APPID
-        String sourceBucket = "sourcebucket-1250000000"; //源对象所在的存储桶
-        String sourceRegion = "COS_REGION"; //源对象的存储桶所在的地域
-        String sourceCosPath = "sourceObject"; //源对象键
+    private void modifyObjectProperty() {
+        //.cssg-snippet-body-start:[modify-object-metadata]
+        String appId = "1250000000"; //账号 APPID
+        String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
+        String region = "COS_REGION"; //源对象的存储桶所在的地域
+        String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即对象键
         // 构造源对象属性
         CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
-                sourceAppid, sourceBucket, sourceRegion, sourceCosPath);
+                appId, bucket, region, cosPath);
 
-        String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
-        String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即对象键
-        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(bucket, cosPath,
-                copySourceStruct);
-
-        cosXmlService.copyObjectAsync(copyObjectRequest, new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                CopyObjectResult copyObjectResult = (CopyObjectResult) result;
-            }
-        
-            @Override
-            public void onFail(CosXmlRequest cosXmlRequest, CosXmlClientException clientException,
-                               CosXmlServiceException serviceException) {
-                if (clientException != null) {
-                    clientException.printStackTrace();
-                } else {
-                    serviceException.printStackTrace();
-                }
-            }
-        });
-        
-        //.cssg-snippet-body-end
-    }
-
-    /**
-     * 复制对象时替换对象属性
-     */
-    private void copyObjectReplaced() {
-        //.cssg-snippet-body-start:[copy-object-replaced]
-        String sourceAppid = "1250000000"; //账号 APPID
-        String sourceBucket = "sourcebucket-1250000000"; //源对象所在的存储桶
-        String sourceRegion = "COS_REGION"; //源对象的存储桶所在的地域
-        String sourceCosPath = "sourceObject"; //源对象键
-        // 构造源对象属性
-        CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
-                sourceAppid, sourceBucket, sourceRegion, sourceCosPath);
-
-        String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
-        String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即对象键
         CopyObjectRequest copyObjectRequest = new CopyObjectRequest(bucket, cosPath,
                 copySourceStruct);
         copyObjectRequest.setCopyMetaDataDirective(MetaDataDirective.REPLACED);
+        // 修改元数据为新值
         copyObjectRequest.setXCOSMeta("x-cos-metadata-oldKey", "newValue");
 
         cosXmlService.copyObjectAsync(copyObjectRequest, new CosXmlResultListener() {
@@ -130,6 +91,44 @@ public class CopyObject {
         //.cssg-snippet-body-end
     }
 
+    /**
+     * 修改对象存储类型
+     */
+    private void modifyObjectStorageClass() throws CosXmlClientException {
+        //.cssg-snippet-body-start:[modify-object-storage-class]
+        String appId = "1250000000"; //账号 APPID
+        String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
+        String region = "COS_REGION"; //源对象的存储桶所在的地域
+        String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即对象键
+        // 构造源对象属性
+        CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
+                appId, bucket, region, cosPath);
+
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(bucket, cosPath,
+                copySourceStruct);
+        // 修改为低频存储
+        copyObjectRequest.setCosStorageClass(COSStorageClass.STANDARD_IA);
+
+        cosXmlService.copyObjectAsync(copyObjectRequest, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                CopyObjectResult copyObjectResult = (CopyObjectResult) result;
+            }
+
+            @Override
+            public void onFail(CosXmlRequest cosXmlRequest, CosXmlClientException clientException,
+                               CosXmlServiceException serviceException) {
+                if (clientException != null) {
+                    clientException.printStackTrace();
+                } else {
+                    serviceException.printStackTrace();
+                }
+            }
+        });
+        //.cssg-snippet-body-end
+    }
+
+
     private void initService() {
         String region = "ap-guangzhou";
         
@@ -143,14 +142,14 @@ public class CopyObject {
     }
 
     @Test
-    public void testCopyObject() {
+    public void testModifyObjectProperty() throws CosXmlClientException{
         initService();
 
-        // 复制对象时保留对象属性
-        copyObject();
-
-        // 复制对象时替换对象属性
-        copyObjectReplaced();
+        // 修改对象元数据
+        modifyObjectProperty();
+        
+        // 修改对象存储类型
+        modifyObjectStorageClass();
         
     }
 }
