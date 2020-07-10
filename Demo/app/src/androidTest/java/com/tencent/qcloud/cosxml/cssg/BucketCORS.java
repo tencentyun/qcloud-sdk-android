@@ -32,24 +32,25 @@ public class BucketCORS {
     private CosXmlService cosXmlService;
 
     public static class ServerCredentialProvider extends BasicLifecycleCredentialProvider {
-        
+
         @Override
         protected QCloudLifecycleCredentials fetchNewCredentials() throws QCloudClientException {
-    
+
             // 首先从您的临时密钥服务器获取包含了密钥信息的响应
-    
+
             // 然后解析响应，获取密钥信息
             String tmpSecretId = "临时密钥 secretId";
             String tmpSecretKey = "临时密钥 secretKey";
             String sessionToken = "临时密钥 TOKEN";
             long expiredTime = 1556183496L;//临时密钥有效截止时间戳，单位是秒
-    
+
             /*强烈建议返回服务器时间作为签名的开始时间，用来避免由于用户手机本地时间偏差过大导致的签名不正确 */
             // 返回服务器时间作为签名的起始时间
             long startTime = 1556182000L; //临时密钥有效起始时间，单位是秒
-    
+
             // 最后返回临时密钥信息对象
-            return new SessionQCloudCredentials(tmpSecretId, tmpSecretKey, sessionToken, startTime, expiredTime);
+            return new SessionQCloudCredentials(tmpSecretId, tmpSecretKey,
+                    sessionToken, startTime, expiredTime);
         }
     }
 
@@ -69,20 +70,20 @@ public class BucketCORS {
         corsRule.allowedOrigin = "https://cloud.tencent.com";
         // 设置 OPTIONS 请求得到结果的有效期
         corsRule.maxAgeSeconds = 5000;
-        
+
         List<String> methods = new LinkedList<>();
         methods.add("PUT");
         methods.add("POST");
         methods.add("GET");
         // 允许的 HTTP 操作，例如：GET，PUT，HEAD，POST，DELETE
         corsRule.allowedMethod = methods;
-        
+
         List<String> headers = new LinkedList<>();
         headers.add("host");
         headers.add("content-type");
         // 在发送 OPTIONS 请求时告知服务端，接下来的请求可以使用哪些自定义的 HTTP 请求头部，支持通配符 *
         corsRule.allowedHeader = headers;
-        
+
         List<String> exposeHeaders = new LinkedList<>();
         exposeHeaders.add("x-cos-meta-1");
         // 设置浏览器可以接收到的来自服务端的自定义头部信息
@@ -90,14 +91,16 @@ public class BucketCORS {
 
         putBucketCORSRequest.addCORSRule(corsRule);
 
-        cosXmlService.putBucketCORSAsync(putBucketCORSRequest, new CosXmlResultListener() {
+        cosXmlService.putBucketCORSAsync(putBucketCORSRequest,
+                new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 PutBucketCORSResult putBucketCORSResult = (PutBucketCORSResult) result;
             }
-        
+
             @Override
-            public void onFail(CosXmlRequest cosXmlRequest, CosXmlClientException clientException,
+            public void onFail(CosXmlRequest cosXmlRequest,
+                               CosXmlClientException clientException,
                                CosXmlServiceException serviceException) {
                 if (clientException != null) {
                     clientException.printStackTrace();
@@ -116,14 +119,16 @@ public class BucketCORS {
         //.cssg-snippet-body-start:[get-bucket-cors]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
         GetBucketCORSRequest getBucketCORSRequest = new GetBucketCORSRequest(bucket);
-        cosXmlService.getBucketCORSAsync(getBucketCORSRequest, new CosXmlResultListener() {
+        cosXmlService.getBucketCORSAsync(getBucketCORSRequest,
+                new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 GetBucketCORSResult getBucketCORSResult = (GetBucketCORSResult) result;
             }
-        
+
             @Override
-            public void onFail(CosXmlRequest cosXmlRequest, CosXmlClientException clientException,
+            public void onFail(CosXmlRequest cosXmlRequest,
+                               CosXmlClientException clientException,
                                CosXmlServiceException serviceException) {
                 if (clientException != null) {
                     clientException.printStackTrace();
@@ -144,16 +149,19 @@ public class BucketCORS {
         String cosPath = "exampleobject"; //对象位于存储桶中的位置标识符，即对象键
         String origin = "https://cloud.tencent.com";
         String accessMethod = "PUT";
-        OptionObjectRequest optionObjectRequest = new OptionObjectRequest(bucket, cosPath, origin,
+        OptionObjectRequest optionObjectRequest = new OptionObjectRequest(bucket,
+                cosPath, origin,
                 accessMethod);
-        cosXmlService.optionObjectAsync(optionObjectRequest, new CosXmlResultListener() {
+        cosXmlService.optionObjectAsync(optionObjectRequest,
+                new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest cosXmlRequest, CosXmlResult result) {
                 OptionObjectResult optionObjectResult = (OptionObjectResult) result;
             }
-        
+
             @Override
-            public void onFail(CosXmlRequest cosXmlRequest, CosXmlClientException clientException,
+            public void onFail(CosXmlRequest cosXmlRequest,
+                               CosXmlClientException clientException,
                                CosXmlServiceException serviceException) {
                 if (clientException != null) {
                     clientException.printStackTrace();
@@ -171,15 +179,19 @@ public class BucketCORS {
     private void deleteBucketCors() {
         //.cssg-snippet-body-start:[delete-bucket-cors]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
-        DeleteBucketCORSRequest deleteBucketCORSRequest = new DeleteBucketCORSRequest(bucket);
-        cosXmlService.deleteBucketCORSAsync(deleteBucketCORSRequest, new CosXmlResultListener() {
+        DeleteBucketCORSRequest deleteBucketCORSRequest =
+                new DeleteBucketCORSRequest(bucket);
+        cosXmlService.deleteBucketCORSAsync(deleteBucketCORSRequest,
+                new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                DeleteBucketCORSResult deleteBucketCORSResult = (DeleteBucketCORSResult) result;
+                DeleteBucketCORSResult deleteBucketCORSResult =
+                        (DeleteBucketCORSResult) result;
             }
-        
+
             @Override
-            public void onFail(CosXmlRequest cosXmlRequest, CosXmlClientException clientException,
+            public void onFail(CosXmlRequest cosXmlRequest,
+                               CosXmlClientException clientException,
                                CosXmlServiceException serviceException) {
                 if (clientException != null) {
                     clientException.printStackTrace();
@@ -193,14 +205,15 @@ public class BucketCORS {
 
     private void initService() {
         String region = "ap-guangzhou";
-        
+
         CosXmlServiceConfig serviceConfig = new CosXmlServiceConfig.Builder()
                 .setRegion(region)
                 .isHttps(true) // 使用 HTTPS 请求，默认为 HTTP 请求
                 .builder();
-        
+
         context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        cosXmlService = new CosXmlService(context, serviceConfig, new ServerCredentialProvider());
+        cosXmlService = new CosXmlService(context, serviceConfig,
+                new ServerCredentialProvider());
     }
 
     @Test
@@ -209,15 +222,15 @@ public class BucketCORS {
 
         // 设置存储桶跨域规则
         putBucketCors();
-        
+
         // 获取存储桶跨域规则
         getBucketCors();
-        
+
         // 实现 Object 跨域访问配置的预请求
         optionObject();
-        
+
         // 删除存储桶跨域规则
         deleteBucketCors();
-        
+
     }
 }
