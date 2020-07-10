@@ -32,24 +32,25 @@ public class BucketTagging {
     private CosXmlService cosXmlService;
 
     public static class ServerCredentialProvider extends BasicLifecycleCredentialProvider {
-        
+
         @Override
         protected QCloudLifecycleCredentials fetchNewCredentials() throws QCloudClientException {
-    
+
             // 首先从您的临时密钥服务器获取包含了密钥信息的响应
-    
+
             // 然后解析响应，获取密钥信息
             String tmpSecretId = "临时密钥 secretId";
             String tmpSecretKey = "临时密钥 secretKey";
             String sessionToken = "临时密钥 TOKEN";
             long expiredTime = 1556183496L;//临时密钥有效截止时间戳，单位是秒
-    
+
             /*强烈建议返回服务器时间作为签名的开始时间，用来避免由于用户手机本地时间偏差过大导致的签名不正确 */
             // 返回服务器时间作为签名的起始时间
             long startTime = 1556182000L; //临时密钥有效起始时间，单位是秒
-    
+
             // 最后返回临时密钥信息对象
-            return new SessionQCloudCredentials(tmpSecretId, tmpSecretKey, sessionToken, startTime, expiredTime);
+            return new SessionQCloudCredentials(tmpSecretId, tmpSecretKey,
+                    sessionToken, startTime, expiredTime);
         }
     }
 
@@ -59,20 +60,24 @@ public class BucketTagging {
     private void putBucketTagging() {
         //.cssg-snippet-body-start:[put-bucket-tagging]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
-        PutBucketTaggingRequest putBucketTaggingRequest = new PutBucketTaggingRequest(bucket);
+        PutBucketTaggingRequest putBucketTaggingRequest =
+                new PutBucketTaggingRequest(bucket);
         // 设置标签
         putBucketTaggingRequest.addTag("key", "value");
         putBucketTaggingRequest.addTag("hello", "world");
 
-        cosXmlService.putBucketTaggingAsync(putBucketTaggingRequest, new CosXmlResultListener() {
+        cosXmlService.putBucketTaggingAsync(putBucketTaggingRequest,
+                new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                PutBucketTaggingResult putBucketTaggingResult = (PutBucketTaggingResult) result;
+                PutBucketTaggingResult putBucketTaggingResult =
+                        (PutBucketTaggingResult) result;
             }
-        
+
             @Override
-            public void onFail(CosXmlRequest cosXmlRequest, CosXmlClientException clientException,
-                               CosXmlServiceException serviceException)  {
+            public void onFail(CosXmlRequest cosXmlRequest,
+                               CosXmlClientException clientException,
+                               CosXmlServiceException serviceException) {
                 if (clientException != null) {
                     clientException.printStackTrace();
                 } else {
@@ -80,7 +85,7 @@ public class BucketTagging {
                 }
             }
         });
-        
+
         //.cssg-snippet-body-end
     }
 
@@ -90,17 +95,21 @@ public class BucketTagging {
     private void getBucketTagging() {
         //.cssg-snippet-body-start:[get-bucket-tagging]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
-        GetBucketTaggingRequest getBucketTaggingRequest = new GetBucketTaggingRequest(bucket);
+        GetBucketTaggingRequest getBucketTaggingRequest =
+                new GetBucketTaggingRequest(bucket);
 
-        cosXmlService.getBucketTaggingAsync(getBucketTaggingRequest, new CosXmlResultListener() {
+        cosXmlService.getBucketTaggingAsync(getBucketTaggingRequest,
+                new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                GetBucketTaggingResult getBucketTaggingResult = (GetBucketTaggingResult)result;
+                GetBucketTaggingResult getBucketTaggingResult =
+                        (GetBucketTaggingResult) result;
             }
-        
+
             @Override
-            public void onFail(CosXmlRequest cosXmlRequest, CosXmlClientException clientException,
-                               CosXmlServiceException serviceException)  {
+            public void onFail(CosXmlRequest cosXmlRequest,
+                               CosXmlClientException clientException,
+                               CosXmlServiceException serviceException) {
                 if (clientException != null) {
                     clientException.printStackTrace();
                 } else {
@@ -108,7 +117,7 @@ public class BucketTagging {
                 }
             }
         });
-        
+
         //.cssg-snippet-body-end
     }
 
@@ -118,39 +127,44 @@ public class BucketTagging {
     private void deleteBucketTagging() {
         //.cssg-snippet-body-start:[delete-bucket-tagging]
         String bucket = "examplebucket-1250000000"; //格式：BucketName-APPID
-        DeleteBucketTaggingRequest deleteBucketTaggingRequest = new DeleteBucketTaggingRequest(bucket);
+        DeleteBucketTaggingRequest deleteBucketTaggingRequest =
+                new DeleteBucketTaggingRequest(bucket);
 
-        cosXmlService.deleteBucketTaggingAsync(deleteBucketTaggingRequest, new CosXmlResultListener() {
+        cosXmlService.deleteBucketTaggingAsync(deleteBucketTaggingRequest,
+                new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                DeleteBucketTaggingResult getBucketTaggingResult = (DeleteBucketTaggingResult)result;
+                DeleteBucketTaggingResult getBucketTaggingResult =
+                        (DeleteBucketTaggingResult) result;
             }
-        
+
             @Override
-            public void onFail(CosXmlRequest cosXmlRequest, CosXmlClientException clientException,
-                               CosXmlServiceException serviceException)  {
+            public void onFail(CosXmlRequest cosXmlRequest,
+                               CosXmlClientException clientException,
+                               CosXmlServiceException serviceException) {
                 if (clientException != null) {
                     clientException.printStackTrace();
                 } else {
                     serviceException.printStackTrace();
                 }
-        
+
             }
         });
-        
+
         //.cssg-snippet-body-end
     }
 
     private void initService() {
         String region = "ap-guangzhou";
-        
+
         CosXmlServiceConfig serviceConfig = new CosXmlServiceConfig.Builder()
                 .setRegion(region)
                 .isHttps(true) // 使用 HTTPS 请求，默认为 HTTP 请求
                 .builder();
-        
+
         context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        cosXmlService = new CosXmlService(context, serviceConfig, new ServerCredentialProvider());
+        cosXmlService = new CosXmlService(context, serviceConfig,
+                new ServerCredentialProvider());
     }
 
     @Test
@@ -159,12 +173,12 @@ public class BucketTagging {
 
         // 设置存储桶标签
         putBucketTagging();
-        
+
         // 获取存储桶标签
         getBucketTagging();
-        
+
         // 删除存储桶标签
         deleteBucketTagging();
-        
+
     }
 }
