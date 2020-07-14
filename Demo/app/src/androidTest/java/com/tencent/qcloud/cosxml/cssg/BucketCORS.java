@@ -81,7 +81,7 @@ public class BucketCORS {
         List<String> headers = new LinkedList<>();
         headers.add("host");
         headers.add("content-type");
-        // 在发送 OPTIONS 请求时告知服务端，接下来的请求可以使用哪些自定义的 HTTP 请求头部，支持通配符 *
+        // 在发送 OPTIONS 请求时告知服务端，接下来的请求可以使用的 HTTP 请求头部，支持通配符 *
         corsRule.allowedHeader = headers;
 
         List<String> exposeHeaders = new LinkedList<>();
