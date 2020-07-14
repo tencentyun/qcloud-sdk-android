@@ -19,7 +19,9 @@ allprojects {
         mavenLocal()
         google()
         jcenter()
-        
+        maven {
+            url "https://dl.bintray.com/tencentqcloudterminal/maven"
+        }
     }
 }
 
