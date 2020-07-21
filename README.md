@@ -112,7 +112,7 @@ String bucket = "examplebucket-1250000000";
 String cosPath = "exampleobject";
 String srcPath = new File(context.getCacheDir(), "exampleobject")
         .toString(); //本地文件的绝对路径
-String cdnSign = "1595307148-ktug8jzwijjs5khj-0-953d8ac2a84af18e"; // cdn 鉴权参数，这里已 typeA 为例
+String cdnSign = "1595307148-ktug8jzwijjs5khj-0-953d8ac2a84af18e"; // cdn 鉴权参数，这里以 typeA 为例
 
 GetObjectRequest getObjectRequest = new GetObjectRequest(bucket, cosPath, srcPath);
 
