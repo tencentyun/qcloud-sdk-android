@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.qcloud.core.auth;
 
 import com.tencent.qcloud.core.common.QCloudClientException;
@@ -7,12 +29,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * <p>
- *     限定范围的密钥提供者，临时密钥的权限被限定在操作和资源上，只有同样Scope的密钥才会被重用，您也需要根据场景自行缓存密钥
- * </p>
- * Created by wjielai on 2018/12/18.
- * Copyright 2010-2017 Tencent Cloud. All Rights Reserved.
+ * 指定范围限制的证书提供器
  */
+
 public abstract class BasicScopeLimitCredentialProvider implements ScopeLimitCredentialProvider {
 
     private static final int MAX_CACHE_CREDENTIAL_SIZE = 100;

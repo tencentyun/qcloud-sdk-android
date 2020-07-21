@@ -1,8 +1,30 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.upload;
 
 import android.net.Uri;
 import android.os.Environment;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import android.util.Log;
 
 import com.tencent.cos.xml.core.TestConfigs;
@@ -19,7 +41,6 @@ import com.tencent.cos.xml.transfer.COSXMLUploadTask;
 import com.tencent.cos.xml.transfer.TransferManager;
 import com.tencent.cos.xml.transfer.TransferState;
 import com.tencent.cos.xml.transfer.TransferStateListener;
-import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -380,7 +401,7 @@ public class UploadManagerTest {
         uploadAndPause(TestConfigs.TERMINAL_PERSIST_BUCKET, localPath, localPath, uploadId, 2 * 1024 * 1024, 100 * 1024 * 1024);
     }
 
-    private void uploadAndPause(String bucket, String cosPath, String localFile, StringHolder uploadId, long sliceSize, long pauseSize) {
+    private void uploadAndPause(String bucket, String cosPath, String localFile, final StringHolder uploadId, long sliceSize, final long pauseSize) {
 
         TransferManager transferManager = newDefaultTerminalTransferManager(sliceSize);
         final COSXMLUploadTask uploadTask = transferManager.upload(bucket, cosPath, localFile, uploadId.getValue());

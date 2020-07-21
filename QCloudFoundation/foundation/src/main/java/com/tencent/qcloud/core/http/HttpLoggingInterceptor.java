@@ -1,17 +1,23 @@
 /*
- * Copyright (C) 2015 Square, Inc.
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
  */
 package com.tencent.qcloud.core.http;
 
@@ -47,7 +53,7 @@ import static okhttp3.internal.platform.Platform.INFO;
  * <p>
  * fork from okhttp3.logging.
  */
-final class HttpLoggingInterceptor implements Interceptor {
+final public class HttpLoggingInterceptor implements Interceptor {
     private static final Charset UTF8 = Charset.forName("UTF-8");
 
     public enum Level {
@@ -168,71 +174,10 @@ final class HttpLoggingInterceptor implements Interceptor {
             return chain.proceed(request);
         }
 
-        boolean logBody = level == Level.BODY;
-        boolean logHeaders = logBody || level == Level.HEADERS;
-
-        RequestBody requestBody = request.body();
-        boolean hasRequestBody = requestBody != null;
-
         Connection connection = chain.connection();
         Protocol protocol = connection != null ? connection.protocol() : Protocol.HTTP_1_1;
-        String requestStartMessage = "--> " + request.method() + ' ' + request.url() + ' ' + protocol;
-        if (!logHeaders && hasRequestBody) {
-            requestStartMessage += " (" + requestBody.contentLength() + "-byte body)";
-        }
-        logger.logRequest(requestStartMessage);
 
-        if (logHeaders) {
-            if (hasRequestBody) {
-                // Request body headers are only present when installed as a network interceptor. Force
-                // them to be included (when available) so there values are known.
-                if (requestBody.contentType() != null) {
-                    logger.logRequest("Content-Type: " + requestBody.contentType());
-                }
-                if (requestBody.contentLength() != -1) {
-                    logger.logRequest("Content-Length: " + requestBody.contentLength());
-                }
-            }
-
-            Headers headers = request.headers();
-            for (int i = 0, count = headers.size(); i < count; i++) {
-                String name = headers.name(i);
-                // Skip headers from the request body as they are explicitly logged above.
-                if (!"Content-Type".equalsIgnoreCase(name) && !"Content-Length".equalsIgnoreCase(name)) {
-                    logger.logRequest(name + ": " + headers.value(i));
-                }
-            }
-
-            if (!logBody || !hasRequestBody || isContentLengthTooLarge(requestBody.contentLength())) {
-                logger.logRequest("--> END " + request.method());
-            } else if (bodyEncoded(request.headers())) {
-                logger.logRequest("--> END " + request.method() + " (encoded body omitted)");
-            } else {
-                try {
-                    Buffer buffer = new Buffer();
-                    requestBody.writeTo(buffer);
-
-                    Charset charset = UTF8;
-                    MediaType contentType = requestBody.contentType();
-                    if (contentType != null) {
-                        charset = contentType.charset(UTF8);
-                    }
-
-                    logger.logRequest("");
-                    if (isPlaintext(buffer)) {
-                        logger.logRequest(buffer.readString(charset));
-                        logger.logRequest("--> END " + request.method()
-                                + " (" + requestBody.contentLength() + "-byte body)");
-                    } else {
-                        logger.logRequest("--> END " + request.method() + " (binary "
-                                + requestBody.contentLength() + "-byte body omitted)");
-                    }
-                } catch (Exception e) {
-                    // we don't want logger crash.
-                    logger.logRequest("--> END " + request.method());
-                }
-            }
-        }
+        OkHttpLoggingUtils.logRequest(request, protocol, level, logger);
 
         long startNs = System.nanoTime();
         Response response;
@@ -244,97 +189,11 @@ final class HttpLoggingInterceptor implements Interceptor {
         }
         long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
 
-        ResponseBody responseBody = response.body();
-        boolean hasResponseBody = responseBody != null;
-
-        long contentLength = hasResponseBody ? responseBody.contentLength() : 0;
-        String bodySize = contentLength != -1 ? contentLength + "-byte" : "unknown-length";
-        logger.logResponse(response, "<-- " + response.code() + ' ' + response.message() + ' '
-                + response.request().url() + " (" + tookMs + "ms" + (!logHeaders ? ", "
-                + bodySize + " body" : "") + ')');
-
-        if (logHeaders) {
-            Headers headers = response.headers();
-            for (int i = 0, count = headers.size(); i < count; i++) {
-                logger.logResponse(response, headers.name(i) + ": " + headers.value(i));
-            }
-
-            if (!logBody || !HttpHeaders.hasBody(response) || !hasResponseBody || isContentLengthTooLarge(contentLength)) {
-                logger.logResponse(response, "<-- END HTTP");
-            } else if (bodyEncoded(response.headers())) {
-                logger.logResponse(response, "<-- END HTTP (encoded body omitted)");
-            } else {
-                try {
-                    BufferedSource source = responseBody.source();
-                    source.request(Long.MAX_VALUE); // Buffer the entire body.
-                    Buffer buffer = source.buffer();
-
-                    Charset charset = UTF8;
-                    MediaType contentType = responseBody.contentType();
-                    if (contentType != null) {
-                        try {
-                            charset = contentType.charset(UTF8);
-                        } catch (UnsupportedCharsetException e) {
-                            logger.logResponse(response, "");
-                            logger.logResponse(response, "Couldn't decode the response body; charset is likely malformed.");
-                            logger.logResponse(response, "<-- END HTTP");
-
-                            return response;
-                        }
-                    }
-
-                    if (!isPlaintext(buffer)) {
-                        logger.logResponse(response, "");
-                        logger.logResponse(response, "<-- END HTTP (binary " + buffer.size() + "-byte body omitted)");
-                        return response;
-                    }
-
-                    if (contentLength != 0) {
-                        logger.logResponse(response, "");
-                        logger.logResponse(response, buffer.clone().readString(charset));
-                    }
-
-                    logger.logResponse(response, "<-- END HTTP (" + buffer.size() + "-byte body)");
-                } catch (Exception e) {
-                    // we don't want logger crash.
-                    logger.logResponse(response, "<-- END HTTP");
-                }
-            }
-        }
+        OkHttpLoggingUtils.logResponse(response, tookMs, level, logger);
 
         return response;
     }
 
-    private boolean isContentLengthTooLarge(long contentLength) {
-        return contentLength > 2 * 1024;
-    }
 
-    /**
-     * Returns true if the body in question probably contains human readable text. Uses a small sample
-     * of code points to detect unicode control characters commonly used in binary file signatures.
-     */
-    private static boolean isPlaintext(Buffer buffer) {
-        try {
-            Buffer prefix = new Buffer();
-            long byteCount = buffer.size() < 64 ? buffer.size() : 64;
-            buffer.copyTo(prefix, 0, byteCount);
-            for (int i = 0; i < 16; i++) {
-                if (prefix.exhausted()) {
-                    break;
-                }
-                int codePoint = prefix.readUtf8CodePoint();
-                if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {
-                    return false;
-                }
-            }
-            return true;
-        } catch (EOFException e) {
-            return false; // Truncated UTF-8 sequence.
-        }
-    }
 
-    private boolean bodyEncoded(Headers headers) {
-        String contentEncoding = headers.get("Content-Encoding");
-        return contentEncoding != null && !contentEncoding.equalsIgnoreCase("identity");
-    }
 }

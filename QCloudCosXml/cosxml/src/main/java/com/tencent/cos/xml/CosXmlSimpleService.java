@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml;
 
 import android.content.Context;
@@ -69,14 +91,24 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 
 /**
- * Created by bradyxiao on 2017/11/30.
+ * 提供用于访问Tencent Cloud COS服务的简单服务类。[全面服务类请使用 {@link CosXmlService}]
+ * <br>
+ * 在调用 COS 服务前，都必须初始化一个该类的对象。
+ * <p>
+ * 更详细的使用方式请参考：<a href="https://cloud.tencent.com/document/product/436/12159#.E5.88.9D.E5.A7.8B.E5.8C.96.E6.9C.8D.E5.8A.A1">入门文档</a>
  */
-
 public class CosXmlSimpleService implements SimpleCosXml {
 
     protected static volatile QCloudHttpClient client;
@@ -93,7 +125,7 @@ public class CosXmlSimpleService implements SimpleCosXml {
      *
      * @param context                  Application 上下文{@link android.app.Application}
      * @param configuration            cos android SDK 服务配置{@link CosXmlServiceConfig}
-     * @param qCloudCredentialProvider cos android SDK 签名提供者 {@link QCloudCredentialProvider}
+     * @param qCloudCredentialProvider cos android SDK 证书提供者 {@link QCloudCredentialProvider}
      */
     public CosXmlSimpleService(Context context, CosXmlServiceConfig configuration,
                                QCloudCredentialProvider qCloudCredentialProvider) {
@@ -119,28 +151,6 @@ public class CosXmlSimpleService implements SimpleCosXml {
         if (client == null) {
             synchronized (CosXmlSimpleService.class) {
                 if (client == null) {
-//                    QCloudHttpClient.Builder builder = new QCloudHttpClient.Builder()
-//                            .setConnectionTimeout(configuration.getConnectionTimeout())
-//                            .setSocketTimeout(configuration.getSocketTimeout());
-//                    RetryStrategy retryStrategy = configuration.getRetryStrategy();
-//                    if (retryStrategy != null) {
-//                        builder.setRetryStrategy(retryStrategy);
-//                    }
-//                    QCloudHttpRetryHandler qCloudHttpRetryHandler = configuration.getQCloudHttpRetryHandler();
-//                    if(qCloudHttpRetryHandler != null){
-//                        builder.setQCloudHttpRetryHandler(qCloudHttpRetryHandler);
-//                    }
-//                    builder.enableDebugLog(configuration.isDebuggable());
-//                    if(configuration.isEnableQuic()){
-//                        try {
-//                            Class clazz = Class.forName("com.tencent.qcloud.quic.QuicClientImpl");
-//                            builder.setNetworkClient((NetworkClient) clazz.newInstance());
-//                        } catch (Exception e) {
-//                            throw new IllegalStateException(e.getMessage(), e);
-//                        }
-//                    }else {
-//                        builder.setNetworkClient(new OkHttpClientImpl());
-//                    }
                     QCloudHttpClient.Builder builder = new QCloudHttpClient.Builder();
                     init(builder, configuration);
                     client = builder.build();
@@ -214,7 +224,7 @@ public class CosXmlSimpleService implements SimpleCosXml {
      *
      * @param domainName dns 解析的 domain
      * @param ipList 解析的 ip 地址列表
-     * @throws CosXmlClientException
+     * @throws CosXmlClientException 客户端异常
      */
     public void addCustomerDNS(String domainName, String[] ipList) throws CosXmlClientException {
         try {
@@ -239,8 +249,16 @@ public class CosXmlSimpleService implements SimpleCosXml {
         this.requestDomain = domain;
     }
 
+    protected String getRequestHostHeader(CosXmlRequest request) {
+
+        String bucket = config.getBucket(request.getBucket());
+        String region = !TextUtils.isEmpty(request.getRegion()) ? request.getRegion() :
+                config.getRegion();
+        return String.format(Locale.ENGLISH, "%s.cos.%s.myqcloud.com", bucket, region);
+    }
 
     protected String getRequestHost(CosXmlRequest request, boolean isHeader) throws CosXmlClientException {
+
 
         if (!TextUtils.isEmpty(requestDomain)) {
             return requestDomain;
@@ -249,8 +267,11 @@ public class CosXmlSimpleService implements SimpleCosXml {
         return request.getRequestHost(config);
     }
 
+
     /**
      * 构建请求
+     *
+     * Header 数据优先级：request、config、默认
      */
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> QCloudHttpRequest buildHttpRequest
     (T1 cosXmlRequest, T2 cosXmlResult) throws CosXmlClientException {
@@ -260,32 +281,45 @@ public class CosXmlSimpleService implements SimpleCosXml {
                 .userAgent(config.getUserAgent())
                 .tag(tag);
 
-        httpRequestBuilder.addHeaders(config.getCommonHeaders());
+        // 添加 header
+        Set<String> headerKeys = new HashSet<>();
+        headerKeys.addAll(config.getCommonHeaders().keySet()); // 添加公共 header
+        headerKeys.addAll(cosXmlRequest.getRequestHeaders().keySet()); // 添加 request header
+
+        Map<String, List<String>> extraHeaders = new HashMap<>();
+        for (String headerKey : headerKeys) {
+            List<String> headerValue = cosXmlRequest.getRequestHeaders().get(headerKey);
+            if (headerValue == null) {
+                headerValue = config.getCommonHeaders().get(headerKey);
+            }
+            if (headerValue != null) {
+                extraHeaders.put(headerKey, headerValue);
+            }
+        }
+
+        if (!extraHeaders.containsKey(HttpConstants.Header.HOST)) {
+            List<String> hostHeaderValue = new LinkedList<>();
+            hostHeaderValue.add(getRequestHostHeader(cosXmlRequest));
+            extraHeaders.put(HttpConstants.Header.HOST, hostHeaderValue);
+        }
+
         httpRequestBuilder.addNoSignHeaderKeys(config.getNoSignHeaders());
+        httpRequestBuilder.addNoSignHeaderKeys(cosXmlRequest.getNoSignHeaders());
         //add url
         String requestURL = cosXmlRequest.getRequestURL();
         if (requestURL != null) {
             try {
                 httpRequestBuilder.url(new URL(requestURL));
-                String hostHeader = getRequestHost(cosXmlRequest, true);
-                // httpRequestBuilder.addHeader(HttpConstants.Header.HOST, hostHeader);
-                if (!isRequestHasHeader(cosXmlRequest, HttpConstants.Header.HOST)) {
-                    httpRequestBuilder.addHeader(HttpConstants.Header.HOST, hostHeader);
-                }
             } catch (MalformedURLException e) {
                 throw new CosXmlClientException(ClientErrorCode.BAD_REQUEST.getCode(), e);
             }
         } else {
             cosXmlRequest.checkParameters();
             String host = getRequestHost(cosXmlRequest, false);
-            String hostHeader = getRequestHost(cosXmlRequest, true);
             httpRequestBuilder.scheme(config.getProtocol())
                     .host(host)
                     .path(cosXmlRequest.getPath(config));
                     // .addHeader(HttpConstants.Header.HOST, hostHeader);
-            if (!isRequestHasHeader(cosXmlRequest, HttpConstants.Header.HOST)) {
-                httpRequestBuilder.addHeader(HttpConstants.Header.HOST, hostHeader);
-            }
             if(config.getPort() != -1)httpRequestBuilder.port(config.getPort());
             httpRequestBuilder.query(cosXmlRequest.getQueryString());
         }
@@ -296,7 +330,7 @@ public class CosXmlSimpleService implements SimpleCosXml {
         }
 
         //add headers
-        httpRequestBuilder.addHeaders(cosXmlRequest.getRequestHeaders());
+        httpRequestBuilder.addHeaders(extraHeaders);
         if (cosXmlRequest.isNeedMD5()) {
             httpRequestBuilder.contentMD5();
         }
@@ -442,8 +476,6 @@ public class CosXmlSimpleService implements SimpleCosXml {
         }
     }
 
-
-
     /**
      * 获取请求的访问地址
      *
@@ -477,13 +509,19 @@ public class CosXmlSimpleService implements SimpleCosXml {
      *
      * @param cosXmlRequest 请求
      * @return String 签名 URL
-     * @throws CosXmlClientException cos client exception
+     * @throws CosXmlClientException 客户端异常
      */
     public String getPresignedURL(CosXmlRequest cosXmlRequest) throws CosXmlClientException {
         try {
             //step1: obtain sign, contain token if it exist.
             QCloudLifecycleCredentials qCloudLifecycleCredentials = (QCloudLifecycleCredentials) credentialProvider.getCredentials();
             QCloudSigner signer = SignerFactory.getSigner(signerType);
+
+            // 不强制签名如下 Header
+            cosXmlRequest.addNoSignHeader(HttpConstants.Header.DATE);
+            cosXmlRequest.addNoSignHeader(HttpConstants.Header.HOST);
+            cosXmlRequest.addNoSignHeader(HttpConstants.Header.USER_AGENT);
+
             QCloudHttpRequest request = buildHttpRequest(cosXmlRequest, null);
             signer.sign(request, qCloudLifecycleCredentials);
             String sign = request.header(HttpConstants.Header.AUTHORIZATION);
@@ -505,157 +543,9 @@ public class CosXmlSimpleService implements SimpleCosXml {
 
     /**
      * <p>
-     * 初始化分块上传的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#initMultipartUpload(InitMultipartUploadRequest request)}
-     * </p>
-     */
-    @Override
-    public InitMultipartUploadResult initMultipartUpload(InitMultipartUploadRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new InitMultipartUploadResult());
-    }
-
-    /**
-     * <p>
-     * 初始化分块上传的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#initMultipartUploadAsync(InitMultipartUploadRequest request, CosXmlResultListener cosXmlResultListener)}
-     * </p>
-     */
-    @Override
-    public void initMultipartUploadAsync(InitMultipartUploadRequest request, CosXmlResultListener cosXmlResultListener) {
-        schedule(request, new InitMultipartUploadResult(), cosXmlResultListener);
-    }
-
-    /**
-     * <p>
-     * 查询特定分块上传中的已上传的块的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#listParts(ListPartsRequest request)}
-     * </p>
-     */
-    @Override
-    public ListPartsResult listParts(ListPartsRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new ListPartsResult());
-    }
-
-    /**
-     * <p>
-     * 查询特定分块上传中的已上传的块的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#listPartsAsync(ListPartsRequest request, CosXmlResultListener cosXmlResultListener)}
-     * </p>
-     */
-    @Override
-    public void listPartsAsync(ListPartsRequest request, CosXmlResultListener cosXmlResultListener) {
-        schedule(request, new ListPartsResult(), cosXmlResultListener);
-    }
-
-    /**
-     * <p>
-     * 上传一个对象某个分片块的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#uploadPart(UploadPartRequest request)}
-     * </p>
-     */
-    @Override
-    public UploadPartResult uploadPart(UploadPartRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new UploadPartResult());
-    }
-
-    /**
-     * <p>
-     * 上传一个对象某个分片块的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#uploadPartAsync(UploadPartRequest request, CosXmlResultListener cosXmlResultListener)}
-     * </p>
-     */
-    @Override
-    public void uploadPartAsync(UploadPartRequest request, CosXmlResultListener cosXmlResultListener) {
-        schedule(request, new UploadPartResult(), cosXmlResultListener);
-    }
-
-    /**
-     * <p>
-     * 舍弃一个分块上传且删除已上传的分片块的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#abortMultiUpload(AbortMultiUploadRequest request)}
-     * </p>
-     */
-    @Override
-    public AbortMultiUploadResult abortMultiUpload(AbortMultiUploadRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new AbortMultiUploadResult());
-    }
-
-    /**
-     * <p>
-     * 舍弃一个分块上传且删除已上传的分片块的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#abortMultiUploadAsync(AbortMultiUploadRequest request, CosXmlResultListener cosXmlResultListener)}
-     * </p>
-     */
-    @Override
-    public void abortMultiUploadAsync(AbortMultiUploadRequest request, CosXmlResultListener cosXmlResultListener) {
-        schedule(request, new AbortMultiUploadResult(), cosXmlResultListener);
-    }
-
-    /**
-     * <p>
-     * 完成整个分块上传的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#completeMultiUpload(CompleteMultiUploadRequest request)}
-     * </p>
-     */
-    @Override
-    public CompleteMultiUploadResult completeMultiUpload(CompleteMultiUploadRequest request) throws CosXmlClientException, CosXmlServiceException {
-        CompleteMultiUploadResult completeMultiUploadResult = new CompleteMultiUploadResult();
-        completeMultiUploadResult.accessUrl = getAccessUrl(request);
-        return execute(request, completeMultiUploadResult);
-    }
-
-    /**
-     * <p>
-     * 完成整个分块上传的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#completeMultiUploadAsync(CompleteMultiUploadRequest request, CosXmlResultListener cosXmlResultListener)}
-     * </p>
-     */
-    @Override
-    public void completeMultiUploadAsync(CompleteMultiUploadRequest request, CosXmlResultListener cosXmlResultListener) {
-        CompleteMultiUploadResult completeMultiUploadResult = new CompleteMultiUploadResult();
-        completeMultiUploadResult.accessUrl = getAccessUrl(request);
-        schedule(request, completeMultiUploadResult, cosXmlResultListener);
-    }
-
-    /**
-     * <p>
-     * 删除 COS 上单个对象的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#deleteObject(DeleteObjectRequest request)}
-     * </p>
-     */
-    @Override
-    public DeleteObjectResult deleteObject(DeleteObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new DeleteObjectResult());
-    }
-
-    /**
-     * <p>
-     * 删除 COS 上单个对象的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#deleteObjectAsync(DeleteObjectRequest request, CosXmlResultListener cosXmlResultListener)}
-     * </p>
-     */
-    @Override
-    public void deleteObjectAsync(DeleteObjectRequest request, CosXmlResultListener cosXmlResultListener) {
-        schedule(request, new DeleteObjectResult(), cosXmlResultListener);
-    }
-
-    /**
-     * <p>
      * 获取 COS 对象的同步方法.&nbsp;
      * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#getObject(GetObjectRequest request)}
+     * 详细介绍，请查看:{@link  SimpleCosXml#getObject(GetObjectRequest)}
      * </p>
      */
     @Override
@@ -667,64 +557,12 @@ public class CosXmlSimpleService implements SimpleCosXml {
      * <p>
      * 获取 COS 对象的异步方法.&nbsp;
      * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#getObjectAsync(GetObjectRequest request, CosXmlResultListener cosXmlResultListener)}
+     * 详细介绍，请查看:{@link  SimpleCosXml#getObjectAsync(GetObjectRequest, CosXmlResultListener)}
      * </p>
      */
     @Override
     public void getObjectAsync(GetObjectRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetObjectResult(), cosXmlResultListener);
-    }
-
-    /**
-     * <p>
-     * 简单上传的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#putObject(PutObjectRequest request)}
-     * </p>
-     */
-    @Override
-    public PutObjectResult putObject(PutObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
-        PutObjectResult putObjectResult = new PutObjectResult();
-        putObjectResult.accessUrl = getAccessUrl(request);
-        return execute(request, putObjectResult);
-    }
-
-    /**
-     * <p>
-     * 简单上传的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#putObjectAsync(PutObjectRequest request, CosXmlResultListener cosXmlResultListener)}
-     * </p>
-     */
-    @Override
-    public void putObjectAsync(PutObjectRequest request, CosXmlResultListener cosXmlResultListener) {
-        PutObjectResult putObjectResult = new PutObjectResult();
-        putObjectResult.accessUrl = getAccessUrl(request);
-        schedule(request, putObjectResult, cosXmlResultListener);
-    }
-
-    /**
-     * <p>
-     * 以网页表单的形式上传文件
-     * <p>
-     * 详细介绍，请查看:{@link SimpleCosXml#postObject(PostObjectRequest)}
-     */
-    @Override
-    public PostObjectResult postObject(PostObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
-        PostObjectResult postObjectResult = new PostObjectResult();
-        return execute(request, postObjectResult);
-    }
-
-    /**
-     * <p>
-     * 以网页表单的形式上传文件
-     * <p>
-     * 详细介绍，请查看:{@link SimpleCosXml#postObjectAsync(PostObjectRequest, CosXmlResultListener)}
-     */
-    @Override
-    public void postObjectAsync(PostObjectRequest request, CosXmlResultListener cosXmlResultListener) {
-        PostObjectResult postObjectResult = new PostObjectResult();
-        schedule(request, postObjectResult, cosXmlResultListener);
     }
 
     /**
@@ -743,7 +581,83 @@ public class CosXmlSimpleService implements SimpleCosXml {
 
     /**
      * <p>
-     * 获取 COS 对象的元数据
+     * 简单上传的同步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#putObject(PutObjectRequest)}
+     * </p>
+     */
+    @Override
+    public PutObjectResult putObject(PutObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
+        PutObjectResult putObjectResult = new PutObjectResult();
+        putObjectResult.accessUrl = getAccessUrl(request);
+        return execute(request, putObjectResult);
+    }
+
+    /**
+     * <p>
+     * 简单上传的异步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#putObjectAsync(PutObjectRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void putObjectAsync(PutObjectRequest request, CosXmlResultListener cosXmlResultListener) {
+        PutObjectResult putObjectResult = new PutObjectResult();
+        putObjectResult.accessUrl = getAccessUrl(request);
+        schedule(request, putObjectResult, cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 以网页表单的形式上传文件的同步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link SimpleCosXml#postObject(PostObjectRequest)}
+     */
+    @Override
+    public PostObjectResult postObject(PostObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
+        PostObjectResult postObjectResult = new PostObjectResult();
+        return execute(request, postObjectResult);
+    }
+
+    /**
+     * <p>
+     * 以网页表单的形式上传文件的异步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link SimpleCosXml#postObjectAsync(PostObjectRequest, CosXmlResultListener)}
+     */
+    @Override
+    public void postObjectAsync(PostObjectRequest request, CosXmlResultListener cosXmlResultListener) {
+        PostObjectResult postObjectResult = new PostObjectResult();
+        schedule(request, postObjectResult, cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 删除 COS 上单个对象的同步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#deleteObject(DeleteObjectRequest)}
+     * </p>
+     */
+    @Override
+    public DeleteObjectResult deleteObject(DeleteObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DeleteObjectResult());
+    }
+
+    /**
+     * <p>
+     * 删除 COS 上单个对象的异步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#deleteObjectAsync(DeleteObjectRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void deleteObjectAsync(DeleteObjectRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DeleteObjectResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 获取 COS 对象的元数据的同步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link SimpleCosXml#headObject(HeadObjectRequest)}
      */
@@ -754,7 +668,7 @@ public class CosXmlSimpleService implements SimpleCosXml {
 
     /**
      * <p>
-     * 获取 COS 对象的元数据
+     * 获取 COS 对象的元数据的异步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link SimpleCosXml#headObjectAsync(HeadObjectRequest, CosXmlResultListener)}
      */
@@ -765,7 +679,7 @@ public class CosXmlSimpleService implements SimpleCosXml {
 
     /**
      * <p>
-     * 拷贝对象
+     * 拷贝对象的同步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link SimpleCosXml#copyObject(CopyObjectRequest)}
      */
@@ -776,7 +690,7 @@ public class CosXmlSimpleService implements SimpleCosXml {
 
     /**
      * <p>
-     * 拷贝对象
+     * 拷贝对象的异步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link SimpleCosXml#copyObjectAsync(CopyObjectRequest, CosXmlResultListener)}
      */
@@ -787,7 +701,7 @@ public class CosXmlSimpleService implements SimpleCosXml {
 
     /**
      * <p>
-     * 拷贝对象
+     * 拷贝对象的同步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link SimpleCosXml#copyObject(UploadPartCopyRequest)}
      */
@@ -798,13 +712,137 @@ public class CosXmlSimpleService implements SimpleCosXml {
 
     /**
      * <p>
-     * 拷贝对象
+     * 拷贝对象的异步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link SimpleCosXml#copyObjectAsync(UploadPartCopyRequest, CosXmlResultListener)}
      */
     @Override
     public void copyObjectAsync(UploadPartCopyRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new UploadPartCopyResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 初始化分块上传的同步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#initMultipartUpload(InitMultipartUploadRequest)}
+     * </p>
+     */
+    @Override
+    public InitMultipartUploadResult initMultipartUpload(InitMultipartUploadRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new InitMultipartUploadResult());
+    }
+
+    /**
+     * <p>
+     * 初始化分块上传的异步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#initMultipartUploadAsync(InitMultipartUploadRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void initMultipartUploadAsync(InitMultipartUploadRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new InitMultipartUploadResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 查询特定分块上传中的已上传的块的同步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#listParts(ListPartsRequest)}
+     * </p>
+     */
+    @Override
+    public ListPartsResult listParts(ListPartsRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new ListPartsResult());
+    }
+
+    /**
+     * <p>
+     * 查询特定分块上传中的已上传的块的异步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#listPartsAsync(ListPartsRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void listPartsAsync(ListPartsRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new ListPartsResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 上传一个对象某个分片块的同步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#uploadPart(UploadPartRequest)}
+     * </p>
+     */
+    @Override
+    public UploadPartResult uploadPart(UploadPartRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new UploadPartResult());
+    }
+
+    /**
+     * <p>
+     * 上传一个对象某个分片块的异步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#uploadPartAsync(UploadPartRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void uploadPartAsync(UploadPartRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new UploadPartResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 舍弃一个分块上传且删除已上传的分片块的同步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#abortMultiUpload(AbortMultiUploadRequest)}
+     * </p>
+     */
+    @Override
+    public AbortMultiUploadResult abortMultiUpload(AbortMultiUploadRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new AbortMultiUploadResult());
+    }
+
+    /**
+     * <p>
+     * 舍弃一个分块上传且删除已上传的分片块的异步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#abortMultiUploadAsync(AbortMultiUploadRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void abortMultiUploadAsync(AbortMultiUploadRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new AbortMultiUploadResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 完成整个分块上传的同步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#completeMultiUpload(CompleteMultiUploadRequest)}
+     * </p>
+     */
+    @Override
+    public CompleteMultiUploadResult completeMultiUpload(CompleteMultiUploadRequest request) throws CosXmlClientException, CosXmlServiceException {
+        CompleteMultiUploadResult completeMultiUploadResult = new CompleteMultiUploadResult();
+        completeMultiUploadResult.accessUrl = getAccessUrl(request);
+        return execute(request, completeMultiUploadResult);
+    }
+
+    /**
+     * <p>
+     * 完成整个分块上传的异步方法.&nbsp;
+     * <p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#completeMultiUploadAsync(CompleteMultiUploadRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void completeMultiUploadAsync(CompleteMultiUploadRequest request, CosXmlResultListener cosXmlResultListener) {
+        CompleteMultiUploadResult completeMultiUploadResult = new CompleteMultiUploadResult();
+        completeMultiUploadResult.accessUrl = getAccessUrl(request);
+        schedule(request, completeMultiUploadResult, cosXmlResultListener);
     }
 
     /**
@@ -844,10 +882,6 @@ public class CosXmlSimpleService implements SimpleCosXml {
         return config.getAppid();
     }
 
-    /**
-     * @return
-     * @see #getRegion(CosXmlRequest)
-     */
     @Deprecated
     public String getRegion() {
         return config.getRegion();
@@ -861,7 +895,6 @@ public class CosXmlSimpleService implements SimpleCosXml {
     public CosXmlServiceConfig getConfig() {
         return config;
     }
-
 
     /**
      * 获取 SDK 日志信息

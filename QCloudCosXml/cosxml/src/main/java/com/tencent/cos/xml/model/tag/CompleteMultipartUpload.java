@@ -1,20 +1,50 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.tag;
 
 import java.util.List;
 
 /**
- * Created by bradyxiao on 2017/11/24.
+ * 分块上传所有块的信息，用于校验块的准确性.
  */
-
 public class CompleteMultipartUpload {
 
+    /**
+     * 用来说明本次分块上传中每个块的信息
+     */
     public List<Part> parts;
 
     /**
-     * 本块编号 和 eTag值
+     * 上传分块的信息
      */
     public static class Part{
+        /**
+         * 块编号
+         */
         public int partNumber;
+        /**
+         * 使用 Upload Part 请求上传分块成功后返回的 ETag 响应头部的值
+         */
         public String eTag;
     }
 }

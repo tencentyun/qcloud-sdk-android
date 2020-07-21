@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.transfer;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
@@ -24,24 +46,28 @@ import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_INIT;
 import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_MANUAL;
 
 /**
- * Created by bradyxiao on 2018/8/23.
- * Copyright 2010-2018 Tencent Cloud. All Rights Reserved.
+ * 传输任务
  */
-
 public abstract class COSXMLTask {
 
+    /**
+     * 状态监听器
+     */
     protected static TaskStateMonitor monitor = TaskStateMonitor.getInstance();
 
-    /** CosXmlService */
+    /** Tencent Cloud COS服务 */
     protected CosXmlSimpleService cosXmlService;
-    /**
-     * cos 业务
-     */
+
+    /** 区域 */
     protected String region;
+    /** 存储桶 */
     protected String bucket;
+    /** 对象cos路径 */
     protected String cosPath;
-    /** 返回 cosXmlResult  or  throw Exception */
+
+    /** 返回结果 */
     protected CosXmlResult mResult;
+    /** 需要抛出的异常 */
     protected Exception mException;
 
     /** url query 属性 */
@@ -51,9 +77,11 @@ public abstract class COSXMLTask {
     protected Map<String, List<String>> headers;
     /** 是否需要计算 MD5 */
     protected boolean isNeedMd5 = true;
-    /** register some callback */
+    /** 进度回调监听器 */
     protected CosXmlProgressListener cosXmlProgressListener;
+    /** 结果回调监听器 */
     protected CosXmlResultListener cosXmlResultListener;
+    /** 状态监听器 */
     protected TransferStateListener transferStateListener;
 
     protected TransferStateListener internalStateListener;
@@ -71,19 +99,35 @@ public abstract class COSXMLTask {
     /** 获取 http metrics */
     protected OnGetHttpTaskMetrics onGetHttpTaskMetrics;
 
+    /**
+     * 设置COS服务
+     * @param cosXmlService COS服务类
+     */
     protected void setCosXmlService(CosXmlSimpleService cosXmlService){
         this.cosXmlService = cosXmlService;
     }
 
+    /**
+     * 设置进度回调监听器
+     * @param cosXmlProgressListener 进度回调监听器
+     */
     public void setCosXmlProgressListener(CosXmlProgressListener cosXmlProgressListener){
         this.cosXmlProgressListener = cosXmlProgressListener;
     }
 
+    /**
+     * 设置结果回调监听器
+     * @param cosXmlResultListener 结果回调监听器
+     */
     public void setCosXmlResultListener(CosXmlResultListener cosXmlResultListener){
         this.cosXmlResultListener = cosXmlResultListener;
         monitor.sendStateMessage(this, null, mException, mResult, MESSAGE_TASK_INIT);
     }
 
+    /**
+     * 设置状态监听器
+     * @param transferStateListener 状态监听器
+     */
     public void setTransferStateListener(TransferStateListener transferStateListener){
         this.transferStateListener = transferStateListener;
         monitor.sendStateMessage(this, taskState, null, null, MESSAGE_TASK_INIT);
@@ -133,7 +177,7 @@ public abstract class COSXMLTask {
     }
 
     /**
-     * 异步的，发送通知，置位
+     * 暂停任务，若是 {@link COSXMLUploadTask} 请调用 {@link COSXMLUploadTask#pauseSafely()} 接口来暂停。
      */
     public void pause() {
         if(IS_EXIT.get())return;
@@ -141,31 +185,58 @@ public abstract class COSXMLTask {
         monitor.sendStateMessage(this, TransferState.PAUSED,null,null, MESSAGE_TASK_MANUAL);
     }
 
+    /**
+     * 取消任务
+     */
     public void cancel() {
         if(IS_EXIT.get())return;
         else IS_EXIT.set(true);
         monitor.sendStateMessage(this, TransferState.CANCELED,new CosXmlClientException(ClientErrorCode.USER_CANCELLED.getCode(), "canceled by user"),null, MESSAGE_TASK_MANUAL);
     }
 
+    /**
+     * 恢复任务
+     */
     public void resume() {
         monitor.sendStateMessage(this, TransferState.RESUMED_WAITING,null,null, MESSAGE_TASK_MANUAL);
     }
 
+    /**
+     * 获取任务状态
+     * @return 任务状态
+     */
     public TransferState getTaskState() {
         return taskState;
     }
 
+    /**
+     * 获取返回结果
+     * @return 返回结果
+     */
     public CosXmlResult getResult(){
         return mResult;
     }
 
+    /**
+     * 获取需要抛出的异常
+     * @return 需要抛出的异常
+     */
     public Exception getException(){
         return mException;
     }
 
-    protected abstract CosXmlRequest buildCOSXMLTaskRequest(); // 构造COSXMLTask返回的Request
+    /**
+     * 构造COSXMLTask返回的Request
+     * @return COSXMLTask返回的Request
+     */
+    protected abstract CosXmlRequest buildCOSXMLTaskRequest();
 
-    protected abstract CosXmlResult buildCOSXMLTaskResult(CosXmlResult sourceResult); //构造COSXMLTask返回的Result
+    /**
+     * 构造COSXMLTask返回的Result
+     * @param sourceResult 原始CosXmlResult
+     * @return Task返回的Result
+     */
+    protected abstract CosXmlResult buildCOSXMLTaskResult(CosXmlResult sourceResult);
 
     private void dispatchStateChange(TransferState transferState) {
 
@@ -179,6 +250,7 @@ public abstract class COSXMLTask {
     }
 
     /**
+     * 更新状态
      * waiting: 准备状态, 任何状态都可以转为它, task 准备执行.
      * in_progress: 运行状态，只能由waiting转为它, task 执行中.
      * complete: 完成状态，只能由 in_progress状态转为它, task 执行完.

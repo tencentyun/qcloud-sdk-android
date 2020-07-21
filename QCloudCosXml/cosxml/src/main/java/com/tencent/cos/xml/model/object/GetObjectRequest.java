@@ -1,20 +1,41 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.object;
 
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.Range;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
-import com.tencent.cos.xml.model.CosXmlRequest;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
 import java.io.File;
 import java.util.Map;
 
 /**
- * <p>
- * 将 Bucket 中的文件（Object）下载至本地.
- * 关于下载接口的描述，请查看 <a href="https://cloud.tencent.com/document/product/436/7753">https://cloud.tencent.com/document/product/436/7753.</a><br>
- * </p>
+ * 下载 COS 对象的请求.
+ * @see com.tencent.cos.xml.SimpleCosXml#getObject(GetObjectRequest)
+ * @see com.tencent.cos.xml.SimpleCosXml#getObjectAsync(GetObjectRequest, CosXmlResultListener)
  */
 public class GetObjectRequest extends ObjectRequest implements TransferRequest {
 
@@ -34,7 +55,7 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
 
     /**
      * GetObjectRequest 构造函数
-     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 test-1253960454)
+     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 bucket-1250000000)
      * @param cosPath 远端路径，即存储到 COS 上的绝对路径
      * @param savePath 文件下载到本地文件夹的绝对路径
      */
@@ -45,7 +66,7 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
 
     /**
      * GetObjectRequest 构造函数
-     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 test-1253960454)
+     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 bucket-1250000000)
      * @param cosPath 远端路径，即存储到 COS 上的绝对路径
      * @param savePath 文件下载到本地文件夹的绝对路径
      * @param saveFileName 保存到本地的文件名
@@ -54,10 +75,6 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
         super(bucket, cosPath);
         this.savePath = savePath;
         this.saveFileName = saveFileName;
-    }
-
-    public GetObjectRequest(){
-        super(null, null);
     }
 
     public long getFileOffset() {
@@ -69,8 +86,6 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
             this.fileOffset = fileOffset;
         }
     }
-
-
 
     public void setVersionId(String versionId) {
         this.versionId = versionId;
@@ -310,9 +325,6 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
         return path;
     }
 
-    /**
-     * @see CosXmlRequest#getMethod()
-     */
     @Override
     public String getMethod() {
         return RequestMethod.GET;
@@ -344,9 +356,6 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
         return super.getQueryString();
     }
 
-    /**
-     * @see CosXmlRequest#getRequestBody()
-     */
     @Override
     public RequestBodySerializer getRequestBody() {
         return null;
