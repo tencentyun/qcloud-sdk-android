@@ -1,3 +1,13 @@
+## 5.5.4
+
+1. 请求 header 中 host 头部不再默认从 url 中读取，而是设置为 cos 源站域名，允许自定义。
+2. TransferManager 下载时，head 请求携带和 get 请求相同的 header 和 query 参数。
+3. TransferManager 第一次下载文件时，如果本地路径下已存在文件，会先删除。
+4. TransferManager 下载文件时，下载时 head 请求失败不会导致下载失败，会删除之前的下载文件，然后重新下载整个文件。
+5. 修复生成预签名下载链接时，由于签名 header 导致下载链接失效。
+6. 修复 quic 签名校验失败的问题和 Content-Lenght 缺失问题。
+7. 支持通过 cdn 域名下载文件。
+
 ## V5.5.3
 1. 重构 host 逻辑，支持用户自定义 host 格式
 2. 支持通过 uri 上传
@@ -148,3 +158,5 @@
 
 1. 所有 Request API, 均只提供了带参数的构造方法；
 2. 支持 CAM方式 获取临时密钥，具体请查看 `com.tencent.qcloud.core.network.auth.LocalSessionCredentialProvider`
+
+AKID

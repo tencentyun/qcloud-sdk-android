@@ -1,18 +1,23 @@
 /*
- * Copyright 2010-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
  *
- *  http://aws.amazon.com/apache2.0
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
  *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
-
- * According to cos feature, we modify some class，comment, field name, etc.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
  */
 
 package com.tencent.cos.xml.model.tag.eventstreaming;
@@ -36,7 +41,10 @@ import java.util.zip.CheckedOutputStream;
 import java.util.zip.Checksum;
 
 /**
- * An eventstream message.
+ * SELECT Object Content响应块<br>
+ * 由于响应体的大小无法预知，COS 将用户请求响应体以序列化形式展示，即将响应体切分成多个分块返回
+ * <p>
+ * 详情请参考：<a herf="https://cloud.tencent.com/document/product/436/37641#.E5.93.8D.E5.BA.94">SELECT Object Content响应</a>
  */
 public class Message {
     private static final int TRAILING_CRC_LENGTH = 4;
@@ -50,10 +58,18 @@ public class Message {
         this.payload = payload.clone();
     }
 
+    /**
+     * 获取响应报头
+     * @return 响应报头
+     */
     public Map<String, HeaderValue> getHeaders() {
         return headers;
     }
 
+    /**
+     * 获取响应正文
+     * @return 响应正文
+     */
     public byte[] getPayload() {
         return payload.clone();
     }

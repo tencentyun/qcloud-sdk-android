@@ -69,6 +69,68 @@ compile 'com.tencent.qcloud:cosxml:5.5.+'
 
 如果您无法采用远程依赖的方式，可以通过下载 [最新版本](https://github.com/tencentyun/qcloud-sdk-android/releases) 的压缩包，解压后，手动集成到您的工程中。
 
+## 兼容 CDN 域名下载
+
+1. 初始化支持 cdn 下载的 TransferManager
+
+```
+/**
+* 通过 cdn 域名下载，需要 1. 开启 cdn 回源鉴权；2. 开启 cdn 鉴权。详情请参考：
+* https://cloud.tencent.com/document/product/436/18669
+*
+*
+* </p>
+* 注意，这样创建的 TransferManager 只能用于 cdn 下载，不能用于上传，或者通过源站域名下载
+*/
+public static TransferManager newCdnTransferManager() {
+
+   /**
+    * 假设您的 bucket 为 examplebucket-1250000000，地域为 ap-beijing
+    */
+   CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+           .isHttps(true)
+           .setRegion("ap-beijing")
+           .setDebuggable(false)
+           .setHostFormat("${bucket}.file.myqcloud.com") // cdn 默认域名 host 格式
+           .addHeader("Host", "examplebucket-1250000000.file.myqcloud.com") // 修改 header 中的 host 字段
+           .builder();
+
+   /**
+    * 通过 cdn 下载，并开启回源鉴权后，
+    */
+   CosXmlService cosXmlService = new CosXmlService(getContext(), cosXmlServiceConfig);
+
+   TransferConfig transferConfig = new TransferConfig.Builder().build();
+   return new TransferManager(cosXmlService, transferConfig);
+}
+```
+
+2. 如果您开启了 cdn 鉴权，那么需要在 url 上添加 cdn 签名，cdn 鉴权请参考[这里](https://cloud.tencent.com/document/product/228/41622)。
+
+```
+String bucket = "examplebucket-1250000000";
+String cosPath = "exampleobject";
+String srcPath = new File(context.getCacheDir(), "exampleobject")
+        .toString(); //本地文件的绝对路径
+String cdnSign = "1595307148-ktug8jzwijjs5khj-0-953d8ac2a84af18e"; // cdn 鉴权参数，这里已 typeA 为例
+
+GetObjectRequest getObjectRequest = new GetObjectRequest(bucket, cosPath, srcPath);
+
+Map<String, String> paras = new HashMap<>();
+paras.put("sign", cdnSign);
+getObjectRequest.setQueryParameters(paras);
+
+COSXMLDownloadTask downloadTask = transferManager.download(context, getObjectRequest);
+
+downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+    @Override
+    public void onSuccess(CosXmlRequest request, CosXmlResult result) {}
+
+    @Override
+    public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {}
+
+});
+```
 
 ## 开发文档
 

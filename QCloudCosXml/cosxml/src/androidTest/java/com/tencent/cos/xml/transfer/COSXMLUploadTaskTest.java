@@ -1,7 +1,30 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.transfer;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+
+import com.tencent.cos.xml.core.TestUtils;;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import android.util.Log;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
@@ -21,10 +44,6 @@ import java.util.concurrent.CountDownLatch;
 
 import static com.tencent.cos.xml.QServer.TAG;
 
-/**
- * Created by bradyxiao on 2018/9/14.
- * Copyright 2010-2018 Tencent Cloud. All Rights Reserved.
- */
 @RunWith(AndroidJUnit4.class)
 public class COSXMLUploadTaskTest {
 
@@ -32,7 +51,7 @@ public class COSXMLUploadTaskTest {
 
     @Before
     public void init() throws Exception{
-        QServer.init(InstrumentationRegistry.getContext());
+        QServer.init(TestUtils.getContext());
         transferManager = new TransferManager((CosXmlSimpleService) QServer.cosXml, new TransferConfig.Builder().build());
     }
 
@@ -42,7 +61,7 @@ public class COSXMLUploadTaskTest {
     public void testPause()throws Exception{
         countDownLatch1 = new CountDownLatch(1);
         String cosPath = "uploadTask_pause" + System.currentTimeMillis();
-        final String srcPath = QServer.createFile(InstrumentationRegistry.getContext(), 1024 * 1024);
+        final String srcPath = QServer.createFile(TestUtils.getContext(), 1024 * 1024);
         final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(QServer.persistBucket, cosPath, srcPath, null);
         cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
             @Override
@@ -87,7 +106,7 @@ public class COSXMLUploadTaskTest {
     public void cancel() throws Exception{
         countDownLatch2 = new CountDownLatch(1);
         String cosPath = "uploadTask_cancel" + System.currentTimeMillis();
-        final String srcPath = QServer.createFile(InstrumentationRegistry.getContext(), 1024 * 1024);
+        final String srcPath = QServer.createFile(TestUtils.getContext(), 1024 * 1024);
         final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(QServer.persistBucket, cosPath, srcPath, null);
         cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
             @Override
@@ -131,7 +150,7 @@ public class COSXMLUploadTaskTest {
     public void resume() throws Exception{
         countDownLatch3 = new CountDownLatch(1);
         String cosPath = "uploadTask_resume" + System.currentTimeMillis();
-        final String srcPath = QServer.createFile(InstrumentationRegistry.getContext(), 2 * 1024 * 1024);
+        final String srcPath = QServer.createFile(TestUtils.getContext(), 2 * 1024 * 1024);
         final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(QServer.persistBucket, cosPath, srcPath, null);
         cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
             @Override
@@ -177,7 +196,7 @@ public class COSXMLUploadTaskTest {
         countDownLatch2 = new CountDownLatch(3);
         for (int i = 0 ; i < 4; i++) {
             String cosPath = "uploadTask_cancel" + i;
-            final String srcPath = QServer.createFile(InstrumentationRegistry.getContext(), 10 * 1024 * 1024);
+            final String srcPath = QServer.createFile(TestUtils.getContext(), 10 * 1024 * 1024);
             final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(QServer.persistBucket, cosPath, srcPath, null);
             cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
                 @Override

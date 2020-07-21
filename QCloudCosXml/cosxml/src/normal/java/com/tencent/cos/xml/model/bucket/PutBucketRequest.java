@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.bucket;
 
 import com.tencent.cos.xml.common.COSACL;
@@ -5,6 +27,7 @@ import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.ACLAccount;
 import com.tencent.cos.xml.model.tag.CreateBucketConfiguration;
 import com.tencent.cos.xml.transfer.XmlBuilder;
@@ -15,12 +38,10 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 /**
- * <p>
- * 创建Bucket
- * </p>
- *
- *
-*/
+ * 创建存储桶（Bucket）的请求.
+ * @see com.tencent.cos.xml.CosXml#putBucket(PutBucketRequest)
+ * @see com.tencent.cos.xml.CosXml#putBucketAsync(PutBucketRequest, CosXmlResultListener)
+ */
 final public class PutBucketRequest extends BucketRequest {
 
     private CreateBucketConfiguration createBucketConfiguration = new CreateBucketConfiguration();
@@ -29,29 +50,17 @@ final public class PutBucketRequest extends BucketRequest {
         super(bucket);
     }
 
-    public PutBucketRequest(){
-        super(null);
-    }
-
+    /**
+     * 指定存储桶是否为 多AZ 配置
+     * @param enable 是否为 多AZ 配置
+     */
     public void enableMAZ(boolean enable) {
         createBucketConfiguration.bucketAzConfig = enable ? "MAZ" : "OAZ";
     }
 
     /**
-     * <p>
-     * 设置Bucket访问权限
-     * </p>
-     *
-     * <br>
-     * 有效值：
-     * <ul>
-     * <li>private ：私有，默认值</li>
-     * <li>public-read ：公有读</li>
-     * <li>public-read-write ：公有读写</li>
-     * </ul>
-     * <br>
-     *
-     * @param cosacl acl字符串
+     * 同{@link #setXCOSACL(COSACL)}
+     * @param cosacl COS 访问权限
      */
     public void setXCOSACL(String cosacl){
         if(cosacl != null){
@@ -60,9 +69,10 @@ final public class PutBucketRequest extends BucketRequest {
     }
 
     /**
-     * 设置Bucket的ACL信息
-     *
-     * @param cosacl acl枚举
+     * 定义存储桶的访问控制列表（ACL）属性。
+     * 枚举值请参见 <a herf="https://cloud.tencent.com/document/product/436/30752#.E9.A2.84.E8.AE.BE.E7.9A.84-acl">ACL 概述</a> 文档中存储桶的预设 ACL 部分，
+     * 如 private, public-read 等，默认为 private
+     * @param cosacl COS 访问权限
      */
     public void setXCOSACL(COSACL cosacl){
         if(cosacl != null){
@@ -72,7 +82,7 @@ final public class PutBucketRequest extends BucketRequest {
 
     /**
      * <p>
-     * 单独明确赋予用户读权限
+     * 赋予被授权者读取存储桶的权限
      * </p>
      *
      * @param aclAccount 读权限用户列表
@@ -83,10 +93,9 @@ final public class PutBucketRequest extends BucketRequest {
         }
     }
 
-
     /**
      * <p>
-     * 赋予被授权者写的权限
+     * 赋予被授权者写入存储桶的权限
      * </p>
      *
      * @param aclAccount 写权限用户列表
@@ -97,13 +106,9 @@ final public class PutBucketRequest extends BucketRequest {
         }
     }
 
-
     /**
-     * <p>
-     * 赋予被授权者读写权限。
-     * </p>
-     *
-     * @param aclAccount 读写用户权限列表
+     * 赋予被授权者操作存储桶的所有权限
+     * @param aclAccount 用户权限列表
      */
     public void setXCOSReadWrite(ACLAccount aclAccount){
         if (aclAccount != null) {

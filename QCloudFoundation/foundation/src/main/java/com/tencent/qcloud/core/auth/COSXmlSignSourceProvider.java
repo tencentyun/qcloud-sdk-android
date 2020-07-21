@@ -1,10 +1,31 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.qcloud.core.auth;
 
 import android.text.TextUtils;
 
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.http.HttpConfiguration;
-import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.HttpRequest;
 import com.tencent.qcloud.core.http.QCloudHttpRequest;
 import com.tencent.qcloud.core.util.QCloudHttpUtils;
@@ -12,8 +33,6 @@ import com.tencent.qcloud.core.util.QCloudStringUtils;
 
 import java.io.IOException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -21,10 +40,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.TreeSet;
 
 import static com.tencent.qcloud.core.http.HttpConstants.Header.CONTENT_LENGTH;
@@ -32,9 +49,10 @@ import static com.tencent.qcloud.core.http.HttpConstants.Header.CONTENT_TYPE;
 import static com.tencent.qcloud.core.http.HttpConstants.Header.DATE;
 import static com.tencent.qcloud.core.http.HttpConstants.Header.TRANSFER_ENCODING;
 
-
 /**
- * Copyright 2010-2017 Tencent Cloud. All Rights Reserved.
+ * 提供COS请求中参与签名的字段
+ * <p>
+ * 具体请参考：<a herf="https://cloud.tencent.com/document/product/436/7778#.E7.AD.BE.E5.90.8D.E6.AD.A5.E9.AA.A4">签名步骤</a>中的 步骤6：生成 StringToSign
  */
 
 public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
@@ -94,24 +112,21 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
 
     }
 
-    /**
-     * 签名需要的参数
-     * <P>
-     * 1、q-sign-algorithm : 固定值 sha1
-     *
-     * 2、q-ak ：
-     *</P>
-     * @return 签名 formatString
-     */
     @Override
     public <T> String source(HttpRequest<T> request) throws QCloudClientException {
         if (request == null) {
             return null;
         }
 
+        List<String> keysToSign = new LinkedList<>(request.headers().keySet());
+        // 强制签名如下 OkHttp 自动添加的 Header
+        keysToSign.add(CONTENT_TYPE);
+        keysToSign.add(CONTENT_LENGTH);
+        keysToSign.add(DATE);
+
         // 默认头部字段参与计算
         if (headerKeysRequiredToSign.size() < 1) {
-            for (String headerKey : request.headers().keySet()) {
+            for (String headerKey : keysToSign) {
 
                 if (request.getNoSignHeaders().contains(headerKey)) {
                     continue;
@@ -126,11 +141,6 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
                 //
             }
         }
-
-        // 强制签名如下 OkHttp 自动添加的 Header
-        headerKeysRequiredToSign.add(CONTENT_TYPE);
-        headerKeysRequiredToSign.add(CONTENT_LENGTH);
-        headerKeysRequiredToSign.add(DATE);
 
         // 默认URL参数字段参与计算
         if (parametersRequiredToSign.size() < 1) {
