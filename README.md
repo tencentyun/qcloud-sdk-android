@@ -116,6 +116,7 @@ String cdnSign = "1595307148-ktug8jzwijjs5khj-0-953d8ac2a84af18e"; // cdn 鉴权
 
 GetObjectRequest getObjectRequest = new GetObjectRequest(bucket, cosPath, srcPath);
 
+// 添加 cdn 鉴权信息
 Map<String, String> paras = new HashMap<>();
 paras.put("sign", cdnSign);
 getObjectRequest.setQueryParameters(paras);
