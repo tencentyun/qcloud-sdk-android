@@ -1,4 +1,4 @@
-## 5.5.4
+## V5.5.4
 
 1. 请求 header 中 host 头部不再默认从 url 中读取，而是设置为 cos 源站域名，允许自定义。
 2. TransferManager 下载时，head 请求携带和 get 请求相同的 header 和 query 参数。
