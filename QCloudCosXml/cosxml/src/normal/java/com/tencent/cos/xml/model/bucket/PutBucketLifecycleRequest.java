@@ -1,14 +1,35 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.bucket;
 
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.model.bucket.BucketRequest;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.LifecycleConfiguration;
 import com.tencent.cos.xml.transfer.XmlBuilder;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
-
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -18,28 +39,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>
- * COS 支持用户以生命周期配置的方式来管理 Bucket 中 Object 的生命周期。
- * </p>
- *
- * <p>
- * 生命周期配置包含一个或多个将应用于一组对象规则的规则集 (其中每个规则为 COS 定义一个操作)。
- * </p>
- *
- * 这些操作分为以下两种：
- * <ul>
- * <li>
- * 转换操作：定义对象转换为另一个存储类的时间。例如，您可以选择在对象创建 30 天后将其转换为 STANDARD_IA (IA，适用于不常访问) 存储类别。
- * </li>
- * <li>
- * 过期操作：指定 Object 的过期时间。COS 将会自动为用户删除过期的 Object。
- * </li>
- * </ul>
- *
- * <p>
- * PutBucketLifecycle 用于为 Bucket 创建一个新的生命周期配置。如果该 Bucket 已配置生命周期，使用该接口创建新的配置的同时则会覆盖原有的配置。
- * </p>
- *
+ * 设置存储桶（Bucket) 生命周期配置的请求.
+ * @see com.tencent.cos.xml.CosXml#putBucketLifecycle(PutBucketLifecycleRequest)
+ * @see com.tencent.cos.xml.CosXml#putBucketLifecycleAsync(PutBucketLifecycleRequest, CosXmlResultListener)
  */
 final public class PutBucketLifecycleRequest extends BucketRequest {
 
@@ -47,12 +49,6 @@ final public class PutBucketLifecycleRequest extends BucketRequest {
 
     public PutBucketLifecycleRequest(String bucket){
         super(bucket);
-        lifecycleConfiguration = new LifecycleConfiguration();
-        lifecycleConfiguration.rules = new ArrayList<>();
-    }
-
-    public PutBucketLifecycleRequest(){
-        super(null);
         lifecycleConfiguration = new LifecycleConfiguration();
         lifecycleConfiguration.rules = new ArrayList<>();
     }
@@ -83,7 +79,7 @@ final public class PutBucketLifecycleRequest extends BucketRequest {
     /**
      * 添加多条生命周期规则
      *
-     * @param ruleList
+     * @param ruleList 生命周期规则列表
      */
     public void setRuleList(List<LifecycleConfiguration.Rule> ruleList){
         if(ruleList != null){
@@ -94,7 +90,7 @@ final public class PutBucketLifecycleRequest extends BucketRequest {
     /**
      * 添加一条生命周期规则
      *
-     * @param rule
+     * @param rule 生命周期规则
      */
     public void setRuleList(LifecycleConfiguration.Rule rule){
         if(rule != null){

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/QCloudCosXml.iml" filepath="$PROJECT_DIR$/.idea/modules/QCloudCosXml.iml" group="QCloudCosXml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cosxml/cosxml.iml" filepath="$PROJECT_DIR$/.idea/modules/cosxml/cosxml.iml" group="QCloudCosXml/cosxml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2037657849/foundation.iml" filepath="$PROJECT_DIR$/.idea/modules/2037657849/foundation.iml" group="QCloudCosXml/foundation" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/logUtils/logUtils.iml" filepath="$PROJECT_DIR$/.idea/modules/logUtils/logUtils.iml" group="QCloudCosXml/logUtils" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mtaUtils/mtaUtils.iml" filepath="$PROJECT_DIR$/.idea/modules/mtaUtils/mtaUtils.iml" group="QCloudCosXml/mtaUtils" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/541162244/quic.iml" filepath="$PROJECT_DIR$/.idea/modules/541162244/quic.iml" group="QCloudCosXml/quic" />
+    </modules>
+  </component>
+</project>

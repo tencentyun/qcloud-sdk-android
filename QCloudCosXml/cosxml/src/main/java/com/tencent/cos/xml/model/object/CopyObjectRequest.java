@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.object;
 
 import android.util.Base64;
@@ -10,6 +32,7 @@ import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.MetaDataDirective;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.ACLAccount;
 import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.cos.xml.utils.URLEncodeUtils;
@@ -20,30 +43,17 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-
 /**
- * Created by bradyxiao on 2017/9/20.
- * author bradyxiao
- *
- * Copy Object request is used to copy a file from source path to the destination path.
- * The recommended file size is 1M-5G. For any file above 5G, please use multipart upload (Upload - Copy).
- * In the process of copying, file meta-attributes and ACLs can be modified.
- * Users can use this API to move or rename a file, modify file attributes and create a copy.
- *
+ * 简单复制对象的请求.
+ * @see com.tencent.cos.xml.SimpleCosXml#copyObject(CopyObjectRequest)
+ * @see com.tencent.cos.xml.SimpleCosXml#copyObjectAsync(CopyObjectRequest, CosXmlResultListener)
  */
 public class CopyObjectRequest extends ObjectRequest {
-
-    // copy source struct
     private CopySourceStruct copySourceStruct;
 
     public CopyObjectRequest(String bucket, String cosPath, CopySourceStruct copySourceStruct){
         super(bucket, cosPath);
         this.copySourceStruct = copySourceStruct;
-        //setCopySource(copySourceStruct);
-    }
-
-    public CopyObjectRequest(){
-        super(null, null);
     }
 
     @Override
@@ -67,13 +77,17 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     * set cosPath for Abort Multi upload.
-     * @param cosPath
+     * 设置复制的目标cos路径
+     * @param cosPath 复制的目标cos路径
      */
     public void setCosPath(String cosPath){
         this.cosPath = cosPath;
     }
 
+    /**
+     * 获取复制的目标cos路径
+     * @return 复制的目标cos路径
+     */
     public String getCosPath() {
         return cosPath;
     }
@@ -88,9 +102,10 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     * Indicate absolute path of source file URL from CopySourceStruct.
-     * You can specify the history version with the versionid sub-resource
-     * @param copySource
+     * 设置复制源对象信息
+     * @param copySource 源对象结构体
+     * @param config 服务配置信息，用于获取源对象的 URL
+     * @throws CosXmlClientException 客户端异常
      */
     public void setCopySource(CopySourceStruct copySource, CosXmlServiceConfig config) throws CosXmlClientException {
         this.copySourceStruct = copySource;
@@ -114,18 +129,20 @@ public class CopyObjectRequest extends ObjectRequest {
 //        return super.getRequestHeaders();
 //    }
 
+    /**
+     * 获取源对象结构体
+     * @return 源对象结构体
+     */
     public CopySourceStruct getCopySource(){
         return copySourceStruct;
     }
+
     /**
-     * Indicate whether to copy metadata.
-     * Enumerated values: Copy, Replaced. The default is Copy.
-     * If it is marked as Copy, the copying action will be performed directly,
-     * with the user metadata in the Header ignored ; if it is marked as Replaced,
-     * the metadata will be modified based on the Header information.
-     * If the destination path and the source path are the same, that is,
-     * the user attempts to modify the metadata, the value must be Replaced
-     * @param metaDataDirective
+     * 是否复制源对象的元数据信息，枚举值：Copy，Replaced，默认为 Copy：
+     * 如果标记为 Copy，则复制源对象的元数据信息
+     * 如果标记为 Replaced，则按本次请求的请求头中的元数据信息作为目标对象的元数据信息
+     * 当目标对象和源对象为同一对象时，即用户试图修改元数据时，则标记必须为 Replaced
+     * @param metaDataDirective 是否拷贝元数据
      */
     public void setCopyMetaDataDirective(MetaDataDirective metaDataDirective){
         if(metaDataDirective != null){
@@ -134,11 +151,8 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     * The action is performed if the Object has been modified since the specified time,
-     * otherwise error code 412 will be returned.
-     * It can be used with x-cos-copy-source-If-None-Match.
-     * Using it with other conditions can cause a conflict.
-     * @param sourceIfModifiedSince
+     * 当对象在指定时间后被修改，则执行复制操作，否则返回 HTTP 状态码为412（Precondition Failed）
+     * @param sourceIfModifiedSince 指定的时间
      */
     public void setCopyIfModifiedSince(String sourceIfModifiedSince){
         if(sourceIfModifiedSince != null){
@@ -147,11 +161,8 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     * The action is performed if the Object has not been modified since the specified time,
-     * otherwise error code 412 will be returned.
-     * It can be used with x-cos-copy-source-If-Match.
-     * it with other conditions can cause a conflict.
-     * @param sourceIfUnmodifiedSince
+     * 当对象在指定时间后未被修改，则执行复制操作，否则返回 HTTP 状态码为412（Precondition Failed）
+     * @param sourceIfUnmodifiedSince 指定的时间
      */
     public void setCopyIfUnmodifiedSince(String sourceIfUnmodifiedSince){
         if(sourceIfUnmodifiedSince != null){
@@ -160,11 +171,8 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     * The action is performed if the Etag of Object is the same as the given one,
-     * otherwise error code 412 will be returned.
-     * It can be used with x-cos-copy-source-If-Unmodified-Since.
-     * Using it with other conditions can cause a conflict.
-     * @param eTag
+     * 当对象的 ETag 与指定的值一致，则执行复制操作，否则返回 HTTP 状态码为412（Precondition Failed）
+     * @param eTag 指定eTag
      */
     public void setCopyIfMatch(String eTag){
         if(eTag != null){
@@ -173,11 +181,8 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     * The action is performed if the Etag of Object is different from the given one,
-     * otherwise error code 412 will be returned.
-     * It can be used with x-cos-copy-source-If-Modified-Since.
-     * Using it with other conditions can cause a conflict.
-     * @param eTag
+     * 当对象的 ETag 与指定的值不一致，则执行复制操作，否则返回 HTTP 状态码为412（Precondition Failed）
+     * @param eTag 指定eTag
      */
     public void setCopyIfNoneMatch(String eTag){
         if(eTag != null){
@@ -186,9 +191,9 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     *  copy encryption object
-     * @param sourceKey
-     * @throws CosXmlClientException
+     * 源对象SSE-C服务端加密配置
+     * @param sourceKey 服务端加密密钥
+     * @throws CosXmlClientException 客户端异常
      */
     public void setCopySourceServerSideEncryptionCustomerKey(String sourceKey) throws CosXmlClientException {
         if(sourceKey != null){
@@ -206,10 +211,10 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     * copy encryption object
-     * @param customerKeyID
-     * @param json
-     * @throws CosXmlClientException
+     * 源对象SSE-KMS服务端加密配置
+     * @param customerKeyID 用于指定 KMS 的用户主密钥 CMK，如不指定，则使用 COS 默认创建的 CMK
+     * @param json 用于指定加密上下文，值为 JSON 格式加密上下文键值对的 Base64 编码
+     * @throws CosXmlClientException 客户端代理
      */
     public void setCopySourceServerSideEncryptionKMS(String customerKeyID, String json) throws CosXmlClientException {
         addHeader("'x-cos-copy-source-server-side-encryption", "cos/kms");
@@ -222,20 +227,21 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     * storage class. Enumerated values: Standard, Standard_IA, Nearline; the default is Standard
-     * @param cosStorageClass
+     * 目标对象的存储类型。
+     * 枚举值请参见 <a href="https://cloud.tencent.com/document/product/436/33417">存储类型</a> 文档，例如 STANDARD_IA，ARCHIVE。默认值：STANDARD
+     * @param cosStorageClass COS存储类型
+     * @throws CosXmlClientException 客户端异常
      */
-    public void setCosStorageClass(COSStorageClass cosStorageClass) throws CosXmlClientException {
+    public void setCosStorageClass(COSStorageClass cosStorageClass) {
         if(cosStorageClass != null){
-            if(cosStorageClass.getStorageClass().equals(COSStorageClass.ARCHIVE)) throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(),
-                    "copy nonsupport archive");
             addHeader(COSRequestHeaderKey.X_COS_STORAGE_CLASS_, cosStorageClass.getStorageClass());
         }
     }
 
     /**
-     * Allow users to define file permissions.
-     * valid values: private, public-read. The default is private.
+     * 定义目标对象的访问控制列表（ACL）属性。
+     * 枚举值请参见 <a href="https://cloud.tencent.com/document/product/436/30752#.E9.A2.84.E8.AE.BE.E7.9A.84-acl">ACL 概述</a> 文档中对象的预设 ACL 部分，例如 default，private，public-read 等，默认为 default
+     * @param cosacl COS 访问权限
      */
     public void setXCOSACL(COSACL cosacl){
         if(cosacl != null){
@@ -243,6 +249,10 @@ public class CopyObjectRequest extends ObjectRequest {
         }
     }
 
+    /**
+     * 同{@link #setXCOSACL(COSACL)}
+     * @param cosacl COS 访问权限
+     */
     public void setXCOSACL(String cosacl){
         if(cosacl != null){
             addHeader(COSRequestHeaderKey.X_COS_ACL, cosacl);
@@ -250,8 +260,8 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     * Grant read permission to the authorized user
-     * @param aclAccount
+     * 赋予被授权者操作目标对象的读取权限
+     * @param aclAccount ACL授权账号列表
      */
     public void setXCOSGrantRead(ACLAccount aclAccount){
         if (aclAccount != null) {
@@ -260,8 +270,8 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     * Grant write permission to the authorized user
-     * @param aclAccount
+     * 赋予被授权者操作目标对象的写入权限
+     * @param aclAccount ACL授权账号列表
      */
     public void setXCOSGrantWrite(ACLAccount aclAccount){
         if (aclAccount != null) {
@@ -270,8 +280,8 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     * Grant read and write permissions to the authorized user
-     * @param aclAccount
+     * 赋予被授权者操作目标对象的所有权限
+     * @param aclAccount ACL授权账号列表
      */
     public void setXCOSReadWrite(ACLAccount aclAccount){
         if (aclAccount != null) {
@@ -280,9 +290,9 @@ public class CopyObjectRequest extends ObjectRequest {
     }
 
     /**
-     * custom file requestHeaders
-     * @param key
-     * @param value
+     * 设置用户自定义头部信息
+     * @param key 自定义头部信息的key值，需要以 x-cos-meta- 开头
+     * @param value 自定义头部信息的value值。
      */
     public void setXCOSMeta(String key, String value){
         if(key != null && value != null){
@@ -290,6 +300,9 @@ public class CopyObjectRequest extends ObjectRequest {
         }
     }
 
+    /**
+     * 复制源结构体
+     */
     public static class CopySourceStruct{
         public String appid;
         public String bucket;
@@ -309,6 +322,10 @@ public class CopyObjectRequest extends ObjectRequest {
             this.versionId = versionId;
         }
 
+        /**
+         * 检查参数
+         * @throws CosXmlClientException 客户端异常
+         */
         public void checkParameters() throws CosXmlClientException {
             if(bucket == null){
                 throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "copy source bucket must not be null");
@@ -325,7 +342,12 @@ public class CopyObjectRequest extends ObjectRequest {
             cosPath = URLEncodeUtils.cosPathEncode(cosPath);
         }
 
-        public String getSource(CosXmlServiceConfig config) throws CosXmlClientException {
+        /**
+         * 根据服务配置信息得到源url
+         * @param config 服务配置信息
+         * @return 源url
+         */
+        public String getSource(CosXmlServiceConfig config) {
             if(cosPath != null){
                 if(!cosPath.startsWith("/")){
                     cosPath = "/" + cosPath;

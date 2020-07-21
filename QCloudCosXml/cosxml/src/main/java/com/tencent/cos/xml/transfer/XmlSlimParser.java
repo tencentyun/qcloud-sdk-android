@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.transfer;
 
 import android.util.Xml;
@@ -17,11 +39,19 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
- * Created by bradyxiao on 2017/11/24.
+ * xml解析器，
+ * 用于将相应中的xml解析为对应的Result实体
  */
 
 public class XmlSlimParser {
 
+    /**
+     * 解析 完成分块上传结果
+     * @param inputStream xml输入流
+     * @param result 完成分块上传结果
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseCompleteMultipartUploadResult(InputStream inputStream, CompleteMultipartUploadResult result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -50,6 +80,13 @@ public class XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 初始化上传请求返回的信息
+     * @param inputStream xml输入流
+     * @param result 初始化上传请求返回的信息
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseInitiateMultipartUploadResult(InputStream inputStream, InitiateMultipartUpload result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -75,6 +112,13 @@ public class XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 ListParts请求结果的所有信息
+     * @param inputStream xml输入流
+     * @param result ListParts请求结果的所有信息
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseListPartsResult(InputStream inputStream, ListParts result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -167,6 +211,13 @@ public class XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 使用表单请求上传对象的响应
+     * @param inputStream xml输入流
+     * @param result 使用表单请求上传对象的响应
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parsePostResponseResult(InputStream inputStream, PostResponse result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -195,6 +246,13 @@ public class XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 复制对象结果
+     * @param inputStream xml输入流
+     * @param result 复制对象结果
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseCopyObjectResult(InputStream inputStream, CopyObject result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -217,7 +275,13 @@ public class XmlSlimParser {
         }
     }
 
-
+    /**
+     * 解析 COS错误信息
+     * @param inputStream xml输入流
+     * @param error COS错误信息
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseError(InputStream inputStream, CosError error) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");

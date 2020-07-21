@@ -1,11 +1,33 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.transfer;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import android.util.Log;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.QServer;
+import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
@@ -29,10 +51,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.tencent.cos.xml.QServer.TAG;
 
-/**
- * Created by bradyxiao on 2018/9/14.
- * Copyright 2010-2018 Tencent Cloud. All Rights Reserved.
- */
 @RunWith(AndroidJUnit4.class)
 public class COSXMLDownloadTaskTest {
 
@@ -40,7 +58,7 @@ public class COSXMLDownloadTaskTest {
 
     @Before
     public void init() throws Exception{
-        QServer.init(InstrumentationRegistry.getContext());
+        QServer.init(TestUtils.getContext());
         transferManager = new TransferManager((CosXmlSimpleService) QServer.cosXml, new TransferConfig.Builder().build());
     }
 
@@ -50,13 +68,13 @@ public class COSXMLDownloadTaskTest {
     public void pause() throws Exception{
         countDownLatch1 = new CountDownLatch(1);
         String cosPath = "uploadTask_download";
-        String srcPath = QServer.createFile(InstrumentationRegistry.getContext(), 1024 * 1024);
+        String srcPath = QServer.createFile(TestUtils.getContext(), 1024 * 1024);
         PutObjectRequest putObjectRequest = new PutObjectRequest(QServer.persistBucket, cosPath, srcPath);
         QServer.cosXml.putObject(putObjectRequest);
         QServer.deleteLocalFile(srcPath);
-        final String localDir = QServer.localParentDirectory(InstrumentationRegistry.getContext()).getPath();
+        final String localDir = QServer.localParentDirectory(TestUtils.getContext()).getPath();
         final String localFileName = cosPath;
-        final COSXMLDownloadTask cosxmlDownloadTask = transferManager.download(InstrumentationRegistry.getContext(), QServer.persistBucket, cosPath, localDir, localFileName);
+        final COSXMLDownloadTask cosxmlDownloadTask = transferManager.download(TestUtils.getContext(), QServer.persistBucket, cosPath, localDir, localFileName);
         cosxmlDownloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
             @Override
             public void onProgress(long complete, long target) {
@@ -97,13 +115,13 @@ public class COSXMLDownloadTaskTest {
     public void cancel() throws Exception{
         countDownLatch2 = new CountDownLatch(1);
         String cosPath = "uploadTask_download";
-        String srcPath = QServer.createFile(InstrumentationRegistry.getContext(), 1024 * 1024);
+        String srcPath = QServer.createFile(TestUtils.getContext(), 1024 * 1024);
         PutObjectRequest putObjectRequest = new PutObjectRequest(QServer.persistBucket, cosPath, srcPath);
         QServer.cosXml.putObject(putObjectRequest);
         QServer.deleteLocalFile(srcPath);
-        final String localDir = QServer.localParentDirectory(InstrumentationRegistry.getContext()).getPath();
+        final String localDir = QServer.localParentDirectory(TestUtils.getContext()).getPath();
         final String localFileName = cosPath;
-        final COSXMLDownloadTask cosxmlDownloadTask = transferManager.download(InstrumentationRegistry.getContext(), QServer.persistBucket, cosPath, localDir, localFileName);
+        final COSXMLDownloadTask cosxmlDownloadTask = transferManager.download(TestUtils.getContext(), QServer.persistBucket, cosPath, localDir, localFileName);
         cosxmlDownloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
             @Override
             public void onProgress(long complete, long target) {
@@ -144,13 +162,13 @@ public class COSXMLDownloadTaskTest {
     public void resume() throws Exception{
         countDownLatch3 = new CountDownLatch(1);
         String cosPath = "uploadTask_download";
-        String srcPath = QServer.createFile(InstrumentationRegistry.getContext(), 1024 * 1024);
+        String srcPath = QServer.createFile(TestUtils.getContext(), 1024 * 1024);
         PutObjectRequest putObjectRequest = new PutObjectRequest(QServer.persistBucket, cosPath, srcPath);
         QServer.cosXml.putObject(putObjectRequest);
         QServer.deleteLocalFile(srcPath);
-        final String localDir = QServer.localParentDirectory(InstrumentationRegistry.getContext()).getPath();
+        final String localDir = QServer.localParentDirectory(TestUtils.getContext()).getPath();
         final String localFileName = cosPath;
-        final COSXMLDownloadTask cosxmlDownloadTask = transferManager.download(InstrumentationRegistry.getContext(), QServer.persistBucket, cosPath, localDir, localFileName);
+        final COSXMLDownloadTask cosxmlDownloadTask = transferManager.download(TestUtils.getContext(), QServer.persistBucket, cosPath, localDir, localFileName);
         cosxmlDownloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
             @Override
             public void onProgress(long complete, long target) {
@@ -191,13 +209,13 @@ public class COSXMLDownloadTaskTest {
     @Test
     public void testBatchDownload() throws IOException, QCloudClientException, QCloudServiceException,InterruptedException {
         String cosPath = "batch_download_sample";
-        String srcPath = QServer.createFile(InstrumentationRegistry.getContext(), 10 * 1024 * 1024);
+        String srcPath = QServer.createFile(TestUtils.getContext(), 10 * 1024 * 1024);
         PutObjectRequest putObjectRequest = new PutObjectRequest(QServer.persistBucket, cosPath, srcPath);
         QServer.cosXml.putObject(putObjectRequest);
 
         Log.d(TAG,  "PUT success");
 
-        final String localDir = QServer.localParentDirectory(InstrumentationRegistry.getContext()).getPath();
+        final String localDir = QServer.localParentDirectory(TestUtils.getContext()).getPath();
         final int taskCount = 5;
         List<COSXMLDownloadTask> tasks = new ArrayList<>(taskCount);
 
@@ -206,7 +224,7 @@ public class COSXMLDownloadTaskTest {
         for (int i = 0; i < taskCount; i++) {
             String localFileName = cosPath + "_" + i;
             QServer.deleteLocalFile(localDir + File.separator + localFileName);
-            COSXMLDownloadTask cosxmlDownloadTask = transferManager.download(InstrumentationRegistry.getContext(),
+            COSXMLDownloadTask cosxmlDownloadTask = transferManager.download(TestUtils.getContext(),
                     QServer.persistBucket, cosPath, localDir, localFileName);
             cosxmlDownloadTask.setCosXmlResultListener(new CosXmlResultListener() {
                 @Override

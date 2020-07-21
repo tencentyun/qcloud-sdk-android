@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.transfer;
 
 
@@ -28,14 +50,20 @@ import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Map;
 
 /**
- * Created by bradyxiao on 2017/11/26.
+ * xml编码器，
+ * 用于将实体转为对应的xml字符串
  */
 
 public class XmlBuilder extends XmlSlimBuilder {
-
+    /**
+     * 将 ACL信息 转为XML字符串
+     * @param accessControlPolicy ACL信息
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildAccessControlPolicyXML(AccessControlPolicy accessControlPolicy) throws XmlPullParserException, IOException {
 
         if (accessControlPolicy == null) {
@@ -83,6 +111,13 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 将 跨域资源共享配置 转为XML字符串
+     * @param corsConfiguration 跨域资源共享配置
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildCORSConfigurationXML(CORSConfiguration corsConfiguration) throws XmlPullParserException, IOException {
 
         if(corsConfiguration == null)return null;
@@ -131,6 +166,13 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 将 生命周期配置 转为XML字符串
+     * @param lifecycleConfiguration 生命周期配置
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildLifecycleConfigurationXML(LifecycleConfiguration lifecycleConfiguration) throws XmlPullParserException, IOException {
         if (lifecycleConfiguration == null)return null;
 
@@ -198,6 +240,13 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 将 跨地域配置信息 转为XML字符串
+     * @param replicationConfiguration 跨地域配置信息
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildReplicationConfiguration(ReplicationConfiguration replicationConfiguration) throws XmlPullParserException, IOException {
         if (replicationConfiguration == null)return null;
 
@@ -235,6 +284,13 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 将 版本控制信息 转为XML字符串
+     * @param versioningConfiguration 版本控制信息
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildVersioningConfiguration(VersioningConfiguration versioningConfiguration) throws XmlPullParserException, IOException {
         if (versioningConfiguration == null)return null;
 
@@ -253,6 +309,13 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 将 PUT Bucket 操作信息 转为XML字符串
+     * @param createBucketConfiguration PUT Bucket 操作信息
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildCreateBucketConfiguration(CreateBucketConfiguration createBucketConfiguration) throws XmlPullParserException, IOException {
 
         if (createBucketConfiguration == null) {
@@ -273,6 +336,13 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 将 批量删除对象数据 转为XML字符串
+     * @param delete 批量删除对象数据
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildDelete(Delete delete) throws XmlPullParserException, IOException {
         if (delete == null)return null;
 
@@ -301,6 +371,13 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 将 Object restore 操作的所有请求信息 转为XML字符串
+     * @param restoreConfigure Object restore 操作的所有请求信息
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildRestore(RestoreConfigure restoreConfigure) throws XmlPullParserException, IOException {
         if(restoreConfigure == null)return  null;
 
@@ -324,6 +401,13 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 将 存储桶日志状态信息 转为XML字符串
+     * @param bucketLoggingStatus 存储桶日志状态信息
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildBucketLogging(BucketLoggingStatus bucketLoggingStatus) throws XmlPullParserException, IOException {
         if(bucketLoggingStatus == null) return null;
         StringWriter xmlContent = new StringWriter();
@@ -345,7 +429,14 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
-    public static String buildBucketTagging(Tagging tagging) throws XmlPullParserException, IOException {
+    /**
+     * 将 标签集合 转为XML字符串
+     * @param tagging 标签集合
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
+    public static String buildTagging(Tagging tagging) throws XmlPullParserException, IOException {
 
         if (tagging == null) {
             return null;
@@ -374,6 +465,13 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 将 存储桶关联的静态网站配置信息 转为XML字符串
+     * @param websiteConfiguration 存储桶关联的静态网站配置信息
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildWebsiteConfiguration(WebsiteConfiguration websiteConfiguration) throws XmlPullParserException, IOException {
         if(websiteConfiguration == null)return null;
         StringWriter xmlContent = new StringWriter();
@@ -430,6 +528,13 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 将 清单配置参数 转为XML字符串
+     * @param inventoryConfiguration 清单配置参数
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildInventoryConfiguration(InventoryConfiguration inventoryConfiguration) throws IOException, XmlPullParserException {
         if(inventoryConfiguration == null)return null;
         StringWriter xmlContent = new StringWriter();
@@ -489,6 +594,13 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 将 自定义域名配置 转为XML字符串
+     * @param domainConfiguration 自定义域名配置
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildDomainConfiguration(DomainConfiguration domainConfiguration) throws IOException, XmlPullParserException {
         if(domainConfiguration == null)return null;
         StringWriter xmlContent = new StringWriter();
@@ -514,6 +626,13 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 将 结构化查询请求信息 转为XML字符串
+     * @param selectRequest 结构化查询请求信息
+     * @return XML字符串
+     * @throws IOException IO异常
+     * @throws XmlPullParserException XML转换异常
+     */
     public static String buildSelectRequest(SelectRequest selectRequest) throws IOException, XmlPullParserException {
 
         if (selectRequest == null) {
@@ -586,6 +705,9 @@ public class XmlBuilder extends XmlSlimBuilder {
         return removeXMLHeader(xmlContent.toString());
     }
 
+    /**
+     * 增加XML节点
+     */
     private static void addElement(XmlSerializer xmlSerializer, String tag, String value) throws IOException {
         if(value != null){
             xmlSerializer.startTag("", tag);
@@ -594,6 +716,9 @@ public class XmlBuilder extends XmlSlimBuilder {
         }
     }
 
+    /**
+     * 删除XML头
+     */
     private static String removeXMLHeader(String xmlContent){
         if(xmlContent != null){
             if(xmlContent.startsWith("<?xml")){

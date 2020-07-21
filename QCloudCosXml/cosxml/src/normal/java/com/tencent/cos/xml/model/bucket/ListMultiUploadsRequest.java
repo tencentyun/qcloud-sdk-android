@@ -1,52 +1,73 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.bucket;
 
 import com.tencent.cos.xml.common.RequestMethod;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
 import java.util.Map;
 
 /**
- * <p>
- * 查询正在进行中的分块上传。
- * </p>
- * <p>
- * 单次请求操作最多列出 1000 个正在进行中的分块上传。
- * </p>
- *
+ * 查询存储桶（Bucket）中正在进行中的分块上传对象的请求.
+ * @see com.tencent.cos.xml.CosXml#listMultiUploads(ListMultiUploadsRequest)
+ * @see com.tencent.cos.xml.CosXml#listMultiUploadsAsync(ListMultiUploadsRequest, CosXmlResultListener)
  */
 final public class ListMultiUploadsRequest extends BucketRequest {
 
-    /**Delimiter is a sign.
+    /**
+     * Delimiter is a sign.
      * If Prefix exists, the same paths between Prefix and delimiter will be grouped as the same
      * type and defined Common Prefix, then all Common Prefixes will be listed.
-     * If Prefix doesn't exist, the listing process will start from the beginning of the path*/
+     * If Prefix doesn't exist, the listing process will start from the beginning of the path
+     */
     private String delimiter;
-    /**Indicate the encoding method of the returned value*/
+    /** Indicate the encoding method of the returned value */
     private String encodingType;
-    /**Prefix match, used to specify the prefix address of the returned file*/
+    /** Prefix match, used to specify the prefix address of the returned file */
     private String prefix;
-    /**Max number of entries returned each time, default is 1000*/
+    /** Max number of entries returned each time, default is 1000 */
     private String maxUploads;
-    /**Used together with upload-id-marker
-     If upload-id-marker is not specified, entries whose ObjectNames are in front of key-marker
-     (according to alphabetical order) will be listed.If upload-id-marker is specified, besides
-     the above entries, those whose ObjectNames are equal to key-marker and UploadIDs are in front
-     of upload-id-marker (according to alphabetical order) will also be listed.*/
+    /**
+     * Used together with upload-id-marker
+     * If upload-id-marker is not specified, entries whose ObjectNames are in front of key-marker
+     * (according to alphabetical order) will be listed.If upload-id-marker is specified, besides
+     * the above entries, those whose ObjectNames are equal to key-marker and UploadIDs are in front
+     * of upload-id-marker (according to alphabetical order) will also be listed.
+     */
     private String keyMarker;
-    /**Used together with key-marker
-     If key-marker is not specified, upload-id-marker will be ignored
-     If key-marker is specified, entries whose ObjectNames are in front of key-marker
-     (according to alphabetical order) will be listed, and entries whose ObjectNames
-     are equal to key-marker and UploadIDs are in front of upload-id-marker
-     (according to alphabetical order) will also be listed.*/
+    /**
+     * Used together with key-marker
+     * If key-marker is not specified, upload-id-marker will be ignored
+     * If key-marker is specified, entries whose ObjectNames are in front of key-marker
+     * (according to alphabetical order) will be listed, and entries whose ObjectNames
+     * are equal to key-marker and UploadIDs are in front of upload-id-marker
+     * (according to alphabetical order) will also be listed.
+     */
     private String uploadIdMarker;
 
     public ListMultiUploadsRequest(String bucket){
         super(bucket);
-    }
-
-    public ListMultiUploadsRequest(){
-        super(null);
     }
 
     @Override
@@ -92,7 +113,7 @@ final public class ListMultiUploadsRequest extends BucketRequest {
      * 如果没有 prefix，则从路径起点开始
      * </p>
      *
-     * @param delimiter
+     * @param delimiter 请求的delimiter
      */
     public void setDelimiter(String delimiter) {
         this.delimiter = delimiter;
@@ -113,7 +134,7 @@ final public class ListMultiUploadsRequest extends BucketRequest {
      * 合法值：url
      * </p>
      *
-     * @param encodingType
+     * @param encodingType 返回值的编码格式
      */
     public void setEncodingType(String encodingType) {
         this.encodingType = encodingType;
@@ -138,7 +159,7 @@ final public class ListMultiUploadsRequest extends BucketRequest {
      * ObjectName 字母顺序等于 key-marker 同时 UploadID 大于 upload-id-marker 的条目将被列出。
      * </p>
      *
-     * @param keyMarker
+     * @param keyMarker 请求的key-marker
      */
     public void setKeyMarker(String keyMarker) {
         this.keyMarker = keyMarker;
@@ -153,7 +174,7 @@ final public class ListMultiUploadsRequest extends BucketRequest {
 
     /**
      * 设置最大返回的 multipart 数量，合法取值从1到1000，默认1000
-     * @param maxUploads
+     * @param maxUploads 最大返回的 multipart 数量
      */
     public void setMaxUploads(String maxUploads) {
         this.maxUploads = maxUploads;
@@ -171,7 +192,7 @@ final public class ListMultiUploadsRequest extends BucketRequest {
      * 设置限定返回的 Object 的前缀
      * </p>
      *
-     * @param prefix
+     * @param prefix 限定返回的 Object 的前缀
      */
     public void setPrefix(String prefix) {
         this.prefix = prefix;
@@ -194,7 +215,7 @@ final public class ListMultiUploadsRequest extends BucketRequest {
      * 当 key-marker 被指定时，ObjectName字母顺序大于 key-marker 的条目被列出，
      * ObjectName 字母顺序等于 key-marker 同时 UploadID 大于 upload-id-marker 的条目将被列出。
      * </p>
-     * @param uploadIdMarker
+     * @param uploadIdMarker 请求的Upload-id-marker
      */
     public void setUploadIdMarker(String uploadIdMarker) {
         this.uploadIdMarker = uploadIdMarker;

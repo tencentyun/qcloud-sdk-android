@@ -1,10 +1,31 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.transfer;
 
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
@@ -17,19 +38,17 @@ import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.cos.xml.utils.DigestUtils;
+import com.tencent.cos.xml.utils.FileUtils;
 import com.tencent.qcloud.core.common.QCloudTaskStateListener;
-import com.tencent.qcloud.core.http.HttpConfiguration;
+import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import java.io.File;
-import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by bradyxiao on 2018/8/23.
- * Copyright 2010-2018 Tencent Cloud. All Rights Reserved.
+ * 下载传输任务
  */
-
 public final class COSXMLDownloadTask extends COSXMLTask{
 
     private final static String TAG = COSXMLUploadTask.class.getSimpleName();
@@ -82,6 +101,9 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         this.fileOffset = getObjectRequest.getFileOffset();
     }
 
+    /**
+     * 下载操作
+     */
     protected void download(){
         run();
     }
@@ -175,6 +197,23 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         }
     }
 
+    /**
+     * 第一次下载时，如果当前路径下文件已存在，则先删除
+     *
+     * @return
+     */
+    private synchronized String removeIfExist(){
+        if(sharedPreferences != null){
+
+            String filePath = sharedPreferences.getString(getKey(), null);
+            if (filePath == null) { // 第一次下载
+                FileUtils.deleteFileIfExist(getDownloadPath());
+            }
+            return filePath;
+        }
+        return null;
+    }
+
     private synchronized String hasExisted(){
         if(sharedPreferences != null){
             return sharedPreferences.getString(getKey(), null);
@@ -196,6 +235,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
     }
 
     private synchronized void save(String absolutePath){
+
         if(sharedPreferences != null){
             sharedPreferences.edit().putString(getKey(), absolutePath).commit();
         }
@@ -229,8 +269,12 @@ public final class COSXMLDownloadTask extends COSXMLTask{
     }
 
     protected void run() {
+
         headObjectRequest = new HeadObjectRequest(bucket, cosPath);
+        headObjectRequest.setRequestHeaders(headers);
+        headObjectRequest.setQueryParameters(queries);
         headObjectRequest.setRegion(region);
+        final String downloadPath = getDownloadPath();
 
         if(onSignatureListener != null){
             headObjectRequest.setSign(onSignatureListener.onGetSign(headObjectRequest));
@@ -278,7 +322,9 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                         }
                     }
                 }
-                save(getDownloadPath());
+                // 第一次下载文件，会先删除本地文件
+                FileUtils.deleteFileIfExist(downloadPath);
+                save(getDownloadPath()); // 第一次下载
                 hasWriteDataLen = 0L;
                 realDownload(rangeStart, rangeEnd, fileOffset);
             }
@@ -289,10 +335,21 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                     return;
                 }
                 if(IS_EXIT.get())return;
-                IS_EXIT.set(true);
-                Exception causeException = exception == null ? serviceException : exception;
-                causeException.printStackTrace();
-                updateState(TransferState.FAILED, causeException, null, false);
+//                IS_EXIT.set(true);
+//                Exception causeException = exception == null ? serviceException : exception;
+//                causeException.printStackTrace();
+//                updateState(TransferState.FAILED, causeException, null, false);
+                String errorMessage = "";
+                if (exception != null) {
+                    errorMessage = exception.getMessage();
+                } else if (serviceException != null) {
+                    errorMessage = serviceException.getMessage();
+                }
+                QCloudLogger.i(TAG, "head " + cosPath + "failed !, exception is " + errorMessage);
+                // head 失败后，也会先删除本地文件，然后全部重新下载
+                FileUtils.deleteFileIfExist(downloadPath);
+                hasWriteDataLen = 0L;
+                realDownload(rangeStart, rangeEnd, fileOffset);
             }
         });
     }
@@ -325,8 +382,10 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         download();
     }
 
+    /**
+     * 下载传输任务的请求
+     */
     public static class COSXMLDownloadTaskRequest extends GetObjectRequest{
-
         protected COSXMLDownloadTaskRequest(String region, String bucket, String cosPath, String savePath, String saveFileName, Map<String, List<String>> headers,
                                             Map<String, String> queryStr){
             super(bucket, cosPath, savePath, saveFileName);
@@ -336,6 +395,9 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         }
     }
 
+    /**
+     * 下载传输任务的返回结果
+     */
     public static class COSXMLDownloadTaskResult extends CosXmlResult{
         protected COSXMLDownloadTaskResult(){}
         public String eTag;

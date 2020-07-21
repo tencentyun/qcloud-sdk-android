@@ -1,26 +1,41 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.object;
 
 
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.qcloud.core.http.RequestBodySerializer;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 
 import java.util.Map;
 
 /**
- * <p>
- * 实现将一个文件的分块内容从源路径复制到目标路径。
- * </p>
- * <H1>初始化 init multiupload, 获取uploadId</H1>
- * <H1>Upload Part Copy </H1>
- * <H1> 完成 complete multiupload </H1>
- *
- *
+ * 分块复制的请求.
+ * @see com.tencent.cos.xml.SimpleCosXml#copyObject(UploadPartCopyRequest)
+ * @see com.tencent.cos.xml.SimpleCosXml#copyObjectAsync(UploadPartCopyRequest, CosXmlResultListener)
  */
-
 public class UploadPartCopyRequest extends CopyObjectRequest {
-
     /**Specified part number*/
     private int partNumber = -1;
     /**init upload generate' s uploadId by service*/
@@ -36,10 +51,6 @@ public class UploadPartCopyRequest extends CopyObjectRequest {
         this.partNumber = partNumber;
         this.uploadId = uploadId;
         setCopyRange(start, end);
-    }
-
-    public UploadPartCopyRequest(){
-        super(null, null, null);
     }
 
     @Override
@@ -61,11 +72,16 @@ public class UploadPartCopyRequest extends CopyObjectRequest {
         }
     }
 
+    /**
+     * 设置源对象的字节范围
+     * 例如 bytes=0-9 表示您希望拷贝源对象的开头10个字节的数据
+     * @param start 起始字节
+     * @param end 结束字节
+     */
     public void setCopyRange(long start, long end){
         if(start >= 0 && end >= start){
             String bytes = "bytes=" + start + "-" + end;
             addHeader(COSRequestHeaderKey.X_COS_COPY_SOURCE_RANGE, bytes);
         }
     }
-
 }

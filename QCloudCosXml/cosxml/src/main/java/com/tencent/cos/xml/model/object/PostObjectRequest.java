@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.object;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
@@ -7,6 +29,7 @@ import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.utils.DateUtils;
 import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.qcloud.core.auth.COSXmlSignSourceProvider;
@@ -29,9 +52,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by bradyxiao on 2018/6/11.
+ * 使用表单请求上传对象的请求.
+ * @see com.tencent.cos.xml.SimpleCosXml#postObject(PostObjectRequest)
+ * @see com.tencent.cos.xml.SimpleCosXml#postObjectAsync(PostObjectRequest, CosXmlResultListener)
  */
-
 public class PostObjectRequest extends ObjectRequest implements TransferRequest {
 
     private FormStruct formStruct = new FormStruct();
@@ -59,10 +83,9 @@ public class PostObjectRequest extends ObjectRequest implements TransferRequest 
         formStruct.inputStream = inputStream;
     }
 
-    public PostObjectRequest() {
-        super(null, null);
-    }
-
+    /**
+     * 设置文件长度范围
+     */
     public void setRange(long offset, long contentSize) {
         this.offset = offset;
         this.contentLength = contentSize;
@@ -128,86 +151,141 @@ public class PostObjectRequest extends ObjectRequest implements TransferRequest 
     }
 
     /**
-     * 上传进度回调
-     *
+     * 设置上传进度回调监听
      * @param progressListener 进度监听器 {@link CosXmlProgressListener}
      */
     public void setProgressListener(CosXmlProgressListener progressListener) {
         this.progressListener = progressListener;
     }
 
+    /**
+     * 获取上传进度回调监听
+     * @return 上传进度回调监听
+     */
     public CosXmlProgressListener getProgressListener() {
         return progressListener;
     }
 
+    /**
+     * 定义对象的访问控制列表（ACL）属性。
+     * 枚举值请参见 <a href="https://cloud.tencent.com/document/product/436/30752#.E9.A2.84.E8.AE.BE.E7.9A.84-acl">ACL 概述</a> 文档中对象的预设 ACL 部分，例如 default，private，public-read 等，默认为 default
+     * @param acl COS 访问权限
+     */
     public void setAcl(String acl) {
         formStruct.acl = acl;
     }
 
+    /**
+     * <p>
+     * 设置Cache-Control头部
+     * </p>
+     * @param cacheControl Cache-Control头部
+     */
     public void setCacheControl(String cacheControl) {
         formStruct.headers.put("Cache-Control", cacheControl);
     }
 
+    /**
+     * <p>
+     * 设置Content-Type头部
+     * </p>
+     * @param contentType Content-Type头部
+     */
     public void setContentType(String contentType) {
         formStruct.headers.put("Content-Type", contentType);
     }
 
+    /**
+     * <p>
+     * 设置Content-Disposition头部
+     * </p>
+     * @param contentDisposition Content-Disposition头部
+     */
     public void setContentDisposition(String contentDisposition) {
         formStruct.headers.put("Content-Disposition", contentDisposition);
     }
 
+    /**
+     * <p>
+     * 设置Content-Encoding头部
+     * </p>
+     * @param contentEncoding Content-Encoding头部
+     */
     public void setContentEncoding(String contentEncoding) {
         formStruct.headers.put("Content-Encoding", contentEncoding);
     }
 
+    /**
+     * <p>
+     * 设置Expires头部
+     * </p>
+     * @param expires Expires头部
+     */
     public void setExpires(String expires) {
         formStruct.headers.put("Expires", expires);
     }
 
     /**
-     * 设置 存储对象类别
-     * @see COSStorageClass
-     * @param stroageClass
+     * 设置对象的存储类型。
+     * 枚举值请参见 <a href="https://cloud.tencent.com/document/product/436/33417">存储类型</a> 文档，例如 STANDARD_IA，ARCHIVE。默认值：STANDARD
+     * @param stroageClass COS存储类型
      */
     public void setStroageClass(COSStorageClass stroageClass)
     {
         formStruct.headers.put(COSRequestHeaderKey.X_COS_STORAGE_CLASS_, stroageClass.getStorageClass());
     }
 
+    /**
+     * 设置HTTP头部
+     * @param key 键
+     * @param value 值
+     */
     public void setHeader(String key, String value) {
         if (key != null && value != null) {
             formStruct.headers.put(key, value);
         }
     }
 
+    /**
+     * 设置from表单内容
+     * @param key 键
+     * @param value 值
+     */
     public void setCustomerHeader(String key, String value) {
         if (key != null && value != null) {
             formStruct.customHeaders.put(key, value);
         }
     }
 
+    /**
+     * 设置对象的存储类型。
+     * 枚举值请参见 <a href="https://cloud.tencent.com/document/product/436/33417">存储类型</a> 文档，例如 STANDARD_IA，ARCHIVE。默认值：STANDARD
+     * @param cosStorageClass COS存储类型
+     */
     public void setCosStorageClass(String cosStorageClass) {
         formStruct.xCosStorageClass = cosStorageClass;
     }
 
     /**
-     * the host you want to redirect
-     *
-     * @param redirectHost
+     * 设置上传成功时重定向的目标 URL 地址
+     * @param redirectHost 上传成功时重定向的目标 URL 地址
      */
     public void setSuccessActionRedirect(String redirectHost) {
         formStruct.successActionRedirect = redirectHost;
     }
 
     /**
-     * successHttpCode can be 200, 201, 204, default value 204
-     *
-     * @param successHttpCode
+     * 设置上传成功时返回的 HTTP 状态码
+     * @param successHttpCode 上传成功时返回的 HTTP 状态码
      */
     public void setSuccessActionStatus(int successHttpCode) {
         formStruct.successActionStatus = String.valueOf(successHttpCode);
     }
 
+    /**
+     * 设置策略
+     * @param policy 策略
+     */
     public void setPolicy(Policy policy) {
         formStruct.policy = policy;
     }
@@ -298,6 +376,11 @@ public class PostObjectRequest extends ObjectRequest implements TransferRequest 
         }
     }
 
+    /**
+     * 策略
+     * <p>
+     * 详情请参考：<a herf="https://cloud.tencent.com/document/product/436/14690">POST Object</a>中的 构造“策略”（Policy）
+     */
     public static class Policy {
         private String expiration;
         private JSONArray conditions = new JSONArray();

@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.transfer;
 
 import android.os.Build;
@@ -14,6 +36,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * 传输任务状态监听器
+ */
 final class TaskStateMonitor implements Runnable{
 
     private static TaskStateMonitor monitor;
@@ -142,6 +167,9 @@ final class TaskStateMonitor implements Runnable{
         return looper;
     }
 
+    /**
+     * 退出
+     */
     public void quitSafely(){
         taskHandler.removeCallbacksAndMessages(null);
         Looper looper = getLooper();
@@ -155,10 +183,16 @@ final class TaskStateMonitor implements Runnable{
         isRunning = false;
     }
 
+    /**
+     * 更新状态
+     */
     protected void stateTransform(COSXMLTask cosxmlTask, TransferState newState, Exception exception, CosXmlResult result, boolean isInit){
         cosxmlTask.updateState(newState, exception, result, isInit);
     }
 
+    /**
+     * 发送状态消息
+     */
     protected void sendStateMessage(COSXMLTask cosxmlTask, TransferState newState, Exception exception, CosXmlResult cosXmlResult, int what){
         if(taskHandler == null)return; //暂不处理
         Message message = taskHandler.obtainMessage();

@@ -1,38 +1,57 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.object;
 
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
 /**
- * <p>
- * Object 跨域访问配置的预请求。
- * </p>
- * <p>
- * 即在发送跨域请求之前会发送一个 OPTIONS 请求并带上特定的来源域，HTTP 方法和 HEADER 信息等给 COS，以决定是否可以发送真正的跨域请求。
- * 当 CORS 配置不存在时，请求返回 403 Forbidden。
- * </p>
- * <p>
- * 可以通过 PutBucketCORS 接口来开启 Bucket 的 CORS 支持。
- * </p>
- *
+ * 对象跨域访问配置预请求的请求.
+ * @see com.tencent.cos.xml.CosXml#optionObject(OptionObjectRequest)
+ * @see com.tencent.cos.xml.CosXml#optionObjectAsync(OptionObjectRequest, CosXmlResultListener)
  */
 final public class OptionObjectRequest extends ObjectRequest {
     private String origin;
     private String accessControlMethod;
     private String accessControlHeaders;
+
+    /**
+     *
+     * @param bucket 存储桶名
+     * @param cosPath 对象cos上的路径
+     * @param origin 请求来源域名
+     * @param accessControlMethod 跨域访问的请求 HTTP 方法
+     */
     public OptionObjectRequest(String bucket, String cosPath, String origin, String accessControlMethod){
         super(bucket, cosPath);
         this.origin = origin;
         this.accessControlMethod = accessControlMethod;
         setOrigin(origin);
         setAccessControlMethod(accessControlMethod);
-    }
-
-    public OptionObjectRequest(){
-        super(null, null);
     }
 
     @Override

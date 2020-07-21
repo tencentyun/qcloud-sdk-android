@@ -10,10 +10,10 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 50503
-        versionName "5.5.3"
+        versionCode 50504
+        versionName "5.5.4"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
     }
 
@@ -37,6 +37,17 @@ android {
 
             it.buildConfigField 'String', 'COS_CI_SECRET_ID', quotWrapper(System.getenv("COS_CI_SECRET_ID"))
             it.buildConfigField 'String', 'COS_CI_SECRET_KEY', quotWrapper(System.getenv("COS_CI_SECRET_KEY"))
+
+            it.buildConfigField 'String', 'COS_SUB_SECRET_ID', quotWrapper(System.getenv("COS_SUB_SECRET_ID"))
+            it.buildConfigField 'String', 'COS_SUB_SECRET_KEY', quotWrapper(System.getenv("COS_SUB_SECRET_KEY"))
+            it.buildConfigField 'String', 'COS_SUB_BUCKET_PERSIST', quotWrapper(System.getenv("COS_SUB_BUCKET_PERSIST"))
+            it.buildConfigField 'String', 'COS_SUB_BUCKET_PERSIST_REGION', quotWrapper(System.getenv("COS_SUB_BUCKET_PERSIST_REGION"))
+
+            it.buildConfigField 'String', 'COS_SUB_BUCKET_QUIC', quotWrapper(System.getenv("COS_SUB_BUCKET_QUIC"))
+            it.buildConfigField 'String', 'COS_SUB_BUCKET_QUIC_REGION', quotWrapper(System.getenv("COS_SUB_BUCKET_QUIC_REGION"))
+
+            it.buildConfigField 'String', 'COS_SUB_BUCKET_CDN_SIGN', quotWrapper(System.getenv("COS_SUB_BUCKET_CDN_SIGN"))
+            it.buildConfigField 'String', 'COS_QUIC_TEST_IP', quotWrapper(System.getenv("COS_QUIC_TEST_IP"))
         }
 
         release {
@@ -58,29 +69,50 @@ android {
 
     // 切换发 normal 或者 slim 包，需要同步修改 pom.artifactId 信息
     defaultPublishConfig "normalRelease"
-    //defaultPublishConfig "slimRelease"
+    // defaultPublishConfig "slimRelease"
 
     compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
     }
     buildToolsVersion = '28.0.2'
-
 
 }
 
 dependencies {
 
-    compileOnly 'com.android.support:appcompat-v7:28.0.0'
+    compileOnly 'androidx.appcompat:appcompat:1.0.0'
     testCompileOnly 'junit:junit:4.12'
 
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
     api project(path: ':foundation')
     api project(path: ':mtaUtils')
     api project(path: ':logUtils')
-//    api project(path: ':quic')
+    api project(path: ':quic')
 }
+
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
 
 // 发布到 bintray
 
