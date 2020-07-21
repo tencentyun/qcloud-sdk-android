@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml;
 
 import android.content.Context;
@@ -81,17 +103,25 @@ import com.tencent.cos.xml.model.bucket.PutBucketVersioningRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketVersioningResult;
 import com.tencent.cos.xml.model.bucket.PutBucketWebsiteRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketWebsiteResult;
+import com.tencent.cos.xml.model.ci.PreviewDocumentRequest;
+import com.tencent.cos.xml.model.ci.PreviewDocumentResult;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
 import com.tencent.cos.xml.model.object.DeleteMultiObjectRequest;
 import com.tencent.cos.xml.model.object.DeleteMultiObjectResult;
 import com.tencent.cos.xml.model.object.DeleteObjectRequest;
+import com.tencent.cos.xml.model.object.DeleteObjectTaggingRequest;
+import com.tencent.cos.xml.model.object.DeleteObjectTaggingResult;
 import com.tencent.cos.xml.model.object.GetObjectACLRequest;
 import com.tencent.cos.xml.model.object.GetObjectACLResult;
+import com.tencent.cos.xml.model.object.GetObjectTaggingRequest;
+import com.tencent.cos.xml.model.object.GetObjectTaggingResult;
 import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.cos.xml.model.object.OptionObjectRequest;
 import com.tencent.cos.xml.model.object.OptionObjectResult;
 import com.tencent.cos.xml.model.object.PutObjectACLRequest;
 import com.tencent.cos.xml.model.object.PutObjectACLResult;
+import com.tencent.cos.xml.model.object.PutObjectTaggingRequest;
+import com.tencent.cos.xml.model.object.PutObjectTaggingResult;
 import com.tencent.cos.xml.model.object.RestoreRequest;
 import com.tencent.cos.xml.model.object.RestoreResult;
 import com.tencent.cos.xml.model.object.SelectObjectContentRequest;
@@ -105,9 +135,13 @@ import com.tencent.qcloud.core.auth.QCloudSigner;
 import com.tencent.qcloud.core.http.QCloudHttpRequest;
 
 /**
- * Created by bradyxiao on 2017/11/30.
+ * 提供用于访问Tencent Cloud COS服务的全面服务类。<br>
+ * 在调用 COS 服务前，都必须初始化一个该类的对象。<br>
+ * 该类只存在于 cosxml 包中，cosxml-lite 包中，只包含了 {@link CosXmlSimpleService} 类。
+ * <p>
+ * 更详细的使用方式请参考：<a href="https://cloud.tencent.com/document/product/436/12159#.E5.88.9D.E5.A7.8B.E5.8C.96.E6.9C.8D.E5.8A.A1">入门文档</a>
+ * <p>
  */
-
 public class CosXmlService extends CosXmlSimpleService implements CosXml {
 
     private String getServiceRequestDomain;
@@ -116,16 +150,29 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
      * cos android SDK 服务
      * @param context Application 上下文{@link android.app.Application}
      * @param configuration cos android SDK 服务配置{@link CosXmlServiceConfig}
-     * @param qCloudCredentialProvider cos android SDK 签名提供者 {@link QCloudCredentialProvider}
+     * @param qCloudCredentialProvider cos android SDK 证书提供者 {@link QCloudCredentialProvider}
      */
     public CosXmlService(Context context, CosXmlServiceConfig configuration, QCloudCredentialProvider qCloudCredentialProvider){
         super(context, configuration, qCloudCredentialProvider);
     }
 
+    /**
+     * cos android SDK 服务
+     *
+     * @param context       Application 上下文{@link android.app.Application}
+     * @param configuration cos android SDK 服务配置 {@link CosXmlServiceConfig}
+     * @param qCloudSigner  cos android SDK 签名提供者 {@link QCloudSigner}
+     */
     public CosXmlService(Context context, CosXmlServiceConfig configuration, QCloudSigner qCloudSigner) {
         super(context, configuration, qCloudSigner);
     }
 
+    /**
+     * cos android SDK 服务
+     *
+     * @param context       Application 上下文{@link android.app.Application}
+     * @param configuration cos android SDK 服务配置{@link CosXmlServiceConfig}
+     */
     public CosXmlService(Context context, CosXmlServiceConfig configuration) {
         super(context, configuration);
     }
@@ -306,6 +353,84 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
     @Override
     public void putObjectACLAsync(PutObjectACLRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new PutObjectACLResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 设置对象标签的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#putObjectTagging(PutObjectTaggingRequest)}
+     * </p>
+     */
+    @Override
+    public PutObjectTaggingResult putObjectTagging(PutObjectTaggingRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PutObjectTaggingResult());
+    }
+
+    /**
+     * <p>
+     * 设置对象标签的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#putObjectTaggingAsync(PutObjectTaggingRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void putObjectTaggingAsync(PutObjectTaggingRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PutObjectTaggingResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 获取对象标签的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getObjectTagging(GetObjectTaggingRequest)}
+     * </p>
+     */
+    @Override
+    public GetObjectTaggingResult getObjectTagging(GetObjectTaggingRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetObjectTaggingResult());
+    }
+
+    /**
+     * <p>
+     * 获取对象标签的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getObjectTaggingAsync(GetObjectTaggingRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void getObjectTaggingAsync(GetObjectTaggingRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new GetObjectTaggingResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 删除对象标签的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteObjectTagging(DeleteObjectTaggingRequest)}
+     * </p>
+     */
+    @Override
+    public DeleteObjectTaggingResult deleteObjectTagging(DeleteObjectTaggingRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DeleteObjectTaggingResult());
+    }
+
+    /**
+     * <p>
+     * 删除对象标签的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteObjectTaggingAsync(DeleteObjectTaggingRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void deleteObjectTaggingAsync(DeleteObjectTaggingRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DeleteObjectTaggingResult(), cosXmlResultListener);
     }
 
 //    /**
@@ -907,7 +1032,9 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
 
     /**
      * <p>
-     * 通过封装 HeadBucketRequest 请求来判断 bucket 是否存在。
+     * 通过封装 HeadBucketRequest 请求来判断 bucket 是否存在.&nbsp。
+     *
+     * 详细介绍，请查看: {@link CosXml#doesBucketExist(String)}
      * </p>
      */
     @Override
@@ -931,6 +1058,13 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
         }
     }
 
+    /**
+     * <p>
+     * 通过封装 HeadBucketRequest 请求来判断 bucket 是否存在.&nbsp。
+     *
+     * 详细介绍，请查看: {@link CosXml#doesBucketExistAsync(String, CosXmlBooleanListener)}
+     * </p>
+     */
     @Override
     public void doesBucketExistAsync(final String bucketName, final CosXmlBooleanListener booleanListener) {
 
@@ -964,11 +1098,13 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
 
     /**
      * <p>
-     * 通过封装 HeadObjectRequest 请求来判断对象是否存在。
+     * 通过封装 HeadObjectRequest 请求来判断对象是否存在.&nbsp。
      * </p>
      *
      * <p>
-     * 注意只能在单个 region 下判断，无法一次性判断所有的 region 。
+     * 注意只能在单个 region 下判断，无法一次性判断所有的 region.&nbsp。
+     *
+     * 详细介绍，请查看: {@link CosXml#doesObjectExist(String, String)}
      * </p>
      */
     @Override
@@ -989,6 +1125,17 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
         return true;
     }
 
+    /**
+     * <p>
+     * 通过封装 HeadObjectRequest 请求来判断对象是否存在.&nbsp。
+     * </p>
+     *
+     * <p>
+     * 注意只能在单个 region 下判断，无法一次性判断所有的 region.&nbsp。
+     *
+     * 详细介绍，请查看: {@link CosXml#doesObjectExistAsync(String, String, CosXmlBooleanListener)}
+     * </p>
+     */
     @Override
     public void doesObjectExistAsync(String bucketName, String objectName, final CosXmlBooleanListener booleanListener) {
 
@@ -1013,7 +1160,14 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
 
     }
 
-
+    /**
+     * <p>
+     * 通过封装 DeleteObjectRequest 请求来删除对象.&nbsp。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteObject(String, String)}
+     * </p>
+     */
     @Override
     public boolean deleteObject(String bucketName, String objectName) throws CosXmlClientException, CosXmlServiceException {
 
@@ -1022,22 +1176,26 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
         return true;
     }
 
-
+    /**
+     * <p>
+     * 通过封装 DeleteObjectRequest 请求来删除对象.&nbsp。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteObjectAsync(String, String, CosXmlBooleanListener)}
+     * </p>
+     */
     @Override
     public void deleteObjectAsync(String bucketName, String objectName, final CosXmlBooleanListener booleanListener) {
 
         DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucketName, objectName);
         deleteObjectAsync(deleteObjectRequest, new CosXmlResultListener() {
-
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-
                 booleanListener.onSuccess(true);
             }
 
             @Override
             public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
-
                 booleanListener.onFail(exception, serviceException);
             }
         });
@@ -1049,6 +1207,8 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
      * 利用 CopyObjectRequest 来更新对象的 meta。
      * </p>
      *
+     * 详细介绍，请查看: {@link CosXml#updateObjectMeta(String, String, COSMetaData)}
+     * </p>
      */
     @Override
     public boolean updateObjectMeta(String bucketName, String objectName, COSMetaData metaData) throws CosXmlClientException, CosXmlServiceException{
@@ -1068,6 +1228,9 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
     /**
      * <p>
      * 利用 CopyObjectRequest 来更新对象的 meta 的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#updateObjectMetaAsync(String, String, COSMetaData, CosXmlBooleanListener)}
      * </p>
      */
     @Override
@@ -1089,132 +1252,323 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
 
             @Override
             public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
-
                 booleanListener.onFail(exception, serviceException);
             }
         });
-
     }
 
+    /**
+     * <p>
+     * 设置存储桶静态网站参数的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#putBucketWebsite(PutBucketWebsiteRequest)}
+     * </p>
+     */
     @Override
     public PutBucketWebsiteResult putBucketWebsite(PutBucketWebsiteRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new PutBucketWebsiteResult());
     }
 
+    /**
+     * <p>
+     * 设置存储桶静态网站参数的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#putBucketWebsiteAsync(PutBucketWebsiteRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void putBucketWebsiteAsync(PutBucketWebsiteRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new PutBucketWebsiteResult(), cosXmlResultListener);
     }
 
+    /**
+     * <p>
+     * 获取存储桶静态网站参数的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketWebsite(GetBucketWebsiteRequest)}
+     * </p>
+     */
     @Override
     public GetBucketWebsiteResult getBucketWebsite(GetBucketWebsiteRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new GetBucketWebsiteResult());
     }
 
+    /**
+     * <p>
+     * 获取存储桶静态网站参数的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketWebsiteAsync(GetBucketWebsiteRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void getBucketWebsiteAsync(GetBucketWebsiteRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetBucketWebsiteResult(), cosXmlResultListener);
     }
 
+    /**
+     * <p>
+     * 删除存储桶静态网站参数的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteBucketWebsite(DeleteBucketWebsiteRequest)}
+     * </p>
+     */
     @Override
     public DeleteBucketWebsiteResult deleteBucketWebsite(DeleteBucketWebsiteRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new DeleteBucketWebsiteResult());
     }
 
+    /**
+     * <p>
+     * 删除存储桶静态网站参数的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteBucketWebsiteAsync(DeleteBucketWebsiteRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void deleteBucketWebsiteAsync(DeleteBucketWebsiteRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new DeleteBucketWebsiteResult(), cosXmlResultListener);
     }
 
+    /**
+     * <p>
+     * 设置存储桶日志记录的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#putBucketLogging(PutBucketLoggingRequest)}
+     * </p>
+     */
     @Override
     public PutBucketLoggingResult putBucketLogging(PutBucketLoggingRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new PutBucketLoggingResult());
     }
 
+    /**
+     * <p>
+     * 设置存储桶日志记录的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#putBucketLoggingAsync(PutBucketLoggingRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void putBucketLoggingAsync(PutBucketLoggingRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new PutBucketLoggingResult(), cosXmlResultListener);
     }
 
-    @Override
-    public PutBucketTaggingResult putBucketTagging(PutBucketTaggingRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new PutBucketTaggingResult());
-    }
-
-    @Override
-    public void putBucketTaggingAsync(PutBucketTaggingRequest request, CosXmlResultListener cosXmlResultListener) {
-        schedule(request, new PutBucketTaggingResult(), cosXmlResultListener);
-    }
-
-    @Override
-    public GetBucketTaggingResult getBucketTagging(GetBucketTaggingRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new GetBucketTaggingResult());
-    }
-
-    @Override
-    public void getBucketTaggingAsync(GetBucketTaggingRequest request, CosXmlResultListener cosXmlResultListener) {
-        schedule(request, new GetBucketTaggingResult(), cosXmlResultListener);
-    }
-
-    @Override
-    public DeleteBucketTaggingResult deleteBucketTagging(DeleteBucketTaggingRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new DeleteBucketTaggingResult());
-    }
-
-    @Override
-    public void deleteBucketTaggingAsync(DeleteBucketTaggingRequest request, CosXmlResultListener cosXmlResultListener) {
-        schedule(request, new DeleteBucketTaggingResult(), cosXmlResultListener);
-    }
-
+    /**
+     * <p>
+     * 获取存储桶日志记录的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketLogging(GetBucketLoggingRequest)}
+     * </p>
+     */
     @Override
     public GetBucketLoggingResult getBucketLogging(GetBucketLoggingRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new GetBucketLoggingResult());
     }
 
+    /**
+     * <p>
+     * 获取存储桶日志记录的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketLoggingAsync(GetBucketLoggingRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void getBucketLoggingAsync(GetBucketLoggingRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetBucketLoggingResult(), cosXmlResultListener);
     }
 
+    /**
+     * <p>
+     * 设置存储桶标签的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#putBucketTagging(PutBucketTaggingRequest)}
+     * </p>
+     */
+    @Override
+    public PutBucketTaggingResult putBucketTagging(PutBucketTaggingRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PutBucketTaggingResult());
+    }
+
+    /**
+     * <p>
+     * 设置存储桶标签的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#putBucketTaggingAsync(PutBucketTaggingRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void putBucketTaggingAsync(PutBucketTaggingRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PutBucketTaggingResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 获取存储桶标签的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketTagging(GetBucketTaggingRequest)}
+     * </p>
+     */
+    @Override
+    public GetBucketTaggingResult getBucketTagging(GetBucketTaggingRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetBucketTaggingResult());
+    }
+
+    /**
+     * <p>
+     * 获取存储桶标签的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketTaggingAsync(GetBucketTaggingRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void getBucketTaggingAsync(GetBucketTaggingRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new GetBucketTaggingResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 删除存储桶标签的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteBucketTagging(DeleteBucketTaggingRequest)}
+     * </p>
+     */
+    @Override
+    public DeleteBucketTaggingResult deleteBucketTagging(DeleteBucketTaggingRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DeleteBucketTaggingResult());
+    }
+
+    /**
+     * <p>
+     * 删除存储桶标签的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteBucketTaggingAsync(DeleteBucketTaggingRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void deleteBucketTaggingAsync(DeleteBucketTaggingRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DeleteBucketTaggingResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 设置存储桶清单的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#putBucketInventory(PutBucketInventoryRequest)}
+     * </p>
+     */
     @Override
     public PutBucketInventoryResult putBucketInventory(PutBucketInventoryRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new PutBucketInventoryResult());
     }
 
+    /**
+     * <p>
+     * 设置存储桶清单的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#putBucketInventoryAsync(PutBucketInventoryRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void putBucketInventoryAsync(PutBucketInventoryRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new PutBucketInventoryResult(), cosXmlResultListener);
     }
 
+    /**
+     * <p>
+     * 获取存储桶清单的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketInventory(GetBucketInventoryRequest)}
+     * </p>
+     */
     @Override
     public GetBucketInventoryResult getBucketInventory(GetBucketInventoryRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new GetBucketInventoryResult());
     }
 
+    /**
+     * <p>
+     * 获取存储桶清单的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketInventoryAsync(GetBucketInventoryRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void getBucketInventoryAsync(GetBucketInventoryRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetBucketInventoryResult(), cosXmlResultListener);
     }
 
+    /**
+     * <p>
+     * 删除存储桶清单的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteBucketInventory(DeleteBucketInventoryRequest)}
+     * </p>
+     */
     @Override
     public DeleteBucketInventoryResult deleteBucketInventory(DeleteBucketInventoryRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new DeleteBucketInventoryResult());
     }
 
+    /**
+     * <p>
+     * 删除存储桶清单的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteBucketInventoryAsync(DeleteBucketInventoryRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void deleteBucketInventoryAsync(DeleteBucketInventoryRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new DeleteBucketInventoryResult(), cosXmlResultListener);
     }
 
+    /**
+     * <p>
+     * 查询存储桶清单的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#listBucketInventory(ListBucketInventoryRequest)}
+     * </p>
+     */
     @Override
     public ListBucketInventoryResult listBucketInventory(ListBucketInventoryRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new ListBucketInventoryResult());
     }
 
+    /**
+     * <p>
+     * 查询存储桶清单的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#listBucketInventoryAsync(ListBucketInventoryRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void listBucketInventoryAsync(ListBucketInventoryRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new ListBucketInventoryResult(), cosXmlResultListener);
     }
+
 
     @Override
     public GetBucketDomainResult getBucketDomain(GetBucketDomainRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -1236,26 +1590,82 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
         schedule(request, new PutBucketDomainResult(), cosXmlResultListener);
     }
 
+    /**
+     * <p>
+     * 使用 SQL 语句检索内容的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#selectObjectContent(SelectObjectContentRequest)}
+     * </p>
+     */
     @Override
     public SelectObjectContentResult selectObjectContent(SelectObjectContentRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new SelectObjectContentResult());
     }
 
+    /**
+     * <p>
+     * 使用 SQL 语句检索内容的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#selectObjectContentAsync(SelectObjectContentRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void selectObjectContentAsync(SelectObjectContentRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new SelectObjectContentResult(), cosXmlResultListener);
     }
 
+    /**
+     * <p>
+     * 拉取存储桶内的所有对象及其历史版本信息的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketObjectVersions(GetBucketObjectVersionsRequest)}
+     * </p>
+     */
     @Override
     public GetBucketObjectVersionsResult getBucketObjectVersions(GetBucketObjectVersionsRequest getBucketObjectVersionsRequest) throws CosXmlClientException, CosXmlServiceException {
         return execute(getBucketObjectVersionsRequest, new GetBucketObjectVersionsResult());
     }
 
+    /**
+     * <p>
+     * 拉取存储桶内的所有对象及其历史版本信息的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketObjectVersionsAsync(GetBucketObjectVersionsRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void getBucketObjectVersionsAsync(GetBucketObjectVersionsRequest getBucketObjectVersionsRequest, CosXmlResultListener cosXmlResultListener) {
         schedule(getBucketObjectVersionsRequest, new GetBucketObjectVersionsResult(), cosXmlResultListener);
     }
 
+    /**
+     * <p>
+     * 预览文档的同步方法。
+     * </p>
+     * @param request 预览文档的请求 {@link PreviewDocumentRequest}
+     * @return 预览文档的返回结果 {@link PreviewDocumentResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public PreviewDocumentResult previewDocument(PreviewDocumentRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PreviewDocumentResult(request.getDownloadPath()));
+    }
+
+    /**
+     * <p>
+     * 预览文档的异步方法
+     * </p>
+     *
+     * @param request 预览文档的请求 {@link PreviewDocumentRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void previewDocumentAsync(PreviewDocumentRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PreviewDocumentResult(request.getDownloadPath()), cosXmlResultListener);
+    }
 
     @Override
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> boolean buildHttpRequestBodyConverter(T1 cosXmlRequest, T2 cosXmlResult, QCloudHttpRequest.Builder<T2> httpRequestBuilder) {
@@ -1274,6 +1684,16 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
     }
 
     @Override
+    protected String getRequestHostHeader(CosXmlRequest request) {
+
+        if (request instanceof GetServiceRequest) {
+            return "service.cos.myqcloud.com";
+        }
+
+        return super.getRequestHostHeader(request);
+    }
+
+    @Override
     protected String getRequestHost(CosXmlRequest request, boolean isHeader) throws CosXmlClientException {
 
         if (request instanceof GetServiceRequest && !TextUtils.isEmpty(getServiceRequestDomain)) {
@@ -1286,7 +1706,7 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
     /**
      * 设置 get service 请求的域名
      *
-     * @param domain
+     * @param domain GetService 请求的域名
      */
     public void setServiceDomain(String domain) {
 

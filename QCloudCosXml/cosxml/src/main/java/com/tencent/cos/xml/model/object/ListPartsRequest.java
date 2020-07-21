@@ -1,19 +1,40 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.object;
 
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 import com.tencent.qcloud.core.task.QCloudTask;
 
 import java.util.Map;
 
 /**
- * <p>
- * 查询特定分块上传中的已上传的块。
- * </p>
- * 关于查询特定分块上传中的已上传块接口的描述，请查看 <a href="https://cloud.tencent.com/document/product/436/7747">
- * https://cloud.tencent.com/document/product/436/7747.</a><br>
+ * 查询特定分块上传中的已上传的块的请求.
+ * @see com.tencent.cos.xml.SimpleCosXml#listParts(ListPartsRequest)
+ * @see com.tencent.cos.xml.SimpleCosXml#listPartsAsync(ListPartsRequest, CosXmlResultListener)
  */
 final public class ListPartsRequest extends BaseMultipartUploadRequest {
 
@@ -24,17 +45,13 @@ final public class ListPartsRequest extends BaseMultipartUploadRequest {
 
     /**
      *
-     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 test-1253960454)
+     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 bucket-1250000000)
      * @param cosPath 远端路径，即存储到 COS 上的绝对路径
      * @param uploadId 初始化分片返回的 uploadId
      */
     public ListPartsRequest(String bucket, String cosPath, String uploadId){
         super(bucket, cosPath);
         this.uploadId = uploadId;
-    }
-
-    public ListPartsRequest(){
-        super(null, null);
     }
 
     @Override

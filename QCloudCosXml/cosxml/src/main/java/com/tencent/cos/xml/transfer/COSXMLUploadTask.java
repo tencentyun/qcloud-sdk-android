@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.transfer;
 
 
@@ -25,7 +47,6 @@ import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.cos.xml.model.object.UploadPartResult;
 import com.tencent.cos.xml.model.tag.ListParts;
 import com.tencent.qcloud.core.common.QCloudTaskStateListener;
-import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.util.ContextHolder;
 import com.tencent.qcloud.core.util.QCloudUtils;
@@ -34,7 +55,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,10 +65,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Created by bradyxiao on 2018/8/23.
- * Copyright 2010-2018 Tencent Cloud. All Rights Reserved.
+ * 上传传输任务
  */
-
 public final class COSXMLUploadTask extends COSXMLTask {
 
     /** 满足分片上传的文件最小长度 */
@@ -198,12 +216,15 @@ public final class COSXMLUploadTask extends COSXMLTask {
         return true;
     }
 
+    /**
+     * 上传操作
+     */
     protected void upload(){
         if(!checkParameter()) return;
         run();
     }
 
-    private void dispatchProgressChanage(long complete, long target) {
+    private void dispatchProgressChange(long complete, long target) {
 
         if (cosXmlProgressListener != null) {
             cosXmlProgressListener.onProgress(complete, target);
@@ -244,7 +265,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         putObjectRequest.setProgressListener(new CosXmlProgressListener() {
             @Override
             public void onProgress(long complete, long target) {
-                dispatchProgressChanage(complete, target);
+                dispatchProgressChange(complete, target);
             }
         });
 
@@ -406,7 +427,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                         try {
                             long dataLen = ALREADY_SEND_DATA_LEN.addAndGet(complete - uploadPartRequestLongMap.get(uploadPartRequest));
                             uploadPartRequestLongMap.put(uploadPartRequest, complete);
-                            dispatchProgressChanage(dataLen, fileLength);
+                            dispatchProgressChange(dataLen, fileLength);
                         }catch (Exception e){
                             //cause by cancel or pause
                         }
@@ -442,7 +463,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
             }
         }
         if(isUploadFinished && !IS_EXIT.get()){
-            dispatchProgressChanage(fileLength, fileLength);
+            dispatchProgressChange(fileLength, fileLength);
             multiUploadsStateListenerHandler.onUploadParts();
         }
     }
@@ -514,7 +535,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
     /**
      * 如果已经发送了 CompleteMultiUpload 请求，则不允许暂停
      *
-     * @return 是否暂停功
+     * @return 是否暂停成功
      */
     public boolean pauseSafely() {
 
@@ -632,10 +653,18 @@ public final class COSXMLUploadTask extends COSXMLTask {
         return cosxmlUploadTaskResult;
     }
 
+    /**
+     * 获取分片uploadId属性
+     * @return 分片uploadId属性
+     */
     public String getUploadId(){
         return uploadId;
     }
 
+    /**
+     * 设置分片uploadId
+     * @param uploadId 分片uploadId
+     */
     public void setUploadId(String uploadId) {
         this.uploadId = uploadId;
     }
@@ -848,8 +877,10 @@ public final class COSXMLUploadTask extends COSXMLTask {
         void onFailed(CosXmlRequest cosXmlRequest, CosXmlClientException exception, CosXmlServiceException serviceException);
     }
 
+    /**
+     * 上传传输任务的请求
+     */
     public static class COSXMLUploadTaskRequest extends PutObjectRequest{
-
         protected COSXMLUploadTaskRequest(String region, String bucket, String cosPath, String srcPath, Map<String, List<String>> headers,
                                           Map<String, String> queryStr) {
             super(bucket, cosPath, srcPath);
@@ -859,6 +890,9 @@ public final class COSXMLUploadTask extends COSXMLTask {
         }
     }
 
+    /**
+     * 上传传输任务的返回结果
+     */
     public static class COSXMLUploadTaskResult extends CosXmlResult{
         protected COSXMLUploadTaskResult(){}
         public String eTag;

@@ -1,12 +1,29 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.transfer;
 
-import android.support.annotation.Nullable;
-import android.text.TextUtils;
-import android.util.Log;
 import android.util.Xml;
 
-
-import com.tencent.cos.xml.model.bucket.GetBucketObjectVersionsResult;
 import com.tencent.cos.xml.model.tag.AccessControlPolicy;
 import com.tencent.cos.xml.model.tag.BucketLoggingStatus;
 import com.tencent.cos.xml.model.tag.CORSConfiguration;
@@ -41,11 +58,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by bradyxiao on 2017/11/24.
+ * xml解析器，
+ * 用于将相应中的xml解析为对应的Result实体
  */
 
 public class XmlParser extends XmlSlimParser {
-    //service
+    /**
+     * 解析 GETService结果的所有信息
+     * @param inputStream xml输入流
+     * @param result GET Service 结果的所有信息
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseListAllMyBucketsResult(InputStream inputStream, ListAllMyBuckets result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -99,9 +123,14 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 BucketObjectVersions结果信息
+     * @param inputStream xml输入流
+     * @param listVersionResult BucketObjectVersions结果信息
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseGetBucketObjectVersionsResult(InputStream inputStream, ListVersionResult listVersionResult) throws XmlPullParserException, IOException {
-
-
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
         int eventType = xmlPullParser.getEventType();
@@ -255,7 +284,13 @@ public class XmlParser extends XmlSlimParser {
 
     }
 
-    //bucket
+    /**
+     * 解析 存储桶列表
+     * @param inputStream xml输入流
+     * @param result 存储桶列表
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseListBucketResult(InputStream inputStream, ListBucket result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -342,6 +377,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 ACL信息
+     * @param inputStream xml输入流
+     * @param result ACL信息
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseAccessControlPolicy(InputStream inputStream, AccessControlPolicy result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -402,6 +444,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 跨域资源共享配置
+     * @param inputStream xml输入流
+     * @param result 跨域资源共享配置
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseCORSConfiguration(InputStream inputStream, CORSConfiguration result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -456,6 +505,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 跨地域配置信息
+     * @param inputStream xml输入流
+     * @param result 跨地域配置信息
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseReplicationConfiguration(InputStream inputStream, ReplicationConfiguration result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -507,6 +563,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 版本控制信息
+     * @param inputStream xml输入流
+     * @param result 版本控制信息
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseVersioningConfiguration(InputStream inputStream, VersioningConfiguration result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -527,9 +590,12 @@ public class XmlParser extends XmlSlimParser {
     }
 
     /**
-     * 需满足以下条件，否则解析错误
-     *
-     * 1. 返回的数据中只能有一个 TagSet 标签
+     * 解析 标签集合，
+     * 返回的数据中只能有一个 TagSet 标签
+     * @param inputStream xml输入流
+     * @param tagging 标签集合
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
      */
     public static void parseTagging(InputStream inputStream, Tagging tagging) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
@@ -574,6 +640,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 生命周期配置
+     * @param inputStream xml输入流
+     * @param result 生命周期配置
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseLifecycleConfiguration(InputStream inputStream, LifecycleConfiguration result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -680,6 +753,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 Bucket所在地域
+     * @param inputStream xml输入流
+     * @param result Bucket所在地域
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseLocationConstraint(InputStream inputStream, LocationConstraint result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -699,6 +779,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 所有分块上传的信息
+     * @param inputStream xml输入流
+     * @param result 所有分块上传的信息
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseListMultipartUploadsResult(InputStream inputStream, ListMultipartUploads result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -815,6 +902,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 批量删除结果
+     * @param inputStream xml输入流
+     * @param result 批量删除结果
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseDeleteResult(InputStream inputStream, DeleteResult result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -872,6 +966,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 分块复制结果
+     * @param inputStream xml输入流
+     * @param result 分块复制结果
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseCopyPartResult(InputStream inputStream, CopyPart result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -894,6 +995,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 GET Bucket Object versions 结果
+     * @param inputStream xml输入流
+     * @param result GET Bucket Object versions 结果
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseListBucketVersions(InputStream inputStream, ListBucketVersions result) throws XmlPullParserException, IOException{
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -980,6 +1088,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 存储桶关联的静态网站配置信息
+     * @param inputStream xml输入流
+     * @param result 存储桶关联的静态网站配置信息
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseWebsiteConfig(InputStream inputStream, WebsiteConfiguration result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser =  Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -1054,6 +1169,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 存储桶中所有清单任务信息的列表
+     * @param inputStream xml输入流
+     * @param result 存储桶中所有清单任务信息的列表
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseListInventoryConfiguration(InputStream inputStream, ListInventoryConfiguration result) throws IOException, XmlPullParserException {
         XmlPullParser xmlPullParser = Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -1153,6 +1275,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 清单配置参数
+     * @param inputStream xml输入流
+     * @param result 清单配置参数
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseInventoryConfiguration(InputStream inputStream, InventoryConfiguration result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser = Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -1235,6 +1364,13 @@ public class XmlParser extends XmlSlimParser {
         }
     }
 
+    /**
+     * 解析 存储桶日志状态信息
+     * @param inputStream xml输入流
+     * @param result 存储桶日志状态信息
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseBucketLoggingStatus(InputStream inputStream, BucketLoggingStatus result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser = Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -1268,6 +1404,13 @@ public class XmlParser extends XmlSlimParser {
 
     }
 
+    /**
+     * 解析 自定义域名配置
+     * @param inputStream xml输入流
+     * @param result 自定义域名配置
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
     public static void parseDomainConfiguration(InputStream inputStream, DomainConfiguration result) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser = Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
@@ -1306,7 +1449,6 @@ public class XmlParser extends XmlSlimParser {
     }
 
     public static void parsePicUploadResult(InputStream inputStream, PicUploadResult picUploadResult) throws XmlPullParserException, IOException {
-
         XmlPullParser xmlPullParser = Xml.newPullParser();
         xmlPullParser.setInput(inputStream, "UTF-8");
         int eventType = xmlPullParser.getEventType();

@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.object;
 
 import android.text.TextUtils;
@@ -7,6 +29,7 @@ import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.Delete;
 import com.tencent.cos.xml.transfer.XmlBuilder;
 import com.tencent.qcloud.core.auth.STSCredentialScope;
@@ -20,15 +43,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>
- * 批量删除Object，单次请求最大支持批量删除 1000 个 Object。
- * </p>
- * <p>
- * 对于响应结果，COS 提供 Verbose 和 Quiet 两种模式：
- * Verbose 模式将返回每个 Object 的删除结果；Quiet 模式只返回报错的 Object 信息。
- * </p>
- *
-*/
+ * 批量删除 COS 对象的请求.
+ * @see com.tencent.cos.xml.CosXml#deleteMultiObject(DeleteMultiObjectRequest)
+ * @see com.tencent.cos.xml.CosXml#deleteMultiObjectAsync(DeleteMultiObjectRequest, CosXmlResultListener)
+ */
 final public class DeleteMultiObjectRequest extends ObjectRequest {
     private Delete delete;
     public DeleteMultiObjectRequest(String bucket, List<String> deleteObjectList){
@@ -40,12 +58,6 @@ final public class DeleteMultiObjectRequest extends ObjectRequest {
 
     public DeleteMultiObjectRequest(String bucket) {
         super(bucket, null);
-        delete = new Delete();
-        delete.deleteObjects = new ArrayList<Delete.DeleteObject>();
-    }
-
-    public DeleteMultiObjectRequest(){
-        super(null, null);
         delete = new Delete();
         delete.deleteObjects = new ArrayList<Delete.DeleteObject>();
     }
@@ -135,6 +147,12 @@ final public class DeleteMultiObjectRequest extends ObjectRequest {
         }
     }
 
+    /**
+     * 添加需要删除的Object
+     *
+     * @param object Object的路径
+     * @param versionId Object的版本
+     */
     public void setObjectList(String object, String versionId) {
         if(TextUtils.isEmpty(object))return;
         if(object != null){
@@ -173,6 +191,11 @@ final public class DeleteMultiObjectRequest extends ObjectRequest {
         }
     }
 
+    /**
+     * 添加多个需要删除的Objects
+     *
+     * @param objectListWithVersionId Objects的路径列表(包含对象版本)
+     */
     public void setObjectList(Map<String, String> objectListWithVersionId) {
         if(objectListWithVersionId != null){
             Delete.DeleteObject deleteObject;
@@ -200,9 +223,8 @@ final public class DeleteMultiObjectRequest extends ObjectRequest {
     }
 
     /**
-     * 获取用户设置的需要批量删除的Objects
-     *
-     * @return Delete
+     * 获取批量删除对象数据
+     * @return 批量删除对象数据
      */
     public Delete getDelete() {
         return delete;

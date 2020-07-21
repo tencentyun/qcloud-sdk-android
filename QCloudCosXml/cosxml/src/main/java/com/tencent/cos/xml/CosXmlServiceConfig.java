@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml;
 
 
@@ -17,8 +39,8 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
- * Client configuration options such as timeout settings, protocol string, max
- * retry attempts, etc.
+ * SDK服务配置<br>
+ * 例如超时设置，协议字符串，最大*重试次数等
  */
 
 public class CosXmlServiceConfig implements Parcelable {
@@ -72,6 +94,8 @@ public class CosXmlServiceConfig implements Parcelable {
 
     private String hostFormat = DEFAULT_HOST_FORMAT;
 
+    private String hostHeaderFormat = null;
+
     private boolean bucketInPath; // path style
 
     private boolean accelerate; //
@@ -100,6 +124,7 @@ public class CosXmlServiceConfig implements Parcelable {
         this.socketTimeout = builder.socketTimeout;
         this.connectionTimeout = builder.connectionTimeout;
         this.hostFormat = builder.hostFormat;
+        this.hostHeaderFormat = builder.hostHeaderFormat;
 
         this.executor = builder.executor;
         this.isQuic = builder.isQuic;
@@ -108,22 +133,45 @@ public class CosXmlServiceConfig implements Parcelable {
         this.dnsCache = builder.dnsCache;
     }
 
+    /**
+     * 获取协议
+     * @return 协议名
+     */
     public String getProtocol() {
         return protocol;
     }
 
+    /**
+     * 获取UserAgent
+     * @return UserAgent
+     */
     public String getUserAgent() {
         return userAgent;
     }
 
+    /**
+     * 获取区域
+     * @return 区域
+     */
     public String getRegion() {
         return region;
     }
 
+    /**
+     * 获取存储桶全称
+     * @param bucket 存储桶名
+     * @return 存储桶全称
+     */
     public String getBucket(String bucket) {
         return getBucket(bucket, appid);
     }
 
+    /**
+     * 获取存储桶全称
+     * @param bucket 存储桶名
+     * @param appid cos appid
+     * @return 存储桶全称
+     */
     public String getBucket(String bucket, String appid) {
         String myBucket = bucket;
         if (bucket != null && !bucket.endsWith("-" + appid) && !TextUtils.isEmpty(appid)){
@@ -132,26 +180,38 @@ public class CosXmlServiceConfig implements Parcelable {
         return myBucket;
     }
 
+    /**
+     * 获取不签名header
+     * @return 不签名header
+     */
     public List<String> getNoSignHeaders() {
         return noSignHeaders;
     }
 
+    /**
+     * 获取cos appid
+     * @return <a href="https://console.cloud.tencent.com/cam/capi">cos appid</a>
+     */
     public String getAppid() {
         return appid;
     }
 
-
     /**
-     *
-     * @return
+     * 获取请求host
+     * @param bucket 存储桶
+     * @param accelerate 是否使用全球加速域名
+     * @return 请求host
      */
     public String getRequestHost(String bucket, boolean accelerate) {
        return getRequestHost(null, bucket, accelerate);
     }
 
     /**
-     *
-     * @return
+     * 获取请求host
+     * @param region 区域
+     * @param bucket 存储桶
+     * @param accelerate 是否使用全球加速域名
+     * @return 请求host
      */
     public String getRequestHost(String region, String bucket, boolean accelerate) {
 
@@ -166,8 +226,22 @@ public class CosXmlServiceConfig implements Parcelable {
         return getFormatHost(getHostFormat(accelerate, pathStyle), region, bucket);
     }
 
-    public String getDefaultRequestHost(String region, String bucket, String appid) {
+    public String getHeaderHost(String region, String bucket) {
 
+        if (hostHeaderFormat != null) {
+            return getFormatHost(hostHeaderFormat, region, bucket);
+        }
+        return "";
+    }
+
+    /**
+     * 获取请求host
+     * @param region 区域
+     * @param bucket 存储桶
+     * @param appid appid
+     * @return 请求host
+     */
+    public String getDefaultRequestHost(String region, String bucket, String appid) {
         bucket = getBucket(bucket, appid);
         return getFormatHost(DEFAULT_HOST_FORMAT, region, bucket);
     }
@@ -295,8 +369,12 @@ public class CosXmlServiceConfig implements Parcelable {
         return formatString;
     }
 
-
-
+    /**
+     * 获取url path，根据bucketInPath决定bucket是否在path中
+     * @param bucket 存储桶名
+     * @param cosPath 路径
+     * @return url path
+     */
     public String getUrlPath(String bucket, String cosPath) {
         StringBuilder path = new StringBuilder();
 
@@ -407,6 +485,10 @@ public class CosXmlServiceConfig implements Parcelable {
         }
     };
 
+    /**
+     * SDK服务配置构造器<br>
+     * 用于构造{@link CosXmlServiceConfig}
+     */
     public final static class Builder {
 
         private String protocol;
@@ -437,6 +519,7 @@ public class CosXmlServiceConfig implements Parcelable {
         private List<String> noSignHeaders = new LinkedList<>();
 
         private String hostFormat;
+        private String hostHeaderFormat;
         private boolean accelerate;
 
         public Builder() {
@@ -624,7 +707,7 @@ public class CosXmlServiceConfig implements Parcelable {
          * 设置 Bucket 参数在请求 Url 的 path 中，而是不 host 中，
          * 比如 cos.ap-shanghai.myqcloud.com/1250000000-bucket/readMe.txt
          *
-         * @param pathStyle
+         * @param pathStyle 参数是否在path中
          * @return Builder 对象
          */
         public Builder setPathStyle(boolean pathStyle) {
@@ -651,6 +734,7 @@ public class CosXmlServiceConfig implements Parcelable {
          */
         public Builder enableQuic(boolean isEnable){
             this.isQuic = isEnable;
+            this.userAgent = VersionInfo.getQuicUserAgent();
             return this;
         }
 
@@ -669,7 +753,7 @@ public class CosXmlServiceConfig implements Parcelable {
         /**
          * 是否使用全球加速域名
          *
-         * @param accelerate
+         * @param accelerate 是否加速
          * @return Builder 对象
          */
         public Builder setAccelerate(boolean accelerate) {
@@ -678,15 +762,14 @@ public class CosXmlServiceConfig implements Parcelable {
         }
 
         public CosXmlServiceConfig builder() {
-
             return new CosXmlServiceConfig(this);
         }
 
         /**
          * 给所有的请求统一添加 Header
          *
-         * @param key
-         * @param value
+         * @param key http header key
+         * @param value http header value
          */
         public Builder addHeader(String key, String value) {
 

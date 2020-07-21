@@ -1,34 +1,51 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.object;
 
 import com.tencent.cos.xml.common.COSACL;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.COSStorageClass;
 import com.tencent.cos.xml.common.RequestMethod;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.ACLAccount;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
 import java.util.Map;
 
 /**
- * <p>
- * 用于构造初始化分片上传请求。
- * 关于初始化分片上传的描述，请查看 <a href="https://cloud.tencent.com/document/product/436/7746">https://cloud.tencent.com/document/product/436/7746.</a><br>
- * </p>
+ * 初始化分块上传的请求.
+ * @see com.tencent.cos.xml.SimpleCosXml#initMultipartUpload(InitMultipartUploadRequest)
+ * @see com.tencent.cos.xml.SimpleCosXml#initMultipartUploadAsync(InitMultipartUploadRequest, CosXmlResultListener)
  */
 final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest {
 
     /**
      * InitMultipartUploadRequest 构造方法
-     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 test-1253960454)
+     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 bucket-1250000000)
      * @param cosPath 远端路径，即存储到 COS 上的绝对路径
      */
     public InitMultipartUploadRequest(String bucket, String cosPath){
         super(bucket, cosPath);
-    }
-
-
-    public InitMultipartUploadRequest(){
-        super(null, null);
     }
 
     /**
@@ -79,13 +96,8 @@ final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest
     }
 
     /**
-     * <p>
-     * 设置 Object 的 ACL 属性
-     * </p>
-     * <p>
-     * 有效值：private，public-read-write，public-read；默认值：private
-     * </p>
-     * @param cosacl ACL属性
+     * 同{@link #setXCOSACL(COSACL)}
+     * @param cosacl COS 访问权限
      */
     public void setXCOSACL(String cosacl){
         if(cosacl != null){
@@ -94,13 +106,9 @@ final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest
     }
 
     /**
-     * <p>
-     * 设置 Object 的 ACL 属性
-     * </p>
-     * <p>
-     * 有效值：private，public-read-write，public-read；默认值：private
-     * </p>
-     * @param cosacl ACL枚举值 {@link COSACL}
+     * 定义对象的访问控制列表（ACL）属性。
+     * 枚举值请参见 <a href="https://cloud.tencent.com/document/product/436/30752#.E9.A2.84.E8.AE.BE.E7.9A.84-acl">ACL 概述</a> 文档中对象的预设 ACL 部分，例如 default，private，public-read 等，默认为 default
+     * @param cosacl COS 访问权限
      */
     public void setXCOSACL(COSACL cosacl){
         if(cosacl != null){
@@ -109,10 +117,8 @@ final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest
     }
 
     /**
-     * <p>
-     * 赋予被授权者读权限
-     * </p>
-     * @param aclAccount 读权限用户列表 {@link ACLAccount}
+     * 赋予被授权者操作对象的读取权限
+     * @param aclAccount ACL授权账号列表
      */
     public void setXCOSGrantRead(ACLAccount aclAccount){
         if (aclAccount != null) {
@@ -122,13 +128,10 @@ final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest
 
 
     /**
-     * <p>
-     * 赋予被授权者写权限
-     * </p>
-     * @param aclAccount 写权限用户列表 {@link ACLAccount}
+     * 赋予被授权者操作对象的写入权限
+     * @param aclAccount ACL授权账号列表
      */
     public void setXCOSGrantWrite(ACLAccount aclAccount){
-
         if (aclAccount != null) {
             addHeader(COSRequestHeaderKey.X_COS_GRANT_WRITE, aclAccount.getAccount());
         }
@@ -136,10 +139,8 @@ final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest
 
 
     /**
-     * <p>
-     * 赋予被授权者读写权限。
-     * </p>
-     * @param aclAccount 读写权限用户列表 {@link ACLAccount}
+     * 赋予被授权者操作对象的所有权限
+     * @param aclAccount ACL授权账号列表
      */
     public void setXCOSReadWrite(ACLAccount aclAccount){
 
@@ -149,9 +150,9 @@ final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest
     }
 
     /**
-     * 设置 存储对象类别
-     * @see COSStorageClass
-     * @param stroageClass
+     * 设置存储类型。
+     * 枚举值请参见 <a href="https://cloud.tencent.com/document/product/436/33417">存储类型</a> 文档，例如 STANDARD_IA，ARCHIVE。默认值：STANDARD
+     * @param stroageClass COS存储类型
      */
     public void setStroageClass(COSStorageClass stroageClass)
     {

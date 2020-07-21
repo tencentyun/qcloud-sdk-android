@@ -1,20 +1,48 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.transfer;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import com.tencent.cos.xml.CosXmlServiceConfig;
-
 /**
- * Created by bradyxiao on 2018/9/21.
- * Copyright 2010-2018 Tencent Cloud. All Rights Reserved.
+ * 传输相关配置
  */
 
 public class TransferConfig {
 
+    /**
+     * 启用分块复制的最小对象大小
+     */
     protected long divisionForCopy;
+    /**
+     * 分块复制时的分块大小
+     */
     protected long sliceSizeForCopy;
+    /**
+     * 启用分块上传的最小对象大小
+     */
     protected long divisionForUpload;
+    /**
+     * 分块上传时的分块大小
+     */
     protected long sliceSizeForUpload;
 
     TransferConfig(Builder builder){
@@ -24,7 +52,10 @@ public class TransferConfig {
         this.sliceSizeForUpload = builder.sliceSizeForUpload;
     }
 
-
+    /**
+     * 获取启用分块复制的最小对象大小
+     * @return 启用分块复制的最小对象大小
+     */
     public long getDivisionForCopy() {
         return divisionForCopy;
     }
@@ -39,6 +70,10 @@ public class TransferConfig {
 
         }
 
+        /**
+         * 设置启用分块复制的最小对象大小
+         * @param division 启用分块复制的最小对象大小
+         */
         public Builder setDividsionForCopy(long division){
             if(division > 0){
                 this.divisionForCopy = division;
@@ -46,6 +81,10 @@ public class TransferConfig {
             return this;
         }
 
+        /**
+         * 设置启用分块上传的最小对象大小
+         * @param division 启用分块上传的最小对象大小
+         */
         public Builder setDivisionForUpload(long division){
             if(division > 0){
                 this.divisionForUpload = division;
@@ -53,6 +92,10 @@ public class TransferConfig {
             return this;
         }
 
+        /**
+         * 设置分块复制时的分块大小
+         * @param sliceSizee 分块复制时的分块大小
+         */
         public Builder setSliceSizeForCopy(long sliceSizee){
             if(sliceSizee > 0){
                 this.sliceSizeForCopy = sliceSizee;
@@ -60,6 +103,10 @@ public class TransferConfig {
             return this;
         }
 
+        /**
+         * 设置分块上传时的分块大小
+         * @param sliceSizee 分块上传时的分块大小
+         */
         public Builder setSliceSizeForUpload(long sliceSizee){
             if(sliceSizee > 0){
                 this.sliceSizeForUpload = sliceSizee;

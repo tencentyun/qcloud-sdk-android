@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.object;
 
 import android.net.Uri;
@@ -7,9 +29,8 @@ import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
-import com.tencent.cos.xml.utils.FileUtils;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
-import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.util.ContextHolder;
 
 import java.io.File;
@@ -17,14 +38,9 @@ import java.io.InputStream;
 import java.util.Map;
 
 /**
- * <p>
- * 上传单个分块。
- * </p>
- * <p>
- * 支持的块的数量为1到10000，块的大小为1 MB 到5 GB。
- * 当传入 uploadId 和 partNumber 都相同的时候，后传入的块将覆盖之前传入的块。当 uploadId 不存在时会返回 404 错误，NoSuchUpload.
- * </p>
- * 关于上传某个分块接口的描述，请查看 <a href="https://cloud.tencent.com/document/product/436/7750">https://cloud.tencent.com/document/product/436/7750.</a><br>
+ * 上传一个分片块的请求.
+ * @see com.tencent.cos.xml.SimpleCosXml#uploadPart(UploadPartRequest)
+ * @see com.tencent.cos.xml.SimpleCosXml#uploadPartAsync(UploadPartRequest, CosXmlResultListener)
  */
 final public class UploadPartRequest extends BaseMultipartUploadRequest implements TransferRequest {
     private int partNumber;
@@ -94,12 +110,6 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
         this.inputStream = inputStream;
         //this.srcPath = FileUtils.tempCache(inputStream);
         this.uploadId = uploadId;
-        fileOffset = -1L;
-        fileContentLength = -1L;
-    }
-
-    public UploadPartRequest(){
-        super(null, null);
         fileOffset = -1L;
         fileContentLength = -1L;
     }

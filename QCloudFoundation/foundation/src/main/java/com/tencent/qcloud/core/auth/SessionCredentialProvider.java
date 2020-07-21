@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.qcloud.core.auth;
 
 import com.tencent.qcloud.core.common.QCloudAuthenticationException;
@@ -11,9 +33,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Created by wjielai on 2017/8/31.
+ * 服务端临时证书提供器<br>
+ * 搭建一个返回临时密钥的服务，即可给终端 COS 请求进行授权，我们强烈建议您使用这种方式，<br>
+ * 具体请参见 <a herf="https://cloud.tencent.com/document/product/436/9068">移动应用直传实践</a>
  * <p>
- * Copyright (c) 2010-2017 Tencent Cloud. All rights reserved.
+ * SDK 示例：<a herf="https://cloud.tencent.com/document/product/436/12159#.E5.88.9D.E5.A7.8B.E5.8C.96.E6.9C.8D.E5.8A.A1">方式一：通过临时密钥进行授权（推荐）</a>
  */
 
 public class SessionCredentialProvider extends BasicLifecycleCredentialProvider {

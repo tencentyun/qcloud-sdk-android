@@ -1,8 +1,29 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.object;
 
-import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.COSACL;
@@ -12,6 +33,7 @@ import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.ACLAccount;
 import com.tencent.cos.xml.model.tag.pic.PicOperations;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
@@ -22,10 +44,9 @@ import java.io.InputStream;
 import java.net.URL;
 
 /**
- * <p>
- * 简单上传接口，关于简单上传接口的描述，请查看 <a href="https://cloud.tencent.com/document/product/436/7749">
- * https://cloud.tencent.com/document/product/436/7749.</a><br>
- * </p>
+ * 简单上传的请求.
+ * @see com.tencent.cos.xml.SimpleCosXml#putObject(PutObjectRequest)
+ * @see com.tencent.cos.xml.SimpleCosXml#putObjectAsync(PutObjectRequest, CosXmlResultListener)
  */
 public class PutObjectRequest extends ObjectRequest implements TransferRequest {
     private String srcPath;
@@ -44,7 +65,7 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
 
     /**
      * PutObject 构造方法
-     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 test-1253960454)
+     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 bucket-1250000000)
      * @param cosPath 远端路径，即存储到 COS 上的绝对路径
      * @param srcPath 本地文件的绝对路径
      */
@@ -60,7 +81,7 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
 
     /**
      * PutObject 构造方法
-     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 test-1253960454)
+     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 bucket-1250000000)
      * @param cosPath 远端路径，即存储到 COS 上的绝对路径
      * @param data 上传的数据
      */
@@ -83,7 +104,7 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
 
     /**
      * PutObject 构造方法
-     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 test-1253960454)
+     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 bucket-1250000000)
      * @param cosPath 远端路径，即存储到 COS 上的绝对路径
      * @param inputStream 上传的数据流
      */
@@ -95,17 +116,13 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
 
     /**
      * PutObject 构造方法
-     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 test-1253960454)
+     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 bucket-1250000000)
      * @param cosPath 远端路径，即存储到 COS 上的绝对路径
      * @param url 上传的url
      */
     public PutObjectRequest(String bucket, String cosPath, URL url) {
         this(bucket, cosPath);
         this.url = url;
-    }
-
-    public PutObjectRequest(){
-        super(null, null);
     }
 
     @Override
@@ -293,11 +310,9 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
     }
 
     /**
-     * <p>
-     * 自定义的头部信息
-     * </p>
-     * @param key 自定义头部key，需要以x-cos-meta-开头
-     * @param value 自定义头部value
+     * 设置用户自定义头部信息
+     * @param key 自定义头部信息的key值，需要以 x-cos-meta- 开头
+     * @param value 自定义头部信息的value值。
      */
     public void setXCOSMeta(String key, String value){
         if(key != null && value != null){
@@ -306,17 +321,9 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
     }
 
     /**
-     * <p>
-     * 设置 object 访问权限
-     * </p>
-     * <br>
-     * 有效值：
-     * <ul>
-     * <li>private ：私有，默认值</li>
-     * <li>public-read ：公有读</li>
-     * <li>public-read-write ：公有读写</li>
-     * </ul>
-     * @param cosacl 访问权限 {@link COSACL}
+     * 定义对象的访问控制列表（ACL）属性。
+     * 枚举值请参见 <a href="https://cloud.tencent.com/document/product/436/30752#.E9.A2.84.E8.AE.BE.E7.9A.84-acl">ACL 概述</a> 文档中对象的预设 ACL 部分，例如 default，private，public-read 等，默认为 default
+     * @param cosacl COS 访问权限
      */
     public void setXCOSACL(COSACL cosacl){
         if(cosacl != null){
@@ -324,19 +331,9 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
         }
     }
 
-
     /**
-     * <p>
-     * 设置 object 访问权限
-     * </p>
-     * <br>
-     * 有效值：
-     * <ul>
-     * <li>private ：私有，默认值</li>
-     * <li>public-read ：公有读</li>
-     * <li>public-read-write ：公有读写</li>
-     * </ul>
-     * @param cosacl 访问权限
+     * 同{@link #setXCOSACL(COSACL)}
+     * @param cosacl COS 访问权限
      */
     public void setXCOSACL(String cosacl){
         if(cosacl != null){
@@ -358,10 +355,8 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
 
 
     /**
-     * <p>
-     * 赋予被授权者写权限
-     * </p>
-     * @param aclAccount 写权限用户列表 {@link ACLAccount}
+     * 赋予被授权者操作对象的读取权限
+     * @param aclAccount ACL授权账号列表
      */
     public void setXCOSGrantWrite(ACLAccount aclAccount){
 
@@ -371,10 +366,8 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
     }
 
     /**
-     * <p>
-     * 赋予被授权者读写权限。
-     * </p>
-     * @param aclAccount 读写权限用户列表 {@link ACLAccount}
+     * 赋予被授权者操作对象的写入权限
+     * @param aclAccount ACL授权账号列表
      */
     public void setXCOSReadWrite(ACLAccount aclAccount){
 
@@ -384,9 +377,9 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
     }
 
     /**
-     * 设置 存储对象类别
-     * @see COSStorageClass
-     * @param stroageClass
+     * 设置对象的存储类型。
+     * 枚举值请参见 <a href="https://cloud.tencent.com/document/product/436/33417">存储类型</a> 文档，例如 STANDARD_IA，ARCHIVE。默认值：STANDARD
+     * @param stroageClass COS存储类型
      */
     public void setStroageClass(COSStorageClass stroageClass)
     {
@@ -398,6 +391,10 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
         addHeader("x-cos-traffic-limit", String.valueOf(limit));
     }
 
+    /**
+     * 设置启动盲水印参数
+     * @param operations 盲水印参数
+     */
     public void setPicOperations(@NonNull PicOperations operations) {
         addHeader("Pic-Operations", operations.toJsonStr());
     }
