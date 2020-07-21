@@ -116,11 +116,11 @@
 3. 添加COSXMLCopyTask 代替 CopyServer
 4. 引入腾讯 mta检测
 
-## V5.4.13 
+## V5.4.13
 
 1. 修复 bug。
 
-## V5.4.12 
+## V5.4.12
 
 1. gradle 集成由 aar 包变为 jar 包；
 2. 给 CosSimpleService 添加 addVerifiedHost() 接口，不对特定的 host 校验 HTTPS 证书。
@@ -149,14 +149,12 @@
 1. 修复 bug。
 
 
-## V1.3 
+## V1.3
 
 缩小了包的体积大小；
 
 
-## V1.2 
+## V1.2
 
 1. 所有 Request API, 均只提供了带参数的构造方法；
 2. 支持 CAM方式 获取临时密钥，具体请查看 `com.tencent.qcloud.core.network.auth.LocalSessionCredentialProvider`
-
-AKID
