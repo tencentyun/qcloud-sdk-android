@@ -96,7 +96,7 @@ public static TransferManager newCdnTransferManager() {
            .builder();
 
    /**
-    * 通过 cdn 下载，并开启回源鉴权后，
+    * 通过 cdn 下载，并开启回源鉴权后，需要使用 cdn 的签名，而不是 cos 的签名
     */
    CosXmlService cosXmlService = new CosXmlService(getContext(), cosXmlServiceConfig);
 
