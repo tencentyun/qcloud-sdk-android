@@ -120,6 +120,7 @@ public class AbortMultiPartsUpload {
         });
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -143,6 +144,7 @@ public class AbortMultiPartsUpload {
 
         // 终止分片上传任务
         abortMultiUpload();
+        // .cssg-methods-pragma
 
     }
 }

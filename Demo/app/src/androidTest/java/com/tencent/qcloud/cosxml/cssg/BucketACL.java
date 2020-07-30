@@ -129,6 +129,7 @@ public class BucketACL {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     public void initService() {
         String region = "ap-guangzhou";
@@ -152,6 +153,7 @@ public class BucketACL {
 
         // 获取存储桶 ACL
         getBucketAcl();
+        // .cssg-methods-pragma
 
     }
 }

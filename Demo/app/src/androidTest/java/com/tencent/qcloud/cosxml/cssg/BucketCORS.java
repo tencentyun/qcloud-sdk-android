@@ -202,6 +202,7 @@ public class BucketCORS {
         });
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -231,6 +232,7 @@ public class BucketCORS {
 
         // 删除存储桶跨域规则
         deleteBucketCors();
+        // .cssg-methods-pragma
 
     }
 }

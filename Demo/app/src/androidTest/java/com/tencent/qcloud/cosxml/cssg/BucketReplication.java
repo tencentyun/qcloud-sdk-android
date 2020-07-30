@@ -168,6 +168,7 @@ public class BucketReplication {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -194,6 +195,7 @@ public class BucketReplication {
 
         // 删除存储桶跨地域复制规则
         deleteBucketReplication();
+        // .cssg-methods-pragma
 
     }
 }

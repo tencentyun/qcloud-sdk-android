@@ -81,6 +81,26 @@ public class GetService {
         //.cssg-snippet-body-end
     }
 
+    /**
+     * 获取地域的存储桶列表
+     */
+    private void getRegionalService() {
+        //.cssg-snippet-body-start:[get-regional-service]
+        
+        //.cssg-snippet-body-end
+    }
+
+    /**
+     * 计算签名
+     */
+    private void getAuthorization() {
+        //.cssg-snippet-body-start:[get-authorization]
+        
+        //.cssg-snippet-body-end
+    }
+
+    // .cssg-methods-pragma
+
     private void initService() {
         String region = "ap-guangzhou";
 
@@ -100,6 +120,14 @@ public class GetService {
 
         // 获取存储桶列表
         getService();
+
+        // 获取地域的存储桶列表
+        getRegionalService();
+        
+        // 计算签名
+        getAuthorization();
+        
+        // .cssg-methods-pragma
 
     }
 }

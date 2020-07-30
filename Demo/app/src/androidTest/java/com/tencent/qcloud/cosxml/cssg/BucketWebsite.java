@@ -149,6 +149,7 @@ public class BucketWebsite {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -175,6 +176,7 @@ public class BucketWebsite {
 
         // 删除存储桶静态网站
         deleteBucketWebsite();
+        // .cssg-methods-pragma
 
     }
 }

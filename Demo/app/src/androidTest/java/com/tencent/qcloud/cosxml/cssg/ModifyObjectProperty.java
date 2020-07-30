@@ -132,6 +132,7 @@ public class ModifyObjectProperty {
         });
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
 
     private void initService() {
@@ -156,6 +157,7 @@ public class ModifyObjectProperty {
 
         // 修改对象存储类型
         modifyObjectStorageClass();
+        // .cssg-methods-pragma
 
     }
 }

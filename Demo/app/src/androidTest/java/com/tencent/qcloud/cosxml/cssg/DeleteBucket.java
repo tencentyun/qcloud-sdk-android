@@ -82,6 +82,7 @@ public class DeleteBucket {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -102,6 +103,7 @@ public class DeleteBucket {
 
         // 删除存储桶
         deleteBucket();
+        // .cssg-methods-pragma
 
     }
 }

@@ -85,6 +85,7 @@ public class RestoreObject {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -105,6 +106,7 @@ public class RestoreObject {
 
         // 恢复归档对象
         restoreObject();
+        // .cssg-methods-pragma
 
     }
 }

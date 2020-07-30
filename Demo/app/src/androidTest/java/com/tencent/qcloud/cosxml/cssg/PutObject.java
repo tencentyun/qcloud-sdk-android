@@ -166,6 +166,7 @@ public class PutObject {
         });
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -192,5 +193,6 @@ public class PutObject {
 
         // 流式上传
         putObjectWithStreams();
+        // .cssg-methods-pragma
     }
 }

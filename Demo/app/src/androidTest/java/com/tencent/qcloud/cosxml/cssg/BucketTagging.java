@@ -153,6 +153,7 @@ public class BucketTagging {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -179,6 +180,7 @@ public class BucketTagging {
 
         // 删除存储桶标签
         deleteBucketTagging();
+        // .cssg-methods-pragma
 
     }
 }

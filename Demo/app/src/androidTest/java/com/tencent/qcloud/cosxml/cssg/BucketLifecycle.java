@@ -165,6 +165,7 @@ public class BucketLifecycle {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -191,6 +192,7 @@ public class BucketLifecycle {
 
         // 删除存储桶生命周期
         deleteBucketLifecycle();
+        // .cssg-methods-pragma
 
     }
 }

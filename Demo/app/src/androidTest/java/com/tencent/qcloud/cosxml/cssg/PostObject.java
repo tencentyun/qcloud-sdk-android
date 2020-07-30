@@ -93,6 +93,7 @@ public class PostObject {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -113,6 +114,7 @@ public class PostObject {
 
         // POST 方式上传对象
         postObject();
+        // .cssg-methods-pragma
 
     }
 }

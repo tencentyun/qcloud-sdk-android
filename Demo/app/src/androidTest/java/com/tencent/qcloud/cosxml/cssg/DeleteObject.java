@@ -122,6 +122,7 @@ public class DeleteObject {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -145,6 +146,7 @@ public class DeleteObject {
 
         // 删除多个对象
         deleteMultiObject();
+        // .cssg-methods-pragma
 
     }
 }

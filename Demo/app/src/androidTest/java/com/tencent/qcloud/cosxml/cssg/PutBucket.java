@@ -127,6 +127,7 @@ public class PutBucket {
         });
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -150,5 +151,6 @@ public class PutBucket {
 
         // 创建存储桶并且授予存储桶权限
         putBucketAndGrantACL();
+        // .cssg-methods-pragma
     }
 }
