@@ -69,9 +69,9 @@ compile 'com.tencent.qcloud:cosxml:5.5.+'
 
 如果您无法采用远程依赖的方式，可以通过下载 [最新版本](https://github.com/tencentyun/qcloud-sdk-android/releases) 的压缩包，解压后，手动集成到您的工程中。
 
-## 兼容 CDN 域名下载
+## 通过 CDN 加速域名下载
 
-1. 初始化支持 cdn 下载的 TransferManager
+1. 初始化一个支持 CDN 加速域名下载的 TransferManager
 
 ```
 /**
@@ -80,9 +80,10 @@ compile 'com.tencent.qcloud:cosxml:5.5.+'
 *
 *
 * </p>
-* 注意，这样创建的 TransferManager 只能用于 cdn 下载，不能用于上传，或者通过源站域名下载
+* 注意，这样创建的 TransferManager 只能用于指定存储桶的 cdn 加速域名下载，
+* 不能用于上传，也不能用于源站域名下载
 */
-public static TransferManager newCdnTransferManager() {
+public static TransferManager newCdnDownloadTransferManager() {
 
    /**
     * 假设您的 bucket 为 examplebucket-1250000000，地域为 ap-beijing
@@ -96,7 +97,8 @@ public static TransferManager newCdnTransferManager() {
            .builder();
 
    /**
-    * 通过 cdn 下载，并开启回源鉴权后，需要使用 cdn 的签名，而不是 cos 的签名
+    * 通过默认 cdn 域名下载，并开启回源鉴权后，需要使用 cdn 的权限校验，而不是 cos 的权限校验。
+    * 因此，这里不提供 credentialProvider 类
     */
    CosXmlService cosXmlService = new CosXmlService(getContext(), cosXmlServiceConfig);
 
@@ -105,7 +107,7 @@ public static TransferManager newCdnTransferManager() {
 }
 ```
 
-2. 如果您开启了 cdn 鉴权，那么需要在 url 上添加 cdn 签名，cdn 鉴权请参考[这里](https://cloud.tencent.com/document/product/228/41622)。
+2. 如果您开启了 cdn 鉴权，那么需要在 url 上添加 cdn 签名，cdn 鉴权请参考 [这里](https://cloud.tencent.com/document/product/228/41622)。
 
 ```
 String bucket = "examplebucket-1250000000";
