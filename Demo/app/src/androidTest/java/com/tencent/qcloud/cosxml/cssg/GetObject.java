@@ -93,6 +93,7 @@ public class GetObject {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -113,6 +114,7 @@ public class GetObject {
 
         // 下载对象
         getObject();
+        // .cssg-methods-pragma
 
     }
 }

@@ -104,6 +104,7 @@ public class ObjectPresignUrl {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -127,6 +128,7 @@ public class ObjectPresignUrl {
 
         // 获取预签名上传链接
         getPresignUploadUrl();
+        // .cssg-methods-pragma
 
     }
 }

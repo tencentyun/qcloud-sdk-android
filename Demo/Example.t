@@ -64,6 +64,7 @@ public class {{name}} {
     }
 
     {{/methods}}
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -86,5 +87,6 @@ public class {{name}} {
         {{name}}();
         
         {{/methods}}
+        // .cssg-methods-pragma
     }
 }

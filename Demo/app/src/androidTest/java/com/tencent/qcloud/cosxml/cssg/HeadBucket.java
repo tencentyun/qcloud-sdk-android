@@ -81,6 +81,7 @@ public class HeadBucket {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -101,6 +102,7 @@ public class HeadBucket {
 
         // 获取存储桶信息
         headBucket();
+        // .cssg-methods-pragma
 
     }
 }

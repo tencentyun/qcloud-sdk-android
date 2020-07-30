@@ -80,6 +80,7 @@ public class ObjectTagging {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
 
     private void initService() {
@@ -107,6 +108,7 @@ public class ObjectTagging {
 
         // 删除对象标签
         deleteObjectTagging();
+        // .cssg-methods-pragma
 
     }
 }

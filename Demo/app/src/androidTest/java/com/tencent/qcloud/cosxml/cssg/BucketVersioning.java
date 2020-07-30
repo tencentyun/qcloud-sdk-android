@@ -119,6 +119,7 @@ public class BucketVersioning {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -142,6 +143,7 @@ public class BucketVersioning {
 
         // 获取存储桶多版本状态
         getBucketVersioning();
+        // .cssg-methods-pragma
 
     }
 }
