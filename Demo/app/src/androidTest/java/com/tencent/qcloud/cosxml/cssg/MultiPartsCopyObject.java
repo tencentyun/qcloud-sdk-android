@@ -175,6 +175,7 @@ public class MultiPartsCopyObject {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -201,6 +202,7 @@ public class MultiPartsCopyObject {
 
         // 完成分片拷贝任务
         completeMultiUpload();
+        // .cssg-methods-pragma
 
     }
 }

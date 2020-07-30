@@ -174,6 +174,7 @@ public class ListObjects {
         });
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -200,6 +201,7 @@ public class ListObjects {
 
         // 获取对象列表与子目录
         getBucketWithDelimiter();
+        // .cssg-methods-pragma
 
     }
 }

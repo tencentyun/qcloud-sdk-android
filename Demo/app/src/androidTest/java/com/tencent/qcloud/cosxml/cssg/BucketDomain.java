@@ -123,6 +123,7 @@ public class BucketDomain {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -146,6 +147,7 @@ public class BucketDomain {
 
         // 获取存储桶源站
         getBucketDomain();
+        // .cssg-methods-pragma
 
     }
 }

@@ -129,6 +129,7 @@ public class ObjectACL {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -152,6 +153,7 @@ public class ObjectACL {
 
         // 获取对象 ACL
         getObjectAcl();
+        // .cssg-methods-pragma
 
     }
 }
