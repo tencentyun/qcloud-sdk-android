@@ -134,6 +134,7 @@ public class CopyObject {
         });
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -157,6 +158,7 @@ public class CopyObject {
 
         // 复制对象时替换对象属性
         copyObjectReplaced();
+        // .cssg-methods-pragma
 
     }
 }

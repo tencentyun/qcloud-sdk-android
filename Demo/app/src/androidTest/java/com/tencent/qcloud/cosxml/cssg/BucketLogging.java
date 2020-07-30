@@ -120,6 +120,7 @@ public class BucketLogging {
         });
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -143,6 +144,7 @@ public class BucketLogging {
 
         // 获取存储桶日志服务
         getBucketLogging();
+        // .cssg-methods-pragma
 
     }
 }

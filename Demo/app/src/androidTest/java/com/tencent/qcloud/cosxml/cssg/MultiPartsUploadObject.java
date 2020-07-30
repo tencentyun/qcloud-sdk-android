@@ -252,6 +252,7 @@ public class MultiPartsUploadObject {
         cosXmlService = new CosXmlService(context, serviceConfig,
                 new ServerCredentialProvider());
     }
+    // .cssg-methods-pragma
 
     @Test
     public void testMultiPartsUploadObject() {
@@ -287,6 +288,7 @@ public class MultiPartsUploadObject {
 
         // 完成分片上传任务
         completeMultiUpload();
+        // .cssg-methods-pragma
 
     }
 }

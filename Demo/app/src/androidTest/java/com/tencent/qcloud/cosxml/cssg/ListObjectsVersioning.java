@@ -143,6 +143,7 @@ public class ListObjectsVersioning {
         });
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
 
     private void initService() {
@@ -167,6 +168,7 @@ public class ListObjectsVersioning {
 
         // 获取对象多版本列表下一页数据
         listObjectsVersioningNextPage();
+        // .cssg-methods-pragma
 
     }
 }

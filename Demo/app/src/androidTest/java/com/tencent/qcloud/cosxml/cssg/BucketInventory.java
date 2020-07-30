@@ -159,6 +159,7 @@ public class BucketInventory {
 
         //.cssg-snippet-body-end
     }
+    // .cssg-methods-pragma
 
     private void initService() {
         String region = "ap-guangzhou";
@@ -185,6 +186,7 @@ public class BucketInventory {
 
         // 删除存储桶清单任务
         deleteBucketInventory();
+        // .cssg-methods-pragma
 
     }
 }
