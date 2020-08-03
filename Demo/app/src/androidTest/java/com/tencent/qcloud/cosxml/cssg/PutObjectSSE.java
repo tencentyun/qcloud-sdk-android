@@ -58,7 +58,61 @@ public class PutObjectSSE {
      */
     private void putObjectSse() {
         //.cssg-snippet-body-start:[put-object-sse]
-        
+
+        // 初始化 TransferConfig，这里使用默认配置，如果需要定制，请参考 SDK 接口文档
+        TransferConfig transferConfig = new TransferConfig.Builder().build();
+        // 初始化 TransferManager
+        TransferManager transferManager = new TransferManager(cosXmlService,
+                transferConfig);
+
+        String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
+        String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即称对象键
+        String srcPath = new File(context.getCacheDir(), "exampleobject")
+                .toString(); //本地文件的绝对路径
+        //若存在初始化分块上传的 UploadId，则赋值对应的 uploadId 值用于续传；否则，赋值 null
+        String uploadId = null;
+
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, cosPath, srcPath);
+        // 设置使用 COS 托管加密密钥的服务端加密（SSE-COS）保护数据
+        putObjectRequest.setCOSServerSideEncryption();
+
+        // 上传文件
+        COSXMLUploadTask cosxmlUploadTask = transferManager.upload(putObjectRequest, uploadId);
+
+        //设置上传进度回调
+        cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                // todo Do something to update progress...
+            }
+        });
+        //设置返回结果回调
+        cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                COSXMLUploadTask.COSXMLUploadTaskResult cOSXMLUploadTaskResult =
+                        (COSXMLUploadTask.COSXMLUploadTaskResult) result;
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request,
+                               CosXmlClientException clientException,
+                               CosXmlServiceException serviceException) {
+                if (clientException != null) {
+                    clientException.printStackTrace();
+                } else {
+                    serviceException.printStackTrace();
+                }
+            }
+        });
+        //设置任务状态回调, 可以查看任务过程
+        cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                // todo notify transfer state
+            }
+        });
+
         //.cssg-snippet-body-end
     }
 
@@ -67,7 +121,66 @@ public class PutObjectSSE {
      */
     private void putObjectSseC() {
         //.cssg-snippet-body-start:[put-object-sse-c]
-        
+        // 服务端加密密钥
+        String customKey = "服务端加密密钥";
+
+        // 初始化 TransferConfig，这里使用默认配置，如果需要定制，请参考 SDK 接口文档
+        TransferConfig transferConfig = new TransferConfig.Builder().build();
+        // 初始化 TransferManager
+        TransferManager transferManager = new TransferManager(cosXmlService,
+                transferConfig);
+
+        String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
+        String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即称对象键
+        String srcPath = new File(context.getCacheDir(), "exampleobject")
+                .toString(); //本地文件的绝对路径
+        //若存在初始化分块上传的 UploadId，则赋值对应的 uploadId 值用于续传；否则，赋值 null
+        String uploadId = null;
+
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, cosPath, srcPath);
+        // 设置使用客户提供的加密密钥的服务端加密 （SSE-C）保护数据
+        try {
+            putObjectRequest.setCOSServerSideEncryptionWithCustomerKey(customKey);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        }
+
+        // 上传文件
+        COSXMLUploadTask cosxmlUploadTask = transferManager.upload(putObjectRequest, uploadId);
+
+        //设置上传进度回调
+        cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                // todo Do something to update progress...
+            }
+        });
+        //设置返回结果回调
+        cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                COSXMLUploadTask.COSXMLUploadTaskResult cOSXMLUploadTaskResult =
+                        (COSXMLUploadTask.COSXMLUploadTaskResult) result;
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request,
+                               CosXmlClientException clientException,
+                               CosXmlServiceException serviceException) {
+                if (clientException != null) {
+                    clientException.printStackTrace();
+                } else {
+                    serviceException.printStackTrace();
+                }
+            }
+        });
+        //设置任务状态回调, 可以查看任务过程
+        cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                // todo notify transfer state
+            }
+        });
         //.cssg-snippet-body-end
     }
 

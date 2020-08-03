@@ -58,7 +58,21 @@ public class SetCustomDomain {
      */
     private void setCdnDomain() {
         //.cssg-snippet-body-start:[set-cdn-domain]
-        
+        String region = "ap-beijing"; // 您的存储桶地域
+        String cdnHost = "examplebucket-1250000000.file.myqcloud.com"; // 存储桶的默认加速域名
+
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setRegion(region)
+                .setDebuggable(false)
+                .setHostFormat("${bucket}.file.myqcloud.com") // 修改存储请求的域名
+                .addHeader("Host", cdnHost) // 修改 header 中的 host 字段
+                .builder();
+
+        /**
+         * 不提供 credentialProvider 类
+         */
+        CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig);
         //.cssg-snippet-body-end
     }
 
@@ -67,7 +81,22 @@ public class SetCustomDomain {
      */
     private void setCdnCustomDomain() {
         //.cssg-snippet-body-start:[set-cdn-custom-domain]
-        
+
+        String region = "ap-beijing"; // 您的存储桶地域
+        String cdnCustomDomain = "example.com"; // 自定义加速域名
+
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setRegion(region)
+                .setDebuggable(false)
+                .setHostFormat(cdnCustomDomain) // cdn 默认域名 host 格式
+                .builder();
+
+        /**
+         * 不提供 credentialProvider 类
+         */
+        CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig);
+
         //.cssg-snippet-body-end
     }
 
@@ -76,7 +105,21 @@ public class SetCustomDomain {
      */
     private void setCustomDomain() {
         //.cssg-snippet-body-start:[set-custom-domain]
-        
+
+        String region = "ap-beijing"; // 您的存储桶地域
+        String customDomain = "example.com"; // 自定义加速域名
+
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setRegion(region)
+                .setDebuggable(false)
+                .setHostFormat(customDomain) // cdn 默认域名 host 格式
+                .builder();
+
+        /**
+         * 不提供 credentialProvider 类
+         */
+        CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig);
         //.cssg-snippet-body-end
     }
 
