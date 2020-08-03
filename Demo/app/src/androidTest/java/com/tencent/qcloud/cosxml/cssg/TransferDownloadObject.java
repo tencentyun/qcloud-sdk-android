@@ -117,11 +117,19 @@ public class TransferDownloadObject {
     }
 
     /**
-     * 下载暂停与续传
+     * 下载暂停、续传与取消
      */
-    private void transferDownloadObjectPauseAndResume() {
-        //.cssg-snippet-body-start:[transfer-download-object-pause-and-resume]
-        
+    private void transferDownloadObjectInteract() {
+        //.cssg-snippet-body-start:[transfer-download-object-pause]
+
+        //.cssg-snippet-body-end
+
+        //.cssg-snippet-body-start:[transfer-download-object-resume]
+
+        //.cssg-snippet-body-end
+
+        //.cssg-snippet-body-start:[transfer-download-object-cancel]
+
         //.cssg-snippet-body-end
     }
 
@@ -133,6 +141,7 @@ public class TransferDownloadObject {
         
         //.cssg-snippet-body-end
     }
+
 
     // .cssg-methods-pragma
 
@@ -155,11 +164,12 @@ public class TransferDownloadObject {
         // 高级接口下载对象
         transferDownloadObject();
         
-        // 下载暂停与续传
-        transferDownloadObjectPauseAndResume();
+        // 下载暂停、续传与取消
+        transferDownloadObjectInteract();
         
         // 批量下载
         transferBatchDownloadObjects();
+        
         
         // .cssg-methods-pragma
     }

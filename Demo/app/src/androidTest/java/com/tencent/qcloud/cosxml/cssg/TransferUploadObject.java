@@ -192,11 +192,28 @@ public class TransferUploadObject {
     }
 
     /**
-     * 上传暂停与续传
+     * 高级接口 URI 上传
      */
-    private void transferUploadPauseAndResume() {
-        //.cssg-snippet-body-start:[transfer-upload-pause-and-resume]
-        
+    private void transferUploadUri() {
+        //.cssg-snippet-body-start:[transfer-upload-uri]
+
+        //.cssg-snippet-body-end
+    }
+
+    /**
+     * 上传暂停、续传与取消
+     */
+    private void transferUploadInteract() {
+        //.cssg-snippet-body-start:[transfer-upload-pause]
+
+        //.cssg-snippet-body-end
+
+        //.cssg-snippet-body-start:[transfer-upload-resume]
+
+        //.cssg-snippet-body-end
+
+        //.cssg-snippet-body-start:[transfer-upload-cancel]
+
         //.cssg-snippet-body-end
     }
 
@@ -208,6 +225,7 @@ public class TransferUploadObject {
         
         //.cssg-snippet-body-end
     }
+
 
     // .cssg-methods-pragma
 
@@ -235,12 +253,16 @@ public class TransferUploadObject {
         
         // 高级接口流式上传
         transferUploadStream();
+
+        // 高级接口 URI 上传
+        transferUploadUri();
         
-        // 上传暂停与续传
-        transferUploadPauseAndResume();
+        // 上传暂停、续传与取消
+        transferUploadInteract();
         
         // 批量上传
         transferBatchUploadObjects();
+        
         
         // .cssg-methods-pragma
     }
