@@ -26,7 +26,7 @@ import java.util.*;
 import java.nio.charset.Charset;
 import java.io.*;
 
-public class SetCustomDomain {
+public class PictureOperation {
 
     private Context context;
     private CosXmlService cosXmlService;
@@ -54,41 +54,13 @@ public class SetCustomDomain {
     }
 
     /**
-     * 设置默认加速域名
+     * 上传时图片处理
      */
-    private void setCdnDomain() {
-        //.cssg-snippet-body-start:[set-cdn-domain]
+    private void uploadWithPicOperation() {
+        //.cssg-snippet-body-start:[upload-with-pic-operation]
         
         //.cssg-snippet-body-end
     }
-
-    /**
-     * 设置自定义加速域名
-     */
-    private void setCdnCustomDomain() {
-        //.cssg-snippet-body-start:[set-cdn-custom-domain]
-        
-        //.cssg-snippet-body-end
-    }
-
-    /**
-     * 设置自定义域名
-     */
-    private void setCustomDomain() {
-        //.cssg-snippet-body-start:[set-custom-domain]
-        
-        //.cssg-snippet-body-end
-    }
-
-    /**
-     * 设置全球加速域名
-     */
-    private void setAccelerateDomain() {
-        //.cssg-snippet-body-start:[set-accelerate-domain]
-        
-        //.cssg-snippet-body-end
-    }
-
 
     // .cssg-methods-pragma
 
@@ -105,21 +77,11 @@ public class SetCustomDomain {
     }
 
     @Test
-    public void testSetCustomDomain() {
+    public void testPictureOperation() {
         initService();
 
-        // 设置默认加速域名
-        setCdnDomain();
-        
-        // 设置自定义加速域名
-        setCdnCustomDomain();
-        
-        // 设置自定义域名
-        setCustomDomain();
-
-        // 设置全球加速域名
-        setAccelerateDomain();
-        
+        // 上传时图片处理
+        uploadWithPicOperation();
         
         // .cssg-methods-pragma
     }
