@@ -59,19 +59,18 @@ public class SetCustomDomain {
     private void setCdnDomain() {
         //.cssg-snippet-body-start:[set-cdn-domain]
         String region = "ap-beijing"; // 您的存储桶地域
-        String cdnHost = "examplebucket-1250000000.file.myqcloud.com"; // 存储桶的默认加速域名
+        String cdnDomain = "examplebucket-1250000000.file.myqcloud.com"; // 存储桶的默认加速域名
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setRegion(region)
                 .setDebuggable(false)
-                .setHostFormat("${bucket}.file.myqcloud.com") // 修改存储请求的域名
-                .addHeader("Host", cdnHost) // 修改 header 中的 host 字段
+                .setHostFormat(cdnDomain) // 修改请求的域名
+                .addHeader("Host", cdnDomain) // 修改 header 中的 host 字段
                 .builder();
 
-        /**
-         * 不提供 credentialProvider 类
-         */
+        // 不提供 credentialProvider 类，下载时可以通过给 url 添加 params 参数，来
+        // 支持 CDN 权限校验
         CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig);
         //.cssg-snippet-body-end
     }
@@ -81,22 +80,19 @@ public class SetCustomDomain {
      */
     private void setCdnCustomDomain() {
         //.cssg-snippet-body-start:[set-cdn-custom-domain]
-
         String region = "ap-beijing"; // 您的存储桶地域
-        String cdnCustomDomain = "example.com"; // 自定义加速域名
+        String cdnCustomDomain = "exampledomain.com"; // 自定义加速域名
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setRegion(region)
                 .setDebuggable(false)
-                .setHostFormat(cdnCustomDomain) // cdn 默认域名 host 格式
+                .setHostFormat(cdnCustomDomain) // 修改请求的域名
+                .addHeader("Host", cdnCustomDomain) // 修改 header 中的 host 字段
                 .builder();
-
-        /**
-         * 不提供 credentialProvider 类
-         */
+        // 不提供 credentialProvider 类，下载时可以通过给 url 添加 params 参数，来
+        // 支持 CDN 权限校验
         CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig);
-
         //.cssg-snippet-body-end
     }
 
@@ -104,24 +100,44 @@ public class SetCustomDomain {
      * 设置自定义域名
      */
     private void setCustomDomain() {
-        //.cssg-snippet-body-start:[set-custom-domain]
 
+        ServerCredentialProvider credentialProvider = new ServerCredentialProvider();
+        //.cssg-snippet-body-start:[set-custom-domain]
         String region = "ap-beijing"; // 您的存储桶地域
-        String customDomain = "example.com"; // 自定义加速域名
+        String customDomain = "exampledomain.com"; // 自定义加速域名
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setRegion(region)
                 .setDebuggable(false)
-                .setHostFormat(customDomain) // cdn 默认域名 host 格式
+                .setHostFormat(customDomain) // 修改请求的域名
                 .builder();
 
-        /**
-         * 不提供 credentialProvider 类
-         */
-        CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig);
+        CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig, credentialProvider);
         //.cssg-snippet-body-end
     }
+
+    /**
+     * 设置全球加速域名
+     */
+    private void setAccelerateDomain() {
+
+        ServerCredentialProvider credentialProvider = new ServerCredentialProvider();
+
+        //.cssg-snippet-body-start:[set-accelerate-domain]
+        String region = "ap-beijing"; // 您的存储桶地域
+
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setRegion(region)
+                .setDebuggable(false)
+                .setAccelerate(true) // 使能全球加速域名
+                .builder();
+
+        CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig, credentialProvider);
+        //.cssg-snippet-body-end
+    }
+
 
     // .cssg-methods-pragma
 
@@ -149,6 +165,10 @@ public class SetCustomDomain {
         
         // 设置自定义域名
         setCustomDomain();
+
+        // 设置全球加速域名
+        setAccelerateDomain();
+        
         
         // .cssg-methods-pragma
     }
