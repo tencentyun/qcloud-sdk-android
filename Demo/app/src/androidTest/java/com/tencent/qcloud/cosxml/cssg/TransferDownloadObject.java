@@ -117,12 +117,9 @@ public class TransferDownloadObject {
     }
 
     /**
-     * 下载暂停与续传
+     * 下载暂停、续传与取消
      */
-    private void transferDownloadObjectPauseAndResume() {
-        //.cssg-snippet-body-start:[transfer-download-object-pause-and-resume]
-        // 高级下载接口支持断点续传，所以会在下载前先发起 HEAD 请求获取文件信息。
-        // 如果您使用的是临时密钥或者使用子账号访问，请确保权限列表中包含 HeadObject 的权限。
+    private void transferDownloadObjectInteract() {
 
         // 初始化 TransferConfig，这里使用默认配置，如果需要定制，请参考 SDK 接口文档
         TransferConfig transferConfig = new TransferConfig.Builder().build();
@@ -143,45 +140,16 @@ public class TransferDownloadObject {
                 transferManager.download(applicationContext,
                         bucket, cosPath, savePathDir, savedFileName);
 
-        //设置下载进度回调
-        cosxmlDownloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
-            @Override
-            public void onProgress(long complete, long target) {
-                // todo Do something to update progress...
-            }
-        });
-        //设置返回结果回调
-        cosxmlDownloadTask.setCosXmlResultListener(new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                COSXMLDownloadTask.COSXMLDownloadTaskResult cOSXMLDownloadTaskResult =
-                        (COSXMLDownloadTask.COSXMLDownloadTaskResult) result;
-            }
-
-            @Override
-            public void onFail(CosXmlRequest request,
-                               CosXmlClientException clientException,
-                               CosXmlServiceException serviceException) {
-                if (clientException != null) {
-                    clientException.printStackTrace();
-                } else {
-                    serviceException.printStackTrace();
-                }
-            }
-        });
-        //设置任务状态回调，可以查看任务过程
-        cosxmlDownloadTask.setTransferStateListener(new TransferStateListener() {
-            @Override
-            public void onStateChanged(TransferState state) {
-                // todo notify transfer state
-            }
-        });
-
-        // 在合适的时机调用 pause() 方法暂停下载
+        //.cssg-snippet-body-start:[transfer-download-object-pause]
         cosxmlDownloadTask.pause();;
+        //.cssg-snippet-body-end
 
-        // 在合适的时机调用 resume() 方法恢复下载
+        //.cssg-snippet-body-start:[transfer-download-object-resume]
         cosxmlDownloadTask.resume();
+        //.cssg-snippet-body-end
+
+        //.cssg-snippet-body-start:[transfer-download-object-cancel]
+        cosxmlDownloadTask.cancel();
         //.cssg-snippet-body-end
     }
 
@@ -189,8 +157,25 @@ public class TransferDownloadObject {
      * 批量下载
      */
     private void transferBatchDownloadObjects() {
-        //.cssg-snippet-body-start:[transfer-batch-download-objects]
 
+        // 高级下载接口支持断点续传，所以会在下载前先发起 HEAD 请求获取文件信息。
+        // 如果您使用的是临时密钥或者使用子账号访问，请确保权限列表中包含 HeadObject 的权限。
+
+        // 初始化 TransferConfig，这里使用默认配置，如果需要定制，请参考 SDK 接口文档
+        TransferConfig transferConfig = new TransferConfig.Builder().build();
+        //初始化 TransferManager
+        TransferManager transferManager = new TransferManager(cosXmlService,
+                transferConfig);
+
+        String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
+        //本地目录路径
+        String savePathDir = context.getExternalCacheDir().toString();
+        //本地保存的文件名，若不填（null），则与 COS 上的文件名一样
+        String savedFileName = "exampleobject";
+
+        Context applicationContext = context.getApplicationContext(); // application
+
+        //.cssg-snippet-body-start:[transfer-batch-download-objects]
         // 对象在存储桶中的位置标识符，即称对象键
         String[] cosPaths = new String[] {
                 "exampleobject1",
@@ -200,35 +185,10 @@ public class TransferDownloadObject {
 
         for (String cosPath : cosPaths) {
 
-            // 高级下载接口支持断点续传，所以会在下载前先发起 HEAD 请求获取文件信息。
-            // 如果您使用的是临时密钥或者使用子账号访问，请确保权限列表中包含 HeadObject 的权限。
-
-            // 初始化 TransferConfig，这里使用默认配置，如果需要定制，请参考 SDK 接口文档
-            TransferConfig transferConfig = new TransferConfig.Builder().build();
-            //初始化 TransferManager
-            TransferManager transferManager = new TransferManager(cosXmlService,
-                    transferConfig);
-
-            String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
-            //本地目录路径
-            String savePathDir = context.getExternalCacheDir().toString();
-            //本地保存的文件名，若不填（null），则与 COS 上的文件名一样
-            String savedFileName = "exampleobject";
-
-            Context applicationContext = context.getApplicationContext(); // application
-            // context
             COSXMLDownloadTask cosxmlDownloadTask =
                     transferManager.download(applicationContext,
                             bucket, cosPath, savePathDir, savedFileName);
-
-            //设置下载进度回调
-            cosxmlDownloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
-                @Override
-                public void onProgress(long complete, long target) {
-                    // todo Do something to update progress...
-                }
-            });
-            //设置返回结果回调
+            // 设置返回结果回调
             cosxmlDownloadTask.setCosXmlResultListener(new CosXmlResultListener() {
                 @Override
                 public void onSuccess(CosXmlRequest request, CosXmlResult result) {
@@ -247,17 +207,10 @@ public class TransferDownloadObject {
                     }
                 }
             });
-            //设置任务状态回调，可以查看任务过程
-            cosxmlDownloadTask.setTransferStateListener(new TransferStateListener() {
-                @Override
-                public void onStateChanged(TransferState state) {
-                    // todo notify transfer state
-                }
-            });
         }
-
         //.cssg-snippet-body-end
     }
+
 
     // .cssg-methods-pragma
 
@@ -280,11 +233,12 @@ public class TransferDownloadObject {
         // 高级接口下载对象
         transferDownloadObject();
         
-        // 下载暂停与续传
-        transferDownloadObjectPauseAndResume();
+        // 下载暂停、续传与取消
+        transferDownloadObjectInteract();
         
         // 批量下载
         transferBatchDownloadObjects();
+        
         
         // .cssg-methods-pragma
     }
