@@ -16,6 +16,7 @@ import com.tencent.cos.xml.model.service.*;
 import com.tencent.qcloud.cosxml.cssg.BuildConfig;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 import android.support.test.InstrumentationRegistry;
 
@@ -191,36 +192,23 @@ public class TransferUploadObject {
         //.cssg-snippet-body-end
     }
 
-    /**
-     * 上传暂停与续传
-     */
-    private void transferUploadPauseAndResume() {
-        //.cssg-snippet-body-start:[transfer-upload-pause-and-resume]
-        // 初始化 TransferConfig，这里使用默认配置，如果需要定制，请参考 SDK 接口文档
 
+    private void transferUploadUri() {
+        //.cssg-snippet-body-start:[transfer-upload-uri]
         TransferConfig transferConfig = new TransferConfig.Builder().build();
-        // 初始化 TransferManager
         TransferManager transferManager = new TransferManager(cosXmlService,
                 transferConfig);
 
         String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
         String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即称对象键
-        String srcPath = new File(context.getCacheDir(), "exampleobject")
-                .toString(); //本地文件的绝对路径
-        //若存在初始化分块上传的 UploadId，则赋值对应的 uploadId 值用于续传；否则，赋值 null
+
+        // 文件的 Uri
+        Uri uri = Uri.parse("exampleObject");
+        // 若存在初始化分块上传的 UploadId，则赋值对应的 uploadId 值用于续传；否则，赋值 null
         String uploadId = null;
-
-        // 上传文件
         COSXMLUploadTask cosxmlUploadTask = transferManager.upload(bucket, cosPath,
-                srcPath, uploadId);
+                uri, uploadId);
 
-        //设置上传进度回调
-        cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
-            @Override
-            public void onProgress(long complete, long target) {
-                // todo Do something to update progress...
-            }
-        });
         //设置返回结果回调
         cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
@@ -240,22 +228,44 @@ public class TransferUploadObject {
                 }
             }
         });
-        //设置任务状态回调, 可以查看任务过程
-        cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
-            @Override
-            public void onStateChanged(TransferState state) {
-                // todo notify transfer state
-            }
-        });
+        //.cssg-snippet-body-end
+    }
 
-        // 在合适的时机调用 pauseSafely() 方法暂停上传
+    /**
+     * 上传暂停、续传与取消
+     */
+    private void transferUploadInteract() {
+
+        TransferConfig transferConfig = new TransferConfig.Builder().build();
+        // 初始化 TransferManager
+        TransferManager transferManager = new TransferManager(cosXmlService,
+                transferConfig);
+
+        String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
+        String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即称对象键
+        String srcPath = new File(context.getCacheDir(), "exampleobject")
+                .toString(); //本地文件的绝对路径
+        //若存在初始化分块上传的 UploadId，则赋值对应的 uploadId 值用于续传；否则，赋值 null
+        String uploadId = null;
+
+        // 上传文件
+        COSXMLUploadTask cosxmlUploadTask = transferManager.upload(bucket, cosPath,
+                srcPath, uploadId);
+
+        //.cssg-snippet-body-start:[transfer-upload-pause]
+        // 如果上传过程中，已经发起了最后的 Complete Multipart Upload 请求，那么取消会失败
         boolean pauseSuccess = cosxmlUploadTask.pauseSafely();
+        //.cssg-snippet-body-end
 
-        // 暂停后，在合适的时机调用 resume() 方法继续上传
+        //.cssg-snippet-body-start:[transfer-upload-resume]
+        // 如果取消成功，可以恢复上传
         if (pauseSuccess) {
             cosxmlUploadTask.resume();
         }
+        //.cssg-snippet-body-end
 
+        //.cssg-snippet-body-start:[transfer-upload-cancel]
+        cosxmlUploadTask.cancel();
         //.cssg-snippet-body-end
     }
 
@@ -263,7 +273,7 @@ public class TransferUploadObject {
      * 批量上传
      */
     private void transferBatchUploadObjects() {
-        //.cssg-snippet-body-start:[transfer-batch-upload-objects]
+
         // 初始化 TransferConfig，这里使用默认配置，如果需要定制，请参考 SDK 接口文档
         TransferConfig transferConfig = new TransferConfig.Builder().build();
         // 初始化 TransferManager
@@ -273,6 +283,7 @@ public class TransferUploadObject {
         String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
         String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即称对象键
 
+        //.cssg-snippet-body-start:[transfer-batch-upload-objects]
         //本地文件的绝对路径
         File[] files = new File(context.getCacheDir(), "exampleDirectory").listFiles();
 
@@ -285,13 +296,6 @@ public class TransferUploadObject {
             COSXMLUploadTask cosxmlUploadTask = transferManager.upload(bucket, cosPath,
                     file.getAbsolutePath(), uploadId);
 
-            //设置上传进度回调
-            cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
-                @Override
-                public void onProgress(long complete, long target) {
-                    // todo Do something to update progress...
-                }
-            });
             //设置返回结果回调
             cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
                 @Override
@@ -311,16 +315,10 @@ public class TransferUploadObject {
                     }
                 }
             });
-            //设置任务状态回调, 可以查看任务过程
-            cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
-                @Override
-                public void onStateChanged(TransferState state) {
-                    // todo notify transfer state
-                }
-            });
         }
         //.cssg-snippet-body-end
     }
+
 
     // .cssg-methods-pragma
 
@@ -348,12 +346,16 @@ public class TransferUploadObject {
         
         // 高级接口流式上传
         transferUploadStream();
+
+        // 高级接口 URI 上传
+        transferUploadUri();
         
-        // 上传暂停与续传
-        transferUploadPauseAndResume();
+        // 上传暂停、续传与取消
+        transferUploadInteract();
         
         // 批量上传
         transferBatchUploadObjects();
+        
         
         // .cssg-methods-pragma
     }
