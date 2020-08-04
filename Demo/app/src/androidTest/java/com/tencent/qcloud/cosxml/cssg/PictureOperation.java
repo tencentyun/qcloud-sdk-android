@@ -8,6 +8,8 @@ import com.tencent.cos.xml.model.*;
 import com.tencent.cos.xml.model.object.*;
 import com.tencent.cos.xml.model.bucket.*;
 import com.tencent.cos.xml.model.tag.*;
+import com.tencent.cos.xml.model.tag.pic.PicOperationRule;
+import com.tencent.cos.xml.model.tag.pic.PicOperations;
 import com.tencent.cos.xml.transfer.*;
 import com.tencent.qcloud.core.auth.*;
 import com.tencent.qcloud.core.common.*;
@@ -26,7 +28,7 @@ import java.util.*;
 import java.nio.charset.Charset;
 import java.io.*;
 
-public class PutObjectSSE {
+public class PictureOperation {
 
     private Context context;
     private CosXmlService cosXmlService;
@@ -54,9 +56,9 @@ public class PutObjectSSE {
     }
 
     /**
-     * 使用 COS 托管加密密钥的服务端加密（SSE-COS）保护数据
+     * 上传时图片处理
      */
-    private void putObjectSse() {
+    private void uploadWithPicOperation() {
 
         // 初始化 TransferConfig，这里使用默认配置，如果需要定制，请参考 SDK 接口文档
         TransferConfig transferConfig = new TransferConfig.Builder().build();
@@ -65,53 +67,24 @@ public class PutObjectSSE {
                 transferConfig);
 
         String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
-        String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即称对象键
-        String srcPath = new File(context.getCacheDir(), "exampleobject")
+        String cosPath = "exampleobject"; // 对象在存储桶中的位置标识符，即称对象键
+        String srcPath = new File(context.getCacheDir(), "exampleobject.jpg")
                 .toString(); //本地文件的绝对路径
         //若存在初始化分块上传的 UploadId，则赋值对应的 uploadId 值用于续传；否则，赋值 null
         String uploadId = null;
 
-        //.cssg-snippet-body-start:[put-object-sse]
+        //.cssg-snippet-body-start:[upload-with-pic-operation]
+        List<PicOperationRule> rules = new LinkedList<>();
+        // 添加一条将图片转化为 png 格式的 rule，处理后的图片在存储桶中的位置标识符为 examplepngobject
+        rules.add(new PicOperationRule("examplepngobject", "imageView2/format/png"));
+        PicOperations picOperations = new PicOperations(true, rules);
+
         PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, cosPath, srcPath);
-        // 设置使用 COS 托管加密密钥的服务端加密（SSE-COS）保护数据
-        putObjectRequest.setCOSServerSideEncryption();
+        putObjectRequest.setPicOperations(picOperations);
 
-        // 上传文件
-        COSXMLUploadTask cosxmlUploadTask = transferManager.upload(putObjectRequest, uploadId);
-        //.cssg-snippet-body-end
-    }
-
-    /**
-     * 使用客户提供的加密密钥的服务端加密 （SSE-C）保护数据
-     */
-    private void putObjectSseC() {
-
-        // 初始化 TransferConfig，这里使用默认配置，如果需要定制，请参考 SDK 接口文档
-        TransferConfig transferConfig = new TransferConfig.Builder().build();
-        // 初始化 TransferManager
-        TransferManager transferManager = new TransferManager(cosXmlService,
-                transferConfig);
-
-        String bucket = "examplebucket-1250000000"; //存储桶，格式：BucketName-APPID
-        String cosPath = "exampleobject"; //对象在存储桶中的位置标识符，即称对象键
-        String srcPath = new File(context.getCacheDir(), "exampleobject")
-                .toString(); //本地文件的绝对路径
-        //若存在初始化分块上传的 UploadId，则赋值对应的 uploadId 值用于续传；否则，赋值 null
-        String uploadId = null;
-
-        //.cssg-snippet-body-start:[put-object-sse-c]
-        // 服务端加密密钥
-        String customKey = "服务端加密密钥";
-        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, cosPath, srcPath);
-        // 设置使用客户提供的加密密钥的服务端加密 （SSE-C）保护数据
-        try {
-            putObjectRequest.setCOSServerSideEncryptionWithCustomerKey(customKey);
-        } catch (CosXmlClientException e) {
-            e.printStackTrace();
-        }
-
-        // 上传文件
-        COSXMLUploadTask cosxmlUploadTask = transferManager.upload(putObjectRequest, uploadId);
+        // 上传成功后，您将会得到 2 张图片，分别是原始图片和处理后图片
+        COSXMLUploadTask cosxmlUploadTask = transferManager.upload(bucket, cosPath,
+                srcPath, uploadId);
         //.cssg-snippet-body-end
     }
 
@@ -130,14 +103,11 @@ public class PutObjectSSE {
     }
 
     @Test
-    public void testPutObjectSSE() {
+    public void testPictureOperation() {
         initService();
 
-        // 使用 COS 托管加密密钥的服务端加密（SSE-COS）保护数据
-        putObjectSse();
-        
-        // 使用客户提供的加密密钥的服务端加密 （SSE-C）保护数据
-        putObjectSseC();
+        // 上传时图片处理
+        uploadWithPicOperation();
         
         // .cssg-methods-pragma
     }

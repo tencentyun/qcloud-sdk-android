@@ -57,22 +57,21 @@ public class SetCustomHeaders {
      * 设置自定义头部
      */
     private void setCustomHeaders() {
+
+        ServerCredentialProvider credentialProvider = new ServerCredentialProvider();
         //.cssg-snippet-body-start:[set-custom-headers]
         String region = "ap-beijing"; // 您的存储桶地域
-        String customHeaderKey = "Host"; // 自定义 Header 的键
-        String customHeaderValue = "examplebucket-1250000000.file.myqcloud.com"; // 自定义 Header 的值
+        String customHeaderKey = "examplekey"; // 自定义 Header 的键
+        String customHeaderValue = "examplevalue"; // 自定义 Header 的值
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setRegion(region)
                 .setDebuggable(false)
-                .addHeader(customHeaderKey, customHeaderValue) // 自定义 Header
+                .addHeader(customHeaderKey, customHeaderValue) // 添加自定义 Header
                 .builder();
 
-        /**
-         * 不提供 credentialProvider 类
-         */
-        CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig);
+        CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig, credentialProvider);
         //.cssg-snippet-body-end
     }
 
