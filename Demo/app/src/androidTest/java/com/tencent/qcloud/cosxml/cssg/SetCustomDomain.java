@@ -104,7 +104,7 @@ public class SetCustomDomain {
         ServerCredentialProvider credentialProvider = new ServerCredentialProvider();
         //.cssg-snippet-body-start:[set-custom-domain]
         String region = "ap-beijing"; // 您的存储桶地域
-        String customDomain = "exampledomain.com"; // 自定义加速域名
+        String customDomain = "exampledomain.com"; // 自定义域名
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
