@@ -1,5 +1,10 @@
 ## V5.5.4
 
+1. 请求 header 中 host 头部默认从 url 中读取，允许自定义。
+2. 修复 doesBucketExist() 接口回调问题。
+
+## V5.5.4
+
 1. 请求 header 中 host 头部不再默认从 url 中读取，而是设置为 cos 源站域名，允许自定义。
 2. TransferManager 下载时，head 请求携带和 get 请求相同的 header 和 query 参数。
 3. TransferManager 第一次下载文件时，如果本地路径下已存在文件，会先删除。
