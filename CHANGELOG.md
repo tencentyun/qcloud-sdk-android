@@ -1,4 +1,4 @@
-## V5.5.4
+## V5.5.5
 
 1. 请求 header 中 host 头部默认从 url 中读取，允许自定义。
 2. 修复 doesBucketExist() 接口回调问题。
