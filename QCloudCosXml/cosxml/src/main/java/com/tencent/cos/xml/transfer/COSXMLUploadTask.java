@@ -25,6 +25,7 @@ package com.tencent.cos.xml.transfer;
 
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.ClientErrorCode;
@@ -295,7 +296,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     private void multiUpload(CosXmlSimpleService cosXmlService){
         initSlicePart(0, fileLength, 1);
-        if(uploadId != null){
+        if(!TextUtils.isEmpty(uploadId)){
             listMultiUpload(cosXmlService);
         }else {
             initMultiUpload(cosXmlService);

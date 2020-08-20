@@ -20,7 +20,7 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.core.transfer;
+package com.tencent.cos.xml.core.test;
 
 import android.content.Context;
 import android.util.Log;
@@ -64,84 +64,13 @@ import static com.tencent.cos.xml.core.TestUtils.mergeExceptionMessage;
 @RunWith(AndroidJUnit4.class)
 public class DownloadTest {
 
-    public static String getMD5(String str) throws Exception {
+    @Test public void testGetObject() {
 
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(str.getBytes());
-        return new BigInteger(1, md.digest()).toString(16);
-    }
-
-    private String cdnSign(String path, long timestamp, String rand, String key) {
-
-        try {
-            return getMD5(String.format("%s-%d-%s-%d-%s", path, timestamp, rand, 0, key));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    @Test public void testMd5() {
-
-        String str = "/test.jpg-1595236205-c2iglbgtdni-0-b8ejrafcq7ax6y1pn1iw84cgu6";
-        try {
-            QCloudLogger.i("QCloud", getMD5(str));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test public void testGetCDNObject() {
-
-        CosXmlService cosXmlService = TestUtils.newCdnTerminalService();
-        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConfigs.TERMINAL_PERSIST_BUCKET, TestConfigs.COS_PIC_PATH, TestConfigs.LOCAL_FILE_DIRECTORY.concat("test2/"));
-
-        String path = TestConfigs.COS_PIC_PATH;
-        Long timestamp = System.currentTimeMillis() / 1000;
-        String rand = String.valueOf(new Random(timestamp).nextInt(10000));
-        String key = TestConfigs.COS_SUB_BUCKET_CDN_SIGN;
-
-        Map<String, String> paras = new HashMap<>();
-        String sign = cdnSign(path, timestamp, rand, key);
-        paras.put("sign", String.format("%d-%s-0-%s", timestamp, rand, sign));
-        getObjectRequest.setQueryParameters(paras);
-
-        try {
-            cosXmlService.getObject(getObjectRequest);
-        } catch (CosXmlClientException e) {
-            e.printStackTrace();
-        } catch (CosXmlServiceException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Test public void testBigCDNDownload() {
-
-        TransferManager transferManager = TestUtils.newCdnTerminalTransferManager();
-        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConfigs.TERMINAL_PERSIST_BUCKET,
-                TestConfigs.COS_TXT_1G_PATH, TestConfigs.LOCAL_FILE_DIRECTORY.concat("test2/"));
-
-        String path = TestConfigs.COS_TXT_1G_PATH;
-        Long timestamp = System.currentTimeMillis() / 1000;
-        String rand = String.valueOf(new Random(timestamp).nextInt(10000));
-        String key = TestConfigs.COS_SUB_BUCKET_CDN_SIGN;
-
-        Map<String, String> paras = new HashMap<>();
-        String sign = cdnSign(path, timestamp, rand, key);
-        paras.put("sign", String.format("%d-%s-0-%s", timestamp, rand, sign));
-        getObjectRequest.setQueryParameters(paras);
-
-        try {
-            getObjectRequest.setRequestHeaders("Host", "android-ut-persist-gz-1253653367.file.myqcloud.com", false);
-        } catch (CosXmlClientException e) {
-            e.printStackTrace();
-        }
-
-        COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(), getObjectRequest);
+        CosXmlService cosXmlService = TestUtils.newDefaultTerminalService();
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConfigs.TERMINAL_PERSIST_BUCKET, TestConfigs.COS_PIC_PATH,
+                TestConfigs.LOCAL_FILE_DIRECTORY.concat("/tet"));
         final TestLocker testLocker = new TestLocker();
-
-        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+        cosXmlService.getObjectAsync(getObjectRequest, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 Assert.assertTrue(true);
@@ -155,46 +84,7 @@ public class DownloadTest {
             }
         });
 
-        downloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
-            @Override
-            public void onProgress(long complete, long target) {
-               QCloudLogger.i("QCloudHttp", "complete = " + complete + ",target = " + target);
-            }
-        });
-
         testLocker.lock();
-    }
-
-
-
-    @Test public void testHeadCDNObject() {
-
-
-        CosXmlService cosXmlService = TestUtils.newCdnTerminalService();
-        HeadObjectRequest headObjectRequest = new HeadObjectRequest(TestConfigs.TERMINAL_PERSIST_BUCKET, TestConfigs.COS_PIC_PATH);
-
-        String path = TestConfigs.COS_PIC_PATH;
-        Long timestamp = System.currentTimeMillis() / 1000;
-        String rand = String.valueOf(new Random(timestamp).nextInt(10000));
-        String key = TestConfigs.COS_SUB_BUCKET_CDN_SIGN;
-
-        Map<String, String> paras = new HashMap<>();
-        String sign = cdnSign(path, timestamp, rand, key);
-        paras.put("sign", String.format("%d-%s-0-%s", timestamp, rand, sign));
-        headObjectRequest.setQueryParameters(paras);
-
-        try {
-            headObjectRequest.setRequestHeaders("Host", "android-ut-persist-gz-1253653367.file.myqcloud.com", false);
-        } catch (CosXmlClientException e) {
-            e.printStackTrace();
-        }
-        try {
-            cosXmlService.headObject(headObjectRequest);
-        } catch (CosXmlClientException e) {
-            e.printStackTrace();
-        } catch (CosXmlServiceException e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -202,9 +92,15 @@ public class DownloadTest {
 
         TransferManager transferManager = TestUtils.newDefaultTerminalTransferManager();
 
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConfigs.TERMINAL_PERSIST_BUCKET,
+                TestConfigs.COS_PIC_PATH, TestConfigs.LOCAL_FILE_DIRECTORY.concat("/tet"));
+        Map<String, String> params = new HashMap<>();
+        params.put("watermark/3/type/3/text/dGVuY2VudCBjbG91ZA==", null);
+        getObjectRequest.setQueryParameters(params);
+
         COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
-                TestConfigs.TERMINAL_PERSIST_BUCKET, TestConfigs.COS_PIC_PATH,
-                TestConfigs.LOCAL_FILE_DIRECTORY.concat("/tet"));
+                getObjectRequest);
+
         final TestLocker testLocker = new TestLocker();
         downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
@@ -391,6 +287,81 @@ public class DownloadTest {
 
 
         testLocker.lock();
+    }
+
+
+    /**
+     * 测试续传
+     */
+    @Test public void testContinueDownload() {
+
+
+        TransferManager transferManager = TestUtils.newDefaultTerminalTransferManager();
+        final COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+                TestConfigs.TERMINAL_PERSIST_BUCKET, TestConfigs.COS_TXT_100M_PATH,
+                TestConfigs.LOCAL_FILE_DIRECTORY);
+
+        final TestLocker waitFinishLocker = new TestLocker();
+        final TestLocker waitPauseLocker = new TestLocker();
+
+        TestUtils.removeLocalFile(TestConfigs.LOCAL_TXT_100M_PATH);
+
+        downloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+
+            if (complete >= target / 2) {
+                downloadTask.pause();
+                waitPauseLocker.release();
+            }
+            }
+        });
+
+        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                Assert.fail("onSuccess");
+                waitPauseLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                Assert.fail(mergeExceptionMessage(clientException, serviceException));
+                waitPauseLocker.release();
+            }
+        });
+
+        waitPauseLocker.lock(); // 等待暂停
+
+        COSXMLDownloadTask continueTask = transferManager.download(TestUtils.getContext(),
+                TestConfigs.TERMINAL_PERSIST_BUCKET, TestConfigs.COS_TXT_100M_PATH,
+                TestConfigs.LOCAL_FILE_DIRECTORY);
+
+        continueTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+
+                if (complete < target / 2) {
+                    Assert.fail("continue download failed");
+                }
+            }
+        });
+
+        continueTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                Assert.assertTrue(true);
+                waitFinishLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                Assert.fail(mergeExceptionMessage(clientException, serviceException));
+                waitFinishLocker.release();
+            }
+        });
+
+        waitFinishLocker.lock();
     }
 
 
