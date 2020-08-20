@@ -194,7 +194,7 @@ public class BucketInventory {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 // todo Delete Bucket success
-          DeleteBucketResult deleteBucketResult = (DeleteBucketResult)result;
+                DeleteBucketResult deleteBucketResult = (DeleteBucketResult)result;
             }
         
             @Override
