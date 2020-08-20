@@ -20,7 +20,7 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.core.transfer;
+package com.tencent.cos.xml.core.test;
 
 import android.content.Context;
 import android.os.Environment;

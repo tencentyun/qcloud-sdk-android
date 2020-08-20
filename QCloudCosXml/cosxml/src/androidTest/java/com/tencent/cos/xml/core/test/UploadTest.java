@@ -20,12 +20,13 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.upload;
+package com.tencent.cos.xml.core.test;
 
 import android.net.Uri;
 import android.os.Environment;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import android.util.Log;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.core.TestConfigs;
 import com.tencent.cos.xml.core.TestLocker;
@@ -56,7 +57,7 @@ import static com.tencent.cos.xml.core.TestUtils.mergeExceptionMessage;
 import static com.tencent.cos.xml.core.TestUtils.newDefaultTerminalTransferManager;
 
 @RunWith(AndroidJUnit4.class)
-public class UploadManagerTest {
+public class UploadTest {
 
     /**
      * 上传 1M 小文件测试

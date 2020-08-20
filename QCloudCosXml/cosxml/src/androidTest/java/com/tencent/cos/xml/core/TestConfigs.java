@@ -21,8 +21,6 @@
  */
 
 package com.tencent.cos.xml.core;
-
-import android.os.Build;
 import android.os.Environment;
 
 import com.tencent.cos.xml.BuildConfig;
@@ -47,6 +45,7 @@ public class TestConfigs {
     public static final String TERMINAL_SECRET_KEY = BuildConfig.COS_SECRET_KEY;
     public static final String TERMINAL_DEFAULT_REGION = BuildConfig.REGION;
     public static final String TERMINAL_PERSIST_BUCKET = BuildConfig.BUCKET_PERSIST; // "android-ut-persist-bucket";
+    public static final String TERMINAL_PERSIST_BUCKET_BJ = BuildConfig.BUCKET_PERSIST_BJ;
     public static final String TERMINAL_TEMP_BUCKET = BuildConfig.BUCKET_TEMP; //"android-ut-temp-bucket";
 
     public static final String COS_SUB_SECRET_ID = BuildConfig.COS_SUB_SECRET_ID;
@@ -77,7 +76,6 @@ public class TestConfigs {
 
 
     static {
-
 
         try {
             boolean mkDirs = new File(LOCAL_FILE_DIRECTORY).mkdirs();

@@ -1079,19 +1079,25 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
             @Override
             public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
 
+                boolean successCallback = false;
+
                 if (clientException == null && serviceException != null) {
 
                     if ((serviceException.getStatusCode() == Constants.BUCKET_REDIRECT_STATUS_CODE)
                             || "AccessDenied".equals(serviceException.getErrorCode())) {
+                        successCallback = true;
                         booleanListener.onSuccess(true);
                     }
 
                     if (serviceException.getStatusCode() == Constants.NO_SUCH_BUCKET_STATUS_CODE) {
+                        successCallback = true;
                         booleanListener.onSuccess(false);
                     }
                 }
 
-                booleanListener.onFail(clientException, serviceException);
+                if (!successCallback) {
+                    booleanListener.onFail(clientException, serviceException);
+                }
             }
         });
     }
@@ -1694,12 +1700,12 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
     }
 
     @Override
-    protected String getRequestHost(CosXmlRequest request, boolean isHeader) throws CosXmlClientException {
+    protected String getRequestHost(CosXmlRequest request) throws CosXmlClientException {
 
         if (request instanceof GetServiceRequest && !TextUtils.isEmpty(getServiceRequestDomain)) {
             return getServiceRequestDomain;
         } else {
-            return super.getRequestHost(request, isHeader);
+            return super.getRequestHost(request);
         }
     }
 

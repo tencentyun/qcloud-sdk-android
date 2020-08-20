@@ -38,10 +38,19 @@ import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.Random;
 
 public class TestUtils {
 
+
+    public static String getMD5(String str) throws Exception {
+
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(str.getBytes());
+        return new BigInteger(1, md.digest()).toString(16);
+    }
 
     public static Context getContext() {
         return InstrumentationRegistry.getInstrumentation().getContext();
@@ -90,8 +99,20 @@ public class TestUtils {
                 .isHttps(true)
                 .setRegion(TestConfigs.TERMINAL_DEFAULT_REGION)
                 .setDebuggable(true)
-                // .setAccelerate(true)
                 // .dnsCache(false)
+                .builder();
+
+        return new CosXmlService(getContext(), cosXmlServiceConfig,
+                new ShortTimeCredentialProvider(TestConfigs.TERMINAL_SECRET_ID, TestConfigs.TERMINAL_SECRET_KEY,600) );
+    }
+
+    public static CosXmlService newAccelerateService() {
+
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setRegion("ap-beijing")
+                .setDebuggable(true)
+                .setAccelerate(true)
                 .builder();
 
         return new CosXmlService(getContext(), cosXmlServiceConfig,
@@ -119,15 +140,21 @@ public class TestUtils {
 
     public static CosXmlService newCdnTerminalService() {
 
+        String bucket = TestConfigs.TERMINAL_PERSIST_BUCKET;
+        String region = TestConfigs.TERMINAL_DEFAULT_REGION;
+
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
-                .setRegion(TestConfigs.TERMINAL_DEFAULT_REGION)
+                .setRegion(region)
                 .setDebuggable(true)
                 .setHostFormat("${bucket}.file.myqcloud.com")
-                .addHeader("Host", "android-ut-persist-gz-1253653367.file.myqcloud.com")
+                //.addHeader("Host", bucket.concat(".file.myqcloud.com"))
+                //.addNoSignHeaders("Host")
                 .builder();
 
-        return new CosXmlService(getContext(), cosXmlServiceConfig);
+        return new CosXmlService(getContext(), cosXmlServiceConfig
+              //  , new ShortTimeCredentialProvider(TestConfigs.TERMINAL_SECRET_ID, TestConfigs.TERMINAL_SECRET_KEY, 600)
+        );
     }
 
     public static TransferManager newCdnTerminalTransferManager() {
@@ -178,6 +205,13 @@ public class TestUtils {
     public static TransferManager newQuicTerminalTransferManager() {
 
         CosXmlService cosXmlService = newQuicTerminalService();
+        TransferConfig transferConfig = new TransferConfig.Builder().build();
+        return new TransferManager(cosXmlService, transferConfig);
+    }
+
+    public static TransferManager newAccelerateTransferManager() {
+
+        CosXmlService cosXmlService = newAccelerateService();
         TransferConfig transferConfig = new TransferConfig.Builder().build();
         return new TransferManager(cosXmlService, transferConfig);
     }

@@ -229,7 +229,7 @@ public class BucketDomain {
         Set<String> headerKeys = new HashSet<>();
         headerKeys.add("Host");
         headBucketRequest.setSignParamsAndHeaders(null, headerKeys);
-        //使用同步方法
+        //使用同步方法B
         try {
             HeadBucketResult headBucketResult = cosXmlService.headBucket(headBucketRequest);
         } catch (CosXmlClientException e) {
