@@ -32,6 +32,7 @@ import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.util.QCloudHttpUtils;
+import com.tencent.qcloud.qcloudxml.core.BuildConfig;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
