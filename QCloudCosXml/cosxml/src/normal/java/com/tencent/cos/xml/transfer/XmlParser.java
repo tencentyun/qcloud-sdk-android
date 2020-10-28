@@ -24,6 +24,7 @@ package com.tencent.cos.xml.transfer;
 
 import android.util.Xml;
 
+import com.tencent.cos.xml.model.tag.AccelerateConfiguration;
 import com.tencent.cos.xml.model.tag.AccessControlPolicy;
 import com.tencent.cos.xml.model.tag.BucketLoggingStatus;
 import com.tencent.cos.xml.model.tag.CORSConfiguration;
@@ -639,6 +640,36 @@ public class XmlParser extends XmlSlimParser {
             eventType = xmlPullParser.next();
         }
     }
+
+    /**
+     * 解析 全球加速集合，
+     * @param inputStream xml输入流
+     * @param accelerateConfiguration 全球集合
+     * @throws XmlPullParserException xml解析异常
+     * @throws IOException IO异常
+     */
+    public static void parseAccelerateConfiguration(InputStream inputStream, AccelerateConfiguration accelerateConfiguration) throws XmlPullParserException, IOException {
+        XmlPullParser xmlPullParser =  Xml.newPullParser();
+        xmlPullParser.setInput(inputStream, "UTF-8");
+        int eventType = xmlPullParser.getEventType();
+        String tagName;
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            switch (eventType){
+                case XmlPullParser.START_TAG:
+                    tagName = xmlPullParser.getName();
+                    if ("Status".equalsIgnoreCase(tagName)) { // 开始解析
+                        xmlPullParser.next();
+                        accelerateConfiguration.status = xmlPullParser.getText();
+                    } else if ("Type".equalsIgnoreCase(tagName)) {
+                        xmlPullParser.next();
+                        accelerateConfiguration.type = xmlPullParser.getText();
+                    }
+                    break;
+            }
+            eventType = xmlPullParser.next();
+        }
+    }
+
 
     /**
      * 解析 生命周期配置

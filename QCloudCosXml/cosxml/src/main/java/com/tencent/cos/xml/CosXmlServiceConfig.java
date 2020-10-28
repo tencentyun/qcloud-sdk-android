@@ -57,6 +57,9 @@ public class CosXmlServiceConfig implements Parcelable {
     public static final String ACCELERATE_HOST_FORMAT = "${bucket}.cos.accelerate.myqcloud.com";
     public static final String PATH_STYLE_HOST_FORMAT = "cos.${region}.myqcloud.com";
 
+    public static final String CI_HOST_FORMAT = "${bucket}.ci.${region}.myqcloud.com";
+    public static final String PIC_HOST_FORMAT = "${bucket}.pic.${region}.myqcloud.com";
+
     /**
      * The default user agent header for cos android sdk clients.
      */
@@ -82,6 +85,8 @@ public class CosXmlServiceConfig implements Parcelable {
 
     private Executor executor;
 
+    private Executor observeExecutor;
+
     private boolean isQuic;
 
     private List<String> prefetchHosts;
@@ -99,6 +104,8 @@ public class CosXmlServiceConfig implements Parcelable {
     private boolean bucketInPath; // path style
 
     private boolean accelerate; //
+
+    private boolean signInUrl; //
 
     public CosXmlServiceConfig(Builder builder) {
         this.protocol = builder.protocol;
@@ -127,10 +134,16 @@ public class CosXmlServiceConfig implements Parcelable {
         this.hostHeaderFormat = builder.hostHeaderFormat;
 
         this.executor = builder.executor;
+        this.observeExecutor = builder.observeExecutor;
         this.isQuic = builder.isQuic;
         this.accelerate = builder.accelerate;
 
         this.dnsCache = builder.dnsCache;
+        this.signInUrl = builder.signInUrl;
+    }
+
+    public Builder newBuilder() {
+        return new Builder(this);
     }
 
     /**
@@ -214,16 +227,26 @@ public class CosXmlServiceConfig implements Parcelable {
      * @return 请求host
      */
     public String getRequestHost(String region, String bucket, boolean accelerate) {
+        accelerate = accelerate || this.accelerate;  //  只要请求或者 config 中使能了加速域名，则使能加速域名
+        boolean pathStyle = bucketInPath; // Path style 暂时只能在 config 中设置
+        return getRequestHost(region, bucket, getHostFormat(accelerate, pathStyle));
+    }
 
+    /**
+     * 获取请求host
+     * @param region 区域
+     * @param bucket 存储桶
+     * @param hostFormat HOST 格式，支持通配符
+     * @return 请求host
+     */
+    public String getRequestHost(String region, String bucket, String hostFormat) {
         if (!TextUtils.isEmpty(host)) {
             return host;
         }
         region = TextUtils.isEmpty(region) ? this.region : region; // 优先 request 中的 region
         bucket = getBucket(bucket, appid); // 获取最终的 bucket 名称，这里兼容之前 bucket 没带 appid 的情况
-        accelerate = accelerate || this.accelerate;  //  只要请求或者 config 中使能了加速域名，则使能加速域名
-        boolean pathStyle = bucketInPath; // Path style 暂时只能在 config 中设置
 
-        return getFormatHost(getHostFormat(accelerate, pathStyle), region, bucket);
+        return getFormatHost(hostFormat, region, bucket);
     }
 
     public String getHeaderHost(String region, String bucket) {
@@ -234,6 +257,10 @@ public class CosXmlServiceConfig implements Parcelable {
         return "";
     }
 
+    public boolean isSignInUrl() {
+        return signInUrl;
+    }
+
     /**
      * 获取请求host
      * @param region 区域
@@ -241,8 +268,13 @@ public class CosXmlServiceConfig implements Parcelable {
      * @param appid appid
      * @return 请求host
      */
+    @Deprecated
     public String getDefaultRequestHost(String region, String bucket, String appid) {
-        bucket = getBucket(bucket, appid);
+        return getDefaultRequestHost(region, getBucket(bucket, appid));
+    }
+
+
+    public String getDefaultRequestHost(String region, String bucket) {
         return getFormatHost(DEFAULT_HOST_FORMAT, region, bucket);
     }
 
@@ -448,6 +480,10 @@ public class CosXmlServiceConfig implements Parcelable {
         return executor;
     }
 
+    public Executor getObserveExecutor() {
+        return observeExecutor;
+    }
+
     public boolean isEnableQuic(){
         return isQuic;
     }
@@ -512,6 +548,8 @@ public class CosXmlServiceConfig implements Parcelable {
 
         private Executor executor;
 
+        private Executor observeExecutor;
+
         private boolean isQuic = false;
         private boolean dnsCache = true;
 
@@ -522,12 +560,50 @@ public class CosXmlServiceConfig implements Parcelable {
         private String hostHeaderFormat;
         private boolean accelerate;
 
+        private boolean signInUrl;
+
         public Builder() {
             protocol = HTTPS_PROTOCOL;
             userAgent = DEFAULT_USER_AGENT;
             isDebuggable = false;
             retryStrategy = RetryStrategy.DEFAULT;
             bucketInPath = false;
+        }
+
+        public Builder(CosXmlServiceConfig config) {
+            protocol = config.protocol;
+            userAgent = DEFAULT_USER_AGENT;
+
+            region = config.region;
+            appid = config.appid;
+            host = config.host;
+            port = config.port;
+            endpointSuffix = config.endpointSuffix;
+
+            bucketInPath = config.bucketInPath;
+
+            isDebuggable = config.isDebuggable;
+
+            retryStrategy = config.retryStrategy;
+            qCloudHttpRetryHandler = config.qCloudHttpRetryHandler;
+
+            connectionTimeout = config.connectionTimeout;
+            socketTimeout = config.socketTimeout;
+
+            executor = config.executor;
+            observeExecutor = config.observeExecutor;
+
+            isQuic = config.isQuic;
+            dnsCache = config.dnsCache;
+
+            commonHeaders = config.commonHeaders;
+            noSignHeaders = config.noSignHeaders;
+
+            hostFormat = config.hostFormat;
+            hostHeaderFormat = config.hostHeaderFormat;
+            accelerate = config.accelerate;
+
+            signInUrl = config.signInUrl;
         }
 
         /**
@@ -671,6 +747,17 @@ public class CosXmlServiceConfig implements Parcelable {
         }
 
         /**
+         * 是否将签名放在 URL 中，默认放在 Header 中
+         *
+         * @param signInUrl
+         * @return
+         */
+        public Builder setSignInUrl(boolean signInUrl) {
+            this.signInUrl = signInUrl;
+            return this;
+        }
+
+        /**
          * 自定义重试策略
          *
          * @param retryStrategy 重试策略
@@ -723,6 +810,11 @@ public class CosXmlServiceConfig implements Parcelable {
          */
         public Builder setExecutor(Executor excutor){
             this.executor = excutor;
+            return this;
+        }
+
+        public Builder setObserveExecutor(Executor observeExecutor) {
+            this.observeExecutor = observeExecutor;
             return this;
         }
 

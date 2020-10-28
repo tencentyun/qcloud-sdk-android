@@ -24,6 +24,8 @@ package com.tencent.cos.xml.common;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.tencent.cos.xml.common.Range;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

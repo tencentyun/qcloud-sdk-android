@@ -28,8 +28,8 @@ import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.ListAllMyBuckets;
-import com.tencent.cos.xml.transfer.XmlParser;
 import com.tencent.qcloud.core.http.HttpResponse;
+import com.tencent.qcloud.qcloudxml.core.QCloudXml;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -50,8 +50,10 @@ final public class GetServiceResult extends CosXmlResult {
     public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
         super.parseResponseBody(response);
         try {
-            listAllMyBuckets = new ListAllMyBuckets();
-            XmlParser.parseListAllMyBucketsResult(response.byteStream(), listAllMyBuckets);
+//            listAllMyBuckets = new ListAllMyBuckets();
+//            XmlParser.parseListAllMyBucketsResult(response.byteStream(), listAllMyBuckets);
+
+            listAllMyBuckets = QCloudXml.fromXml(response.byteStream(), ListAllMyBuckets.class);
         } catch (XmlPullParserException e) {
             throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
         } catch (IOException e) {

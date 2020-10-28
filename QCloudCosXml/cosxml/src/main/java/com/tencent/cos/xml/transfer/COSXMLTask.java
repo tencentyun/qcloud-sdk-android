@@ -231,6 +231,11 @@ public abstract class COSXMLTask {
      */
     protected abstract CosXmlRequest buildCOSXMLTaskRequest();
 
+    public void clearResultAndException() {
+        mException = null;
+        mResult = null;
+    }
+
     /**
      * 构造COSXMLTask返回的Result
      * @param sourceResult 原始CosXmlResult

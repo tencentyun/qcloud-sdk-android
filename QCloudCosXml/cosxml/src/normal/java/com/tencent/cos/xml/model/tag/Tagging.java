@@ -22,12 +22,16 @@
 
 package com.tencent.cos.xml.model.tag;
 
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
+
 import java.util.LinkedList;
 import java.util.List;
 
 /**
  * 标签集合
  */
+@XmlBean
 public class Tagging {
 
     /**
@@ -55,11 +59,13 @@ public class Tagging {
     /**
      * 标签集合
      */
+    @XmlBean
     public static class TagSet {
 
         /**
          * 标签集合, 最多支持50个标签
          */
+        @XmlElement(ignoreListNote = true)
         public List<Tag> tags;
 
         public TagSet() {
@@ -96,6 +102,7 @@ public class Tagging {
     /**
      * 标签
      */
+    @XmlBean
     public static class Tag {
         /**
          * 标签键, 长度不超过128字节，支持英文字母、数字、空格、加号、减号、下划线、等号、点号、冒号、斜线

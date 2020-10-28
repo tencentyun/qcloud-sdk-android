@@ -22,11 +22,16 @@
 
 package com.tencent.cos.xml.model.tag;
 
+
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
+
 import java.util.List;
 
 /**
  * GET Service 结果的所有信息
  */
+@XmlBean(name = "ListAllMyBucketsResult")
 public class ListAllMyBuckets {
     /**
      * 存储桶持有者信息
@@ -53,14 +58,17 @@ public class ListAllMyBuckets {
     /**
      * 存储桶持有者
      */
-    public static class  Owner{
+    @XmlBean
+    public static class Owner{
         /**
          * 存储桶持有者的完整 ID
          */
+        @XmlElement(name = "ID")
         public String id;
         /**
          * 存储桶持有者的名字
          */
+        @XmlElement(name = "DisplayName")
         public String disPlayName;
 
         @Override
@@ -76,6 +84,7 @@ public class ListAllMyBuckets {
     /**
      * 存储桶
      */
+    @XmlBean
     public static class Bucket{
         /**
          * 存储桶的名称
@@ -88,8 +97,8 @@ public class ListAllMyBuckets {
         /**
          * 存储桶的创建时间，为 ISO8601 格式，例如2019-05-24T10:56:40Z
          */
+        @XmlElement(name = "CreationDate")
         public String createDate;
-
         public String type;
 
         @Override

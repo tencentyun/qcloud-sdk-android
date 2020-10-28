@@ -1,6 +1,11 @@
 apply plugin: 'com.android.library'
 apply from: '../version.gradle'
 
+def compileQuic() {
+    return getGradle().getStartParameter().getTaskRequests()
+        .toString().contains("Debug") && "QCloudCosXml".equalsIgnoreCase(rootProject.name)
+}
+
 android {
 
     compileSdkVersion 28
@@ -10,8 +15,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 50504
-        versionName "5.5.4"
+        versionCode 50506
+        versionName "5.5.6"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -22,32 +27,22 @@ android {
         debug {
             testCoverageEnabled = true
 
+            it.buildConfigField 'String', 'OWNER_UIN', quotWrapper(System.getenv("OWNER_UIN"))
             it.buildConfigField 'String', 'COS_APPID', quotWrapper(System.getenv("COS_APPID"))
-            it.buildConfigField 'String', 'COS_UIN', quotWrapper(System.getenv("COS_UIN"))
             it.buildConfigField 'String', 'COS_SECRET_ID', quotWrapper(System.getenv("COS_SECRET_ID"))
             it.buildConfigField 'String', 'COS_SECRET_KEY', quotWrapper(System.getenv("COS_SECRET_KEY"))
-            it.buildConfigField 'String', 'BUCKET_PERSIST', quotWrapper(System.getenv("BUCKET_PERSIST"))
-            it.buildConfigField 'String', 'BUCKET_TEMP', quotWrapper(System.getenv("BUCKET_TEMP"))
-            it.buildConfigField 'String', 'REGION', quotWrapper(System.getenv("REGION"))
-
-            it.buildConfigField 'String', 'CSP_APPID', quotWrapper(System.getenv("CSP_APPID"))
-            it.buildConfigField 'String', 'CSP_UIN', quotWrapper(System.getenv("CSP_UIN"))
-            it.buildConfigField 'String', 'CSP_SECRET_ID', quotWrapper(System.getenv("CSP_SECRET_ID"))
-            it.buildConfigField 'String', 'CSP_SECRET_KEY', quotWrapper(System.getenv("CSP_SECRET_KEY"))
-
-            it.buildConfigField 'String', 'COS_CI_SECRET_ID', quotWrapper(System.getenv("COS_CI_SECRET_ID"))
-            it.buildConfigField 'String', 'COS_CI_SECRET_KEY', quotWrapper(System.getenv("COS_CI_SECRET_KEY"))
-
-            it.buildConfigField 'String', 'COS_SUB_SECRET_ID', quotWrapper(System.getenv("COS_SUB_SECRET_ID"))
-            it.buildConfigField 'String', 'COS_SUB_SECRET_KEY', quotWrapper(System.getenv("COS_SUB_SECRET_KEY"))
-            it.buildConfigField 'String', 'COS_SUB_BUCKET_PERSIST', quotWrapper(System.getenv("COS_SUB_BUCKET_PERSIST"))
-            it.buildConfigField 'String', 'COS_SUB_BUCKET_PERSIST_REGION', quotWrapper(System.getenv("COS_SUB_BUCKET_PERSIST_REGION"))
-
-            it.buildConfigField 'String', 'COS_SUB_BUCKET_QUIC', quotWrapper(System.getenv("COS_SUB_BUCKET_QUIC"))
-            it.buildConfigField 'String', 'COS_SUB_BUCKET_QUIC_REGION', quotWrapper(System.getenv("COS_SUB_BUCKET_QUIC_REGION"))
-
-            it.buildConfigField 'String', 'COS_SUB_BUCKET_CDN_SIGN', quotWrapper(System.getenv("COS_SUB_BUCKET_CDN_SIGN"))
-            it.buildConfigField 'String', 'COS_QUIC_TEST_IP', quotWrapper(System.getenv("COS_QUIC_TEST_IP"))
+            it.buildConfigField 'String', 'CI_SECRET_ID', quotWrapper(System.getenv("CI_SECRET_ID"))
+            it.buildConfigField 'String', 'CI_SECRET_KEY', quotWrapper(System.getenv("CI_SECRET_KEY"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_REGION', quotWrapper(System.getenv("PERSIST_BUCKET_REGION"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET', quotWrapper(System.getenv("PERSIST_BUCKET"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_CDN_SIGN', quotWrapper(System.getenv("PERSIST_BUCKET_CDN_SIGN"))
+            it.buildConfigField 'String', 'TEMP_BUCKET_REGION', quotWrapper(System.getenv("TEMP_BUCKET_REGION"))
+            it.buildConfigField 'String', 'TEMP_BUCKET', quotWrapper(System.getenv("TEMP_BUCKET"))
+            it.buildConfigField 'Boolean', 'WEAK_NETWORK_TEST', safeEnvBoolean(System.getenv("WEAK_NETWORK_TEST"))
+            it.buildConfigField 'Boolean', 'QUIC_TEST', safeEnvBoolean(System.getenv("QUIC_TEST"))
+            it.buildConfigField 'String', 'QUIC_BUCKET_REGION', quotWrapper(System.getenv("QUIC_BUCKET_REGION"))
+            it.buildConfigField 'String', 'QUIC_BUCKET', quotWrapper(System.getenv("QUIC_BUCKET"))
+            it.buildConfigField 'String', 'QUIC_TEST_IP', quotWrapper(System.getenv("QUIC_TEST_IP"))
         }
 
         release {
@@ -80,16 +75,25 @@ android {
 }
 
 dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
 
     compileOnly 'androidx.appcompat:appcompat:1.0.0'
     testCompileOnly 'junit:junit:4.12'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+
     api project(path: ':foundation')
     api project(path: ':mtaUtils')
     api project(path: ':logUtils')
-    api project(path: ':quic')
+
+    if (compileQuic()) {
+        api project(path: ':quic')
+    }
+
+    annotationProcessor project(':xmlCompiler')
 }
 
 /*
@@ -127,7 +131,7 @@ if (android.defaultPublishConfig.contains("slim")){
     project.extensions.add('artifactProduct', 'normal')
     project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
 }
-apply from: '../../publish.gradle'
+
 
 
 // 发布到内部仓库
@@ -153,6 +157,27 @@ static String quotWrapper(key) {
     }
     return "\"".concat(key).concat("\"")
 }
+
+static String safeEnvBoolean(b) {
+
+    if (b == null) {
+        return "false"
+    }
+
+    return "true"
+}
+
+
+task(requestPermission) {
+
+    def adb = android.getAdbExecutable().toString()
+    def testApplicationId = "com.tencent.cos.xml.test"
+    println "Granting permissions"
+    "${adb} shell pm grant ${testApplicationId} android.permission.WRITE_EXTERNAL_STORAGE".execute()
+    "${adb} shell pm grant ${testApplicationId} android.permission.READ_EXTERNAL_STORAGE".execute()
+}
+
+preBuild.dependsOn "requestPermission"
 
 task(printEnvs) {
 

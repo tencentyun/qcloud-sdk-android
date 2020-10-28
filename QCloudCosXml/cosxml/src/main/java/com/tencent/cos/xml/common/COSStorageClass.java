@@ -27,24 +27,31 @@ package com.tencent.cos.xml.common;
  * <ul>
  *     <li>Standard : 标准存储</li>
  *     <li>Standard_IA : 冷存储</li>
- *     <li>Nearline : 近线存储</li>
+ *     <li>ARCHIVE : 近线存储</li>
  * 详细描述，请参考：<a href="https://cloud.tencent.com/document/product/436/33417">存储类型</a>
  * </ul>
  */
 public enum COSStorageClass {
 
     /** 标准存储 */
-    STANDARD("Standard"),
+    STANDARD("STANDARD"),
 
     /** 冷存储 */
-    STANDARD_IA("Standard_IA"),
+    STANDARD_IA("STANDARD_IA"),
 
-    /** 归档直传 */
-    ARCHIVE("ARCHIVE ");
+    /**
+     * archive
+     */
+    ARCHIVE("ARCHIVE"),
 
-//    /** 近线存储 */
-//    NEARLINE("Nearline");
+    /**
+     * deep archive
+     */
+    DEEP_ARCHIVE("DEEP_ARCHIVE"),
 
+    MAZ_STANDARD("MAZ_STANDARD"),
+
+    MAZ_STANDARD_IA("MAZ_STANDARD_IA");
 
     private String cosStorageClass;
 

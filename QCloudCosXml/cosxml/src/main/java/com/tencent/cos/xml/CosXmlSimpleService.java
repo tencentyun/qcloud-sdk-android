@@ -357,6 +357,7 @@ public class CosXmlSimpleService implements SimpleCosXml {
         } else {
             httpRequestBuilder.converter(new ResponseXmlS3BodySerializer<T2>(cosXmlResult));
         }
+        httpRequestBuilder.signInUrl(cosXmlRequest.isSignInUrl() || config.isSignInUrl());
         QCloudHttpRequest httpRequest = httpRequestBuilder.build();
         return httpRequest;
     }
@@ -458,6 +459,11 @@ public class CosXmlSimpleService implements SimpleCosXml {
             }
 
             Executor executor = config.getExecutor();
+            Executor observeExecutor = config.getObserveExecutor();
+            if (observeExecutor != null) {
+                httpTask.observeOn(observeExecutor);
+            }
+
             if(executor != null){
                 httpTask.scheduleOn(executor);
             }else if(cosXmlRequest instanceof BaseMultipartUploadRequest){
