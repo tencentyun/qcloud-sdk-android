@@ -85,6 +85,11 @@ public abstract class CosXmlRequest{
      */
     protected String region;
 
+    /**
+     * 是否将签名信息以 paras 的方式放在 Url 中
+     */
+    private boolean signInUrl;
+
     private OnRequestWeightListener onRequestWeightListener;
 
     /**
@@ -237,6 +242,14 @@ public abstract class CosXmlRequest{
      */
     public void attachMetrics(HttpTaskMetrics metrics) {
         this.metrics = metrics;
+    }
+
+    public void setSignInUrl(boolean signInUrl) {
+        this.signInUrl = signInUrl;
+    }
+
+    public boolean isSignInUrl() {
+        return signInUrl;
     }
 
     @Deprecated

@@ -57,6 +57,23 @@ import java.io.StringWriter;
  */
 
 public class XmlBuilder extends XmlSlimBuilder {
+
+    public static String buildPutBucketAccelerateXML(boolean enable) throws XmlPullParserException, IOException {
+
+        StringWriter xmlContent = new StringWriter();
+        XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+        XmlSerializer xmlSerializer = xmlPullParserFactory.newSerializer();
+        xmlSerializer.setOutput(xmlContent);
+        xmlSerializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
+        xmlSerializer.startDocument("UTF-8", null);
+
+        xmlSerializer.startTag("", "AccelerateConfiguration");
+        addElement(xmlSerializer, "Status", enable ? "Enabled" : "Suspended");
+        xmlSerializer.endTag("", "AccelerateConfiguration");
+        xmlSerializer.endDocument();
+        return removeXMLHeader(xmlContent.toString());
+    }
+
     /**
      * 将 ACL信息 转为XML字符串
      * @param accessControlPolicy ACL信息

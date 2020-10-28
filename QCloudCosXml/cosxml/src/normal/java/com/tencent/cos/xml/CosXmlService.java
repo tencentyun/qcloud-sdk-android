@@ -49,6 +49,8 @@ import com.tencent.cos.xml.model.bucket.DeleteBucketWebsiteRequest;
 import com.tencent.cos.xml.model.bucket.DeleteBucketWebsiteResult;
 import com.tencent.cos.xml.model.bucket.GetBucketACLRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketACLResult;
+import com.tencent.cos.xml.model.bucket.GetBucketAccelerateRequest;
+import com.tencent.cos.xml.model.bucket.GetBucketAccelerateResult;
 import com.tencent.cos.xml.model.bucket.GetBucketCORSRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketCORSResult;
 import com.tencent.cos.xml.model.bucket.GetBucketDomainRequest;
@@ -83,10 +85,14 @@ import com.tencent.cos.xml.model.bucket.ListMultiUploadsRequest;
 import com.tencent.cos.xml.model.bucket.ListMultiUploadsResult;
 import com.tencent.cos.xml.model.bucket.PutBucketACLRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketACLResult;
+import com.tencent.cos.xml.model.bucket.PutBucketAccelerateRequest;
+import com.tencent.cos.xml.model.bucket.PutBucketAccelerateResult;
 import com.tencent.cos.xml.model.bucket.PutBucketCORSRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketCORSResult;
 import com.tencent.cos.xml.model.bucket.PutBucketDomainRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketDomainResult;
+import com.tencent.cos.xml.model.bucket.PutBucketIntelligentTieringRequest;
+import com.tencent.cos.xml.model.bucket.PutBucketIntelligentTieringResult;
 import com.tencent.cos.xml.model.bucket.PutBucketInventoryRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketInventoryResult;
 import com.tencent.cos.xml.model.bucket.PutBucketLifecycleRequest;
@@ -801,6 +807,26 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
     @Override
     public void putBucketACLAsync(PutBucketACLRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new PutBucketACLResult(), cosXmlResultListener);
+    }
+
+    @Override
+    public GetBucketAccelerateResult getBucketAccelerate(GetBucketAccelerateRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetBucketAccelerateResult());
+    }
+
+    @Override
+    public void getBucketAccelerateAsync(GetBucketAccelerateRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new GetBucketAccelerateResult(), cosXmlResultListener);
+    }
+
+    @Override
+    public PutBucketAccelerateResult putBucketAccelerate(PutBucketAccelerateRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PutBucketAccelerateResult());
+    }
+
+    @Override
+    public void putBucketAccelerateAsync(PutBucketAccelerateRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PutBucketAccelerateResult(), cosXmlResultListener);
     }
 
     /**
@@ -1646,6 +1672,32 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
     @Override
     public void getBucketObjectVersionsAsync(GetBucketObjectVersionsRequest getBucketObjectVersionsRequest, CosXmlResultListener cosXmlResultListener) {
         schedule(getBucketObjectVersionsRequest, new GetBucketObjectVersionsResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 拉取存储桶内的所有对象及其历史版本信息的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketObjectVersions(GetBucketObjectVersionsRequest)}
+     * </p>
+     */
+    @Override
+    public PutBucketIntelligentTieringResult putBucketIntelligentTiering(PutBucketIntelligentTieringRequest putBucketIntelligentTieringRequest) throws CosXmlClientException, CosXmlServiceException {
+        return execute(putBucketIntelligentTieringRequest, new PutBucketIntelligentTieringResult());
+    }
+
+    /**
+     * <p>
+     * 拉取存储桶内的所有对象及其历史版本信息的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketObjectVersionsAsync(GetBucketObjectVersionsRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void putBucketIntelligentTieringAsync(PutBucketIntelligentTieringRequest putBucketIntelligentTieringRequest, CosXmlResultListener cosXmlResultListener) {
+        schedule(putBucketIntelligentTieringRequest, new PutBucketIntelligentTieringResult(), cosXmlResultListener);
     }
 
     /**
