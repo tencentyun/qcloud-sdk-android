@@ -42,6 +42,8 @@ import com.tencent.cos.xml.model.bucket.DeleteBucketWebsiteRequest;
 import com.tencent.cos.xml.model.bucket.DeleteBucketWebsiteResult;
 import com.tencent.cos.xml.model.bucket.GetBucketACLRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketACLResult;
+import com.tencent.cos.xml.model.bucket.GetBucketAccelerateRequest;
+import com.tencent.cos.xml.model.bucket.GetBucketAccelerateResult;
 import com.tencent.cos.xml.model.bucket.GetBucketCORSRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketCORSResult;
 import com.tencent.cos.xml.model.bucket.GetBucketDomainRequest;
@@ -76,10 +78,14 @@ import com.tencent.cos.xml.model.bucket.ListMultiUploadsRequest;
 import com.tencent.cos.xml.model.bucket.ListMultiUploadsResult;
 import com.tencent.cos.xml.model.bucket.PutBucketACLRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketACLResult;
+import com.tencent.cos.xml.model.bucket.PutBucketAccelerateRequest;
+import com.tencent.cos.xml.model.bucket.PutBucketAccelerateResult;
 import com.tencent.cos.xml.model.bucket.PutBucketCORSRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketCORSResult;
 import com.tencent.cos.xml.model.bucket.PutBucketDomainRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketDomainResult;
+import com.tencent.cos.xml.model.bucket.PutBucketIntelligentTieringRequest;
+import com.tencent.cos.xml.model.bucket.PutBucketIntelligentTieringResult;
 import com.tencent.cos.xml.model.bucket.PutBucketInventoryRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketInventoryResult;
 import com.tencent.cos.xml.model.bucket.PutBucketLifecycleRequest;
@@ -1396,6 +1402,14 @@ public interface CosXml extends SimpleCosXml {
     void putBucketACLAsync(PutBucketACLRequest request, CosXmlResultListener cosXmlResultListener);
 
 
+    GetBucketAccelerateResult getBucketAccelerate(GetBucketAccelerateRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    void getBucketAccelerateAsync(GetBucketAccelerateRequest request, CosXmlResultListener cosXmlResultListener);
+
+    PutBucketAccelerateResult putBucketAccelerate(PutBucketAccelerateRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    void putBucketAccelerateAsync(PutBucketAccelerateRequest request, CosXmlResultListener cosXmlResultListener);
+
     //todo jordan 缺少该示例文档
     //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41904#.E6.9F.A5.E8.AF.A2.E7.94.9F.E5.91.BD.E5.91.A8.E6.9C.9F">获取存储桶地域示例</a>
     /**
@@ -2266,6 +2280,38 @@ public interface CosXml extends SimpleCosXml {
      * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
      */
     void getBucketObjectVersionsAsync(GetBucketObjectVersionsRequest request, CosXmlResultListener cosXmlResultListener);
+
+    //todo rickenwang 缺少示例和 API 接口
+    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">获取所有对象及历史版本示例</a>
+    /**
+     * <p>
+     * 启用存储桶智能分层存储配置能力的同步方法.&nbsp;
+     * <p>
+     * 启用智能分层能力后，只能进行参数编辑，无法关闭。
+     * <p>
+     * API 接口：
+     *
+     * @param request 启用存储桶智能分层存储配置能力的请求 {@link GetBucketObjectVersionsRequest}
+     * @return 启用存储桶智能分层存储配置能力的返回结果 {@link GetBucketObjectVersionsResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    PutBucketIntelligentTieringResult putBucketIntelligentTiering(PutBucketIntelligentTieringRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    //todo rickenwang 缺少示例和 API 接口
+    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">获取所有对象及历史版本示例</a>
+    /**
+     * <p>
+     * 启用存储桶智能分层存储配置能力的异步方法.&nbsp;
+     * <p>
+     * 启用智能分层能力后，只能进行参数编辑，无法关闭。
+     * <p>
+     * API 接口：
+     *
+     * @param request 启用存储桶智能分层存储配置能力的请求 {@link GetBucketObjectVersionsRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void putBucketIntelligentTieringAsync(PutBucketIntelligentTieringRequest request, CosXmlResultListener cosXmlResultListener);
 
     /**
      * <p>

@@ -44,7 +44,7 @@ public class TestLocker {
         }
     }
 
-    public void release() {
+    synchronized public void release() {
 
         if (locker != null && locker.getCount() > 0) {
             locker.countDown();
