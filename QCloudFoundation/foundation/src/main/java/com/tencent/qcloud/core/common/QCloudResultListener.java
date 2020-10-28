@@ -39,6 +39,4 @@ public interface QCloudResultListener<T> {
      */
     void onFailure(QCloudClientException clientException, QCloudServiceException serviceException);
 
-
-
 }
