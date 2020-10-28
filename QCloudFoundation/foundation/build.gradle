@@ -7,8 +7,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 27
 
-        versionCode 10522
-        versionName "1.5.22"
+        versionCode 10523
+        versionName "1.5.23"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -51,7 +51,7 @@ dependencies {
 project.extensions.add('artifactId', 'qcloud-foundation')
 project.extensions.add('artifactDesc', 'the core foundation for tencent cloud sdk')
 
-apply from: '../../publish.gradle'
+
 
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.

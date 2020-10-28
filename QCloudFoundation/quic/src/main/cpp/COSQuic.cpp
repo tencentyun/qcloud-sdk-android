@@ -1,6 +1,25 @@
-//
-// Created by bradyxiao on 2019/3/12.
-//
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 #include <inttypes.h>
 #include "COSQuic.h"
 
@@ -23,7 +42,7 @@ COSQuic::~COSQuic() {
     }
     if(m_tnetQuic != NULL) delete m_tnetQuic;
 
-    LOGI(debug, "[%d] release", this->m_handle_id);
+    //LOGI(debug, "[%d] release", this->m_handle_id);
 }
 
 
@@ -66,7 +85,7 @@ jboolean COSQuic::SendRequest(JNIEnv *env, const jobject jcaller, const jbyteArr
 
 void COSQuic::CancelRequest(JNIEnv *env, const jobject jcaller) {
     this->m_tnetQuic->CancelRequest();
-    LOGD(debug, "[%d] cancel request", this->m_handle_id);
+    //LOGD(debug, "[%d] cancel request", this->m_handle_id);
 }
 
 jstring COSQuic::GetState(JNIEnv *env, const jobject jcaller) {
@@ -88,7 +107,7 @@ jstring COSQuic::GetState(JNIEnv *env, const jobject jcaller) {
             tnetStats.packets_received,
             tnetStats.bytes_received,
             tnetStats.stream_bytes_received);
-    LOGD(debug, "[%d] state %s", this->m_handle_id, buf);
+    //LOGD(debug, "[%d] state %s", this->m_handle_id, buf);
     jstring encoding = env->NewStringUTF("GB2312");
     jclass str_class = env->FindClass("java/lang/String");
     jmethodID str_initID = env->GetMethodID(str_class, "<init>", "([BLjava/lang/String;)V"); //
@@ -101,13 +120,13 @@ jstring COSQuic::GetState(JNIEnv *env, const jobject jcaller) {
 }
 
 void COSQuic::OnConnect(int error_code) {
-    LOGI(debug, "[%d] connect %s(%d)", this->m_handle_id, error_code == 0? "success" : "failed", error_code);
+    //LOGI(debug, "[%d] connect %s(%d)", this->m_handle_id, error_code == 0? "success" : "failed", error_code);
     JNIEnvPtr envPtr(quic_handle_struct->m_vm);
     envPtr->CallVoidMethod(this->m_caller, quic_handle_struct->connect, error_code);
 }
 
 void COSQuic::OnDataRecv(const char *buf, const int buf_len) {
-    LOGD(debug, "[%d] receive response : (len=%d)", this->m_handle_id, buf_len);
+    //LOGD(debug, "[%d] receive response : (len=%d)", this->m_handle_id, buf_len);
     JNIEnvPtr envPtr(quic_handle_struct->m_vm);
     jbyteArray bytes = envPtr->NewByteArray(buf_len);
     envPtr->SetByteArrayRegion(bytes, 0, buf_len, (jbyte*)buf);
@@ -115,13 +134,13 @@ void COSQuic::OnDataRecv(const char *buf, const int buf_len) {
 }
 
 void COSQuic::OnRequestFinish(int stream_error) {
-    LOGI(debug, "[%d] request completed", this->m_handle_id);
+    //LOGI(debug, "[%d] request completed", this->m_handle_id);
     JNIEnvPtr envPtr(quic_handle_struct->m_vm);
     envPtr->CallVoidMethod(this->m_caller, quic_handle_struct->completed, stream_error);
 }
 
 void COSQuic::OnConnectionClose(int error_code, const char *error_detail) {
-    LOGE(debug, "[%d] connection close (%d, %s)", this->m_handle_id, error_code, error_detail);
+    //LOGE(debug, "[%d] connection close (%d, %s)", this->m_handle_id, error_code, error_detail);
     JNIEnvPtr envPtr(quic_handle_struct->m_vm);
     jstring encoding = envPtr->NewStringUTF("GB2312");
     jclass str_class = envPtr->FindClass("java/lang/String");

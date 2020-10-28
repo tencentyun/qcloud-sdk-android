@@ -48,6 +48,7 @@ import static com.tencent.qcloud.core.http.HttpConstants.Header.CONTENT_LENGTH;
 import static com.tencent.qcloud.core.http.HttpConstants.Header.CONTENT_TYPE;
 import static com.tencent.qcloud.core.http.HttpConstants.Header.DATE;
 import static com.tencent.qcloud.core.http.HttpConstants.Header.TRANSFER_ENCODING;
+import static com.tencent.qcloud.core.http.HttpConstants.Header.USER_AGENT;
 
 /**
  * 提供COS请求中参与签名的字段
@@ -120,9 +121,9 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
 
         List<String> keysToSign = new LinkedList<>(request.headers().keySet());
         // 强制签名如下 OkHttp 自动添加的 Header
+        keysToSign.remove(USER_AGENT);
         keysToSign.add(CONTENT_TYPE);
         keysToSign.add(CONTENT_LENGTH);
-        keysToSign.add(DATE);
 
         // 默认头部字段参与计算
         if (headerKeysRequiredToSign.size() < 1) {
@@ -277,10 +278,10 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
         StringBuilder out = new StringBuilder();
         boolean isFirst = true;
 
-        // 1、将所有的key值转化为小写，并进行排序
+        // 1、将所有的key值进行 url 编码，然后转化为小写，并进行排序
         List<String> orderKeys = new LinkedList<>();
         for (String key : keys) {
-            orderKeys.add(key.toLowerCase());
+            orderKeys.add(QCloudHttpUtils.urlEncodeString(key).toLowerCase());
         }
         Collections.sort(orderKeys, new Comparator<String>() {
             @Override
@@ -321,10 +322,10 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
         StringBuilder out = new StringBuilder();
         boolean isFirst = true;
 
-        // 1、将所有的key值转化为小写，并进行排序
+        // 1、将所有的key值进行 url 编码，然后转化为小写，并进行排序
         List<String> orderKeys = new LinkedList<>();
         for (String key : keys) {
-            orderKeys.add(key.toLowerCase());
+            orderKeys.add(QCloudHttpUtils.urlEncodeString(key).toLowerCase());
         }
         Collections.sort(orderKeys, new Comparator<String>() {
             @Override
