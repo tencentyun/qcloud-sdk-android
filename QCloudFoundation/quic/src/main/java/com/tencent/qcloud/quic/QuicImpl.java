@@ -1,8 +1,33 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.qcloud.quic;
 
 import android.os.*;
 import android.support.annotation.Nullable;
 import com.tencent.qcloud.core.http.CallMetricsListener;
+import com.tencent.qcloud.core.http.QCloudHttpClient;
+import com.tencent.qcloud.core.logger.QCloudLogger;
+
 import okio.*;
 
 import java.io.*;
@@ -48,6 +73,8 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
     private boolean reportException = false;
 
     private CallMetricsListener callMetricsListener;
+
+    private String handleId;
 
     private CountDownLatch latch = new CountDownLatch(1);
 
@@ -148,13 +175,10 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
 
     private void onInternalClose(int handleId, int code, String desc) {
 
-        QLog.d("has been completed : %s", isOver);
-
         if(isOver) {
             return; //cancel by user
         }
 
-        exception = new QuicException(String.format(Locale.ENGLISH, "Closed(%d, %s)", code, desc));;
         connectPool.updateQuicNativeState(realQuicCall, SERVER_FAILED);
         reportException = true;
         latch.countDown();
@@ -216,7 +240,7 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
         try {
             // from simbachen tests
             String firtPakcet = new String(data, "ISO-8859-1");
-            QLog.d("headers==>%s", firtPakcet);
+            // QLog.d("headers==>%s", firtPakcet);
             //QLog.d("headers==>%s", new String(data, "utf-8"));
         } catch (UnsupportedEncodingException e) {
             //e.printStackTrace();
@@ -247,7 +271,7 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
                         //from simbachen tests
                         String bodyString = bufferedReader.readLine();
                         if( bodyString != null){
-                            QLog.d("parseResponseHeader we reach the body data");
+                            // QLog.d("parseResponseHeader we reach the body data");
                             byte[] bodyByte = bodyString.getBytes("ISO-8859-1");
                             parseBody(bodyByte, bodyByte.length);
                         }else {
@@ -292,15 +316,15 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
             codeStart = 9;
 
             if (httpMinorVersion == 0) {
-               QLog.d("HTTP/1.0");
+               //QLog.d("HTTP/1.0");
             } else if (httpMinorVersion == 1) {
-                QLog.d("HTTP/1.1");
+                //QLog.d("HTTP/1.1");
             } else {
                 throw new ProtocolException("Unexpected status line: " + statusLine);
             }
         } else if (statusLine.startsWith("ICY ")) {
             // Shoutcast uses ICY instead of "HTTP/1.0".
-            QLog.d("HTTP/1.0");
+            //QLog.d("HTTP/1.0");
             codeStart = 4;
         } else {
             throw new ProtocolException("Unexpected status line: " + statusLine);
@@ -367,8 +391,7 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
         } catch (Exception e) {
             onInternalClientFailed(e);
         }
-
-        QLog.d("quic net info: %s", realQuicCall.getState());
+        QCloudLogger.d(QCloudHttpClient.QUIC_LOG_TAG, "finish(handleId = " + getHandleId() + ")");
     }
 
     /**
@@ -388,37 +411,35 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
     @Override
     public QuicResponse call() throws QuicException {
 
-        QLog.d("start get a connect: ");
-
-        //获取connect： quicNative
-        // realQuicCall = connectPool.getQuicNative(quicRequest.host, quicRequest.ip, quicRequest.port, quicRequest.tcpPort);
+        QCloudLogger.d(QCloudHttpClient.QUIC_LOG_TAG, "create new QuicNative object");
         realQuicCall = ConnectPool.createNewQuicNative(quicRequest.host, quicRequest.ip, quicRequest.port, quicRequest.tcpPort);
         realQuicCall.setCallback(this);
 
-        QLog.d("handle message " + "start call " + realQuicCall.toString());
-        connectPool.dumpQuicNatives();
+        QCloudLogger.d(QCloudHttpClient.QUIC_LOG_TAG, "start connect " + realQuicCall.toString());
 
-        if(realQuicCall.currentState == CONNECTED){
-            QLog.d("quic native is connected.");
-            onInternalConnect();
-        }else {
-            QLog.d("quic native start connect.");
-            startConnect();
-        }
+        startConnect();
 
+        // wait for complete
         try {
             latch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        //Looper.loop();//开始循环
-        //循环结束
-        QLog.d("latch count released");
+        QCloudLogger.d(QCloudHttpClient.QUIC_LOG_TAG, "finish call(handleId = " + getHandleId() + "),  state is " + readableState(realQuicCall.currentState));
+
         if(exception != null){
             throw exception;
         }
         return quicResponse;
+    }
+
+    private int getHandleId() {
+
+        if (realQuicCall != null) {
+            return realQuicCall.handleId;
+        }
+        return -1;
     }
 
     public QuicException getException(){
@@ -428,7 +449,9 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
 
     private void quitSafely() {
 
-        QLog.d("isClose: %s; isCompleted: %s; hasReceiveResponse: %s", reportException, isCompleted, receivedResponse);
+        QCloudLogger.d(QCloudHttpClient.QUIC_LOG_TAG, "quitSafely(handleId = %d), reportException: %b, isCompleted: %b, hasReceiveResponse: %b, isOver: %b", getHandleId(),
+                reportException, isCompleted, receivedResponse, isOver);
+
         if(reportException || (isCompleted && receivedResponse)){
             isOver = true;
         }else {

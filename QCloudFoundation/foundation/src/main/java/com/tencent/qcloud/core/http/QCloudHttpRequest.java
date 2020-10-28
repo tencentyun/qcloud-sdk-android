@@ -39,12 +39,18 @@ public class QCloudHttpRequest<T> extends HttpRequest<T> {
     private final String signerType;
     private final STSCredentialScope[] credentialScope;
 
+    /**
+     * 是否将签名信息放到 params 中
+     */
+    private final boolean signInUrl;
+
     public QCloudHttpRequest(Builder<T> builder) {
         super(builder);
 
         signerType = builder.signerType;
         signProvider = builder.signProvider;
         credentialScope = builder.credentialScope;
+        signInUrl = builder.signInUrl;
     }
 
     public QCloudSignSourceProvider getSignProvider() {
@@ -53,6 +59,10 @@ public class QCloudHttpRequest<T> extends HttpRequest<T> {
 
     public STSCredentialScope[] getCredentialScope() {
         return credentialScope;
+    }
+
+    public boolean isSignInUrl() {
+        return signInUrl;
     }
 
     QCloudSigner getQCloudSigner() throws QCloudClientException {
@@ -76,6 +86,7 @@ public class QCloudHttpRequest<T> extends HttpRequest<T> {
         private QCloudSignSourceProvider signProvider;
         private String signerType;
         private STSCredentialScope[] credentialScope;
+        private boolean signInUrl;
 
         public Builder<T> signer(String signerType, QCloudSignSourceProvider signProvider) {
             this.signerType = signerType;
@@ -85,6 +96,11 @@ public class QCloudHttpRequest<T> extends HttpRequest<T> {
 
         public Builder<T> credentialScope(STSCredentialScope[] credentialScope) {
             this.credentialScope = credentialScope;
+            return this;
+        }
+
+        public Builder<T> signInUrl(boolean signInUrl) {
+            this.signInUrl = signInUrl;
             return this;
         }
 

@@ -255,7 +255,7 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
                     httpRequest.addHeader(HttpConstants.Header.CONTENT_MD5, ((QCloudDigistListener) requestBody).onGetMd5());
                 }
             }catch (IOException e){
-                throw new QCloudClientException("calculate md5 error", e);
+                throw new QCloudClientException("calculate md5 error: " + e.getMessage(), e);
             }
         }else {
             //请求 body 比较小，不会 OOM

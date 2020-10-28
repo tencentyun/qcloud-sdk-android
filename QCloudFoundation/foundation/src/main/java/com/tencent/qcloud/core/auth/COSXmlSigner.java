@@ -27,6 +27,10 @@ import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.QCloudHttpRequest;
 
+import java.net.URL;
+
+import okhttp3.HttpUrl;
+
 /**
  * COS签名器<br>
  * 对请求进行签名
@@ -74,16 +78,54 @@ public class COSXmlSigner implements QCloudSigner {
                 .append(AuthConstants.Q_SIGNATURE).append("=").append(signature);
         String auth = authorization.toString();
 
+        if (request.isSignInUrl()) {
+            addAuthInPara(request, credentials, auth);
+        } else {
+            addAuthInHeader(request, credentials, auth);
+        }
+
+        sourceProvider.onSignRequestSuccess(request, credentials, auth);
+    }
+
+    private void addAuthInPara(QCloudHttpRequest request, QCloudCredentials credentials, String auth) {
+
+        URL url = request.url();
+        String authQuery = auth;
+        if (credentials instanceof SessionQCloudCredentials) {
+            SessionQCloudCredentials sessionCredentials = (SessionQCloudCredentials) credentials;
+            authQuery = authQuery.concat("&token").concat("=").concat(sessionCredentials.getToken());
+        }
+        String query = url.getQuery();
+        String sUrl = url.toString();
+        int index = sUrl.indexOf('?');
+        if (index < 0) {
+            sUrl = sUrl.concat("?").concat(authQuery);
+        } else {
+            int lastQueryIndex = index + query.length();
+            sUrl = sUrl.substring(0, lastQueryIndex + 1)
+                    .concat("&")
+                    .concat(authQuery)
+                    .concat(sUrl.substring(lastQueryIndex + 1));
+        }
+        request.setUrl(sUrl);
+    }
+
+    protected String getSessionTokenKey() {
+        return COS_SESSION_TOKEN;
+    }
+
+    private void addAuthInHeader(QCloudHttpRequest request, QCloudCredentials credentials, String auth) {
+
         request.removeHeader(HttpConstants.Header.AUTHORIZATION);
         request.addHeader(HttpConstants.Header.AUTHORIZATION, auth);
 
         if (credentials instanceof SessionQCloudCredentials) {
             SessionQCloudCredentials sessionCredentials = (SessionQCloudCredentials) credentials;
-            request.removeHeader(COS_SESSION_TOKEN);
-            request.addHeader(COS_SESSION_TOKEN, sessionCredentials.getToken());
+            String sessionTokenKey = getSessionTokenKey();
+            request.removeHeader(sessionTokenKey);
+            request.addHeader(sessionTokenKey, sessionCredentials.getToken());
         }
 
-        sourceProvider.onSignRequestSuccess(request, credentials, auth);
     }
 
     private String signature(String source, String signKey) {

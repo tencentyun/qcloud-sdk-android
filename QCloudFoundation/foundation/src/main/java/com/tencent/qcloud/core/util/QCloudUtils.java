@@ -53,8 +53,10 @@ public class QCloudUtils {
             if (cursor != null) {
                 try {
                     int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-                    cursor.moveToFirst();
-                    return cursor.getLong(sizeIndex);
+                    if (cursor.moveToFirst()) {
+                        return cursor.getLong(sizeIndex);
+                    }
+                    return -1;
                 } finally {
                     cursor.close();
                 }

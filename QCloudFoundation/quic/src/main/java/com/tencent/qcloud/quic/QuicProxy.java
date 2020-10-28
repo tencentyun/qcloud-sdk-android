@@ -1,8 +1,26 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.qcloud.quic;
-
-
-
-import android.util.Log;
 
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
@@ -12,9 +30,9 @@ import okhttp3.*;
 import okhttp3.internal.Util;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 public class QuicProxy<T> extends NetworkProxy<T> {
@@ -63,7 +81,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
 
                 if(inetAddresses != null && inetAddresses.size() > 0){
                     ip = inetAddresses.get(0).getHostAddress();
-                    QLog.d("dns ip: " + ip);
+                    // QLog.d("dns ip: " + ip);
                 }
                 callMetricsListener.dnsEnd(null, host, inetAddresses);
 
@@ -76,6 +94,8 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                 quicRequest.addHeader(":scheme", isHttps? "https" :"http");
                 quicRequest.addHeader(":method", method);
                 quicRequest.addHeader(":path",  path);
+                quicRequest.addHeader(":authority", host);
+
 
                 Headers headers = okHttpRequest.headers();
 
@@ -84,26 +104,38 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                     String headerKey = headers.name(i);
                     if("Host".equalsIgnoreCase(headerKey)){
                         quicRequest.addHeader("Vod-Forward-Cos".toLowerCase(), headers.value(i));
-                    } else if("User-Agent".equalsIgnoreCase(headerKey)){
-                        String headerValue = headers.value(i);
-                        int pos = headerValue.lastIndexOf('-');
-                        StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append(headerValue.substring(0, pos))
-                                .append("-")
-                                .append("quic")
-                                .append(headerValue.substring(pos + 1));
-                        quicRequest.addHeader("User-Agent".toLowerCase(), stringBuilder.toString());
-                    } else {
+                    }
+                    // 不要修改 ua，否则签名会不一致
+//                    else if("User-Agent".equalsIgnoreCase(headerKey)){
+//                        String headerValue = headers.value(i);
+//                        int pos = headerValue.lastIndexOf('-');
+//                        StringBuilder stringBuilder = new StringBuilder();
+//                        stringBuilder.append(headerValue.substring(0, pos))
+//                                .append("-quic-")
+//                                .append(headerValue.substring(pos + 1));
+//                        quicRequest.addHeader("User-Agent".toLowerCase(), stringBuilder.toString());
+//                    }
+
+                    else {
                         quicRequest.addHeader(headers.name(i).toLowerCase(), headers.value(i));
                     }
                 }
-                quicRequest.addHeader(":authority", host);
+
+                RequestBody requestBody = httpRequest.getRequestBody();
+                if (httpRequest.getRequestBody() != null) {
+                    String contentType = requestBody.contentType() != null ?
+                            requestBody.contentType().toString() : "application/octet-stream";
+                    quicRequest.addHeader("Content-Type".toLowerCase(), contentType);
+                    quicRequest.addHeader("Content-Length".toLowerCase(), String.valueOf(requestBody.contentLength()));
+                }
+
+                // 打印 request
+                String requestStartMessage = "--> " + okHttpRequest.method() + ' ' + okHttpRequest.url() + ' ' + Protocol.QUIC;
+                OkHttpLoggingUtils.logMessage(requestStartMessage, quicManager.httpLogger);
+                OkHttpLoggingUtils.logQuicRequestHeaders(quicRequest.headers, quicManager.httpLogger);
 
                 //设置 body
                 quicRequest.setRequestBody(okHttpRequest.body());
-
-                String requestStartMessage = "--> " + okHttpRequest.method() + ' ' + okHttpRequest.url() + ' ' + "quic";
-                quicManager.httpLogger.logRequest(requestStartMessage);
 
                 //创建 quic
                 quic = quicManager.newQuicImpl(quicRequest);
@@ -125,6 +157,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                     quic.setOutputDestination(((ResponseFileConverter<T>) converter).getOutputStream());
                 }
 
+                long startNs = System.nanoTime();
                 //执行请求 获取响应
                 QuicResponse quicResponse = quic.call();
 
@@ -132,8 +165,11 @@ public class QuicProxy<T> extends NetworkProxy<T> {
 
                 //转化为Response
                 response = quicResponse.covertResponse(okHttpRequest);
-                quicManager.httpLogger.logResponse(response, "<-- " + response.code() + ' ' + response.message() + ' '
-                        + response.request().url());
+
+                long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
+                // 打印 response
+                OkHttpLoggingUtils.logResponse(response, tookMs, HttpLoggingInterceptor.Level.HEADERS, quicManager.httpLogger);
+
                 httpResult = convertResponse(httpRequest, response);
                 callMetricsListener.dumpMetrics(metrics);
                 break;
@@ -144,7 +180,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                 }else{
                     //是否需要重试
                     if(quicManager.retryStrategy.shouldRetry(attempt++, System.nanoTime() - startTime, 0)){
-                        QLog.d("%s failed for %s, %d", httpRequest.url().toString(), e.getMessage(), attempt);
+                        // QLog.d("%s failed for %s, %d", httpRequest.url().toString(), e.getMessage(), attempt);
                     }else {
                         if (e.getCause() instanceof QCloudClientException) {
                             clientException = (QCloudClientException) e.getCause();
