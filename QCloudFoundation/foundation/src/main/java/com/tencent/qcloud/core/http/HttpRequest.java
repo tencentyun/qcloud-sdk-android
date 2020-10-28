@@ -45,6 +45,7 @@ public class HttpRequest<T> {
 
     protected final Request.Builder requestBuilder;
     protected final Map<String, List<String>> headers;
+    protected final Map<String, String> queries;
     protected final Set<String> noSignHeaders;
     protected final RequestBody requestBody;
     protected final String method;
@@ -58,6 +59,7 @@ public class HttpRequest<T> {
         requestBuilder = builder.requestBuilder;
         responseBodyConverter = builder.responseBodyConverter;
         headers = builder.headers;
+        queries = builder.queries;
         noSignHeaders = builder.noSignHeaderKeys;
         method = builder.method;
         calculateContentMD5 = builder.calculateContentMD5;
@@ -84,6 +86,10 @@ public class HttpRequest<T> {
         return noSignHeaders;
     }
 
+    public Map<String, String> queries() {
+        return queries;
+    }
+
     public String header(String name) {
         List<String> values = headers.get(name);
         return values != null ? values.get(0) : null;
@@ -107,6 +113,12 @@ public class HttpRequest<T> {
 
     public void setUrl(String url){
         requestBuilder.url(url);
+    }
+
+    public void addQuery(String name, String value) {
+        if (name != null) {
+            queries.put(name, value);
+        }
     }
 
     public void removeHeader(String name) {
@@ -181,6 +193,7 @@ public class HttpRequest<T> {
         HttpUrl.Builder httpUrlBuilder;
 
         Map<String, List<String>> headers = new HashMap<>(10);
+        Map<String, String> queries = new HashMap<>(10);
 
         Set<String> noSignHeaderKeys = new HashSet<>(); // 不签名的 header
 
@@ -245,6 +258,7 @@ public class HttpRequest<T> {
 
         public Builder<T> query(String key, String value) {
             if (key != null) {
+                queries.put(key, value);
                 httpUrlBuilder.addQueryParameter(key, value);
             }
             return this;
@@ -252,6 +266,7 @@ public class HttpRequest<T> {
 
         public Builder<T> encodedQuery(String key, String value) {
             if (key != null) {
+                queries.put(key, value);
                 httpUrlBuilder.addEncodedQueryParameter(key, value);
             }
             return this;
@@ -262,6 +277,7 @@ public class HttpRequest<T> {
                 for (Map.Entry<String, String> entry : nameValues.entrySet()) {
                     String name = entry.getKey();
                     if (name != null) {
+                        queries.put(name, entry.getValue());
                         httpUrlBuilder.addQueryParameter(name, entry.getValue());
                     }
                 }
@@ -274,6 +290,7 @@ public class HttpRequest<T> {
                 for (Map.Entry<String, String> entry : nameValues.entrySet()) {
                     String name = entry.getKey();
                     if (name != null) {
+                        queries.put(name, entry.getValue());
                         httpUrlBuilder.addEncodedQueryParameter(name, entry.getValue());
                     }
                 }

@@ -31,9 +31,9 @@ android {
         minSdkVersion 15
         targetSdkVersion 27
 
-        versionCode 10522
+        versionCode 10523
 
-        versionName "1.5.22"
+        versionName "1.5.23"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -81,4 +81,3 @@ project.extensions.add('packageName', 'Quic')
 project.extensions.add('artifactId', 'quic')
 project.extensions.add('artifactDesc', 'the cos quic for tencent cloud sdk')
 
-apply from: '../../publish.gradle'
