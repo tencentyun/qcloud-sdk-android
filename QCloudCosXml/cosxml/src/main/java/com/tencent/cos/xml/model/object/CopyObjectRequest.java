@@ -304,15 +304,21 @@ public class CopyObjectRequest extends ObjectRequest {
      * 复制源结构体
      */
     public static class CopySourceStruct{
-        public String appid;
+
         public String bucket;
         public String region;
         public String cosPath;
         public String versionId;
 
-        public CopySourceStruct(String appid, String bucket, String region, String cosPath){
-            this.appid = appid;
+        public CopySourceStruct(String bucket, String region, String cosPath){
             this.bucket = bucket;
+            this.region = region;
+            this.cosPath = cosPath;
+        }
+
+        @Deprecated
+        public CopySourceStruct(String appid, String bucket, String region, String cosPath){
+            this.bucket = bucket.concat("-").concat(appid);
             this.region = region;
             this.cosPath = cosPath;
         }
@@ -333,9 +339,9 @@ public class CopyObjectRequest extends ObjectRequest {
             if(cosPath == null){
                 throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "copy source cosPath must not be null");
             }
-            if(appid == null){
-                throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "copy source appid must not be null");
-            }
+//            if(appid == null){
+//                throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "copy source appid must not be null");
+//            }
             if(region == null){
                 throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "copy source region must not be null");
             }
@@ -353,7 +359,7 @@ public class CopyObjectRequest extends ObjectRequest {
                     cosPath = "/" + cosPath;
                 }
             }
-            String host = config.getDefaultRequestHost(region, bucket, appid);
+            String host = config.getDefaultRequestHost(region, bucket);
             String url = host + cosPath;
             if(versionId != null){
                 url += "?versionId=" + versionId;

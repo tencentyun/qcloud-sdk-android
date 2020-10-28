@@ -1,39 +1,21 @@
-/*
- * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
- */
-
 package com.tencent.cos.xml.core;
 
-
 import android.content.Context;
+import android.os.Build;
+import android.os.Environment;
+import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.tencent.cos.xml.CosXmlService;
-import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
-import com.tencent.cos.xml.transfer.TransferConfig;
-import com.tencent.cos.xml.transfer.TransferManager;
-import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
+import com.tencent.cos.xml.transfer.COSXMLTask;
+import com.tencent.cos.xml.transfer.TransferState;
+import com.tencent.qcloud.core.common.QCloudClientException;
+import com.tencent.qcloud.core.common.QCloudServiceException;
+
+import org.junit.Assert;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,23 +24,105 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Random;
 
+/**
+ * <p>
+ * Created by rickenwang on 2020/10/16.
+ * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
+ */
+
 public class TestUtils {
 
 
-    public static String getMD5(String str) throws Exception {
+    public static void assertCOSXMLTaskSuccess(COSXMLTask cosxmlTask) {
 
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(str.getBytes());
-        return new BigInteger(1, md.digest()).toString(16);
+        Assert.assertTrue(getCosExceptionMessage(cosxmlTask.getException()),
+                cosxmlTask.getTaskState() == TransferState.COMPLETED);
+    }
+
+    public static void assertErrorMessageNull(StringBuilder builder) {
+        Assert.assertTrue(builder.toString(), TextUtils.isEmpty(builder.toString()));
+    }
+
+    public static void printError(String message) {
+
+        Log.e(TestConst.UT_TAG, message);
+    }
+
+    public static void print(String message) {
+
+        Log.i(TestConst.UT_TAG, message);
+    }
+
+    public static boolean isQuicSupportDevice() {
+        for (String abi : Build.SUPPORTED_ABIS) {
+            if ("arm64-v8a".equalsIgnoreCase(abi) || "armeabi-v7a".equalsIgnoreCase(abi)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static Context getContext() {
         return InstrumentationRegistry.getInstrumentation().getContext();
     }
 
+    public static String localPath(String subPath) {
+
+        if (!subPath.startsWith("/")) {
+            subPath = "/".concat(subPath);
+        }
+
+        return localParentPath().concat(subPath);
+    }
+
+    public static String smallFilePath() {
+
+        String filePath = localPath(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+        try {
+            boolean success = createFile(filePath, TestConst.PERSIST_BUCKET_SMALL_OBJECT_SIZE);
+            return filePath;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String bigFilePath() {
+
+        String filePath = localPath(TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+        try {
+            boolean success = createFile(filePath, TestConst.PERSIST_BUCKET_BIG_OBJECT_SIZE);
+            return filePath;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static boolean removeLocalFile(String filePath) {
+
+        File file = new File(filePath);
+        if (file.exists()) {
+            return file.delete();
+        }
+        return false;
+    }
+
     public static boolean createFile(String absolutePath, long fileLength) throws IOException {
 
         File file = new File(absolutePath);
+        File parentFile = file.getParentFile();
+
+        if (file.exists() && file.length() == fileLength) {
+            return true;
+        }
+
+        file.delete();
+
+        if (!parentFile.exists()) {
+            parentFile.mkdirs();
+        }
+
         if (!file.exists()) {
             file.createNewFile();
         }
@@ -93,140 +157,8 @@ public class TestUtils {
         return true;
     }
 
-    public static CosXmlService newDefaultTerminalService() {
 
-        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
-                .isHttps(true)
-                .setRegion(TestConfigs.TERMINAL_DEFAULT_REGION)
-                .setDebuggable(true)
-                // .dnsCache(false)
-                .builder();
-
-        return new CosXmlService(getContext(), cosXmlServiceConfig,
-                new ShortTimeCredentialProvider(TestConfigs.TERMINAL_SECRET_ID, TestConfigs.TERMINAL_SECRET_KEY,600) );
-    }
-
-    public static CosXmlService newAccelerateService() {
-
-        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
-                .isHttps(true)
-                .setRegion("ap-beijing")
-                .setDebuggable(true)
-                .setAccelerate(true)
-                .builder();
-
-        return new CosXmlService(getContext(), cosXmlServiceConfig,
-                new ShortTimeCredentialProvider(TestConfigs.TERMINAL_SECRET_ID, TestConfigs.TERMINAL_SECRET_KEY,600) );
-    }
-
-    public static CosXmlService newQuicTerminalService() {
-
-        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
-                .isHttps(true)
-                .setRegion(TestConfigs.COS_SUB_BUCKET_QUIC_REGION)
-                .setDebuggable(true)
-                .enableQuic(true)
-                .builder();
-
-        CosXmlService cosXmlService = new CosXmlService(getContext(), cosXmlServiceConfig,
-                new ShortTimeCredentialProvider(TestConfigs.COS_SUB_SECRET_ID, TestConfigs.COS_SUB_SECRET_KEY,600) );
-        try {
-            cosXmlService.addCustomerDNS("cos-quic-test-1253960454.cos.ap-beijing.myqcloud.com", new String[] {TestConfigs.COS_QUIC_TEST_IP});
-        } catch (CosXmlClientException e) {
-            e.printStackTrace();
-        }
-        return cosXmlService;
-    }
-
-    public static CosXmlService newCdnTerminalService() {
-
-        String bucket = TestConfigs.TERMINAL_PERSIST_BUCKET;
-        String region = TestConfigs.TERMINAL_DEFAULT_REGION;
-
-        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
-                .isHttps(true)
-                .setRegion(region)
-                .setDebuggable(true)
-                .setHostFormat("${bucket}.file.myqcloud.com")
-                //.addHeader("Host", bucket.concat(".file.myqcloud.com"))
-                //.addNoSignHeaders("Host")
-                .builder();
-
-        return new CosXmlService(getContext(), cosXmlServiceConfig
-              //  , new ShortTimeCredentialProvider(TestConfigs.TERMINAL_SECRET_ID, TestConfigs.TERMINAL_SECRET_KEY, 600)
-        );
-    }
-
-    public static TransferManager newCdnTerminalTransferManager() {
-        CosXmlService cosXmlService = newCdnTerminalService();
-        TransferConfig transferConfig = new TransferConfig.Builder().build();
-        return new TransferManager(cosXmlService, transferConfig);
-    }
-
-
-    /**
-     * 通过 cdn 域名下载，需要 1. 开启 cdn 回源鉴权；2. 开启 cdn 鉴权。详情请参考：
-     * https://cloud.tencent.com/document/product/436/18669
-     *
-     *
-     * </p>
-     * 注意，这样创建的 TransferManager 只能用于 cdn 下载，不能用于上传，或者通过源站域名下载
-     */
-    public static TransferManager newCdnTransferManager() {
-
-        /**
-         * 假设您的 bucket 为 example-1250000000，地域为 ap-beijing
-         */
-        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
-                .isHttps(true)
-                .setRegion("ap-beijing")
-                .setDebuggable(false)
-                .setHostFormat("${bucket}.file.myqcloud.com")
-                .addHeader("Host", "example-1250000000.file.myqcloud.com")
-                .builder();
-
-        /**
-         * 通过 cdn 下载，并开启回源鉴权后，
-         */
-        CosXmlService cosXmlService = new CosXmlService(getContext(), cosXmlServiceConfig);
-
-        TransferConfig transferConfig = new TransferConfig.Builder().build();
-        return new TransferManager(cosXmlService, transferConfig);
-    }
-
-
-    public static TransferManager newDefaultTerminalTransferManager() {
-
-        CosXmlService cosXmlService = newDefaultTerminalService();
-        TransferConfig transferConfig = new TransferConfig.Builder().build();
-        return new TransferManager(cosXmlService, transferConfig);
-    }
-
-    public static TransferManager newQuicTerminalTransferManager() {
-
-        CosXmlService cosXmlService = newQuicTerminalService();
-        TransferConfig transferConfig = new TransferConfig.Builder().build();
-        return new TransferManager(cosXmlService, transferConfig);
-    }
-
-    public static TransferManager newAccelerateTransferManager() {
-
-        CosXmlService cosXmlService = newAccelerateService();
-        TransferConfig transferConfig = new TransferConfig.Builder().build();
-        return new TransferManager(cosXmlService, transferConfig);
-    }
-
-    public static TransferManager newDefaultTerminalTransferManager(long sliceSize) {
-
-        CosXmlService cosXmlService = newDefaultTerminalService();
-        TransferConfig transferConfig = new TransferConfig.Builder()
-                .setSliceSizeForUpload(sliceSize)
-                .build();
-        return new TransferManager(cosXmlService, transferConfig);
-    }
-
-
-    public static String mergeExceptionMessage(CosXmlClientException clientException, CosXmlServiceException serviceException) {
+    public static String getCosExceptionMessage(QCloudClientException clientException, QCloudServiceException serviceException) {
 
         if (clientException != null) {
             return clientException.getMessage();
@@ -237,14 +169,23 @@ public class TestUtils {
         return "Unknown Error";
     }
 
+    public static String getCosExceptionMessage(Exception exception) {
 
-    public static boolean removeLocalFile(String filePath) {
-
-        File file = new File(filePath);
-        if (file.exists()) {
-            return file.delete();
+        if (exception instanceof QCloudClientException) {
+            return getCosExceptionMessage((QCloudClientException) exception, null);
+        } else if (exception instanceof QCloudServiceException) {
+            return getCosExceptionMessage(null, (QCloudServiceException) exception);
+        } else if (exception != null) {
+            return exception.getMessage();
         }
-        return false;
+        return "Unknown Error";
+    }
+
+    public static String getMD5(String str) throws Exception {
+
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(str.getBytes());
+        return new BigInteger(1, md.digest()).toString(16);
     }
 
     public static void sleep(long time) {
@@ -255,4 +196,7 @@ public class TestUtils {
         }
     }
 
+    public static String localParentPath() {
+        return Environment.getExternalStorageDirectory().getAbsolutePath();
+    }
 }

@@ -4,18 +4,24 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="delegatedBuild" value="true" />
         <option name="testRunner" value="PLATFORM" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleJvm" value="JDK" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/cosext" />
             <option value="$PROJECT_DIR$/cosxml" />
-            <option value="$PROJECT_DIR$/logUtils" />
+            <option value="$PROJECT_DIR$/cosxml-ktx" />
+            <option value="$PROJECT_DIR$/cosxml-ktx-example" />
+            <option value="$PROJECT_DIR$/logutils" />
             <option value="$PROJECT_DIR$/mtaUtils" />
             <option value="$PROJECT_DIR$/../QCloudFoundation/foundation" />
             <option value="$PROJECT_DIR$/../QCloudFoundation/quic" />
+            <option value="$PROJECT_DIR$/../QCloudXml/xmlAnnoation" />
+            <option value="$PROJECT_DIR$/../QCloudXml/xmlCompiler" />
+            <option value="$PROJECT_DIR$/../QCloudXml/xmlCore" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
