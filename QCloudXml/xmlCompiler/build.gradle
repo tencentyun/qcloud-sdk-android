@@ -1,0 +1,12 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':xmlAnnoation')
+    annotationProcessor 'com.google.auto.service:auto-service:1.0-rc7'
+    implementation 'com.google.auto.service:auto-service-annotations:1.0-rc7'
+    implementation 'com.squareup:javapoet:1.13.0'
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
