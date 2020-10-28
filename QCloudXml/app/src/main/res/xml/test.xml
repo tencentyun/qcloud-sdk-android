@@ -1,0 +1,18 @@
+<TestBean>
+    <Aaa>aaa</Aaa>
+    <Bbb>1</Bbb>
+    <ITestBean1>
+        <Iaaa>iaaaaa</Iaaa>
+    </ITestBean1>
+    <ITestBean2List>
+        <ITestBean2>
+            <Iaaa>1</Iaaa>
+        </ITestBean2>
+        <ITestBean2>
+            <Iaaa>2</Iaaa>
+        </ITestBean2>
+        <ITestBean2>
+            <Iaaa>3</Iaaa>
+        </ITestBean2>
+    </ITestBean2List>
+</TestBean>
