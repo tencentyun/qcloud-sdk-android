@@ -30,6 +30,18 @@ public class ServiceFactory {
         return newService(cosXmlServiceConfig);
     }
 
+    public CosXmlService newSignInUrlService() {
+
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .setDebuggable(true)
+                .setSignInUrl(true)
+                .builder();
+
+        return newService(cosXmlServiceConfig);
+    }
+
     public CosXmlService newCDNService() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
