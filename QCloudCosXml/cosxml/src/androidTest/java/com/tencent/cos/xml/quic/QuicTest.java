@@ -62,7 +62,7 @@ import static com.tencent.cos.xml.core.TestUtils.isQuicSupportDevice;
 @RunWith(AndroidJUnit4.class)
 public class QuicTest {
 
-    private final boolean testQuic = isQuicSupportDevice();
+    private final boolean testQuic = isQuicSupportDevice() && TestConst.QUIC_TEST;
 
     @Test
     public void testUploadSmallFileByPath() {
