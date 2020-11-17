@@ -223,7 +223,7 @@ public class WeakNetworkTest {
      */
     private File createTempFile(int fileSize, String fileName) {
 
-        File parentDir = new File(Environment.getExternalStorageDirectory(), "weakNetwork/");
+        File parentDir = new File(TestUtils.localParentPath(), "weakNetwork/");
         if (!parentDir.exists()) {
             parentDir.mkdir();
         }

@@ -141,7 +141,7 @@ static String safeEnvBoolean(b) {
         return "false"
     }
 
-    return "true"
+    return b
 }
 
 
