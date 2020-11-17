@@ -67,7 +67,7 @@ public class QuicTest {
     @Test
     public void testUploadSmallFileByPath() {
 
-        if (testQuic) {
+        if (!testQuic) {
             Assert.assertTrue(true);
             return;
         }
@@ -100,7 +100,7 @@ public class QuicTest {
     @Test
     public void testUploadSmallFileByUri() {
 
-        if (testQuic) {
+        if (!testQuic) {
             Assert.assertTrue(true);
             return;
         }
@@ -131,7 +131,7 @@ public class QuicTest {
     @Test
     public void testUploadBigFileByUri() {
 
-        if (testQuic) {
+        if (!testQuic) {
             Assert.assertTrue(true);
             return;
         }
@@ -159,7 +159,7 @@ public class QuicTest {
     @Test
     public void testUploadBigFileByPath() {
 
-        if (testQuic) {
+        if (!testQuic) {
             Assert.assertTrue(true);
             return;
         }
@@ -190,7 +190,7 @@ public class QuicTest {
     @Test
     public void testUploadFileConcurrent() throws Exception{
 
-        if (testQuic) {
+        if (!testQuic) {
             Assert.assertTrue(true);
             return;
         }
@@ -244,7 +244,7 @@ public class QuicTest {
     @Test
     public void testHeadQuicObject() {
 
-        if (testQuic) {
+        if (!testQuic) {
             Assert.assertTrue(true);
             return;
         }
@@ -263,7 +263,7 @@ public class QuicTest {
     @Test
     public void testBigDownload() {
 
-        if (testQuic) {
+        if (!testQuic) {
             Assert.assertTrue(true);
             return;
         }
