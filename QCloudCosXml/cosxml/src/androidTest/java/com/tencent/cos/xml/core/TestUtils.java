@@ -197,6 +197,6 @@ public class TestUtils {
     }
 
     public static String localParentPath() {
-        return Environment.getExternalStorageDirectory().getAbsolutePath();
+        return getContext().getApplicationContext().getFilesDir().getAbsolutePath();
     }
 }
