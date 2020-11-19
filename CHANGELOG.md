@@ -1,3 +1,7 @@
+## V5.5.6
+1. 修复请求的 header、query 的 key、value 都需要 encode；
+2. 支持签名放在 url 中；
+
 ## V5.5.5
 
 1. 请求 header 中 host 头部默认从 url 中读取，允许自定义。
