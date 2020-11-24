@@ -1,6 +1,7 @@
 ## V5.5.7
 1. 修复 putObject 图片处理结果解析错误；
 2. 修复 TransferManager upload 图片处理结果未返回（注意只有简单上传才会返回图片处理结果）；
+3. TransferConfig 支持设置 forceSimpleUpload 选项；
 
 ## V5.5.6
 1. 修复请求的 header、query 的 key、value 都需要 encode；
