@@ -155,6 +155,31 @@ public class UploadTest {
         TestUtils.assertCOSXMLTaskSuccess(uploadTask);
     }
 
+    @Test public void testUploadBigFileForceSimpleUploadByPath() {
+
+        TransferManager transferManager = ServiceFactory.INSTANCE.newForceSimpleUploadTransferManager();
+        COSXMLUploadTask uploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+                TestUtils.bigFilePath(), null);
+
+        final TestLocker testLocker = new TestLocker();
+
+        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+
+        testLocker.lock();
+        TestUtils.assertCOSXMLTaskSuccess(uploadTask);
+    }
+
     @Test
     public void testUploadFileConcurrent() throws Exception{
 

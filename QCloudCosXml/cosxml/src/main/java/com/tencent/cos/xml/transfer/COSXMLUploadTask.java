@@ -112,6 +112,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
     private Object SYNC_UPLOAD_PART = new Object();
     private long startTime = 0L;
     private long simpleAlreadySendDataLen = 0L;
+    boolean forceSimpleUpload;
 
     /**
      * 正在发送 CompleteMultiUpload 请求的过程中不允许暂停
@@ -833,7 +834,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
             return;
         }
 
-        if(fileLength < multiUploadSizeDivision){
+        if(fileLength < multiUploadSizeDivision || forceSimpleUpload){
             simpleUpload(cosXmlService);
         }else {
             isSliceUpload = true;
