@@ -74,6 +74,7 @@ public class TransferManager{
         COSXMLUploadTask cosxmlUploadTask = new COSXMLUploadTask(cosXmlService, putObjectRequest, uploadId);
         cosxmlUploadTask.multiUploadSizeDivision = transferConfig.divisionForUpload; // 分片上传的界限
         cosxmlUploadTask.sliceSize = transferConfig.sliceSizeForUpload; // 分片上传的分片大小
+        cosxmlUploadTask.forceSimpleUpload = transferConfig.isForceSimpleUpload();
         cosxmlUploadTask.upload();
         return cosxmlUploadTask;
     }
@@ -93,6 +94,7 @@ public class TransferManager{
         COSXMLUploadTask cosxmlUploadTask = new COSXMLUploadTask(cosXmlService, null, bucket, cosPath, srcPath, uploadId);
         cosxmlUploadTask.multiUploadSizeDivision = transferConfig.divisionForUpload; // 分片上传的界限
         cosxmlUploadTask.sliceSize = transferConfig.sliceSizeForUpload; // 分片上传的分片大小
+        cosxmlUploadTask.forceSimpleUpload = transferConfig.isForceSimpleUpload();
         cosxmlUploadTask.upload();
         return cosxmlUploadTask;
     }
@@ -112,6 +114,7 @@ public class TransferManager{
         COSXMLUploadTask cosxmlUploadTask = new COSXMLUploadTask(cosXmlService, null, bucket, cosPath, uri, uploadId);
         cosxmlUploadTask.multiUploadSizeDivision = transferConfig.divisionForUpload; // 分片上传的界限
         cosxmlUploadTask.sliceSize = transferConfig.sliceSizeForUpload; // 分片上传的分片大小
+        cosxmlUploadTask.forceSimpleUpload = transferConfig.isForceSimpleUpload();
         cosxmlUploadTask.upload();
         return cosxmlUploadTask;
 
@@ -130,6 +133,7 @@ public class TransferManager{
         COSXMLUploadTask cosxmlUploadTask = new COSXMLUploadTask(cosXmlService, null, bucket, cosPath, bytes);
         cosxmlUploadTask.multiUploadSizeDivision = transferConfig.divisionForUpload; // 分片上传的界限
         cosxmlUploadTask.sliceSize = transferConfig.sliceSizeForUpload; // 分片上传的分片大小
+        cosxmlUploadTask.forceSimpleUpload = transferConfig.isForceSimpleUpload();
         cosxmlUploadTask.upload();
         return cosxmlUploadTask;
     }
@@ -147,6 +151,7 @@ public class TransferManager{
         COSXMLUploadTask cosxmlUploadTask = new COSXMLUploadTask(cosXmlService, null, bucket, cosPath, inputStream);
         cosxmlUploadTask.multiUploadSizeDivision = transferConfig.divisionForUpload; // 分片上传的界限
         cosxmlUploadTask.sliceSize = transferConfig.sliceSizeForUpload; // 分片上传的分片大小
+        cosxmlUploadTask.forceSimpleUpload = transferConfig.isForceSimpleUpload();
         cosxmlUploadTask.upload();
         return cosxmlUploadTask;
     }
@@ -168,6 +173,7 @@ public class TransferManager{
         cosxmlUploadTask.multiUploadSizeDivision = transferConfig.divisionForUpload; // 分片上传的界限
         cosxmlUploadTask.sliceSize = transferConfig.sliceSizeForUpload; // 分片上传的分片大小
         cosxmlUploadTask.setOnSignatureListener(onSignatureListener);
+        cosxmlUploadTask.forceSimpleUpload = transferConfig.isForceSimpleUpload();
         cosxmlUploadTask.upload();
         return cosxmlUploadTask;
     }
