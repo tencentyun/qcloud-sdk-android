@@ -60,6 +60,14 @@ public class ServiceFactory {
         return new TransferManager(newDefaultService(), transferConfig);
     }
 
+    public TransferManager newForceSimpleUploadTransferManager() {
+
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .setForceSimpleUpload(true)
+                .build();
+        return new TransferManager(newDefaultService(), transferConfig);
+    }
+
     public TransferManager newQuicTransferManager() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
