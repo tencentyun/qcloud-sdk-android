@@ -48,6 +48,8 @@ import com.tencent.cos.xml.model.bucket.GetBucketCORSRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketCORSResult;
 import com.tencent.cos.xml.model.bucket.GetBucketDomainRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketDomainResult;
+import com.tencent.cos.xml.model.bucket.GetBucketIntelligentTieringRequest;
+import com.tencent.cos.xml.model.bucket.GetBucketIntelligentTieringResult;
 import com.tencent.cos.xml.model.bucket.GetBucketInventoryRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketInventoryResult;
 import com.tencent.cos.xml.model.bucket.GetBucketLifecycleRequest;
@@ -2077,7 +2079,7 @@ public interface CosXml extends SimpleCosXml {
      * @throws CosXmlClientException 客户端异常
      * @throws CosXmlServiceException 服务端异常
      */
-    PutBucketInventoryResult putBucketInventory(PutBucketInventoryRequest request)throws CosXmlClientException, CosXmlServiceException;
+    PutBucketInventoryResult putBucketInventory(PutBucketInventoryRequest request) throws CosXmlClientException, CosXmlServiceException;
 
     /**
      * <p>
@@ -2291,8 +2293,8 @@ public interface CosXml extends SimpleCosXml {
      * <p>
      * API 接口：
      *
-     * @param request 启用存储桶智能分层存储配置能力的请求 {@link GetBucketObjectVersionsRequest}
-     * @return 启用存储桶智能分层存储配置能力的返回结果 {@link GetBucketObjectVersionsResult}
+     * @param request 启用存储桶智能分层存储配置能力的请求 {@link PutBucketIntelligentTieringRequest}
+     * @return 启用存储桶智能分层存储配置能力的返回结果 {@link PutBucketIntelligentTieringResult}
      * @throws CosXmlClientException 客户端异常
      * @throws CosXmlServiceException 服务端异常
      */
@@ -2308,10 +2310,35 @@ public interface CosXml extends SimpleCosXml {
      * <p>
      * API 接口：
      *
-     * @param request 启用存储桶智能分层存储配置能力的请求 {@link GetBucketObjectVersionsRequest}
+     * @param request 启用存储桶智能分层存储配置能力的请求 {@link PutBucketIntelligentTieringRequest}
      * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
      */
     void putBucketIntelligentTieringAsync(PutBucketIntelligentTieringRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 获取存储桶智能分层存储配置能力的同步方法.&nbsp;
+     * <p>
+     * API 接口：
+     *
+     * @param request 启用存储桶智能分层存储配置能力的请求 {@link GetBucketIntelligentTieringRequest}
+     * @return 启用存储桶智能分层存储配置能力的返回结果 {@link GetBucketIntelligentTieringResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetBucketIntelligentTieringResult getBucketIntelligentTiering(GetBucketIntelligentTieringRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 取存储桶智能分层存储配置能力的异步方法.&nbsp;
+     * <p>
+     * API 接口：
+     *
+     * @param request 启用存储桶智能分层存储配置能力的请求 {@link GetBucketIntelligentTieringRequest}
+     * @param resultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void getBucketIntelligentTieringAsync(GetBucketIntelligentTieringRequest request, CosXmlResultListener resultListener);
+
 
     /**
      * <p>

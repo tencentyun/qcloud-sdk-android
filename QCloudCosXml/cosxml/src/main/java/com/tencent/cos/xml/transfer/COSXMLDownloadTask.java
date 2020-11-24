@@ -27,8 +27,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
+import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
@@ -39,6 +41,7 @@ import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.cos.xml.utils.FileUtils;
+import com.tencent.cos.xml.utils.TimeUtils;
 import com.tencent.qcloud.core.common.QCloudTaskStateListener;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
@@ -62,6 +65,8 @@ public final class COSXMLDownloadTask extends COSXMLTask{
     private long fileOffset = 0L;
     private String eTag;
     private long hasWriteDataLen = 0L;
+    private long startTime = 0L;
+    private long downloadComplete;
     private HeadObjectRequest headObjectRequest;
     private GetObjectRequest getObjectRequest;
     private SharedPreferences sharedPreferences;
@@ -105,6 +110,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
      * 下载操作
      */
     protected void download(){
+        startTime = System.nanoTime();
         run();
     }
 
@@ -127,6 +133,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         getObjectRequest.setProgressListener(new CosXmlProgressListener() {
             @Override
             public void onProgress(long complete, long target) {
+                downloadComplete = complete;
                 if(cosXmlProgressListener != null){
                     cosXmlProgressListener.onProgress(hasWriteDataLen + complete, hasWriteDataLen + target);
                 }
@@ -140,17 +147,30 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 }
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
+                BeaconService.getInstance().reportDownload(region, downloadComplete, TimeUtils.getTookTime(startTime));
                 updateState(TransferState.COMPLETED, null, result, false);
             }
 
             @Override
-            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
                 if(request != getObjectRequest){
                     return;
                 }
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
-                Exception causeException = exception == null ? serviceException : exception;
+
+                Exception causeException;
+                if (clientException != null) {
+                    BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_GET, clientException);
+                    causeException = clientException;
+                } else if (serviceException != null) {
+                    BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_GET, serviceException);
+                    causeException = serviceException;
+                } else {
+                    CosXmlClientException cosXmlClientException = new CosXmlClientException(ClientErrorCode.UNKNOWN.getCode(), "Unknown Error");
+                    BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_GET, cosXmlClientException);
+                    causeException = cosXmlClientException;
+                }
                 causeException.printStackTrace();
                 updateState(TransferState.FAILED, causeException, null, false);
             }
@@ -330,7 +350,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
             }
 
             @Override
-            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
                 if(request != headObjectRequest){
                     return;
                 }
@@ -339,13 +359,21 @@ public final class COSXMLDownloadTask extends COSXMLTask{
 //                Exception causeException = exception == null ? serviceException : exception;
 //                causeException.printStackTrace();
 //                updateState(TransferState.FAILED, causeException, null, false);
-                String errorMessage = "";
-                if (exception != null) {
-                    errorMessage = exception.getMessage();
+
+                Exception causeException;
+                if (clientException != null) {
+                    BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_HEAD, clientException);
+                    causeException = clientException;
                 } else if (serviceException != null) {
-                    errorMessage = serviceException.getMessage();
+                    BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_HEAD, serviceException);
+                    causeException = serviceException;
+                } else {
+                    CosXmlClientException cosXmlClientException = new CosXmlClientException(ClientErrorCode.UNKNOWN.getCode(), "Unknown Error");
+                    BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_HEAD, cosXmlClientException);
+                    causeException = cosXmlClientException;
                 }
-                QCloudLogger.i(TAG, "head " + cosPath + "failed !, exception is " + errorMessage);
+
+                QCloudLogger.i(TAG, "head " + cosPath + "failed !, exception is " + causeException.getMessage());
                 // head 失败后，也会先删除本地文件，然后全部重新下载
                 FileUtils.deleteFileIfExist(downloadPath);
                 hasWriteDataLen = 0L;
@@ -366,6 +394,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
 
     @Override
     protected void internalPause() {
+        BeaconService.getInstance().reportDownload(region, downloadComplete, TimeUtils.getTookTime(startTime));
         cancelAllRequest();
     }
 

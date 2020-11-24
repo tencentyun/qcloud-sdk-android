@@ -22,28 +22,28 @@
 
 package com.tencent.cos.xml.model.tag.pic;
 
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
+
 /**
  * 原图信息
  */
+@XmlBean(name = "OriginalInfo")
 public class PicOriginalInfo {
     /**
      * 原图文件名
      */
+    @XmlElement(name = "Key")
     public String key;
     /**
      * 图片路径
      */
+    @XmlElement(name = "Location")
     public String location;
 
-    /**
-     * 原图信息构造器
-     * @param key 原图文件名
-     * @param location 图片路径
-     */
-    public PicOriginalInfo(String key, String location) {
-        this.key = key;
-        this.location = location;
-    }
+    @XmlElement(name = "ETag")
+    public String etag;
 
-    public PicOriginalInfo() {}
+    @XmlElement(name = "ImageInfo")
+    public ImageInfo imageInfo;
 }

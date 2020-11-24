@@ -22,6 +22,7 @@
 
 package com.tencent.cos.xml.model.bucket;
 
+import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
@@ -39,6 +40,7 @@ import java.io.IOException;
  * @see GetBucketObjectVersionsRequest
  */
 public class GetBucketObjectVersionsResult extends CosXmlResult {
+    private static final String TAG = "GetBucketObjectVersionsResult";
     /**
      * Bucket Object versions 信息
      */
@@ -52,8 +54,10 @@ public class GetBucketObjectVersionsResult extends CosXmlResult {
         try {
             XmlParser.parseGetBucketObjectVersionsResult(response.byteStream(), listVersionResult);
         } catch (XmlPullParserException e) {
+            BeaconService.getInstance().reportError(TAG, e);
             e.printStackTrace();
         } catch (IOException e) {
+            BeaconService.getInstance().reportError(TAG, e);
             e.printStackTrace();
         }
     }
