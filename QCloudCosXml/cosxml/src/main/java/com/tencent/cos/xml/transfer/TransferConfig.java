@@ -45,11 +45,14 @@ public class TransferConfig {
      */
     protected long sliceSizeForUpload;
 
+    private boolean forceSimpleUpload;
+
     TransferConfig(Builder builder){
         this.divisionForCopy = builder.divisionForCopy;
         this.sliceSizeForCopy = builder.sliceSizeForCopy;
         this.divisionForUpload = builder.divisionForUpload;
         this.sliceSizeForUpload = builder.sliceSizeForUpload;
+        this.forceSimpleUpload = builder.forceSimpleUpload;
     }
 
     /**
@@ -60,11 +63,16 @@ public class TransferConfig {
         return divisionForCopy;
     }
 
+    public boolean isForceSimpleUpload() {
+        return forceSimpleUpload;
+    }
+
     public static class Builder{
         private long divisionForCopy = 5242880; // 5M
         private long sliceSizeForCopy = 5242880; //5M
         private long divisionForUpload = 2097152; //2M
         private long sliceSizeForUpload = 1048576; // 1M
+        private boolean forceSimpleUpload = false;
 
         public Builder(){
 
@@ -111,6 +119,11 @@ public class TransferConfig {
             if(sliceSizee > 0){
                 this.sliceSizeForUpload = sliceSizee;
             }
+            return this;
+        }
+
+        public Builder setForceSimpleUpload(boolean forceSimpleUpload) {
+            this.forceSimpleUpload = forceSimpleUpload;
             return this;
         }
 
