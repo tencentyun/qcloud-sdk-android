@@ -11,16 +11,30 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 @XmlBean
 public class IntelligentTieringConfiguration {
 
+    public IntelligentTieringConfiguration(String status, int days) {
+        this.status = status;
+        transition = new Transition();
+        transition.days = days;
+        transition.requestFrequent = 1;
+    }
+
+    public IntelligentTieringConfiguration() {}
+
     @XmlElement(name = "Status")
     public String status;
 
     @XmlElement(name = "Transition")
     public Transition transition;
 
+
+
     @XmlBean
     public static class Transition {
 
         @XmlElement(name = "Days")
         public int days;
+
+        @XmlElement(name = "RequestFrequent")
+        public int requestFrequent;
     }
 }

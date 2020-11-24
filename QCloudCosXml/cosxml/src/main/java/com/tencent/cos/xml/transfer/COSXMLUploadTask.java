@@ -27,6 +27,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -47,7 +48,10 @@ import com.tencent.cos.xml.model.object.PutObjectResult;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.cos.xml.model.object.UploadPartResult;
 import com.tencent.cos.xml.model.tag.ListParts;
+import com.tencent.cos.xml.model.tag.pic.PicUploadResult;
+import com.tencent.cos.xml.utils.TimeUtils;
 import com.tencent.qcloud.core.common.QCloudTaskStateListener;
+import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.util.ContextHolder;
 import com.tencent.qcloud.core.util.QCloudUtils;
@@ -106,6 +110,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
     private AtomicInteger UPLOAD_PART_COUNT;
     private AtomicLong ALREADY_SEND_DATA_LEN;
     private Object SYNC_UPLOAD_PART = new Object();
+    private long startTime = 0L;
+    private long simpleAlreadySendDataLen = 0L;
 
     /**
      * 正在发送 CompleteMultiUpload 请求的过程中不允许暂停
@@ -136,8 +142,19 @@ public final class COSXMLUploadTask extends COSXMLTask {
         }
 
         @Override
-        public void onFailed(CosXmlRequest cosXmlRequest, CosXmlClientException exception, CosXmlServiceException serviceException) {
-            Exception causeException = exception == null ? serviceException : exception;
+        public void onFailed(CosXmlRequest cosXmlRequest, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+            Exception causeException;
+            if (clientException != null) {
+                BeaconService.getInstance().reportUpload(region, cosXmlRequest.getClass().getSimpleName(), clientException);
+                causeException = clientException;
+            } else if (serviceException != null) {
+                BeaconService.getInstance().reportUpload(region, cosXmlRequest.getClass().getSimpleName(), serviceException);
+                causeException = serviceException;
+            } else {
+                CosXmlClientException cosXmlClientException = new CosXmlClientException(ClientErrorCode.UNKNOWN.getCode(), "Unknown Error");
+                BeaconService.getInstance().reportUpload(region, cosXmlRequest.getClass().getSimpleName(), cosXmlClientException);
+                causeException = cosXmlClientException;
+            }
             updateState(TransferState.FAILED, causeException, null, false);
         }
     };
@@ -222,6 +239,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
      */
     protected void upload(){
         if(!checkParameter()) return;
+        startTime = System.nanoTime();
         run();
     }
 
@@ -256,6 +274,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
         }
         getHttpMetrics(putObjectRequest, "PutObjectRequest");
 
+        QCloudLogger.i("UT", "simpleUpload");
+
         putObjectRequest.setTaskStateListener(new QCloudTaskStateListener() {
             @Override
             public void onStateChanged(String taskId, int state) {
@@ -266,6 +286,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         putObjectRequest.setProgressListener(new CosXmlProgressListener() {
             @Override
             public void onProgress(long complete, long target) {
+                simpleAlreadySendDataLen = complete;
                 dispatchProgressChange(complete, target);
             }
         });
@@ -278,6 +299,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 }
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
+                BeaconService.getInstance().reportUpload(region, simpleAlreadySendDataLen, TimeUtils.getTookTime(startTime));
                 updateState(TransferState.COMPLETED, null, result, false);
             }
 
@@ -288,8 +310,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 }
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
-                Exception causeException = exception == null ? serviceException : exception;
-                updateState(TransferState.FAILED, causeException, null, false);
+                multiUploadsStateListenerHandler.onFailed(request, exception, serviceException);
             }
         });
     }
@@ -498,6 +519,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 }
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
+                BeaconService.getInstance().reportUpload(region, ALREADY_SEND_DATA_LEN.get(), TimeUtils.getTookTime(startTime));
                 multiUploadsStateListenerHandler.onCompleted(request, result);
 
                 sendingCompleteRequest.set(false);
@@ -529,7 +551,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     @Override
     protected void internalPause() {
-
+        BeaconService.getInstance().reportUpload(region, ALREADY_SEND_DATA_LEN.get(), TimeUtils.getTookTime(startTime));
         cancelAllRequest(cosXmlService);
     }
 
@@ -643,6 +665,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
             cosxmlUploadTaskResult.headers = putObjectResult.headers;
             cosxmlUploadTaskResult.eTag = putObjectResult.eTag;
             cosxmlUploadTaskResult.accessUrl = putObjectResult.accessUrl;
+            cosxmlUploadTaskResult.picUploadResult = putObjectResult.picUploadResult();
         }else if(sourceResult != null && sourceResult instanceof CompleteMultiUploadResult){
             CompleteMultiUploadResult completeMultiUploadResult = (CompleteMultiUploadResult) sourceResult;
             cosxmlUploadTaskResult.httpCode = completeMultiUploadResult.httpCode;
@@ -894,9 +917,10 @@ public final class COSXMLUploadTask extends COSXMLTask {
     /**
      * 上传传输任务的返回结果
      */
-    public static class COSXMLUploadTaskResult extends CosXmlResult{
+    public static class COSXMLUploadTaskResult extends CosXmlResult {
         protected COSXMLUploadTaskResult(){}
         public String eTag;
+        public PicUploadResult picUploadResult;
     }
 
 }

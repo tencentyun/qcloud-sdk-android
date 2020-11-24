@@ -22,6 +22,7 @@
 
 package com.tencent.cos.xml.transfer;
 
+import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -49,6 +50,7 @@ import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_MANUAL;
  * 传输任务
  */
 public abstract class COSXMLTask {
+    private static final String TAG = "COSXMLTask";
 
     /**
      * 状态监听器
@@ -363,7 +365,9 @@ public abstract class COSXMLTask {
                 }
 
             default:
-                throw new IllegalStateException("invalid state: " + newTaskState);
+                IllegalStateException illegalStateException = new IllegalStateException("invalid state: " + newTaskState);
+                BeaconService.getInstance().reportError(TAG ,illegalStateException);
+                throw illegalStateException;
         }
     }
 
