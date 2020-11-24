@@ -28,6 +28,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.MessageQueue;
 
+import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.model.CosXmlResult;
 
 import java.lang.reflect.Constructor;
@@ -40,6 +41,7 @@ import java.util.concurrent.Executors;
  * 传输任务状态监听器
  */
 final class TaskStateMonitor implements Runnable{
+    private static final String TAG = "TaskStateMonitor";
 
     private static TaskStateMonitor monitor;
     private static Handler taskHandler;
@@ -95,14 +97,19 @@ final class TaskStateMonitor implements Runnable{
             setMessageQueue();
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
+            BeaconService.getInstance().reportError(TAG, e);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
+            BeaconService.getInstance().reportError(TAG, e);
         } catch (InvocationTargetException e) {
             e.printStackTrace();
+            BeaconService.getInstance().reportError(TAG, e);
         } catch (InstantiationException e) {
             e.printStackTrace();
+            BeaconService.getInstance().reportError(TAG, e);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            BeaconService.getInstance().reportError(TAG, e);
         }
         taskHandler = new Handler(getLooper()){
             @Override

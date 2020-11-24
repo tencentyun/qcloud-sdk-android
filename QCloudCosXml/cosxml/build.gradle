@@ -15,11 +15,12 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 50506
-        versionName "5.5.6"
+        versionCode 50507
+        versionName "5.5.7"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
+        consumerProguardFiles 'proguard-rules.pro'
     }
 
     buildTypes {
@@ -75,11 +76,11 @@ android {
 }
 
 dependencies {
-    compileOnly 'androidx.appcompat:appcompat:1.0.0'
-    testCompileOnly 'junit:junit:4.12'
+    compileOnly 'androidx.appcompat:appcompat:1.2.0'
+    testCompileOnly 'junit:junit:4.13'
 
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
     api project(path: ':foundation')
@@ -92,6 +93,8 @@ dependencies {
 
     compileOnly project(':xmlAnnoation')
     annotationProcessor project(':xmlCompiler')
+
+    implementation 'com.tencent.qcloud:beacon-android-release:4.1.9'
 }
 
 
@@ -152,6 +155,11 @@ task(requestPermission) {
     println "Granting permissions"
     "${adb} shell pm grant ${testApplicationId} android.permission.WRITE_EXTERNAL_STORAGE".execute()
     "${adb} shell pm grant ${testApplicationId} android.permission.READ_EXTERNAL_STORAGE".execute()
+
+
+
+    // 禁止 UP-TO-DATE
+    // outputs.upToDateWhen { false }
 }
 
 preBuild.dependsOn "requestPermission"

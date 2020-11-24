@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml.model.tag.pic;
 
+import com.tencent.cos.xml.BeaconService;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,7 +35,7 @@ import java.util.List;
  * 详情请参考：<a herf="https://cloud.tencent.com/document/product/1246/45384">盲水印功能</a>
  */
 public class PicOperations {
-
+    private static final String TAG = "PicOperations";
     private boolean isPicInfo;
 
     private List<PicOperationRule> rules;
@@ -66,6 +68,7 @@ public class PicOperations {
             operations.put("rules", rulesArray);
             return operations.toString();
         } catch (JSONException e) {
+            BeaconService.getInstance().reportError(TAG, e);
             e.printStackTrace();
         }
 

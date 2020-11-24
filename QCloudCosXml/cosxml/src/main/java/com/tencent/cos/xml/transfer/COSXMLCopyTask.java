@@ -23,7 +23,9 @@
 package com.tencent.cos.xml.transfer;
 
 
+import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.CosXmlSimpleService;
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
@@ -84,6 +86,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
     private AtomicBoolean IS_EXIT = new AtomicBoolean(false);
     private AtomicInteger UPLOAD_PART_COUNT;
     private Object SYNC_UPLOAD_PART = new Object();
+
     private LargeCopyStateListener largeCopyStateListenerHandler = new LargeCopyStateListener(){
         @Override
         public void onInit() {
@@ -106,8 +109,19 @@ public final class COSXMLCopyTask extends COSXMLTask {
         }
 
         @Override
-        public void onFailed(CosXmlRequest cosXmlRequest, CosXmlClientException exception, CosXmlServiceException serviceException) {
-            Exception causeException = exception == null ? serviceException : exception;
+        public void onFailed(CosXmlRequest cosXmlRequest, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+            Exception causeException;
+            if (clientException != null) {
+                BeaconService.getInstance().reportCopy(region, cosXmlRequest.getClass().getSimpleName(), clientException);
+                causeException = clientException;
+            } else if (serviceException != null) {
+                BeaconService.getInstance().reportCopy(region, cosXmlRequest.getClass().getSimpleName(), serviceException);
+                causeException = serviceException;
+            } else {
+                CosXmlClientException cosXmlClientException = new CosXmlClientException(ClientErrorCode.UNKNOWN.getCode(), "Unknown Error");
+                BeaconService.getInstance().reportCopy(region, cosXmlRequest.getClass().getSimpleName(), cosXmlClientException);
+                causeException = cosXmlClientException;
+            }
             updateState(TransferState.FAILED, causeException, null, false);
         }
     };
@@ -156,6 +170,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 }
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
+                BeaconService.getInstance().reportCopy(region);
                 updateState(TransferState.COMPLETED, null, result, false);
             }
 
@@ -166,8 +181,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 }
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
-                Exception causeException = exception == null ? serviceException : exception;
-                updateState(TransferState.FAILED, causeException, null, false);
+                largeCopyStateListenerHandler.onFailed(request, exception, serviceException);
             }
         });
     }
@@ -371,6 +385,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 }
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
+                BeaconService.getInstance().reportCopy(region);
                 largeCopyStateListenerHandler.onCompleted(request, result);
             }
 
@@ -470,6 +485,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
 
     @Override
     protected void internalPause() {
+        BeaconService.getInstance().reportCopy(region);
         cancelAllRequest(cosXmlService);
     }
 
@@ -574,8 +590,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
             public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
-                Exception causeException = exception == null ? serviceException : exception;
-                updateState(TransferState.FAILED, causeException, null, false);
+                largeCopyStateListenerHandler.onFailed(request, exception, serviceException);
             }
         });
     }

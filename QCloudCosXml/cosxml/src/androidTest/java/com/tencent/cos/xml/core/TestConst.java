@@ -27,7 +27,7 @@ public class TestConst {
     public static final String PERSIST_BUCKET_POST_OBJECT_PATH = "/do_not_remove/post_object";
     public static final String PERSIST_BUCKET_COPY_OBJECT_DST_PATH = "/do_not_remove/copy_dst_object";
 
-    public static final long PERSIST_BUCKET_SMALL_OBJECT_SIZE = 1024 * 1024;
+    public static final long PERSIST_BUCKET_SMALL_OBJECT_SIZE = 1024;
     public static final long PERSIST_BUCKET_BIG_OBJECT_SIZE = 100 * 1024 * 1024;
     public static final String PERSIST_BUCKET_SMALL_OBJECT_PATH = "/do_not_remove/small_object";
     public static final String PERSIST_BUCKET_BIG_OBJECT_PATH = "/do_not_remove/big_object";

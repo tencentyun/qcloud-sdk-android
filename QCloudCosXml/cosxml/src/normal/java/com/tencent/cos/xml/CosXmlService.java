@@ -55,6 +55,8 @@ import com.tencent.cos.xml.model.bucket.GetBucketCORSRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketCORSResult;
 import com.tencent.cos.xml.model.bucket.GetBucketDomainRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketDomainResult;
+import com.tencent.cos.xml.model.bucket.GetBucketIntelligentTieringRequest;
+import com.tencent.cos.xml.model.bucket.GetBucketIntelligentTieringResult;
 import com.tencent.cos.xml.model.bucket.GetBucketInventoryRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketInventoryResult;
 import com.tencent.cos.xml.model.bucket.GetBucketLifecycleRequest;
@@ -1700,6 +1702,16 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
         schedule(putBucketIntelligentTieringRequest, new PutBucketIntelligentTieringResult(), cosXmlResultListener);
     }
 
+    @Override
+    public GetBucketIntelligentTieringResult getBucketIntelligentTiering(GetBucketIntelligentTieringRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetBucketIntelligentTieringResult());
+    }
+
+    @Override
+    public void getBucketIntelligentTieringAsync(GetBucketIntelligentTieringRequest request, CosXmlResultListener resultListener) {
+        schedule(request, new GetBucketIntelligentTieringResult(), resultListener);
+    }
+
     /**
      * <p>
      * 预览文档的同步方法。
@@ -1770,5 +1782,4 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
 
         this.getServiceRequestDomain = domain;
     }
-
 }
