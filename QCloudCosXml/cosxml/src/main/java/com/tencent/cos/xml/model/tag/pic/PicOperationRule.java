@@ -24,6 +24,9 @@ package com.tencent.cos.xml.model.tag.pic;
 
 import android.text.TextUtils;
 
+import com.tencent.cos.xml.BeaconService;
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,7 +34,7 @@ import org.json.JSONObject;
  * 盲水印处理规则
  */
 public class PicOperationRule {
-
+    private static final String TAG = "PicOperationRule";
     private String bucket;
 
     private String fileId;
@@ -73,6 +76,7 @@ public class PicOperationRule {
             ruleJson.put("fileid", fileId);
             ruleJson.put("rule", rule);
         } catch (JSONException e) {
+            BeaconService.getInstance().reportError(TAG, e);
             e.printStackTrace();
         }
         return ruleJson;

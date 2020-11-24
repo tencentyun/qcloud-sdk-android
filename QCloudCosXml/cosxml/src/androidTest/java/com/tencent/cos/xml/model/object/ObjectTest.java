@@ -32,8 +32,8 @@ public class ObjectTest {
      */
     private RequestTestAdapter[] simpleTestAdapters = new RequestTestAdapter[] {
             new PutObjectTestAdapter(),
-            // new PostObjectTestAdapter(),
             new GetObjectTestAdapter(),
+            new PutObjectDeepArchiveTestAdapter(),
             new HeadObjectTestAdapter(),
             new OptionObjectTestAdapter(),
             new PutObjectACLTestAdapter(),

@@ -22,40 +22,21 @@
 
 package com.tencent.cos.xml.model.tag.pic;
 
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
+
 import java.util.List;
 
 /**
  * 盲水印结果
  */
+@XmlBean(name = "UploadResult")
 public class PicUploadResult {
 
-    private PicOriginalInfo originalInfo;
+    @XmlElement(name = "OriginalInfo")
+    public PicOriginalInfo originalInfo;
 
-    private List<PicObject> processResults;
+    @XmlElement(name = "ProcessResults")
+    public List<PicObject> processResults;
 
-    /**
-     * 构造盲水印结果
-     * @param originalInfo 原图信息
-     * @param processResults 图片处理结果
-     */
-    public PicUploadResult(PicOriginalInfo originalInfo, List<PicObject> processResults) {
-        this.originalInfo = originalInfo;
-        this.processResults = processResults;
-    }
-
-    /**
-     * 获取图片处理结果
-     * @return 图片处理结果
-     */
-    public List<PicObject> getProcessResults() {
-        return processResults;
-    }
-
-    /**
-     * 获取原图信息
-     * @return 原图信息
-     */
-    public PicOriginalInfo getOriginalInfo() {
-        return originalInfo;
-    }
 }

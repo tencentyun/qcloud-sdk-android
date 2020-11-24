@@ -22,24 +22,46 @@
 
 package com.tencent.cos.xml.model.tag.pic;
 
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
+
 /**
  * 盲水印图片处理结果
  */
+@XmlBean(name = "Object")
 public class PicObject {
+
     /** 文件名 */
+    @XmlElement(name = "Key")
     public String key;
+
     /** 图片路径 */
+    @XmlElement(name = "Location")
     public String location;
+
     /** 图片格式 */
+    @XmlElement(name = "Format")
     public String format;
+
     /** 图片宽度 */
+    @XmlElement(name = "Width")
     public int width;
+
     /** 图片高度 */
+    @XmlElement(name = "Height")
     public int height;
+
     /** 图片大小 */
+    @XmlElement(name = "Size")
     public int size;
+
     /** 图片质量 */
+    @XmlElement(name = "Quality")
     public int quality;
+
+    /** 图片质量 */
+    @XmlElement(name = "ETag")
+    public String etag;
 
     /**
      * 构造盲水印图片处理结果

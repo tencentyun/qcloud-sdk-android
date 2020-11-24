@@ -14,13 +14,14 @@ public class BucketTest {
 
     private RequestTestAdapter[] adapters = new RequestTestAdapter[] {
             new PutBucketTestAdapter(), new HeadBucketTestAdapter(),
+            new PutBucketIntelligentTieringTestAdapter(), new GetBucketIntelligentTieringTestAdapter(),
             new GetBucketTestAdapter(), new DeleteBucketTestAdapter(),
             new PutBucketACLTestAdapter(), new GetBucketACLTestAdapter(),
             new PutBucketInventoryTestAdapter(), new GetBucketInventoryTestAdapter(), new DeleteBucketInventoryTestAdapter(),
             new PutBucketLoggingTestAdapter(), new GetBucketLoggingTestAdapter(),
             new PutBucketTaggingTestAdapter(), new GetBucketTaggingTestAdapter(),
             new PutBucketWebsiteTestAdapter(), new GetBucketWebsiteTestAdapter(), new DeleteBucketWebsiteTestAdapter(),
-            new PutBucketDomainTestAdapter(), new GetBucketDomainTestAdapter(),
+            new PutBucketDomainTestAdapter(), new GetBucketDomainTestAdapter()
     };
 
     @Test public void testAsync() {

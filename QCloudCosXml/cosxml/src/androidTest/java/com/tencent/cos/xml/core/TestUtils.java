@@ -197,6 +197,6 @@ public class TestUtils {
     }
 
     public static String localParentPath() {
-        return getContext().getExternalCacheDir().getAbsolutePath();
+        return getContext().getApplicationContext().getFilesDir().getAbsolutePath();
     }
 }

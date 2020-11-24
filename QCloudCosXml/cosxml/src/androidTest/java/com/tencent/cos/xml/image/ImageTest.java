@@ -1,6 +1,7 @@
 package com.tencent.cos.xml.image;
 
 import android.os.Environment;
+import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -21,8 +22,10 @@ import com.tencent.cos.xml.model.object.PutObjectResult;
 import com.tencent.cos.xml.model.tag.pic.PicOperationRule;
 import com.tencent.cos.xml.model.tag.pic.PicOperations;
 import com.tencent.cos.xml.model.tag.pic.PicUploadResult;
+import com.tencent.cos.xml.transfer.COSXMLUploadTask;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,9 +43,9 @@ import java.util.Map;
 @RunWith(AndroidJUnit4.class)
 public class ImageTest {
 
-    final String localImageName ="/test_image.png";
+    final static String localImageName ="/test_image.png";
 
-    private void downloadImageToLocalPath() {
+    @BeforeClass public static void downloadImageToLocalPath() {
 
         TestUtils.removeLocalFile(TestUtils.localPath(localImageName));
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
@@ -56,9 +59,9 @@ public class ImageTest {
         }
     }
 
+    // 通过 CosXmlService#putObject() 方法简单上传，返回 PutObjectResult
     @Test public void testPicOperationRule()  {
 
-        downloadImageToLocalPath();
         PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_PIC_PATH, TestUtils.localPath(localImageName));
         try {
@@ -77,17 +80,57 @@ public class ImageTest {
         try {
             putObjectResult = ServiceFactory.INSTANCE.newDefaultService().putObject(putObjectRequest);
             PicUploadResult uploadResult = putObjectResult.picUploadResult();
+            Assert.assertNotNull(uploadResult);
+            Assert.assertFalse(uploadResult.processResults.isEmpty());
             Assert.assertEquals(200, putObjectResult.httpCode);
         } catch (Exception exception) {
             Assert.fail(exception.getMessage());
         }
     }
 
+    // 通过 TransferManager 分片上传，返回 CompleteMultiUploadResult
+    @Test public void transferManagerUploadPic() {
+
+        final TestLocker testLocker = new TestLocker();
+        List<PicOperationRule> rules = new LinkedList<>();
+        // 添加一条将图片转化为 png 格式的 rule，处理后的图片在存储桶中的位置标识符为
+        // examplepngobject
+        rules.add(new PicOperationRule("examplepngobject", "imageView2/format/png"));
+        rules.add(new PicOperationRule("examplepngobject1", "imageView2/format/png"));
+        PicOperations picOperations = new PicOperations(true, rules);
+
+        PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_PIC_PATH, TestUtils.localPath(localImageName));
+        putObjectRequest.setPicOperations(picOperations);
+        Log.i("transferManagerUploadPic", "start ");
+        // 上传成功后，您将会得到 2 张图片，分别是原始图片和处理后图片
+        COSXMLUploadTask cosxmlUploadTask = ServiceFactory.INSTANCE.newDefaultTransferManager().upload(putObjectRequest, "");
+        cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                Log.i("transferManagerUploadPic", "onSuccess ");
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
+                Log.i("transferManagerUploadPic", "onFail ");
+                testLocker.release();
+            }
+        });
+        Log.i("transferManagerUploadPic", "lock ");
+        testLocker.lock();
+        COSXMLUploadTask.COSXMLUploadTaskResult taskResult = (COSXMLUploadTask.COSXMLUploadTaskResult) cosxmlUploadTask.getResult();
+        Assert.assertNotNull(taskResult.picUploadResult);
+        Assert.assertNotNull(taskResult.picUploadResult.processResults);
+        Assert.assertFalse(taskResult.picUploadResult.processResults.isEmpty());
+    }
+
     @Test public void testThumbnail() {
 
         final TestLocker testLocker = new TestLocker(1);
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_PIC_PATH,
-                TestUtils.localParentPath(), "pic2.png");
+                Environment.getExternalStorageDirectory().getAbsolutePath(), "pic2.png");
 
         Map<String, String> paras = new HashMap<>();
         paras.put("imageMogr2/thumbnail/!50p", null);

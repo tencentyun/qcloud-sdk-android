@@ -28,5 +28,5 @@ project(':quic').projectDir = new File(rootDir, '../QCloudFoundation/quic')
 
 project(':xmlAnnoation').projectDir      = new File(rootDir, '../QCloudXml/xmlAnnoation')
 // 合并到 foundation 中
- project(':xmlCore').projectDir        = new File(rootDir, '../QCloudXml/xmlCore')
+// project(':xmlCore').projectDir        = new File(rootDir, '../QCloudXml/xmlCore')
 project(':xmlCompiler').projectDir       = new File(rootDir, '../QCloudXml/xmlCompiler')

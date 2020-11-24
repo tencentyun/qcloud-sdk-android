@@ -66,6 +66,10 @@ public enum ClientErrorCode {
      * 网络出现异常，例如网络不可用，DNS 解析失败等
      */
     POOR_NETWORK(20003, "NetworkError"),
+    /**
+     * 网络断开连接
+     */
+    NETWORK_NOT_CONNECTED(20004, "NetworkNotConnected"),
 
     /**
      * 用户已取消了请求
