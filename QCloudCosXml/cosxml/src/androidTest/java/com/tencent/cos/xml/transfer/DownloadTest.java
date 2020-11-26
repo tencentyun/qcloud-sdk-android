@@ -63,7 +63,7 @@ public class DownloadTest {
 
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
-                TestUtils.localPath(TestUtils.extractName(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH)));
+                TestUtils.localParentPath());
         COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
                 getObjectRequest);
 
@@ -91,7 +91,7 @@ public class DownloadTest {
 
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
-                TestUtils.localPath(TestUtils.extractName(TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH)));
+                TestUtils.localParentPath());
         COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
                 getObjectRequest);
 
