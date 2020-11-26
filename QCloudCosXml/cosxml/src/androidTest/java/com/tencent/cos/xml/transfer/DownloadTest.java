@@ -37,6 +37,7 @@ import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.utils.StringUtils;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,13 +53,17 @@ import java.util.concurrent.atomic.AtomicLong;
 @RunWith(AndroidJUnit4.class)
 public class DownloadTest {
 
+    @After public void clearDownloadFiles() {
+        TestUtils.clearDir(new File(TestUtils.localParentPath()));
+    }
+
     @Test public void testSmallDownload() {
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
 
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
-                TestUtils.localPath("downloadobject"));
+                TestUtils.localPath(TestUtils.extractName(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH)));
         COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
                 getObjectRequest);
 
@@ -86,7 +91,7 @@ public class DownloadTest {
 
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
-                TestUtils.localPath("downloadobject"));
+                TestUtils.localPath(TestUtils.extractName(TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH)));
         COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
                 getObjectRequest);
 
@@ -196,7 +201,6 @@ public class DownloadTest {
         }
 
         if (downloadTask.getTaskState() == TransferState.COMPLETED) {
-            Assert.assertTrue(true);
             return;
         }
 
@@ -217,7 +221,8 @@ public class DownloadTest {
      */
     @Test public void testContinueDownload() {
 
-        String localFileName = "download_object";
+        String localFileName = TestUtils.extractName(TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+
         TestUtils.removeLocalFile(TestUtils.localPath(localFileName));
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();;
