@@ -49,7 +49,7 @@ public class OkHttpClientImpl extends NetworkClient {
                      final Dns dns, HttpLogger httpLogger) {
         super.init(b, hostnameVerifier, dns, httpLogger);
         HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(httpLogger);
-        logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        logInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
         OkHttpClient.Builder builder = b.mBuilder;
         okHttpClient = builder
                 .followRedirects(true)
