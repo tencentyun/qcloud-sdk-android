@@ -199,4 +199,26 @@ public class TestUtils {
     public static String localParentPath() {
         return getContext().getApplicationContext().getFilesDir().getAbsolutePath();
     }
+
+    public static void clearDir(File dir) {
+
+        File[] files = dir.listFiles();
+        for (File file : files) {
+            removeLocalFile(file.getAbsolutePath());
+        }
+    }
+
+    public static String extractName(String path) {
+
+        if (path.endsWith("/")) {
+            return "";
+        }
+
+        int index = path.lastIndexOf("/");
+        if (index < 0) {
+            return path;
+        } else {
+            return path.substring(index + 1);
+        }
+    }
 }
