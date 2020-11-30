@@ -15,8 +15,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 50507
-        versionName "5.5.7"
+        versionCode 50508
+        versionName "5.5.8"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -64,7 +64,7 @@ android {
     }
 
     // 切换发 normal 或者 slim 包，需要同步修改 pom.artifactId 信息
-    defaultPublishConfig "normalRelease"
+    defaultPublishConfig "slimRelease"
     // "slimRelease"
 
     compileOptions {
@@ -84,7 +84,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
     api project(path: ':foundation')
-    api project(path: ':mtaUtils')
     api project(path: ':logUtils')
 
     if (compileQuic()) {
@@ -94,7 +93,8 @@ dependencies {
     compileOnly project(':xmlAnnoation')
     annotationProcessor project(':xmlCompiler')
 
-    implementation 'com.tencent.qcloud:beacon-android-release:4.1.9'
+    normalApi 'com.tencent.qcloud:beacon-android-release:4.1.13'
+    slimCompileOnly 'com.tencent.qcloud:beacon-android-release:4.1.13'
 }
 
 

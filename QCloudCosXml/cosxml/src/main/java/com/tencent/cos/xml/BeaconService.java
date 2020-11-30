@@ -98,16 +98,19 @@ public class BeaconService {
             if (instance == null) {
                 instance = new BeaconService(applicationContext, serviceConfig);
 
-                BeaconConfig config = BeaconConfig.builder()
-                        .auditEnable(false)
-                        .bidEnable(false)
-                        .collectMACEnable(false)
-                        .collectIMEIEnable(false)
-                        .pagePathEnable(false)
-                        .build();
-                BeaconReport beaconReport = BeaconReport.getInstance();
-                beaconReport.setLogAble(IS_DEBUG);//是否打开日志
-                beaconReport.start(applicationContext, APP_KEY, config);
+                if(isIncludeBeacon()) {
+                    BeaconConfig config = BeaconConfig.builder()
+                            .auditEnable(false)
+                            .bidEnable(false)
+                            .collectMACEnable(false)
+                            .collectIMEIEnable(false)
+                            .pagePathEnable(false)
+                            .setNormalPollingTime(5000)
+                            .build();
+                    BeaconReport beaconReport = BeaconReport.getInstance();
+                    beaconReport.setLogAble(IS_DEBUG);//是否打开日志
+                    beaconReport.start(applicationContext, APP_KEY, config);
+                }
             }
         }
     }
@@ -117,6 +120,8 @@ public class BeaconService {
     }
 
     private void report(String eventcode, Map<String, String> params) {
+        if(!isIncludeBeacon()) return;
+
         BeaconEvent.Builder builder = BeaconEvent.builder()
                 .withAppKey(APP_KEY)
                 .withCode(eventcode)
@@ -124,7 +129,7 @@ public class BeaconService {
                 .withParams(params);
         try {
             builder.withIsSimpleParams(true);
-        } catch (NoSuchMethodError error){
+        } catch (NoSuchMethodError error) {
             //APP使用了标准版的灯塔SDK 不支持withIsSimpleParams
         }
         EventResult result = BeaconReport.getInstance().report(builder.build());
@@ -281,6 +286,15 @@ public class BeaconService {
         report(EVENT_CODE_ERROR, params);
     }
 
+    private static boolean isIncludeBeacon(){
+        try {
+            Class.forName("com.tencent.beacon.event.open.BeaconReport");
+            return true;
+        } catch (ClassNotFoundException e){
+            return false;
+        }
+    }
+
     private Map<String, String> getBaseServiceParams(CosXmlRequest cosXmlRequest, long tookTime, boolean isSuccess) {
         Map<String, String> params = getCommonParams();
 
@@ -345,6 +359,8 @@ public class BeaconService {
      * @return 公共参数
      */
     private Map<String, String> getCommonParams() {
+        if(!isIncludeBeacon()) return new HashMap<>();
+
         Map<String, String> params = new HashMap<>();
         BeaconPubParams pubParams = BeaconReport.getInstance().getCommonParams(applicationContext);
         params.put("boundle_id", pubParams.getBoundleId());
@@ -468,7 +484,10 @@ public class BeaconService {
      */
     private boolean isReport(CosXmlRequest cosXmlRequest) {
         String requestName = cosXmlRequest.getClass().getSimpleName();
-        return !"InitMultipartUploadRequest".equals(requestName) &&
+        return !"PutObjectRequest".equals(requestName) &&
+                !"GetObjectRequest".equals(requestName) &&
+                !"SelectObjectContentRequest".equals(requestName) &&
+                !"InitMultipartUploadRequest".equals(requestName) &&
                 !"ListPartsRequest".equals(requestName) &&
                 !"UploadPartRequest".equals(requestName) &&
                 !"CompleteMultiUploadRequest".equals(requestName) &&
