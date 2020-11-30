@@ -680,7 +680,7 @@ public class XmlBuilder extends XmlSlimBuilder {
             addElement(xmlSerializer, "QuoteCharacter", csvInput.getQuoteCharacterAsString());
             addElement(xmlSerializer, "QuoteEscapeCharacter", csvInput.getQuoteEscapeCharacterAsString());
             addElement(xmlSerializer, "Comments", csvInput.getCommentsAsString());
-            addElement(xmlSerializer, "AllowQuotedRecordDelimiter", String.valueOf(csvInput.getAllowQuotedRecordDelimiter()));
+            addElement(xmlSerializer, "AllowQuotedRecordDelimiter", csvInput.getAllowQuotedRecordDelimiter() ? "TRUE" : "FALSE");
             xmlSerializer.endTag("", "CSV");
 
         } else if (selectRequest.getInputSerialization().getJson() != null) {
