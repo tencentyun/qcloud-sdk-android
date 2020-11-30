@@ -64,7 +64,7 @@ android {
     }
 
     // 切换发 normal 或者 slim 包，需要同步修改 pom.artifactId 信息
-    defaultPublishConfig "slimRelease"
+    defaultPublishConfig "normalRelease"
     // "slimRelease"
 
     compileOptions {
@@ -93,7 +93,10 @@ dependencies {
     compileOnly project(':xmlAnnoation')
     annotationProcessor project(':xmlCompiler')
 
-    normalApi 'com.tencent.qcloud:beacon-android-release:4.1.13'
+    //lite版本使用normalApi
+//    normalApi 'com.tencent.qcloud:beacon-android-release:4.1.13'
+    //normal版本使用api
+    api 'com.tencent.qcloud:beacon-android-release:4.1.13'
     slimCompileOnly 'com.tencent.qcloud:beacon-android-release:4.1.13'
 }
 
