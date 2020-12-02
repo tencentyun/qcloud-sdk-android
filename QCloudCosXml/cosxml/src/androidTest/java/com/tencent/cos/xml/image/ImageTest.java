@@ -128,9 +128,8 @@ public class ImageTest {
 
     @Test public void testThumbnail() {
 
-        final TestLocker testLocker = new TestLocker(1);
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_PIC_PATH,
-                Environment.getExternalStorageDirectory().getAbsolutePath(), TestUtils.localPath(localImageName));
+                TestUtils.localParentPath());
 
         Map<String, String> paras = new HashMap<>();
         paras.put("imageMogr2/thumbnail/!50p", null);
