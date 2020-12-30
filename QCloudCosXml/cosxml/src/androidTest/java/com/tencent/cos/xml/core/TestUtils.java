@@ -2,7 +2,6 @@ package com.tencent.cos.xml.core;
 
 import android.content.Context;
 import android.os.Build;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -10,10 +9,14 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.transfer.COSXMLTask;
 import com.tencent.cos.xml.transfer.TransferState;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
+import com.tencent.qcloud.core.http.HttpConstants;
+import com.tencent.qcloud.core.http.HttpRequest;
+import com.tencent.qcloud.core.http.HttpResponse;
 
 import org.junit.Assert;
 
@@ -21,8 +24,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.util.Random;
+
+import okhttp3.MediaType;
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /**
  * <p>
@@ -129,7 +140,7 @@ public class TestUtils {
 
         RandomAccessFile accessFile = new RandomAccessFile(absolutePath, "rws");
         accessFile.setLength(fileLength);
-        accessFile.seek(fileLength/2);
+        accessFile.seek(fileLength / 2);
         accessFile.write(new Random().nextInt(200));
         accessFile.seek(fileLength - 1);
         accessFile.write(new Random().nextInt(200));
@@ -157,28 +168,45 @@ public class TestUtils {
         return true;
     }
 
-
     public static String getCosExceptionMessage(QCloudClientException clientException, QCloudServiceException serviceException) {
+        return getCosExceptionMessage(null, clientException, serviceException);
+    }
+
+    public static String getCosExceptionMessage(String source, QCloudClientException clientException, QCloudServiceException serviceException) {
+        if (TextUtils.isEmpty(source)) {
+            source = "";
+        } else {
+            source = source + " : ";
+        }
 
         if (clientException != null) {
-            return clientException.getMessage();
+            return source + clientException.getMessage();
         }
         if (serviceException != null) {
-            return serviceException.getErrorCode() + " : " + serviceException.getErrorMessage();
+            return source + serviceException.getErrorCode() + " : " + serviceException.getErrorMessage();
         }
-        return "Unknown Error";
+        return source + "Unknown Error";
     }
 
     public static String getCosExceptionMessage(Exception exception) {
+        return getCosExceptionMessage(null, exception);
+    }
+
+    public static String getCosExceptionMessage(String source, Exception exception) {
+        if (TextUtils.isEmpty(source)) {
+            source = "";
+        } else {
+            source = source + " : ";
+        }
 
         if (exception instanceof QCloudClientException) {
-            return getCosExceptionMessage((QCloudClientException) exception, null);
+            return getCosExceptionMessage(source, (QCloudClientException) exception, null);
         } else if (exception instanceof QCloudServiceException) {
-            return getCosExceptionMessage(null, (QCloudServiceException) exception);
+            return getCosExceptionMessage(source, null, (QCloudServiceException) exception);
         } else if (exception != null) {
-            return exception.getMessage();
+            return source + exception.getMessage();
         }
-        return "Unknown Error";
+        return source + "Unknown Error";
     }
 
     public static String getMD5(String str) throws Exception {
@@ -219,6 +247,44 @@ public class TestUtils {
             return path;
         } else {
             return path.substring(index + 1);
+        }
+    }
+
+    public static void parseBadResponseBody(CosXmlResult result){
+        HttpRequest httpRequest = null;
+        try {
+            httpRequest = new HttpRequest.Builder()
+                    .url(new URL("https://www.qq.com"))
+                    .method("get").build();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        Request request = new Request.Builder()
+                .url("http://www.qq.com")
+                .build();
+        Response.Builder responseBuilder = new Response.Builder()
+                .protocol(Protocol.HTTP_1_1)
+                .message("error")
+                .request(request);
+
+        String badBody = "badxml<Error>\n" +
+                "  <Code>RequestTimeTooSkewed</Code>\n" +
+                "  <Message>[错误信息]</Message>\n" +
+                "  <Resource>[资源地址]</Resource>\n" +
+                "  <RequestId>[请求ID]</RequestId>\n" +
+                "  <TraceId>[错误ID]</TraceId>\n" +
+                "</Error>";
+        Response response = responseBuilder
+                .code(403)
+                .body(ResponseBody.create(MediaType.parse(HttpConstants.ContentType.XML), badBody))
+                .build();
+        HttpResponse httpResponse = new HttpResponse(httpRequest, response);
+        try {
+            result.parseResponseBody(httpResponse);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
         }
     }
 }

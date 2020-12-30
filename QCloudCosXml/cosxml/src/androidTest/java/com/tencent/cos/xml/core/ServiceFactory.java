@@ -1,6 +1,5 @@
 package com.tencent.cos.xml.core;
 
-import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -19,7 +18,7 @@ public class ServiceFactory {
 
     public static ServiceFactory INSTANCE = new ServiceFactory();
 
-    public CosXmlService newDefaultService() {
+    public CosXmlSimpleService newDefaultService() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
@@ -30,7 +29,7 @@ public class ServiceFactory {
         return newService(cosXmlServiceConfig);
     }
 
-    public CosXmlService newSignInUrlService() {
+    public CosXmlSimpleService newSignInUrlService() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
@@ -42,7 +41,7 @@ public class ServiceFactory {
         return newService(cosXmlServiceConfig);
     }
 
-    public CosXmlService newCDNService() {
+    public CosXmlSimpleService newCDNService() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
@@ -51,7 +50,7 @@ public class ServiceFactory {
                 .setHostFormat("${bucket}.file.myqcloud.com")
                 .builder();
 
-        return new CosXmlService(getContext(), cosXmlServiceConfig);
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig);
     }
 
     public TransferManager newDefaultTransferManager() {
@@ -78,7 +77,7 @@ public class ServiceFactory {
                 .builder();
 
         TransferConfig transferConfig = new TransferConfig.Builder().build();
-        CosXmlService cosXmlService = newService(cosXmlServiceConfig);
+        CosXmlSimpleService cosXmlService = newService(cosXmlServiceConfig);
         String host = TestConst.QUIC_BUCKET + ".cos." + TestConst.QUIC_BUCKET_REGION + ".myqcloud.com";
         try {
             cosXmlService.addCustomerDNS(host, new String[] {TestConst.QUIC_TEST_IP});
@@ -104,8 +103,8 @@ public class ServiceFactory {
         return new TransferManager(newCDNService(), new TransferConfig.Builder().build());
     }
 
-    private CosXmlService newService(CosXmlServiceConfig cosXmlServiceConfig) {
-        return new CosXmlService(getContext(), cosXmlServiceConfig,
+    private CosXmlSimpleService newService(CosXmlServiceConfig cosXmlServiceConfig) {
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
 
     }

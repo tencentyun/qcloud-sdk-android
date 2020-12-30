@@ -50,9 +50,6 @@ final public class GetServiceResult extends CosXmlResult {
     public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
         super.parseResponseBody(response);
         try {
-//            listAllMyBuckets = new ListAllMyBuckets();
-//            XmlParser.parseListAllMyBucketsResult(response.byteStream(), listAllMyBuckets);
-
             listAllMyBuckets = QCloudXml.fromXml(response.byteStream(), ListAllMyBuckets.class);
         } catch (XmlPullParserException e) {
             throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);

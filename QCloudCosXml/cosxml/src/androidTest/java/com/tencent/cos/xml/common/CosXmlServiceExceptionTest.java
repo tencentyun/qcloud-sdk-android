@@ -48,10 +48,14 @@ public class CosXmlServiceExceptionTest {
         cosXmlServiceException1.setErrorCode("Access Deny");
         cosXmlServiceException1.setServiceName("tencent.com");
 
+        CosXmlServiceException cosXmlServiceException2 = new CosXmlServiceException(cosXmlServiceException1);
+        assertNotNull(cosXmlServiceException2);
+
         assertEquals(403, cosXmlServiceException1.getStatusCode());
         assertEquals("Access Deny", cosXmlServiceException1.getErrorCode());
         assertEquals("no authorization", cosXmlServiceException1.getErrorMessage());
         assertEquals("requestId", cosXmlServiceException1.getRequestId());
         assertEquals("tencent.com", cosXmlServiceException1.getServiceName());
+        assertNotNull(cosXmlServiceException1.getMessage());
     }
 }

@@ -1,6 +1,6 @@
 package com.tencent.cos.xml.model.object;
 
-import com.tencent.cos.xml.CosXmlService;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
@@ -34,12 +34,12 @@ public class UploadPartCopyTestAdapter extends RequestTestAdapter<UploadPartCopy
     }
 
     @Override
-    protected UploadPartCopyResult exeSync(UploadPartCopyRequest request, CosXmlService cosXmlService) throws CosXmlClientException, CosXmlServiceException {
+    protected UploadPartCopyResult exeSync(UploadPartCopyRequest request, CosXmlSimpleService cosXmlService) throws CosXmlClientException, CosXmlServiceException {
         return cosXmlService.copyObject(request);
     }
 
     @Override
-    protected void exeAsync(UploadPartCopyRequest request, CosXmlService cosXmlService, CosXmlResultListener resultListener) {
+    protected void exeAsync(UploadPartCopyRequest request, CosXmlSimpleService cosXmlService, CosXmlResultListener resultListener) {
         cosXmlService.copyObjectAsync(request, resultListener);
     }
 }
