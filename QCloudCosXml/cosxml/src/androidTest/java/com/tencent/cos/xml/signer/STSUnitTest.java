@@ -23,12 +23,12 @@
 package com.tencent.cos.xml.signer;
 
 import android.content.Context;
-
-import com.tencent.cos.xml.CosXmlService;
-import com.tencent.cos.xml.CosXmlServiceConfig;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import android.util.Log;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -36,12 +36,10 @@ import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
-import com.tencent.cos.xml.model.bucket.GetBucketRequest;
-import com.tencent.cos.xml.model.bucket.GetBucketResult;
+import com.tencent.cos.xml.model.object.HeadObjectRequest;
+import com.tencent.cos.xml.model.object.HeadObjectResult;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectResult;
-import com.tencent.cos.xml.model.service.GetServiceRequest;
-import com.tencent.cos.xml.model.service.GetServiceResult;
 import com.tencent.cos.xml.transfer.COSXMLUploadTask;
 import com.tencent.cos.xml.transfer.TransferConfig;
 import com.tencent.cos.xml.transfer.TransferManager;
@@ -67,8 +65,8 @@ public class STSUnitTest {
 
     Context context;
 
-    CosXmlService scopeService;
-    CosXmlService skewwdService;
+    CosXmlSimpleService scopeService;
+    CosXmlSimpleService skewwdService;
 
     TrackedSTSScopeLimitCredentialProvider trackedSTSScopeLimitCredentialProvider;
     SkewedSessionCredentialProvider skewedSessionCredentialProvider;
@@ -146,8 +144,8 @@ public class STSUnitTest {
                 TestConst.PERSIST_BUCKET_REGION
         );
 
-        scopeService = new CosXmlService(context, cosXmlServiceConfig, trackedSTSScopeLimitCredentialProvider);
-        skewwdService = new CosXmlService(context, cosXmlServiceConfig, skewedSessionCredentialProvider);
+        scopeService = new CosXmlSimpleService(context, cosXmlServiceConfig, trackedSTSScopeLimitCredentialProvider);
+        skewwdService = new CosXmlSimpleService(context, cosXmlServiceConfig, skewedSessionCredentialProvider);
     }
 
     // @Test
@@ -156,23 +154,23 @@ public class STSUnitTest {
      * 服务器时间和本地时间差值很小，不太好测试
      */
     public void testClockSkewed() throws QCloudClientException, QCloudServiceException {
-        GetBucketRequest getBucketRequest = new GetBucketRequest(TestConst.PERSIST_BUCKET);
+        HeadObjectRequest headObjectRequest = new HeadObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_PIC_PATH);
         HttpTaskMetrics metrics = new HttpTaskMetrics();
-        getBucketRequest.attachMetrics(metrics);
-        GetBucketResult getBucketResult =  skewwdService.getBucket(getBucketRequest);
-        Assert.assertTrue(getBucketResult.httpCode == 200);
+        headObjectRequest.attachMetrics(metrics);
+        HeadObjectResult headObjectResult =  skewwdService.headObject(headObjectRequest);
+        Assert.assertTrue(headObjectResult.httpCode == 200);
         QCloudLogger.i("QCloudHttp", metrics.toString());
     }
 
     @Test
-    public void testGetBucket() throws QCloudClientException, QCloudServiceException {
+    public void testHeadObject() throws QCloudClientException, QCloudServiceException {
         if (!testSTS) {
             return;
         }
 
-        GetBucketRequest getBucketRequest = new GetBucketRequest(TestConst.PERSIST_BUCKET);
-        GetBucketResult getBucketResult =  scopeService.getBucket(getBucketRequest);
-        Assert.assertTrue(getBucketResult.httpCode == 200);
+        HeadObjectRequest headObjectRequest = new HeadObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_PIC_PATH);
+        HeadObjectResult headObjectResult =  scopeService.headObject(headObjectRequest);
+        Assert.assertTrue(headObjectResult.httpCode == 200);
     }
 
     @Test
@@ -188,16 +186,16 @@ public class STSUnitTest {
         Assert.assertTrue(putObjectResult.httpCode == 200);
     }
 
-    @Test
-    public void testGetService() throws QCloudClientException, QCloudServiceException {
-        if (!testSTS) {
-            return;
-        }
-
-        GetServiceRequest getServiceRequest = new GetServiceRequest();
-        GetServiceResult getServiceResult = scopeService.getService(getServiceRequest);
-        Assert.assertTrue(getServiceResult.httpCode == 200);
-    }
+//    @Test
+//    public void testGetService() throws QCloudClientException, QCloudServiceException {
+//        if (!testSTS) {
+//            return;
+//        }
+//
+//        GetServiceRequest getServiceRequest = new GetServiceRequest();
+//        GetServiceResult getServiceResult = scopeService.getService(getServiceRequest);
+//        Assert.assertTrue(getServiceResult.httpCode == 200);
+//    }
 
     @Test
     public void testMultiUpload() throws IOException, InterruptedException {
@@ -249,7 +247,7 @@ public class STSUnitTest {
         testMultiUpload();
         testPutObject();
         testMultiUpload();
-        testGetBucket();
+        testHeadObject();
         if(testSTS){
             Assert.assertEquals(trackedSTSScopeLimitCredentialProvider.getFetchNewCount(), 3);
         }else {

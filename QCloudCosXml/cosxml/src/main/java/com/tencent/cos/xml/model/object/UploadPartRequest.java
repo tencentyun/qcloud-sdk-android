@@ -169,7 +169,8 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
         }else if(data != null){
             return RequestBodySerializer.bytes(null, data);
         }else if(inputStream != null){
-            return RequestBodySerializer.stream(null, new File(CosXmlSimpleService.appCachePath),
+            // TODO: 2020/12/30 覆盖率 待测
+            return RequestBodySerializer.stream(null, new File(CosXmlSimpleService.appCachePath, String.valueOf(System.currentTimeMillis())),
                     inputStream);
         } else if (uri != null && ContextHolder.getAppContext() != null) {
             return RequestBodySerializer.uri(null, uri, ContextHolder.getAppContext(), fileOffset, fileContentLength);

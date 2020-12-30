@@ -427,34 +427,34 @@ public class CosXmlServiceConfig implements Parcelable {
         return path.toString();
     }
 
-    private boolean isEndWithV4Appid(String bucket) {
+//    private boolean isEndWithV4Appid(String bucket) {
+//
+//        String appid = extractAppidFromBucket(bucket);
+//        return isCosV4Appid(appid);
+//    }
 
-        String appid = extractAppidFromBucket(bucket);
-        return isCosV4Appid(appid);
-    }
+//    private String extractAppidFromBucket(String bucket) {
+//
+//        if (bucket == null || !bucket.contains("-") || bucket.endsWith("-")) {
+//            return "";
+//        }
+//        int index = bucket.lastIndexOf("-");
+//        return bucket.substring(index + 1);
+//    }
 
-    private String extractAppidFromBucket(String bucket) {
-
-        if (bucket == null || !bucket.contains("-") || bucket.endsWith("-")) {
-            return "";
-        }
-        int index = bucket.lastIndexOf("-");
-        return bucket.substring(index + 1);
-    }
-
-    private boolean isCosV4Appid(String appid) {
-
-        if( appid == null || appid.length() != 8 || !appid.startsWith("100")) {
-            return false;
-        }
-
-        try {
-            Long.valueOf(appid);
-        } catch (NumberFormatException exception) {
-            return false;
-        }
-        return true;
-    }
+//    private boolean isCosV4Appid(String appid) {
+//
+//        if( appid == null || appid.length() != 8 || !appid.startsWith("100")) {
+//            return false;
+//        }
+//
+//        try {
+//            Long.valueOf(appid);
+//        } catch (NumberFormatException exception) {
+//            return false;
+//        }
+//        return true;
+//    }
 
     public boolean isDebuggable() {
         return isDebuggable;

@@ -26,14 +26,14 @@ import android.content.Context;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
-import com.tencent.cos.xml.model.service.GetServiceRequest;
-import com.tencent.cos.xml.model.service.GetServiceResult;
+import com.tencent.cos.xml.model.object.HeadObjectRequest;
+import com.tencent.cos.xml.model.object.HeadObjectResult;
 import com.tencent.qcloud.core.auth.SessionCredentialProvider;
 import com.tencent.qcloud.core.http.HttpRequest;
 
@@ -70,9 +70,9 @@ public class SessionCredentialProviderTest {
             e.printStackTrace();
         }
 
-        CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig, sts2Provider);
+        CosXmlSimpleService cosXmlService = new CosXmlSimpleService(context, cosXmlServiceConfig, sts2Provider);
         try {
-            GetServiceResult getServiceResult = cosXmlService.getService(new GetServiceRequest());
+            HeadObjectResult headObjectResult = cosXmlService.headObject(new HeadObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_PIC_PATH));
             System.out.println("xx");
         } catch (CosXmlClientException e) {
             e.printStackTrace();
@@ -100,9 +100,9 @@ public class SessionCredentialProviderTest {
             e.printStackTrace();
         }
 
-        CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig, sts2Provider);
+        CosXmlSimpleService cosXmlService = new CosXmlSimpleService(context, cosXmlServiceConfig, sts2Provider);
         try {
-            GetServiceResult getServiceResult = cosXmlService.getService(new GetServiceRequest());
+            HeadObjectResult headObjectResult = cosXmlService.headObject(new HeadObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_PIC_PATH));
             System.out.println("xx");
         } catch (CosXmlClientException e) {
             e.printStackTrace();

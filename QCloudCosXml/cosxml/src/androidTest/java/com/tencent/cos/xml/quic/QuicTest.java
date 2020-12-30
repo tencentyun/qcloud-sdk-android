@@ -25,9 +25,9 @@ package com.tencent.cos.xml.quic;
 import android.net.Uri;
 import android.util.Log;
 
-import com.tencent.cos.xml.CosXmlService;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestLocker;
@@ -47,8 +47,6 @@ import com.tencent.cos.xml.transfer.TransferManager;
 import com.tencent.cos.xml.transfer.TransferState;
 import com.tencent.cos.xml.transfer.TransferStateListener;
 
-import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -241,7 +239,7 @@ public class QuicTest {
             return;
         }
 
-        CosXmlService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
         HeadObjectRequest headObjectRequest = new HeadObjectRequest(TestConst.QUIC_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
         try {
             cosXmlService.headObject(headObjectRequest);

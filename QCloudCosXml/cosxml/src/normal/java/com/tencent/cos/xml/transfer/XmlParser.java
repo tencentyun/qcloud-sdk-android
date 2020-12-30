@@ -28,12 +28,10 @@ import com.tencent.cos.xml.model.tag.AccelerateConfiguration;
 import com.tencent.cos.xml.model.tag.AccessControlPolicy;
 import com.tencent.cos.xml.model.tag.BucketLoggingStatus;
 import com.tencent.cos.xml.model.tag.CORSConfiguration;
-import com.tencent.cos.xml.model.tag.CopyPart;
 import com.tencent.cos.xml.model.tag.DeleteResult;
 import com.tencent.cos.xml.model.tag.DomainConfiguration;
 import com.tencent.cos.xml.model.tag.InventoryConfiguration;
 import com.tencent.cos.xml.model.tag.LifecycleConfiguration;
-import com.tencent.cos.xml.model.tag.ListAllMyBuckets;
 import com.tencent.cos.xml.model.tag.ListBucket;
 import com.tencent.cos.xml.model.tag.ListBucketVersions;
 import com.tencent.cos.xml.model.tag.ListInventoryConfiguration;
@@ -44,9 +42,6 @@ import com.tencent.cos.xml.model.tag.ReplicationConfiguration;
 import com.tencent.cos.xml.model.tag.Tagging;
 import com.tencent.cos.xml.model.tag.VersioningConfiguration;
 import com.tencent.cos.xml.model.tag.WebsiteConfiguration;
-import com.tencent.cos.xml.model.tag.pic.PicObject;
-import com.tencent.cos.xml.model.tag.pic.PicOriginalInfo;
-import com.tencent.cos.xml.model.tag.pic.PicUploadResult;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -64,66 +59,6 @@ import java.util.List;
  */
 
 public class XmlParser extends XmlSlimParser {
-    /**
-     * 解析 GETService结果的所有信息
-     * @param inputStream xml输入流
-     * @param result GET Service 结果的所有信息
-     * @throws XmlPullParserException xml解析异常
-     * @throws IOException IO异常
-     */
-    public static void parseListAllMyBucketsResult(InputStream inputStream, ListAllMyBuckets result) throws XmlPullParserException, IOException {
-        XmlPullParser xmlPullParser =  Xml.newPullParser();
-        xmlPullParser.setInput(inputStream, "UTF-8");
-        int eventType = xmlPullParser.getEventType();
-        String tagName;
-        ListAllMyBuckets.Bucket bucket = null;
-        while (eventType != XmlPullParser.END_DOCUMENT){
-            switch (eventType){
-                /**xml document start*/
-                case XmlPullParser.START_DOCUMENT:
-                    break;
-                /**xml tag start*/
-                case XmlPullParser.START_TAG:
-                    tagName = xmlPullParser.getName();
-                    if(tagName.equalsIgnoreCase("Owner")){
-                        result.owner = new ListAllMyBuckets.Owner();
-                    }else if(tagName.equalsIgnoreCase("ID") ){
-                        xmlPullParser.next();
-                        result.owner.id = xmlPullParser.getText();
-                    }else if(tagName.equalsIgnoreCase("DisplayName")){
-                        xmlPullParser.next();
-                        result.owner.disPlayName = xmlPullParser.getText();
-                    }else if(tagName.equalsIgnoreCase("Buckets")){
-                        result.buckets = new ArrayList<ListAllMyBuckets.Bucket>();
-                    }else if(tagName.equalsIgnoreCase("Bucket")){
-                        bucket = new ListAllMyBuckets.Bucket();
-                    }else if(tagName.equalsIgnoreCase("Name")){
-                        xmlPullParser.next();
-                        bucket.name = xmlPullParser.getText();
-                    }else if(tagName.equalsIgnoreCase("Type")){
-                        xmlPullParser.next();
-                        bucket.type = xmlPullParser.getText();
-                    }else if(tagName.equalsIgnoreCase("Location")){
-                        xmlPullParser.next();
-                        bucket.location = xmlPullParser.getText();
-                    }else if(tagName.equalsIgnoreCase("CreationDate")){
-                        xmlPullParser.next();
-                        bucket.createDate = xmlPullParser.getText();
-                    }
-                    break;
-                /**xml tag end*/
-                case XmlPullParser.END_TAG:
-                    tagName = xmlPullParser.getName();
-                    if(tagName.equalsIgnoreCase("Bucket")){
-                        result.buckets.add(bucket);
-                        bucket = null;
-                    }
-                    break;
-            }
-            eventType = xmlPullParser.next();
-        }
-    }
-
     /**
      * 解析 BucketObjectVersions结果信息
      * @param inputStream xml输入流
@@ -998,35 +933,6 @@ public class XmlParser extends XmlSlimParser {
     }
 
     /**
-     * 解析 分块复制结果
-     * @param inputStream xml输入流
-     * @param result 分块复制结果
-     * @throws XmlPullParserException xml解析异常
-     * @throws IOException IO异常
-     */
-    public static void parseCopyPartResult(InputStream inputStream, CopyPart result) throws XmlPullParserException, IOException {
-        XmlPullParser xmlPullParser =  Xml.newPullParser();
-        xmlPullParser.setInput(inputStream, "UTF-8");
-        int eventType = xmlPullParser.getEventType();
-        String tagName;
-        while (eventType != XmlPullParser.END_DOCUMENT){
-            switch (eventType){
-                case XmlPullParser.START_TAG:
-                    tagName = xmlPullParser.getName();
-                    if(tagName.equalsIgnoreCase("ETag")){
-                        xmlPullParser.next();
-                        result.eTag = xmlPullParser.getText();
-                    }else if(tagName.equalsIgnoreCase("LastModified")){
-                        xmlPullParser.next();
-                        result.lastModified = xmlPullParser.getText();
-                    }
-                    break;
-            }
-            eventType = xmlPullParser.next();
-        }
-    }
-
-    /**
      * 解析 GET Bucket Object versions 结果
      * @param inputStream xml输入流
      * @param result GET Bucket Object versions 结果
@@ -1302,7 +1208,7 @@ public class XmlParser extends XmlSlimParser {
                     }
                     break;
             }
-            xmlPullParser.next();
+            eventType = xmlPullParser.next();
         }
     }
 
@@ -1476,82 +1382,6 @@ public class XmlParser extends XmlSlimParser {
             }
             eventType = xmlPullParser.next();
         }
-
-    }
-
-    public static void parsePicUploadResult(InputStream inputStream, PicUploadResult picUploadResult) throws XmlPullParserException, IOException {
-        XmlPullParser xmlPullParser = Xml.newPullParser();
-        xmlPullParser.setInput(inputStream, "UTF-8");
-        int eventType = xmlPullParser.getEventType();
-        String tagName;
-        PicOriginalInfo picOriginalInfo = null;
-        PicObject picObject = null;
-        List<PicObject> picObjects = new LinkedList<>();
-
-        while (eventType != XmlPullParser.END_DOCUMENT) {
-
-            switch (eventType) {
-
-                case XmlPullParser.START_TAG:
-                    tagName = xmlPullParser.getName();
-                    if (tagName.equalsIgnoreCase("OriginalInfo")) {
-                        picOriginalInfo = new PicOriginalInfo();
-                    } else if (tagName.equalsIgnoreCase("Object")) {
-                        picObject = new PicObject();
-
-                    } else if (tagName.equalsIgnoreCase("Key")) {
-                        xmlPullParser.next();
-
-                        if (picOriginalInfo != null && picOriginalInfo.key == null) {
-                            picOriginalInfo.key = xmlPullParser.getText();
-                        } else if (picObject != null && picObject.key == null){
-                            picObject.key = xmlPullParser.getText();
-                        }
-                    } else if (tagName.equalsIgnoreCase("Location")) {
-                        xmlPullParser.next();
-
-                        if (picOriginalInfo != null && picOriginalInfo.location == null) {
-                            picOriginalInfo.location = xmlPullParser.getText();
-                        } else if (picObject != null && picObject.location == null){
-                            picObject.location = xmlPullParser.getText();
-                        }
-                    } else if (tagName.equalsIgnoreCase("Format")) {
-                        xmlPullParser.next();
-
-                        if (picObject != null && picObject.format == null) {
-                            picObject.format = xmlPullParser.getText();
-                        }
-                    } else if (tagName.equalsIgnoreCase("Width")) {
-                        xmlPullParser.next();
-
-                        if (picObject != null) {
-                            picObject.width = Integer.valueOf(xmlPullParser.getText());
-                        }
-                    } else if (tagName.equalsIgnoreCase("Height")) {
-                        xmlPullParser.next();
-
-                        if (picObject != null) {
-                            picObject.height = Integer.valueOf(xmlPullParser.getText());
-                        }
-                    } else if (tagName.equalsIgnoreCase("Size")) {
-                        xmlPullParser.next();
-
-                        if (picObject != null) {
-                            picObject.size = Integer.valueOf(xmlPullParser.getText());
-                        }
-                    } else if (tagName.equalsIgnoreCase("Quality")) {
-                        xmlPullParser.next();
-
-                        if (picObject != null) {
-                            picObject.quality = Integer.valueOf(xmlPullParser.getText());
-                        }
-                    }
-
-//                case XmlPullParser.END_TAG:
-//                    if ()
-            }
-        }
-
 
     }
 }

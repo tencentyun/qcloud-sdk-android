@@ -1,6 +1,6 @@
 package com.tencent.cos.xml.model.object;
 
-import com.tencent.cos.xml.CosXmlService;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
@@ -14,12 +14,12 @@ public class InitMultipartUploadTestAdapter extends RequestTestAdapter<InitMulti
     }
 
     @Override
-    protected InitMultipartUploadResult exeSync(InitMultipartUploadRequest request, CosXmlService cosXmlService) throws CosXmlClientException, CosXmlServiceException {
+    protected InitMultipartUploadResult exeSync(InitMultipartUploadRequest request, CosXmlSimpleService cosXmlService) throws CosXmlClientException, CosXmlServiceException {
         return cosXmlService.initMultipartUpload(request);
     }
 
     @Override
-    protected void exeAsync(InitMultipartUploadRequest request, CosXmlService cosXmlService, CosXmlResultListener resultListener) {
+    protected void exeAsync(InitMultipartUploadRequest request, CosXmlSimpleService cosXmlService, CosXmlResultListener resultListener) {
         cosXmlService.initMultipartUploadAsync(request, resultListener);
     }
 }

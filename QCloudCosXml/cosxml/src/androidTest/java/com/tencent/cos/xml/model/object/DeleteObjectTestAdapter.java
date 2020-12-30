@@ -1,6 +1,6 @@
 package com.tencent.cos.xml.model.object;
 
-import com.tencent.cos.xml.CosXmlService;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
@@ -22,16 +22,18 @@ public class DeleteObjectTestAdapter extends RequestTestAdapter<DeleteObjectRequ
 
     @Override
     protected DeleteObjectRequest newRequestInstance() {
-        return new DeleteObjectRequest(TestConst.PERSIST_BUCKET, cosPath);
+        DeleteObjectRequest request = new DeleteObjectRequest(TestConst.PERSIST_BUCKET, cosPath);
+        request.setVersionId(null);
+        return request;
     }
 
     @Override
-    protected DeleteObjectResult exeSync(DeleteObjectRequest request, CosXmlService cosXmlService) throws CosXmlClientException, CosXmlServiceException {
+    protected DeleteObjectResult exeSync(DeleteObjectRequest request, CosXmlSimpleService cosXmlService) throws CosXmlClientException, CosXmlServiceException {
         return cosXmlService.deleteObject(request);
     }
 
     @Override
-    protected void exeAsync(DeleteObjectRequest request, CosXmlService cosXmlService, CosXmlResultListener resultListener) {
+    protected void exeAsync(DeleteObjectRequest request, CosXmlSimpleService cosXmlService, CosXmlResultListener resultListener) {
         cosXmlService.deleteObjectAsync(request, resultListener);
     }
 }

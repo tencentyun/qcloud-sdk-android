@@ -174,18 +174,18 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
             calculateContentMD5();
             metrics.onCalculateMD5End();
         }
-        QCloudSigner signer = httpRequest.getQCloudSigner();
-        if (signer != null) {
-            metrics.onSignRequestStart();
-            signRequest(signer, (QCloudHttpRequest) httpRequest);
-            metrics.onSignRequestEnd();
-        }
         if (httpRequest.getRequestBody() instanceof ReactiveBody){
             try {
                 ((ReactiveBody) httpRequest.getRequestBody()).prepare();
             } catch (IOException e) {
                 throw new QCloudClientException(e);
             }
+        }
+        QCloudSigner signer = httpRequest.getQCloudSigner();
+        if (signer != null) {
+            metrics.onSignRequestStart();
+            signRequest(signer, (QCloudHttpRequest) httpRequest);
+            metrics.onSignRequestEnd();
         }
         if (httpRequest.getRequestBody() instanceof ProgressBody) {
             ((ProgressBody) httpRequest.getRequestBody()).setProgressListener(mProgressListener);

@@ -1,6 +1,5 @@
 package com.tencent.cos.xml.image;
 
-import android.os.Environment;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -26,7 +25,6 @@ import com.tencent.cos.xml.transfer.COSXMLUploadTask;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

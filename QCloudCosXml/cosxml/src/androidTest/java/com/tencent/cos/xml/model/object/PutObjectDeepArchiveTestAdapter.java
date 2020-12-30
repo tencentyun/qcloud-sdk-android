@@ -1,6 +1,6 @@
 package com.tencent.cos.xml.model.object;
 
-import com.tencent.cos.xml.CosXmlService;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.COSStorageClass;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
@@ -13,10 +13,10 @@ import com.tencent.cos.xml.model.RequestTestAdapter;
 public class PutObjectDeepArchiveTestAdapter extends RequestTestAdapter<PutObjectRequest, PutObjectResult> {
     @Override
     protected PutObjectRequest newRequestInstance() {
-        PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH.concat("_deepArchive"),
+        PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_DEEP_ARCHIVE_OBJECT_PATH,
                 TestUtils.smallFilePath());
         try {
-            putObjectRequest.setRequestHeaders("x-cos-storage-class", COSStorageClass.DEEP_ARCHIVE.getStorageClass(), false);
+            putObjectRequest.setRequestHeaders("x-cos-storage-class", COSStorageClass.ARCHIVE.getStorageClass(), false);
         } catch (CosXmlClientException e) {
             e.printStackTrace();
         }
@@ -24,12 +24,12 @@ public class PutObjectDeepArchiveTestAdapter extends RequestTestAdapter<PutObjec
     }
 
     @Override
-    protected PutObjectResult exeSync(PutObjectRequest request, CosXmlService cosXmlService) throws CosXmlClientException, CosXmlServiceException {
+    protected PutObjectResult exeSync(PutObjectRequest request, CosXmlSimpleService cosXmlService) throws CosXmlClientException, CosXmlServiceException {
         return cosXmlService.putObject(request);
     }
 
     @Override
-    protected void exeAsync(PutObjectRequest request, CosXmlService cosXmlService, CosXmlResultListener resultListener) {
+    protected void exeAsync(PutObjectRequest request, CosXmlSimpleService cosXmlService, CosXmlResultListener resultListener) {
         cosXmlService.putObjectAsync(request, resultListener);
     }
 }

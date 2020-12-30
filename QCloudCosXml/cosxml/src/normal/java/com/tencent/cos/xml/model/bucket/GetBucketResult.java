@@ -35,7 +35,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 /**
- * 删除跨域访问配置信息的返回结果.
+ * 查询存储桶（Bucket) 下的部分或者全部对象的返回结果.
  * @see com.tencent.cos.xml.CosXml#getBucket(GetBucketRequest)
  * @see GetBucketRequest
  */

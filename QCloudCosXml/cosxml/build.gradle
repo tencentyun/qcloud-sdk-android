@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply from: '../version.gradle'
+apply from: 'jacoco.gradle'
 
 def compileQuic() {
     return getGradle().getStartParameter().getTaskRequests()
@@ -44,6 +45,8 @@ android {
             it.buildConfigField 'String', 'QUIC_BUCKET_REGION', quotWrapper(System.getenv("QUIC_BUCKET_REGION"))
             it.buildConfigField 'String', 'QUIC_BUCKET', quotWrapper(System.getenv("QUIC_BUCKET"))
             it.buildConfigField 'String', 'QUIC_TEST_IP', quotWrapper(System.getenv("QUIC_TEST_IP"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_REPLICATION', quotWrapper(System.getenv("PERSIST_BUCKET_REPLICATION"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_REPLICATION_REGION', quotWrapper(System.getenv("PERSIST_BUCKET_REPLICATION_REGION"))
         }
 
         release {
@@ -114,7 +117,7 @@ if (android.defaultPublishConfig.contains("slim")){
     project.extensions.add('artifactProduct', 'normal')
     project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
 }
-
+apply from: '../../publish.gradle'
 
 
 // 发布到内部仓库
@@ -178,4 +181,3 @@ task(printEnvs) {
     println('System envs region are :')
     println(quotWrapper(System.getenv("REGION")))
 }
-

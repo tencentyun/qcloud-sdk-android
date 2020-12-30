@@ -33,7 +33,6 @@ import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.AbortMultiUploadRequest;
 import com.tencent.cos.xml.model.object.AbortMultiUploadResult;
-import com.tencent.cos.xml.model.object.AppendObjectRequest;
 import com.tencent.cos.xml.model.object.BaseMultipartUploadRequest;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadRequest;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadResult;
@@ -385,9 +384,7 @@ public class CosXmlSimpleService implements SimpleCosXml {
 
             cosXmlRequest.setTask(httpTask);
 
-            if (cosXmlRequest instanceof AppendObjectRequest) {
-                httpTask.addProgressListener(((AppendObjectRequest) cosXmlRequest).getProgressListener());
-            } else if (cosXmlRequest instanceof PutObjectRequest) {
+            if (cosXmlRequest instanceof PutObjectRequest) {
                 httpTask.addProgressListener(((PutObjectRequest) cosXmlRequest).getProgressListener());
             } else if (cosXmlRequest instanceof UploadPartRequest) {
                 httpTask.addProgressListener(((UploadPartRequest) cosXmlRequest).getProgressListener());
@@ -443,17 +440,16 @@ public class CosXmlSimpleService implements SimpleCosXml {
             QCloudHttpRequest<T2> httpRequest = buildHttpRequest(cosXmlRequest, cosXmlResult);
 
             HttpTask<T2> httpTask;
-            if (cosXmlRequest instanceof PostObjectRequest) {
-                httpTask = client.resolveRequest(httpRequest, null);
-            } else {
-                httpTask = client.resolveRequest(httpRequest, credentialProvider);
-            }
+//            if (cosXmlRequest instanceof PostObjectRequest) {
+//                httpTask = client.resolveRequest(httpRequest, null);
+//            } else {
+//                httpTask = client.resolveRequest(httpRequest, credentialProvider);
+//            }
+            httpTask = client.resolveRequest(httpRequest, credentialProvider);
 
             cosXmlRequest.setTask(httpTask);
 
-            if (cosXmlRequest instanceof AppendObjectRequest) {
-                httpTask.addProgressListener(((AppendObjectRequest) cosXmlRequest).getProgressListener());
-            } else if (cosXmlRequest instanceof PutObjectRequest) {
+            if (cosXmlRequest instanceof PutObjectRequest) {
                 httpTask.addProgressListener(((PutObjectRequest) cosXmlRequest).getProgressListener());
             } else if (cosXmlRequest instanceof UploadPartRequest) {
                 httpTask.addProgressListener(((UploadPartRequest) cosXmlRequest).getProgressListener());
@@ -924,13 +920,5 @@ public class CosXmlSimpleService implements SimpleCosXml {
             }
         }
         return null;
-    }
-
-    private boolean isRequestHasHeader(CosXmlRequest request, String key) {
-
-        if (request == null || request.getRequestHeaders() == null) {
-            return false;
-        }
-        return request.getRequestHeaders().containsKey(key);
     }
 }

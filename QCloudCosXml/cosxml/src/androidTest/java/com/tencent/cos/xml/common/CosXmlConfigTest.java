@@ -23,22 +23,76 @@
 package com.tencent.cos.xml.common;
 
 import android.net.Uri;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
+import com.tencent.qcloud.core.task.RetryStrategy;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.Executors;
+
+import okhttp3.Request;
+import okhttp3.Response;
+
 @RunWith(AndroidJUnit4.class)
 public class CosXmlConfigTest {
+    @Test
+    public void test() {
+        CosXmlServiceConfig config = new CosXmlServiceConfig.Builder()
+                .setAppidAndRegion("1250000000", "region")
+                .dnsCache(false)
+                .addHeader("testkey", "testvalue")
+                .addNoSignHeaders("testkey")
+                .enableQuic(false)
+                .setBucketInPath(false)
+                .setExecutor(Executors.newFixedThreadPool(3))
+                .setObserveExecutor(Executors.newFixedThreadPool(3))
+                .setPathStyle(false)
+                .setRetryStrategy(RetryStrategy.DEFAULT)
+                .setRetryHandler(new QCloudHttpRetryHandler() {
+                    @Override
+                    public boolean shouldRetry(Request request, Response response, Exception exception) {
+                        return false;
+                    }
+                })
+                .setConnectionTimeout(3000)
+                .setSocketTimeout(5000)
+                .builder();
+
+
+        CosXmlServiceConfig config1 = config.newBuilder().builder();
+
+        Assert.assertEquals(config.getSocketTimeout(), config1.getSocketTimeout());
+
+        String host = config.getHost("bucket-1250000000",false);
+        Assert.assertEquals("bucket-1250000000.cos.region.myqcloud.com", host);
+        String host1 = config.getHost("bucket-1250000000", Region.AP_Beijing.getRegion(),false);
+        Assert.assertEquals("bucket-1250000000.cos.ap-beijing.myqcloud.com", host1);
+        String host2 = config.getHost("bucket-1250000000", Region.AP_Beijing.getRegion(),false, false);
+        Assert.assertEquals("bucket-1250000000.cos.ap-beijing.myqcloud.com", host2);
+        String host3 = config.getHost("bucket-1250000000", Region.AP_Beijing.getRegion(), "1250000000",false, false);
+        Assert.assertEquals("bucket-1250000000.cos.ap-beijing.myqcloud.com", host3);
+        String host4 = config.getHost("bucket-1250000000", Region.AP_Beijing.getRegion(),"1250000000", false);
+        Assert.assertEquals("bucket-1250000000.cos.ap-beijing.myqcloud.com", host4);
+
+        String defaultRequestHost = config.getDefaultRequestHost(Region.AP_Beijing.getRegion(),"bucket-1250000000", "1250000000");
+        Assert.assertEquals("bucket-1250000000.cos.ap-beijing.myqcloud.com", defaultRequestHost);
+
+        String headerHost = config.getHeaderHost(Region.AP_Beijing.getRegion(),"bucket-1250000000");
+        Assert.assertEquals("", headerHost);
+    }
 
     @Test
     public void testIpPortHost() {
 
         CosXmlServiceConfig config = new CosXmlServiceConfig.Builder()
                 .setHost(Uri.parse("https://127.0.0.1:8080"))
+                .setHost("127.0.0.1")
                 .builder();
         Assert.assertEquals(config.getRequestHost("", false),
                 "127.0.0.1");

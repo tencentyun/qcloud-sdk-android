@@ -2432,6 +2432,47 @@ public interface CosXml extends SimpleCosXml {
 
     /**
      * <p>
+     * 更新对象元数据的同步方法。 建议使用{@link CosXml#updateObjectMetaData}
+     * {@link CosXml#updateObjectMeta}：bucketName不含appid，比如：test
+     * {@link CosXml#updateObjectMetaData}：bucketName包含appid，比如：test-1250000000
+     *
+     * </p>
+     * <p>
+     * 基于 {@link SimpleCosXml#copyObject(CopyObjectRequest)} 实现
+     * </p>
+     *
+     * @param bucketName bucket 名称, 如 test
+     * @param objectName 对象在 COS 上的路径，比如 image/me.png
+     * @param metaData 对象元数据
+     * @return 更新对象元数据是否成功
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    @Deprecated
+    boolean updateObjectMeta(String bucketName, String objectName, COSMetaData metaData) throws CosXmlClientException, CosXmlServiceException;
+
+
+    /**
+     * <p>
+     * 更新对象元数据的异步方法。 建议使用{@link CosXml#updateObjectMetaDataAsync}
+     * {@link CosXml#updateObjectMetaAsync}：bucketName不含appid，比如：test
+     * {@link CosXml#updateObjectMetaDataAsync}：bucketName包含appid，比如：test-1250000000
+     *
+     * </p>
+     * <p>
+     * 基于 {@link SimpleCosXml#copyObjectAsync(CopyObjectRequest, CosXmlResultListener)} 实现
+     * </p>
+     *
+     * @param bucketName bucket 名称, 如 test
+     * @param objectName 对象在 COS 上的路径，比如 image/me.png
+     * @param metaData 对象元数据
+     * @param booleanListener 结果回调函数
+     */
+    @Deprecated
+    void updateObjectMetaAsync(String bucketName, String objectName, COSMetaData metaData, final CosXmlBooleanListener booleanListener);
+
+    /**
+     * <p>
      * 更新对象元数据的同步方法。
      * </p>
      * <p>
@@ -2445,7 +2486,7 @@ public interface CosXml extends SimpleCosXml {
      * @throws CosXmlClientException 客户端异常
      * @throws CosXmlServiceException 服务端异常
      */
-    boolean updateObjectMeta(String bucketName, String objectName, COSMetaData metaData) throws CosXmlClientException, CosXmlServiceException;
+    boolean updateObjectMetaData(String bucketName, String objectName, COSMetaData metaData) throws CosXmlClientException, CosXmlServiceException;
 
 
     /**
@@ -2461,6 +2502,6 @@ public interface CosXml extends SimpleCosXml {
      * @param metaData 对象元数据
      * @param booleanListener 结果回调函数
      */
-    void updateObjectMetaAsync(String bucketName, String objectName, COSMetaData metaData, final CosXmlBooleanListener booleanListener);
+    void updateObjectMetaDataAsync(String bucketName, String objectName, COSMetaData metaData, final CosXmlBooleanListener booleanListener);
 
 }
