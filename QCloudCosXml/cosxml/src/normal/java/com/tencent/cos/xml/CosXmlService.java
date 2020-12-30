@@ -1238,12 +1238,15 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
 
     /**
      * <p>
-     * 利用 CopyObjectRequest 来更新对象的 meta。
+     * 更新对象元数据的同步方法。 建议使用{@link CosXmlService#updateObjectMetaData}
+     * {@link CosXmlService#updateObjectMeta}：bucketName不含appid，比如：test
+     * {@link CosXmlService#updateObjectMetaData}：bucketName包含appid，比如：test-1250000000
      * </p>
      *
      * 详细介绍，请查看: {@link CosXml#updateObjectMeta(String, String, COSMetaData)}
      * </p>
      */
+    @Deprecated
     @Override
     public boolean updateObjectMeta(String bucketName, String objectName, COSMetaData metaData) throws CosXmlClientException, CosXmlServiceException{
 
@@ -1261,16 +1264,74 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
 
     /**
      * <p>
-     * 利用 CopyObjectRequest 来更新对象的 meta 的异步方法。
+     * 更新对象元数据的异步方法。 建议使用{@link CosXmlService#updateObjectMetaDataAsync}
+     * {@link CosXmlService#updateObjectMetaAsync}：bucketName不含appid，比如：test
+     * {@link CosXmlService#updateObjectMetaDataAsync}：bucketName包含appid，比如：test-1250000000
      * </p>
      *
      * 详细介绍，请查看: {@link CosXml#updateObjectMetaAsync(String, String, COSMetaData, CosXmlBooleanListener)}
      * </p>
      */
+    @Deprecated
     @Override
     public void updateObjectMetaAsync(String bucketName, String objectName, COSMetaData metaData, final CosXmlBooleanListener booleanListener) {
 
         CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(config.getAppid(),
+                bucketName, config.getRegion(), objectName);
+        CopyObjectRequest copyObjectRequest = null;
+        copyObjectRequest = new CopyObjectRequest(bucketName, objectName, copySourceStruct);
+        copyObjectRequest.setCopyMetaDataDirective(MetaDataDirective.REPLACED);
+        for (String key : metaData.keySet()) {
+            copyObjectRequest.setXCOSMeta(key, metaData.get(key));
+        }
+        copyObjectAsync(copyObjectRequest, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                booleanListener.onSuccess(true);
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
+                booleanListener.onFail(exception, serviceException);
+            }
+        });
+    }
+
+    /**
+     * <p>
+     * 更新对象元数据的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#updateObjectMetaData(String, String, COSMetaData)}
+     * </p>
+     */
+    @Override
+    public boolean updateObjectMetaData(String bucketName, String objectName, COSMetaData metaData) throws CosXmlClientException, CosXmlServiceException{
+
+        CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
+                bucketName, config.getRegion(), objectName);
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(bucketName, objectName, copySourceStruct);
+        copyObjectRequest.setCopyMetaDataDirective(MetaDataDirective.REPLACED);
+        for (String key : metaData.keySet()) {
+            copyObjectRequest.setXCOSMeta(key, metaData.get(key));
+        }
+
+        copyObject(copyObjectRequest);
+        return true;
+    }
+
+    /**
+     * <p>
+     * 更新对象元数据的异步方法
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#updateObjectMetaDataAsync(String, String, COSMetaData, CosXmlBooleanListener)}
+     * </p>
+     */
+    @Override
+    public void updateObjectMetaDataAsync(String bucketName, String objectName, COSMetaData metaData, final CosXmlBooleanListener booleanListener) {
+
+        CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
                 bucketName, config.getRegion(), objectName);
         CopyObjectRequest copyObjectRequest = null;
         copyObjectRequest = new CopyObjectRequest(bucketName, objectName, copySourceStruct);

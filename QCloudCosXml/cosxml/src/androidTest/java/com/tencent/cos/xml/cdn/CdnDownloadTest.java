@@ -3,7 +3,7 @@ package com.tencent.cos.xml.cdn;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.CosXmlService;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestLocker;
@@ -18,18 +18,17 @@ import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.cos.xml.transfer.COSXMLDownloadTask;
 import com.tencent.cos.xml.transfer.TransferManager;
-import com.tencent.cos.xml.transfer.TransferState;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.Semaphore;
 
 /**
  * <p>
@@ -39,8 +38,12 @@ import java.util.concurrent.Semaphore;
 @RunWith(AndroidJUnit4.class)
 public class CdnDownloadTest {
 
-    private boolean testCdn = false;
-    
+    @After
+    public void clearDownloadFiles() {
+        TestUtils.clearDir(new File(TestUtils.localParentPath()));
+    }
+
+
     private String cdnSign(String path, long timestamp, String rand, String key) {
 
         try {
@@ -66,11 +69,7 @@ public class CdnDownloadTest {
     @Test
     public void testHeadObject() {
 
-        if (!testCdn) {
-            return;
-        }
-        
-        CosXmlService cosXmlService = ServiceFactory.INSTANCE.newCDNService();
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newCDNService();
         String path = TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH;
         HeadObjectRequest headObjectRequest = new HeadObjectRequest(TestConst.PERSIST_BUCKET, path);
 
@@ -95,23 +94,17 @@ public class CdnDownloadTest {
 
     @Test public void testGetObject() {
 
-        if (!testCdn) {
-            return;
-        }
-        
-        String bucket = TestConst.PERSIST_BUCKET;
-        String path = TestConst.PERSIST_BUCKET_PIC_PATH;
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newCDNService();
 
-        CosXmlService cosXmlService = ServiceFactory.INSTANCE.newCDNService();
+        String path = TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH;
 
-        String localFilePath = TestUtils.localPath("cdn_download_object");
-        TestUtils.removeLocalFile(localFilePath);
-
-        GetObjectRequest getObjectRequest = new GetObjectRequest(bucket, path, localFilePath);
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                path, TestUtils.localParentPath());
 
         long timestamp = System.currentTimeMillis() / 1000;
         String rand = String.valueOf(new Random(timestamp).nextInt(10000));
         String key = TestConst.PERSIST_BUCKET_CDN_SIGN;
+
 
         Map<String, String> paras = new HashMap<>();
         String sign = cdnSign(path, timestamp, rand, key);
@@ -126,23 +119,15 @@ public class CdnDownloadTest {
         }
 
         Assert.assertTrue(true);
-
     }
 
     @Test public void testTransferManagerDownload() {
 
-        if (!testCdn) {
-            return;
-        }
-        
         String path = TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH;
-
-        String localFilePath = TestUtils.localPath("cdn_download_object");
-        TestUtils.removeLocalFile(localFilePath);
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newCdnTransferManager();
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
-                path, localFilePath);
+                path, TestUtils.localParentPath());
 
         long timestamp = System.currentTimeMillis() / 1000;
         String rand = String.valueOf(new Random(timestamp).nextInt(10000));

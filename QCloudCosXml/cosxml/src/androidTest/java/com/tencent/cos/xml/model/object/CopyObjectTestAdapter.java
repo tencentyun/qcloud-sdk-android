@@ -1,6 +1,6 @@
 package com.tencent.cos.xml.model.object;
 
-import com.tencent.cos.xml.CosXmlService;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.MetaDataDirective;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -29,12 +29,12 @@ public class CopyObjectTestAdapter extends RequestTestAdapter<CopyObjectRequest,
     }
 
     @Override
-    protected CopyObjectResult exeSync(CopyObjectRequest request, CosXmlService cosXmlService) throws CosXmlClientException, CosXmlServiceException {
+    protected CopyObjectResult exeSync(CopyObjectRequest request, CosXmlSimpleService cosXmlService) throws CosXmlClientException, CosXmlServiceException {
         return cosXmlService.copyObject(request);
     }
 
     @Override
-    protected void exeAsync(CopyObjectRequest request, CosXmlService cosXmlService, CosXmlResultListener resultListener) {
+    protected void exeAsync(CopyObjectRequest request, CosXmlSimpleService cosXmlService, CosXmlResultListener resultListener) {
         cosXmlService.copyObjectAsync(request, resultListener);
     }
 }
