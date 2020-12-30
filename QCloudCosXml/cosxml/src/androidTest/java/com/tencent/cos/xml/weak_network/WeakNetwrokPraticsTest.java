@@ -23,14 +23,12 @@
 package com.tencent.cos.xml.weak_network;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import android.util.Log;
-
-import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
@@ -50,8 +48,6 @@ import com.tencent.cos.xml.transfer.TransferState;
 import com.tencent.cos.xml.transfer.TransferStateListener;
 
 import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -79,7 +75,7 @@ public class WeakNetwrokPraticsTest {
         String srcPath = TestUtils.localPath(cosPath);
         TestUtils.createFile(srcPath, 1024 * 1024);
         String bucket = TestConst.PERSIST_BUCKET;
-        CosXmlService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
         String uploadId = null;
         /** 设置分片上传时，分片块的大小 */
         TransferConfig transferConfig = new TransferConfig.Builder()
@@ -142,7 +138,7 @@ public class WeakNetwrokPraticsTest {
         String srcPath = TestUtils.localPath(cosPath);
         TestUtils.createFile(srcPath, 1024 * 1024 * 3);
         String bucket = TestConst.PERSIST_BUCKET;
-        CosXmlService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
         String uploadId = null;
 
 

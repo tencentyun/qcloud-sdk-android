@@ -2,7 +2,7 @@ package com.tencent.cos.xml.model;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.CosXmlService;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestLocker;
 import com.tencent.cos.xml.core.TestUtils;
@@ -17,11 +17,11 @@ import org.junit.Assert;
  * Created by rickenwang on 2020/10/16.
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
-public abstract class RequestTestAdapter<R, S> {
+public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosXmlResult> {
 
     public void testSyncRequest() {
 
-        CosXmlService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
         try {
             S result = exeSync(newRequestInstance(), cosXmlService);
             assertResult(result);
@@ -35,7 +35,7 @@ public abstract class RequestTestAdapter<R, S> {
 
     public void testAsyncRequest() {
 
-        CosXmlService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
         final TestLocker locker = new TestLocker();
 
         final COSResult cosResult = new COSResult();
@@ -60,9 +60,9 @@ public abstract class RequestTestAdapter<R, S> {
 
     protected abstract R newRequestInstance();
 
-    protected abstract S exeSync(R request, CosXmlService cosXmlService) throws CosXmlClientException, CosXmlServiceException;
+    protected abstract S exeSync(R request, CosXmlSimpleService cosXmlService) throws CosXmlClientException, CosXmlServiceException;
 
-    protected abstract void exeAsync(R request, CosXmlService cosXmlService, CosXmlResultListener resultListener);
+    protected abstract void exeAsync(R request, CosXmlSimpleService cosXmlService, CosXmlResultListener resultListener);
 
     private void assertCOSResult(COSResult cosResult) {
 
@@ -74,6 +74,8 @@ public abstract class RequestTestAdapter<R, S> {
     }
 
     protected void assertResult(S result) {
+        result.printResult();
+        TestUtils.parseBadResponseBody(result);
 
         Assert.assertTrue(result != null);
     }
@@ -81,7 +83,7 @@ public abstract class RequestTestAdapter<R, S> {
     protected void assertException(@Nullable CosXmlClientException clientException,
                                    @Nullable CosXmlServiceException serviceException) {
 
-        Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+        Assert.fail(TestUtils.getCosExceptionMessage(this.getClass().getSimpleName(), clientException, serviceException));
     }
 
     static class COSResult {

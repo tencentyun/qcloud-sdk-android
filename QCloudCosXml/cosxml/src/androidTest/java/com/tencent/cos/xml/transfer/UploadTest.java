@@ -40,12 +40,10 @@ import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -55,18 +53,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RunWith(AndroidJUnit4.class)
 public class UploadTest {
 
+    private final String UPLOAD_FOLDER="/upload/";
+
     @Test public void testUploadSmallFileByPath() {
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
         PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH, TestUtils.smallFilePath());
 
-        COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
+        final COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
+        uploadTask.setCosXmlService(ServiceFactory.INSTANCE.newDefaultService());
         final TestLocker testLocker = new TestLocker();
         uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                result.printResult();
+                TestUtils.parseBadResponseBody(result);
                 testLocker.release();
+                uploadTask.clearResultAndException();
             }
 
             @Override
@@ -78,6 +82,35 @@ public class UploadTest {
 
         testLocker.lock();
         TestUtils.assertCOSXMLTaskSuccess(uploadTask);
+    }
+
+    @Test public void testFailUploadSmallFileByPath() {
+
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+        PutObjectRequest putObjectRequest = new PutObjectRequest("notexist"+TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH, TestUtils.smallFilePath()+"notexist");
+
+        final COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
+        uploadTask.setCosXmlService(ServiceFactory.INSTANCE.newDefaultService());
+        final TestLocker testLocker = new TestLocker();
+        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                result.printResult();
+                TestUtils.parseBadResponseBody(result);
+                testLocker.release();
+
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+                Assert.assertTrue(true);
+            }
+        });
+
+        testLocker.lock();
     }
 
 
@@ -235,7 +268,7 @@ public class UploadTest {
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
         final TestLocker testLocker = new TestLocker();
-        String cosPath = "uploadTask_pause" + System.currentTimeMillis();
+        String cosPath = UPLOAD_FOLDER+"uploadTask_pause" + System.currentTimeMillis();
         final String srcPath = TestUtils.bigFilePath();
         final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, cosPath, srcPath, null);
         TestUtils.sleep(2000);
@@ -251,7 +284,7 @@ public class UploadTest {
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
         final TestLocker testLocker = new TestLocker();
-        String cosPath = "uploadTask_pause" + System.currentTimeMillis();
+        String cosPath = UPLOAD_FOLDER+"uploadTask_pause" + System.currentTimeMillis();
         final String srcPath = TestUtils.bigFilePath();
         final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, cosPath, srcPath, null);
         TestUtils.sleep(2000);
@@ -273,7 +306,7 @@ public class UploadTest {
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
 
         final TestLocker uploadLocker = new TestLocker();
-        String cosPath = "uploadTask_resume" + System.currentTimeMillis();
+        String cosPath = UPLOAD_FOLDER+"uploadTask_resume" + System.currentTimeMillis();
         final String srcPath = TestUtils.bigFilePath();
         final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, cosPath, srcPath, null);
 

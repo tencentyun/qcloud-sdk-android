@@ -35,17 +35,13 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
-import com.tencent.cos.xml.utils.StringUtils;
 
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -83,6 +79,53 @@ public class DownloadTest {
 
         testLocker.lock();
         TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+    }
+
+    @Test public void testFailSmallDownload() {
+
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+"notexist",
+                TestUtils.localParentPath());
+        COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+                getObjectRequest);
+
+        final TestLocker testLocker = new TestLocker();
+        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+                Assert.assertTrue(true);
+            }
+        });
+
+        testLocker.lock();
+
+        COSXMLDownloadTask downloadTask1 = transferManager.download(TestUtils.getContext(),
+                TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                TestUtils.localParentPath()+"notexist");
+        downloadTask1.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+                Assert.assertTrue(true);
+            }
+        });
+        testLocker.lock();
     }
 
     @Test public void testBigDownload() {

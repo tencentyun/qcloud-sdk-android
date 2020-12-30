@@ -29,7 +29,7 @@ import com.tencent.qcloud.core.http.RequestBodySerializer;
 import java.util.Map;
 
 /**
- * 删除跨域访问配置信息的请求.
+ * 查询存储桶（Bucket) 下的部分或者全部对象的请求.
  * @see com.tencent.cos.xml.CosXml#getBucket(GetBucketRequest)
  * @see com.tencent.cos.xml.CosXml#getBucketAsync(GetBucketRequest, CosXmlResultListener)
  */
