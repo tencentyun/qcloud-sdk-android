@@ -15,7 +15,7 @@ public class CopyObjectTestAdapter extends RequestTestAdapter<CopyObjectRequest,
     protected CopyObjectRequest newRequestInstance() {
         CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
                 TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
-        String copyObjectCosPath = TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH.concat("_copy_" + System.currentTimeMillis());
+        String copyObjectCosPath = "/copy/"+"small_object_copy_" + System.currentTimeMillis();
         CopyObjectRequest copyObjectRequest = new CopyObjectRequest(TestConst.PERSIST_BUCKET,
                 copyObjectCosPath, copySourceStruct);
 
