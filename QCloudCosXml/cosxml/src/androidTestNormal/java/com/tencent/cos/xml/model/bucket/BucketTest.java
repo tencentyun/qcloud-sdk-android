@@ -25,7 +25,10 @@ public class BucketTest {
             new GetBucketVersionsTestAdapter(),
             new ListMultiUploadsTestAdapter(),
 
-            new PutBucketVersioningTestAdapter(), new GetBucketVersioningTestAdapter(),
+            new PutBucketVersioningTestAdapter(true), new GetBucketVersioningTestAdapter(),
+            new PutBucketReplicationTestAdapter(), new GetBucketReplicationTestAdapter(), new DeleteBucketReplicationTestAdapter(),
+            new PutBucketVersioningTestAdapter(false),
+
             new PutBucketInventoryTestAdapter(), new GetBucketInventoryTestAdapter(),
             new ListBucketInventoryTestAdapter(), new DeleteBucketInventoryTestAdapter(),
             new PutBucketDomainTestAdapter(), new GetBucketDomainTestAdapter(),
@@ -33,7 +36,6 @@ public class BucketTest {
             new PutBucketAccelerateTestAdapter(), new GetBucketAccelerateTestAdapter(),
             new PutBucketWebsiteTestAdapter(), new GetBucketWebsiteTestAdapter(), new DeleteBucketWebsiteTestAdapter(),
             new PutBucketLifecycleTestAdapter(), new GetBucketLifecycleTestAdapter(), new DeleteBucketLifecycleTestAdapter(),
-            new PutBucketReplicationTestAdapter(), new GetBucketReplicationTestAdapter(), new DeleteBucketReplicationTestAdapter(),
     };
 
     @Test public void testAsync() {
