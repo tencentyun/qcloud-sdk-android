@@ -223,7 +223,7 @@ public class UploadTest {
         final StringBuilder errorMessage = new StringBuilder();
         for (int i = 0 ; i < fileCount; i++) {
 
-            String cosPath = "uploadTask_cancel" + i;
+            String cosPath = UPLOAD_FOLDER+"uploadTask_cancel" + i;
             final String srcPath = TestUtils.localPath("upload" + i);
             TestUtils.createFile(srcPath, 10 * 1024 * 1024);
             final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, cosPath, srcPath, null);

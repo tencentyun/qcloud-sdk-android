@@ -26,7 +26,7 @@ public class TestConst {
     public static final String PERSIST_BUCKET_DOCUMENT_PATH = "/do_not_remove/document.docx";
     public static final String PERSIST_BUCKET_POST_OBJECT_PATH = "/do_not_remove/post_object";
     public static final String PERSIST_BUCKET_COPY_OBJECT_DST_PATH = "/do_not_remove/copy_dst_object";
-    public static final String PERSIST_BUCKET_DEEP_ARCHIVE_OBJECT_PATH = "/do_not_remove/small_object_deepArchive";
+    public static final String PERSIST_BUCKET_DEEP_ARCHIVE_OBJECT_PATH = "/do_not_remove/small_object_archive";
     public static final String PERSIST_BUCKET_REPLICATION = BuildConfig.PERSIST_BUCKET_REPLICATION;
     public static final String PERSIST_BUCKET_REPLICATION_REGION = BuildConfig.PERSIST_BUCKET_REPLICATION_REGION;
 

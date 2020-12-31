@@ -21,7 +21,7 @@ public class PutBucketLifecycleTestAdapter extends NormalRequestTestAdapter<PutB
         LifecycleConfiguration.Rule rule = new LifecycleConfiguration.Rule();
         rule.id = "lifecycle_" + new Random(System.currentTimeMillis()).nextInt();
         LifecycleConfiguration.Filter filter = new LifecycleConfiguration.Filter();
-        filter.prefix = "copy/";
+        filter.prefix = "do_not_remove_test/";
         rule.filter = filter;
         rule.status = "Enabled";
         rule.transition = new LifecycleConfiguration.Transition();
