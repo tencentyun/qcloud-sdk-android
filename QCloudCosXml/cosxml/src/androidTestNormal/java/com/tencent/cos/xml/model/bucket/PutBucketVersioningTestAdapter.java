@@ -9,10 +9,16 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.NormalRequestTestAdapter;
 
 public class PutBucketVersioningTestAdapter extends NormalRequestTestAdapter<PutBucketVersioningRequest, PutBucketVersioningResult> {
+    private boolean isEnable;
+
+    public PutBucketVersioningTestAdapter(boolean isEnable){
+        this.isEnable = isEnable;
+    }
+
     @Override
     protected PutBucketVersioningRequest newRequestInstance() {
         PutBucketVersioningRequest request = new PutBucketVersioningRequest(TestConst.PERSIST_BUCKET);
-        request.setEnableVersion(true);
+        request.setEnableVersion(this.isEnable);
         return request;
     }
 
