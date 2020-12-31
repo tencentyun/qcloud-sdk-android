@@ -12,7 +12,7 @@ public class GetBucketVersionsTestAdapter extends NormalRequestTestAdapter<ListB
     @Override
     protected ListBucketVersionsRequest newRequestInstance() {
         ListBucketVersionsRequest request = new ListBucketVersionsRequest(TestConst.PERSIST_BUCKET);
-        request.setPrefix("copy/");
+        request.setPrefix("do_not_remove_test/");
         request.setKeyMarker(null);
         request.setVersionIdMarker(null);
         request.setDelimiter("/");
