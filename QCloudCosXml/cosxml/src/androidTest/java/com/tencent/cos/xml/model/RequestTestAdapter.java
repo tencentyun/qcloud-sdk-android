@@ -19,16 +19,38 @@ import org.junit.Assert;
  */
 public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosXmlResult> {
 
+    private int retry = 3;
+    private void recoveryRetry(){
+        retry = 3;
+    }
+
     public void testSyncRequest() {
 
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
         try {
             S result = exeSync(newRequestInstance(), cosXmlService);
+            recoveryRetry();
             assertResult(result);
         } catch (CosXmlClientException clientException) {
-            assertException(clientException, null);
+            if(retry > 0) {
+                TestUtils.sleep(600);
+                retry--;
+                testSyncRequest();
+            } else {
+                recoveryRetry();
+                assertException(clientException, null);
+            }
         } catch (CosXmlServiceException serviceException) {
-            assertException(null, serviceException);
+            if(retry > 0) {
+                TestUtils.sleep(600);
+                retry--;
+                testSyncRequest();
+            } else {
+                recoveryRetry();
+                assertException(null, serviceException);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -55,7 +77,20 @@ public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosX
             }
         });
         locker.lock();
-        assertCOSResult(cosResult);
+
+        if (cosResult.result != null) {
+            recoveryRetry();
+            assertResult((S) cosResult.result);
+        } else {
+            if(retry > 0) {
+                TestUtils.sleep(600);
+                retry--;
+                testAsyncRequest();
+            } else {
+                recoveryRetry();
+                assertException(cosResult.clientException, cosResult.serviceException);
+            }
+        }
     }
 
     protected abstract R newRequestInstance();
@@ -63,15 +98,6 @@ public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosX
     protected abstract S exeSync(R request, CosXmlSimpleService cosXmlService) throws CosXmlClientException, CosXmlServiceException;
 
     protected abstract void exeAsync(R request, CosXmlSimpleService cosXmlService, CosXmlResultListener resultListener);
-
-    private void assertCOSResult(COSResult cosResult) {
-
-        if (cosResult.result != null) {
-            assertResult((S) cosResult.result);
-        } else {
-            assertException(cosResult.clientException, cosResult.serviceException);
-        }
-    }
 
     protected void assertResult(S result) {
         result.printResult();

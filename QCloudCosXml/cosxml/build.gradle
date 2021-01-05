@@ -16,8 +16,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 50508
-        versionName "5.5.8"
+        versionCode 50509
+        versionName "5.5.9"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -117,7 +117,7 @@ if (android.defaultPublishConfig.contains("slim")){
     project.extensions.add('artifactProduct', 'normal')
     project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
 }
-apply from: '../../publish.gradle'
+
 
 
 // 发布到内部仓库

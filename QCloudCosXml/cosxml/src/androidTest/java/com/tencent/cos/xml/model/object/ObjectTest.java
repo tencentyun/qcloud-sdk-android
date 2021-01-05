@@ -20,18 +20,16 @@ public class ObjectTest {
      * 简单测试
      */
     private RequestTestAdapter[] simpleTestAdapters = new RequestTestAdapter[] {
-            // TODO: 2020/12/30 覆盖率 单独执行可以 整体跑会失败 method POST must have a request body.
-//            new PostObjectTestAdapter.PostObjectStreamTestAdapter(),
             new PostObjectTestAdapter.PostObjectByteTestAdapter(),
             new PostObjectTestAdapter.PostObjectSrcPathTestAdapter(),
+            new PostObjectTestAdapter.PostObjectStreamTestAdapter(),
 
             new PutObjectTestAdapter.PutObjectSrcPathTestAdapter(),
             new PutObjectTestAdapter.PutObjectByteTestAdapter(),
             new PutObjectTestAdapter.PutObjectSbTestAdapter(),
             new PutObjectTestAdapter.PutObjectInputStreamTestAdapter(),
-//            // TODO: 2020/12/25 jordanqin 覆盖率 URL类型的会出错
-////            new PutObjectTestAdapter.PutObjectUrlTestAdapter(),
-//
+            new PutObjectTestAdapter.PutObjectUrlTestAdapter(),
+
             new GetObjectTestAdapter(),
             new PutObjectDeepArchiveTestAdapter(),
             new HeadObjectTestAdapter(),
@@ -40,8 +38,6 @@ public class ObjectTest {
 
             // 上传小文件供之后使用
             new PutObjectTestAdapter.PutObjectSrcPathTestAdapter(),
-
-//            new GetObjectTestAdapter(),
     };
 
     /**

@@ -1,0 +1,53 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:23:1-36:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:23:1-36:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:23:1-36:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:23:1-36:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:23:1-36:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:23:1-36:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:23:1-36:12
+	package
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:25:5-42
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:23:1-36:12
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+	xmlns:tools
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:24:5-51
+	android:versionCode
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:23:1-36:12
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:23:11-69
+application
+ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:26:5-35:19
+meta-data#TA_APPKEY
+ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:28:9-30:35
+	tools:node
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:30:13-32
+	android:name
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:29:13-37
+meta-data#InstallChannel
+ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:32:9-34:35
+	tools:node
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:34:13-32
+	android:name
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml:33:13-42
+uses-sdk
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/mtaUtils/src/main/AndroidManifest.xml

@@ -244,7 +244,7 @@ public class SimpleOtherObjectTest {
         completeMultiUploadRequest.setPartNumberAndETag(1, uploadPartResult1.eTag);
         Map<Integer,String> partNumberAndETag = new HashMap<>();
         partNumberAndETag.put(2, uploadPartResult2.eTag);
-        // TODO: 2020/12/30 覆盖率 只要完成分片3 就会失败 错误码：-283，分片过小
+        // 覆盖率 只要完成分片3 就会失败 错误码：-283，分片过小
 //        partNumberAndETag.put(3, uploadPartResult3.eTag);
         completeMultiUploadRequest.setPartNumberAndETag(partNumberAndETag);
         Assert.assertNotNull(completeMultiUploadRequest.getCompleteMultipartUpload());
