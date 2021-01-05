@@ -35,7 +35,6 @@ public class PreviewDocumentTestAdapter extends NormalRequestTestAdapter<Preview
     protected void assertResult(PreviewDocumentResult result) {
         super.assertResult(result);
         Assert.assertTrue(result.getTotalPage()>0);
-        // TODO: 2020/12/29 jordanqin 覆盖率
         result.getContentType();
 //        Assert.assertNotNull(result.getContentType());
         Assert.assertNull(result.getErrNo());

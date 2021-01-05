@@ -18,17 +18,37 @@ import org.junit.Assert;
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
 public abstract class NormalRequestTestAdapter<R extends CosXmlRequest, S extends CosXmlResult> {
+    private int retry = 3;
+
+    private void recoveryRetry(){
+        retry = 3;
+    }
 
     public void testSyncRequest() {
 
         CosXmlService cosXmlService = NormalServiceFactory.INSTANCE.newDefaultService();
         try {
             S result = exeSync(newRequestInstance(), cosXmlService);
+            recoveryRetry();
             assertResult(result);
         } catch (CosXmlClientException clientException) {
-            assertException(clientException, null);
+            if(retry > 0) {
+                TestUtils.sleep(600);
+                retry--;
+                testSyncRequest();
+            } else {
+                recoveryRetry();
+                assertException(clientException, null);
+            }
         } catch (CosXmlServiceException serviceException) {
-            assertException(null, serviceException);
+            if(retry > 0) {
+                TestUtils.sleep(600);
+                retry--;
+                testSyncRequest();
+            } else {
+                recoveryRetry();
+                assertException(null, serviceException);
+            }
         }
     }
 
@@ -55,7 +75,20 @@ public abstract class NormalRequestTestAdapter<R extends CosXmlRequest, S extend
             }
         });
         locker.lock();
-        assertCOSResult(cosResult);
+
+        if (cosResult.result != null) {
+            recoveryRetry();
+            assertResult((S) cosResult.result);
+        } else {
+            if(retry > 0) {
+                TestUtils.sleep(600);
+                retry--;
+                testAsyncRequest();
+            } else {
+                recoveryRetry();
+                assertException(cosResult.clientException, cosResult.serviceException);
+            }
+        }
     }
 
     protected abstract R newRequestInstance();
@@ -63,15 +96,6 @@ public abstract class NormalRequestTestAdapter<R extends CosXmlRequest, S extend
     protected abstract S exeSync(R request, CosXmlService cosXmlService) throws CosXmlClientException, CosXmlServiceException;
 
     protected abstract void exeAsync(R request, CosXmlService cosXmlService, CosXmlResultListener resultListener);
-
-    private void assertCOSResult(COSResult cosResult) {
-
-        if (cosResult.result != null) {
-            assertResult((S) cosResult.result);
-        } else {
-            assertException(cosResult.clientException, cosResult.serviceException);
-        }
-    }
 
     protected void assertResult(S result) {
         result.printResult();

@@ -51,7 +51,6 @@ public class CopyTest {
         request.setXCOSACL(COSACL.DEFAULT);
 
         request.setCopyIfModifiedSince("Wed, 21 Oct 2009 07:28:00 GMT");
-        // TODO: 2020/12/30 覆盖率
 //        request.setCopyIfUnmodifiedSince("Wed, 21 Oct 2052 07:28:00 GMT");
         request.setCopyIfMatch(null);
         request.setCopyIfNoneMatch("none_match_etag");
@@ -108,6 +107,7 @@ public class CopyTest {
         testLocker.lock();
     }
 
+    private int retry = 3;
     @Test
     public void testCopyBigObject() {
         final TestLocker testLocker = new TestLocker();
@@ -132,7 +132,19 @@ public class CopyTest {
             }
         });
         testLocker.lock();
-        TestUtils.assertCOSXMLTaskSuccess(cosxmlCopyTask);
+
+        //重试三次 有些时候会出现QCloudClientException: com.tencent.qcloud.core.common.QCloudAuthenticationException: Credentials is null.
+        if(cosxmlCopyTask.getTaskState() != TransferState.COMPLETED){
+            if(retry > 0) {
+                TestUtils.sleep(600);
+                retry--;
+                testCopyBigObject();
+            } else {
+                TestUtils.assertCOSXMLTaskSuccess(cosxmlCopyTask);
+            }
+        } else {
+            Assert.assertTrue(true);
+        }
     }
 
 

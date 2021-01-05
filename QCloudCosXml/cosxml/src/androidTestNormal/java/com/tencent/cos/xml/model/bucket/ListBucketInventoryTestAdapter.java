@@ -12,7 +12,6 @@ public class ListBucketInventoryTestAdapter extends NormalRequestTestAdapter<Lis
     @Override
     protected ListBucketInventoryRequest newRequestInstance() {
         ListBucketInventoryRequest request = new ListBucketInventoryRequest(TestConst.PERSIST_BUCKET);
-        // TODO: 2020/12/30 覆盖率  缺省值：None貌似不对  设置为none后获取不到清单
         request.setContinuationToken("");
         return request;
     }
