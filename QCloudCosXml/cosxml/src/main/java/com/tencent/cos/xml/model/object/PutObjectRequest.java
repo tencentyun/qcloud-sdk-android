@@ -123,6 +123,7 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
     public PutObjectRequest(String bucket, String cosPath, URL url) {
         this(bucket, cosPath);
         this.url = url;
+        setNeedMD5(false);
     }
 
     @Override
@@ -153,7 +154,7 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
     @Override
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
-        if(srcPath == null && data == null && inputStream == null && strData == null && uri == null){
+        if(srcPath == null && data == null && inputStream == null && strData == null && uri == null && url == null){
             throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "Data Source must not be null");
         }
         if(srcPath != null){
