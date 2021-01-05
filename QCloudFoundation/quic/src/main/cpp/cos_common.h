@@ -70,7 +70,7 @@ private:
     JNIEnvPtr(const JNIEnvPtr&) = delete;
     JNIEnvPtr& operator=(const JNIEnvPtr&) = delete;
 public:
-    JNIEnvPtr(JavaVM *m_vm):m_env(nullptr), m_need_detach(false){
+    explicit JNIEnvPtr(JavaVM *m_vm):m_env(nullptr), m_need_detach(false){
         this->m_vm = m_vm;
         if(m_vm->GetEnv((void**) &m_env, JNI_VERSION_1_6) == JNI_EDETACHED){
             m_vm->AttachCurrentThread(&m_env, nullptr);

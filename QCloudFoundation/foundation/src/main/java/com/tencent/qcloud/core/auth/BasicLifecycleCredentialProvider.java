@@ -72,7 +72,8 @@ public abstract class BasicLifecycleCredentialProvider implements QCloudCredenti
                     if (e instanceof QCloudClientException) {
                         throw e;
                     }
-                    throw new QCloudClientException("fetch credentials error happens", new QCloudAuthenticationException(e.getMessage()));
+                    throw new QCloudClientException("fetch credentials error happens: " + e.getMessage(),
+                            new QCloudAuthenticationException(e.getMessage()));
                 }
             }
         } catch (InterruptedException e) {
