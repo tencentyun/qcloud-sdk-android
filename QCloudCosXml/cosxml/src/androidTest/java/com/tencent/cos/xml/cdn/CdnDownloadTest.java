@@ -18,6 +18,7 @@ import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.cos.xml.transfer.COSXMLDownloadTask;
 import com.tencent.cos.xml.transfer.TransferManager;
+import com.tencent.cos.xml.transfer.TransferState;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import org.junit.After;
@@ -38,6 +39,7 @@ import java.util.Random;
 @RunWith(AndroidJUnit4.class)
 public class CdnDownloadTest {
 
+    private boolean testCdn = true;
     @After
     public void clearDownloadFiles() {
         TestUtils.clearDir(new File(TestUtils.localParentPath()));
@@ -68,8 +70,12 @@ public class CdnDownloadTest {
 
     @Test
     public void testHeadObject() {
+        if (!testCdn) {
+            return;
+        }
 
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newCDNService();
+
         String path = TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH;
         HeadObjectRequest headObjectRequest = new HeadObjectRequest(TestConst.PERSIST_BUCKET, path);
 
@@ -83,20 +89,37 @@ public class CdnDownloadTest {
         paras.put("sign", String.format("%d-%s-0-%s", timestamp, rand, sign));
         headObjectRequest.setQueryParameters(paras);
 
+        //重试三次 有些时候会出现AssertionError: null (Service: null; Status Code: 403; Status Message: ; Error Code: null; Request ID: null)服务端错误
         try {
             cosXmlService.headObject(headObjectRequest);
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            TestUtils.sleep(1000);
+            try {
+                cosXmlService.headObject(headObjectRequest);
+            } catch (Exception e1) {
+                TestUtils.sleep(1000);
+                try {
+                    cosXmlService.headObject(headObjectRequest);
+                } catch (Exception e2) {
+                    Assert.fail(e.getMessage());
+                }
+            }
         }
 
         Assert.assertTrue(true);
     }
 
     @Test public void testGetObject() {
+        if (!testCdn) {
+            return;
+        }
 
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newCDNService();
 
-        String path = TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH;
+        String bucket = TestConst.PERSIST_BUCKET;
+        String path = TestConst.PERSIST_BUCKET_PIC_PATH;
+
+        ///String path = TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH;
 
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
                 path, TestUtils.localParentPath());
@@ -114,14 +137,28 @@ public class CdnDownloadTest {
         try {
             cosXmlService.getObject(getObjectRequest);
         } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
+            TestUtils.sleep(1000);
+            try {
+                cosXmlService.getObject(getObjectRequest);
+            } catch (Exception e1) {
+                TestUtils.sleep(1000);
+                try {
+                    cosXmlService.getObject(getObjectRequest);
+                } catch (Exception e2) {
+                    Assert.fail(e.getMessage());
+                }
+            }
         }
 
         Assert.assertTrue(true);
     }
 
+    private int retry = 3;
     @Test public void testTransferManagerDownload() {
+
+        if (!testCdn) {
+            return;
+        }
 
         String path = TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH;
 
@@ -164,12 +201,18 @@ public class CdnDownloadTest {
         });
 
         testLocker.lock();
-        TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+
+        //重试三次 有些时候会出现AssertionError: null (Service: null; Status Code: 403; Status Message: ; Error Code: null; Request ID: null)服务端错误
+        if(downloadTask.getTaskState() != TransferState.COMPLETED){
+            if(retry > 0) {
+                TestUtils.sleep(600);
+                retry--;
+                testTransferManagerDownload();
+            } else {
+                TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+            }
+        } else {
+            Assert.assertTrue(true);
+        }
     }
-
-
-
-
-
-
 }

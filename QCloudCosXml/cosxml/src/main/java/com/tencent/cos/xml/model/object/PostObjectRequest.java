@@ -112,11 +112,9 @@ public class PostObjectRequest extends ObjectRequest implements TransferRequest 
         }else if(formStruct.inputStream != null){
             try {
                 File tmpFile = new File(CosXmlSimpleService.appCachePath, String.valueOf(System.currentTimeMillis()));
-                if(!tmpFile.exists() && tmpFile.createNewFile()){
-                    multipartStreamRequestBody.setContent(null, "file", tmpFile.getName(), tmpFile,
-                            formStruct.inputStream, offset, contentLength);
-                    return RequestBodySerializer.multiPart(multipartStreamRequestBody);
-                }
+                multipartStreamRequestBody.setContent(null, "file", tmpFile.getName(), tmpFile,
+                        formStruct.inputStream, offset, contentLength);
+                return RequestBodySerializer.multiPart(multipartStreamRequestBody);
             } catch (IOException e) {
                 throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
             }

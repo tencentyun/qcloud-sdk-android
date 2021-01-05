@@ -1096,9 +1096,9 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
     @Override
     public void doesBucketExistAsync(final String bucketName, final CosXmlBooleanListener booleanListener) {
 
-        GetBucketACLRequest getBucketACLRequest = new GetBucketACLRequest(bucketName);
+        HeadBucketRequest headBucketResult = new HeadBucketRequest(bucketName);
 
-        getBucketACLAsync(getBucketACLRequest, new CosXmlResultListener() {
+        headBucketAsync(headBucketResult, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 booleanListener.onSuccess(true);
