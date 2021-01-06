@@ -45,7 +45,6 @@ import com.tencent.cos.xml.model.object.ListPartsResult;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.cos.xml.model.object.UploadPartResult;
 import com.tencent.cos.xml.model.tag.ACLAccount;
-import com.tencent.cos.xml.model.tag.Tagging;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -265,31 +264,6 @@ public class SimpleOtherObjectTest {
         TestUtils.parseBadResponseBody(listPartsResult);
         TestUtils.parseBadResponseBody(uploadPartResult1);
         TestUtils.parseBadResponseBody(completeMultiUploadResult);
-    }
-
-    @Test
-    public void testTagging(){
-        Tagging tagging1 = new Tagging();
-        Tagging.TagSet tagSet1 = new Tagging.TagSet();
-        Tagging.Tag tag11 = new Tagging.Tag("key1", "value1");
-        Tagging.Tag tag12 = new Tagging.Tag("key2", "value2");
-        Tagging.Tag tag13 = new Tagging.Tag("key3", "value3");
-        tagSet1.addTag(tag11);
-        tagSet1.addTag(tag12);
-        tagSet1.addTag(tag13);
-        tagging1.tagSet = tagSet1;
-
-        Tagging tagging2 = new Tagging();
-        Tagging.TagSet tagSet2 = new Tagging.TagSet();
-        Tagging.Tag tag21 = new Tagging.Tag("key1", "value1");
-        Tagging.Tag tag22 = new Tagging.Tag("key2", "value2");
-        Tagging.Tag tag23 = new Tagging.Tag("key3", "value3");
-        tagSet2.addTag(tag21);
-        tagSet2.addTag(tag22);
-        tagSet2.addTag(tag23);
-        tagging2.tagSet = tagSet2;
-
-        Assert.assertEquals(tagging1, tagging2);
     }
 
     private String getBigString(){

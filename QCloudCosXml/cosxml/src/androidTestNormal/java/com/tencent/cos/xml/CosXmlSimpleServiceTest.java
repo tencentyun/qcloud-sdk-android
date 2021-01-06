@@ -20,13 +20,10 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.common;
+package com.tencent.cos.xml;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.CosXmlService;
-import com.tencent.cos.xml.CosXmlServiceConfig;
-import com.tencent.cos.xml.LogServerProxy;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -45,12 +42,6 @@ import java.io.File;
 
 import static com.tencent.cos.xml.core.TestUtils.getContext;
 
-/**
- *
- * <p>
- * Created by jordanqin on 2020/12/25.
- * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
- */
 @RunWith(AndroidJUnit4.class)
 public class CosXmlSimpleServiceTest {
     @Test
