@@ -62,8 +62,6 @@ import javax.net.ssl.SSLHandshakeException;
  */
 public class BeaconService {
     private static final String TAG = "BeaconProxy";
-    //联调APP Key：LOGDEBUGKEY00247
-//    private static final String APP_KEY = "LOGDEBUGKEY00247";
         private static final String APP_KEY = "0AND0VEVB24UBGDU";
     private static final boolean IS_DEBUG = false;
 
@@ -104,6 +102,9 @@ public class BeaconService {
                             .bidEnable(false)
                             .collectMACEnable(false)
                             .collectIMEIEnable(false)
+                            .collectAndroidIdEnable(false)
+                            .collectProcessInfoEnable(false)
+                            .qmspEnable(false)
                             .pagePathEnable(false)
                             .setNormalPollingTime(5000)
                             .build();
@@ -375,6 +376,7 @@ public class BeaconService {
     private ReturnServiceException getServiceExceptionParams(QCloudServiceException e) {
         Map<String, String> params = new HashMap<>();
         CosXmlServiceException serviceException = convertServerException(e);
+        params.put("error_request_id", serviceException.getRequestId());
         params.put("error_message", serviceException.getErrorMessage());
         params.put("error_code", serviceException.getErrorCode());
         params.put("error_status_code", String.valueOf(serviceException.getStatusCode()));
