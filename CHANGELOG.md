@@ -1,3 +1,15 @@
+## V5.6.0
+1. beacon增加失败情况下request_id；
+2. beacon config更新，关闭部分开关；
+
+## V5.5.9
+1. 修复post object请求失败错误；
+2. 修复post object传参inputStream偶现失败错误；
+3. 修复put object传参URL请求失败错误；
+4. 修复listBucketInventory响应xml解析错误；
+5. 增加updateObjectMetaData，废弃updateObjectMeta；
+6. 修复UploadPartRequest传参inputStream异常；
+
 ## V5.5.8
 1. 增加灯塔功能；
 
