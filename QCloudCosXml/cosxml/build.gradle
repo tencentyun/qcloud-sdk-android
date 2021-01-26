@@ -16,8 +16,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 50600
-        versionName "5.6.0"
+        versionCode 50601
+        versionName "5.6.1"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -109,11 +109,13 @@ dependencies {
 if (android.defaultPublishConfig.contains("slim")){
     project.extensions.add('artifactId', 'cosxml-lite')
     project.extensions.add('packageName', 'QCloudCosXmlLite')
+    project.extensions.add('packageType', 'aar')
     project.extensions.add('artifactProduct', 'slim')
     project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
 }else {
     project.extensions.add('artifactId', 'cosxml')
     project.extensions.add('packageName', 'QCloudCosXml')
+    project.extensions.add('packageType', 'aar')
     project.extensions.add('artifactProduct', 'normal')
     project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
 }
