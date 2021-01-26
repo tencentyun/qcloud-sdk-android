@@ -1,3 +1,6 @@
+## V5.6.1
+1. 修复混淆问题；
+
 ## V5.6.0
 1. beacon增加失败情况下request_id；
 2. beacon config更新，关闭部分开关；
