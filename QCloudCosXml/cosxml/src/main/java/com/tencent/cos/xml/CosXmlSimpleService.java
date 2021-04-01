@@ -302,6 +302,9 @@ public class CosXmlSimpleService implements SimpleCosXml {
                     // .addHeader(HttpConstants.Header.HOST, hostHeader);
             if(config.getPort() != -1)httpRequestBuilder.port(config.getPort());
             httpRequestBuilder.query(cosXmlRequest.getQueryString());
+            if (cosXmlRequest.getQueryEncodedString() != null) {
+                httpRequestBuilder.encodedQuery(cosXmlRequest.getQueryEncodedString());
+            }
         }
 
         // CopyObjectRequest 请求添加 x-cos-copy-source Header
@@ -351,8 +354,16 @@ public class CosXmlSimpleService implements SimpleCosXml {
         }
 
         if (cosXmlRequest instanceof GetObjectRequest) {
-            String absolutePath = ((GetObjectRequest) cosXmlRequest).getDownloadPath();
-            httpRequestBuilder.converter(new ResponseFileBodySerializer<T2>((GetObjectResult) cosXmlResult, absolutePath, ((GetObjectRequest) cosXmlRequest).getFileOffset()));
+            GetObjectRequest getObjectRequest = (GetObjectRequest) cosXmlRequest;
+            if (!TextUtils.isEmpty(getObjectRequest.getDownloadPath())) {
+                httpRequestBuilder.converter(new ResponseFileBodySerializer<T2>((GetObjectResult) cosXmlResult,
+                        getObjectRequest.getDownloadPath(), getObjectRequest.getFileOffset()));
+            } else if (getObjectRequest.getFileContentUri() != null) {
+                httpRequestBuilder.converter(new ResponseFileBodySerializer<T2>((GetObjectResult) cosXmlResult,
+                        getObjectRequest.getFileContentUri(),
+                        ContextHolder.getAppContext().getContentResolver(),
+                        getObjectRequest.getFileOffset()));
+            }
         } else if (cosXmlRequest instanceof GetObjectBytesRequest) {
             httpRequestBuilder.converter(new ResponseBytesConverter<T2>((GetObjectBytesResult) cosXmlResult));
         } else if (buildHttpRequestBodyConverter(cosXmlRequest, cosXmlResult, httpRequestBuilder)) {

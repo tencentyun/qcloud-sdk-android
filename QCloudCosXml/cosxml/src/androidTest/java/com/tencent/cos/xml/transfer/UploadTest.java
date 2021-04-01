@@ -23,6 +23,7 @@
 package com.tencent.cos.xml.transfer;
 
 import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -48,6 +49,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -114,6 +118,113 @@ public class UploadTest {
     }
 
 
+    @Test public void testReTransfer() throws Exception {
+
+        Log.i(TestConst.UT_TAG, "testReTransfer");
+
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+        String cosPath = "uploadTask_resume" + System.currentTimeMillis();
+        // final String srcPath = TestUtils.bigFilePath();
+        final String srcPath = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), "big.zip").getAbsolutePath();
+        final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, cosPath, Uri.fromFile(new File(srcPath)), null);
+        final AtomicReference<String> uploadIdHolder = new AtomicReference<>();
+
+        cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                Log.i(TestConst.UT_TAG, state.toString());
+            }
+        });
+
+        cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                Log.i(TestConst.UT_TAG, "progress " + complete + "/" + target + ": " + 100.0 * complete / target);
+                uploadIdHolder.set(cosxmlUploadTask.getUploadId());
+            }
+        });
+
+        cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+            }
+        });
+
+        Thread.sleep(5000);
+        cosxmlUploadTask.pauseSafely();
+        Thread.sleep(2000);
+
+        final TestLocker testLocker = new TestLocker();
+        COSXMLUploadTask cosxmlUploadTask2 = transferManager.upload(TestConst.PERSIST_BUCKET, cosPath, Uri.fromFile(new File(srcPath)), uploadIdHolder.get());
+
+        cosxmlUploadTask2.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                Log.i(TestConst.UT_TAG, state.toString());
+            }
+        });
+
+        cosxmlUploadTask2.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                Log.i(TestConst.UT_TAG, "progress " + complete + "/" + target + ": " + 100.0 * complete / target);
+            }
+        });
+
+        cosxmlUploadTask2.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+
+    }
+
+    @Test
+    public void testPauseTask2() throws Exception{
+
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+        final TestLocker testLocker = new TestLocker();
+        String cosPath = "uploadTask_pause" + System.currentTimeMillis();
+        final String srcPath = TestUtils.bigFilePath();
+        final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, cosPath, srcPath, null);
+        cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                Log.i(TestConst.UT_TAG, "transfer state " + state);
+            }
+        });
+
+        cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
+                testLocker.release();
+            }
+        });
+//        TestUtils.sleep(2000);
+//        cosxmlUploadTask.pauseSafely();
+//        TestUtils.sleep(200000);
+//        Assert.assertTrue(cosxmlUploadTask.getTaskState() == TransferState.PAUSED);
+        testLocker.lock();
+    }
+
     @Test public void testUploadSmallFileByUri() {
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
@@ -161,6 +272,8 @@ public class UploadTest {
         testLocker.lock();
         TestUtils.assertCOSXMLTaskSuccess(uploadTask);
     }
+
+
 
 
     @Test public void testUploadBigFileByPath() {

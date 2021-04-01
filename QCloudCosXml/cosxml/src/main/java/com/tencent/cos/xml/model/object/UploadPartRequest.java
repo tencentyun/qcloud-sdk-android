@@ -35,6 +35,7 @@ import com.tencent.qcloud.core.util.ContextHolder;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Map;
 
 /**
@@ -47,6 +48,7 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
     private String uploadId;
     private Uri uri;
     private String srcPath;
+    private URL url;
     private byte[] data;
     private InputStream inputStream;
     private long fileOffset = -1L;
@@ -114,6 +116,27 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
         fileContentLength = -1L;
     }
 
+    public UploadPartRequest(String bucket, String cosPath, int partNumber, URL url, String uploadId) {
+        this(bucket, cosPath);
+        this.partNumber = partNumber;
+        this.url = url;
+        this.uploadId = uploadId;
+        fileOffset = -1L;
+        fileContentLength = -1L;
+        setNeedMD5(false);
+    }
+    public UploadPartRequest(String bucket, String cosPath, int partNumber, URL url, long offset, long length,
+                             String uploadId){
+        this(bucket, cosPath);
+        this.partNumber = partNumber;
+        this.url = url;
+        this.fileOffset = offset;
+        this.fileContentLength = length;
+        this.uploadId = uploadId;
+        setNeedMD5(false);
+    }
+
+
     /**
      * 设置上传的分块编号
      * @param partNumber 上传的分块数
@@ -167,12 +190,18 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
                return RequestBodySerializer.file(getContentType(), new File(srcPath));
             }
         }else if(data != null){
-            return RequestBodySerializer.bytes(null, data);
+            return RequestBodySerializer.bytes(getContentType(), data);
         }else if(inputStream != null){
-            return RequestBodySerializer.stream(null, new File(CosXmlSimpleService.appCachePath, String.valueOf(System.currentTimeMillis())),
+            return RequestBodySerializer.stream(getContentType(), new File(CosXmlSimpleService.appCachePath, String.valueOf(System.currentTimeMillis())),
                     inputStream);
         } else if (uri != null && ContextHolder.getAppContext() != null) {
-            return RequestBodySerializer.uri(null, uri, ContextHolder.getAppContext(), fileOffset, fileContentLength);
+            return RequestBodySerializer.uri(getContentType(), uri, ContextHolder.getAppContext(), fileOffset, fileContentLength);
+        } else if (url != null) {
+            if(fileOffset != -1) {
+                return RequestBodySerializer.url(getContentType(), url, fileOffset, fileContentLength);
+            } else {
+                return RequestBodySerializer.url(getContentType(), url);
+            }
         }
         return null;
     }
@@ -188,7 +217,7 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
                 throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "uploadID must not be null");
             }
         }
-        if(srcPath == null && data == null && inputStream == null && uri == null){
+        if(srcPath == null && data == null && inputStream == null && uri == null && url == null){
             throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "Data Source must not be null");
         }
         if(srcPath != null){
