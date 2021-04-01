@@ -24,8 +24,10 @@ package com.tencent.qcloud.core.http;
 
 import android.content.ContentResolver;
 import android.net.Uri;
+
 import com.tencent.qcloud.core.common.QCloudDigistListener;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
+import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.util.Base64Utils;
 import com.tencent.qcloud.core.util.QCloudUtils;
 
@@ -36,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -194,12 +197,22 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
         } else if (file != null) {
             inputStream = new FileInputStream(file);
         } else if (url != null) {
-            inputStream =  url.openStream();
+            URLConnection conn = url.openConnection();
+            if(offset > 0) {
+                conn.setRequestProperty("Range", "bytes=" + offset + "-" + offset + requiredLength);
+            }
+            inputStream = url.openStream();
         } else if (uri != null) {
             inputStream = contentResolver.openInputStream(uri);
 
         }
-        if(inputStream != null && offset > 0) inputStream.skip(offset);
+        if(url == null && inputStream != null && offset > 0) {
+            long skiped = inputStream.skip(offset);
+            if (skiped < offset) {
+                QCloudLogger.w(QCloudHttpClient.HTTP_LOG_TAG, "skip  %d is small than offset %d",
+                        skiped, offset);
+            }
+        }
         return inputStream;
     }
 
