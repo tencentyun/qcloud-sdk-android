@@ -634,7 +634,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     @Override
     protected void internalPause() {
-        BeaconService.getInstance().reportUpload(region, ALREADY_SEND_DATA_LEN.get(), TimeUtils.getTookTime(startTime));
+        long uploadSize = ALREADY_SEND_DATA_LEN != null ? ALREADY_SEND_DATA_LEN.get() : simpleAlreadySendDataLen;
+        BeaconService.getInstance().reportUpload(region, uploadSize, TimeUtils.getTookTime(startTime));
         cancelAllRequest(cosXmlService);
     }
 
