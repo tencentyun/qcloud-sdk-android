@@ -226,7 +226,7 @@ data class COSACLRule(var read: ACLAccount? = null,
 fun cosService(context: Context, init: COSServiceBuilder.() -> Unit): CosXmlService {
     val builder = COSServiceBuilder(context).apply(init)
     val config = builder.cosXmlConfig ?: throw java.lang.IllegalArgumentException("config is null")
-    val provider = builder.cp ?: throw java.lang.IllegalArgumentException("credential provider is null")
+    val provider = builder.cp
     return CosXmlService(builder.context, config, provider)
 }
 
@@ -243,13 +243,13 @@ val CosXmlService.transferManager: TransferManager
     get() = TransferManager(this, TransferConfig.Builder().build())
 
 
-private suspend inline fun <T> suspendBlock(crossinline block: (listener: CosXmlResultListener) -> Unit): T where T : CosXmlResult {
+suspend inline fun <T> suspendBlock(crossinline block: (listener: CosXmlResultListener) -> Unit): T where T : CosXmlResult {
     return suspendCancellableCoroutine<T> { cont ->
         block(cosXmlListenerWrapper(cont))
     }
 }
 
-private fun <T> cosXmlListenerWrapper(cont: Continuation<T>): CosXmlResultListener where T : CosXmlResult {
+fun <T> cosXmlListenerWrapper(cont: Continuation<T>): CosXmlResultListener where T : CosXmlResult {
     return object : CosXmlResultListener {
         override fun onSuccess(p0: CosXmlRequest?, p1: CosXmlResult?) {
             cont.resume(p1 as T)
