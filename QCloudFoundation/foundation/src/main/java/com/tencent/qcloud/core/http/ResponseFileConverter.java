@@ -23,6 +23,10 @@
 package com.tencent.qcloud.core.http;
 
 
+import android.content.ContentResolver;
+import android.net.Uri;
+import android.text.TextUtils;
+
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.common.QCloudServiceException;
@@ -30,6 +34,7 @@ import com.tencent.qcloud.core.util.QCloudHttpUtils;
 
 import java.io.*;
 
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.internal.Util;
 import okio.Buffer;
@@ -38,6 +43,9 @@ import okio.Buffer;
 public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implements ProgressBody {
 
     private String filePath;
+    private Uri contentUri;
+    private ContentResolver contentResolver;
+
     private long offset;
 
     protected boolean isQuic = false;
@@ -48,6 +56,12 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
 
     public ResponseFileConverter(String filePath, long offset) {
         this.filePath = filePath;
+        this.offset = offset;
+    }
+
+    public ResponseFileConverter(Uri contentUri, ContentResolver contentResolver, long offset) {
+        this.contentUri = contentUri;
+        this.contentResolver = contentResolver;
         this.offset = offset;
     }
 
@@ -80,6 +94,39 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
             contentLength = response.contentLength();
         }
 
+        if (!TextUtils.isEmpty(filePath)) {
+            return downloadToAbsolutePath(response, contentLength);
+        } else if (contentUri != null) {
+            return pipeToContentUri(response, contentLength);
+        }
+
+        throw new QCloudClientException(new IllegalArgumentException("filePath or ContentUri are both null"));
+    }
+
+    private T pipeToContentUri(HttpResponse<T> response, long contentLength)
+            throws QCloudClientException, QCloudServiceException {
+        OutputStream output = getOutputStream();
+        InputStream input = response.byteStream();
+
+        byte[] buffer = new byte[8192];
+        countingSink = new CountingSink(new Buffer(), contentLength, progressListener);
+        int len;
+        try {
+            while ((len = input.read(buffer)) != -1) {
+                output.write(buffer, 0, len);
+                countingSink.writeBytesInternal(len);
+            }
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new QCloudClientException("write local uri error for " + e.toString(), e);
+        } finally {
+            Util.closeQuietly(output);
+        }
+    }
+
+    private T downloadToAbsolutePath(HttpResponse<T> response, long contentLength)
+            throws QCloudClientException, QCloudServiceException {
         File downloadFilePath = new File(filePath);
         File parentDir = downloadFilePath.getParentFile();
         if(parentDir != null && !parentDir.exists() && !parentDir.mkdirs()){
@@ -121,16 +168,25 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
     }
 
     public OutputStream getOutputStream() throws QCloudClientException {
-        File downloadFilePath = new File(filePath);
-        File parentDir = downloadFilePath.getParentFile();
-        if(parentDir != null && !parentDir.exists() && !parentDir.mkdirs()){
-            throw new QCloudClientException(new IOException("local file directory can not create."));
-        }
-        try {
-            OutputStream outputStream = new FileOutputStream(downloadFilePath);
-            return outputStream;
-        } catch (FileNotFoundException e) {
-           throw new QCloudClientException(e);
+        if (!TextUtils.isEmpty(filePath)) {
+            File downloadFilePath = new File(filePath);
+            File parentDir = downloadFilePath.getParentFile();
+            if(parentDir != null && !parentDir.exists() && !parentDir.mkdirs()){
+                throw new QCloudClientException(new IOException("local file directory can not create."));
+            }
+            try {
+                return new FileOutputStream(downloadFilePath);
+            } catch (FileNotFoundException e) {
+                throw new QCloudClientException(e);
+            }
+        } else if (contentUri != null){
+            try {
+                return contentResolver.openOutputStream(contentUri);
+            } catch (FileNotFoundException e) {
+                throw new QCloudClientException(e);
+            }
+        } else {
+            throw new QCloudClientException(new IllegalArgumentException("filePath or ContentUri are both null"));
         }
     }
 
