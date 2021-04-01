@@ -26,6 +26,8 @@ import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.*;
+import com.tencent.qcloud.core.task.RetryStrategy;
+
 import okhttp3.*;
 import okhttp3.internal.Util;
 
@@ -39,8 +41,15 @@ public class QuicProxy<T> extends NetworkProxy<T> {
 
     private QuicImpl quic;
     private QuicManager quicManager;
-    public QuicProxy(QuicManager quicManager){
+    private RetryStrategy retryStrategy;
+    private Dns dns;
+    private HttpLogger httpLogger;
+
+    public QuicProxy(QuicManager quicManager, Dns dns, HttpLogger httpLogger, RetryStrategy retryStrategy){
         this.quicManager = quicManager;
+        this.retryStrategy = retryStrategy;
+        this.dns = dns;
+        this.httpLogger = httpLogger;
     }
 
     @Override
@@ -77,7 +86,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                 callMetricsListener = new CallMetricsListener(null);
                 callMetricsListener.dnsStart(null, host);
 
-                List<InetAddress> inetAddresses = quicManager.dns.lookup(host);
+                List<InetAddress> inetAddresses = dns.lookup(host);
 
                 if(inetAddresses != null && inetAddresses.size() > 0){
                     ip = inetAddresses.get(0).getHostAddress();
@@ -131,8 +140,8 @@ public class QuicProxy<T> extends NetworkProxy<T> {
 
                 // 打印 request
                 String requestStartMessage = "--> " + okHttpRequest.method() + ' ' + okHttpRequest.url() + ' ' + Protocol.QUIC;
-                OkHttpLoggingUtils.logMessage(requestStartMessage, quicManager.httpLogger);
-                OkHttpLoggingUtils.logQuicRequestHeaders(quicRequest.headers, quicManager.httpLogger);
+                OkHttpLoggingUtils.logMessage(requestStartMessage, httpLogger);
+                OkHttpLoggingUtils.logQuicRequestHeaders(quicRequest.headers, httpLogger);
 
                 //设置 body
                 quicRequest.setRequestBody(okHttpRequest.body());
@@ -168,7 +177,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
 
                 long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
                 // 打印 response
-                OkHttpLoggingUtils.logResponse(response, tookMs, HttpLoggingInterceptor.Level.HEADERS, quicManager.httpLogger);
+                OkHttpLoggingUtils.logResponse(response, tookMs, HttpLoggingInterceptor.Level.HEADERS, httpLogger);
 
                 httpResult = convertResponse(httpRequest, response);
                 callMetricsListener.dumpMetrics(metrics);
@@ -179,7 +188,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                     break;
                 }else{
                     //是否需要重试
-                    if(quicManager.retryStrategy.shouldRetry(attempt++, System.nanoTime() - startTime, 0)){
+                    if(retryStrategy.shouldRetry(attempt++, System.nanoTime() - startTime, 0)){
                         // QLog.d("%s failed for %s, %d", httpRequest.url().toString(), e.getMessage(), attempt);
                     }else {
                         if (e.getCause() instanceof QCloudClientException) {

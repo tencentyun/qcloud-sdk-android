@@ -22,27 +22,29 @@
 
 package com.tencent.qcloud.quic;
 
-import android.os.*;
-import android.support.annotation.Nullable;
 import com.tencent.qcloud.core.http.CallMetricsListener;
 import com.tencent.qcloud.core.http.QCloudHttpClient;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
-import okio.*;
-
-import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.ProtocolException;
-import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.LinkedBlockingQueue;
 
-import static com.tencent.qcloud.quic.QuicNative.*;
+import okio.BufferedSink;
+import okio.Okio;
+
+import static com.tencent.qcloud.quic.QuicNative.CLIENT_FAILED;
+import static com.tencent.qcloud.quic.QuicNative.COMPLETED;
+import static com.tencent.qcloud.quic.QuicNative.CONNECTED;
+import static com.tencent.qcloud.quic.QuicNative.NetworkCallback;
+import static com.tencent.qcloud.quic.QuicNative.SERVER_FAILED;
+import static com.tencent.qcloud.quic.QuicNative.readableState;
 
 public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<QuicResponse>{
 
@@ -74,6 +76,8 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
 
     private CallMetricsListener callMetricsListener;
 
+    private static final CallMetricsListener emptyCallMetricsListener = new CallMetricsListener(null);
+
     private String handleId;
 
     private CountDownLatch latch = new CountDownLatch(1);
@@ -82,6 +86,7 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
         this.quicRequest = quicRequest;
         this.connectPool = connectPool;
         this.quicResponse = new QuicResponse();
+        this.callMetricsListener = emptyCallMetricsListener;
     }
 
     public void setCallMetricsListener(CallMetricsListener callMetricsListener){

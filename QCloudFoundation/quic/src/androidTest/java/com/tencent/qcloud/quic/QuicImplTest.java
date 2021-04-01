@@ -23,46 +23,44 @@
 package com.tencent.qcloud.quic;
 
 import android.content.Context;
-import android.os.Environment;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okio.BufferedSink;
-import okio.BufferedSource;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.annotation.Nullable;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
-public class QuicTest {
+public class QuicImplTest {
 
-    QuicManager quicManager;
+    private QuicManager quicManager;
+    private Context context;
 
 
-    protected synchronized void init(){
+    @Before
+    public void setup() {
 
-        Context appContext = InstrumentationRegistry.getTargetContext();
-        if(quicManager == null){
+        context = InstrumentationRegistry.getTargetContext();
 
-            quicManager = new QuicManager();
+        quicManager = new QuicManager(true);
+    }
 
-            quicManager.init(true, null, null, null);
-        }
-
+    @After
+    public void teardown() {
+        quicManager.destroy();
     }
 
     @Test
-    public void testGet() throws Exception{
-
-        init();
+    public void testGet() throws Exception {
 
         String host = "stgwhttp2.kof.qq.com";
         String ip = "";
@@ -70,7 +68,7 @@ public class QuicTest {
         int tcpPort = 80;
         try {
             InetAddress[] inetAddresses = InetAddress.getAllByName(host);
-            if(inetAddresses != null && inetAddresses.length > 0){
+            if (inetAddresses != null && inetAddresses.length > 0) {
                 ip = inetAddresses[0].getHostAddress();
             }
         } catch (UnknownHostException e) {
@@ -78,73 +76,38 @@ public class QuicTest {
         }
         QuicRequest quicRequest = new QuicRequest(host, ip, port, tcpPort);
         quicRequest.addHeader(":scheme", "https");
-        quicRequest.addHeader(":path",  "/1.jpg");
+        quicRequest.addHeader(":path", "/1.jpg");
         quicRequest.addHeader(":method", "GET");
-        quicRequest.setRequestBody(new RequestBody() {
-            @Nullable
-            @Override
-            public MediaType contentType() {
-                return null;
-            }
 
-            @Override
-            public void writeTo(BufferedSink sink) throws IOException {
-                sink.write(new byte[0]);
-               // sink.close();
-            }
-        });
+        String fileName = "response-" + System.currentTimeMillis() + ".jpg";
+        File output = new File(context.getExternalCacheDir(), fileName);
 
         try {
             QuicImpl quic = quicManager.newQuicImpl(quicRequest);
             QuicResponse quicResponse = quic.call();
-            if(quicResponse.buffer != null){
-                String fileName = "response-" + System.currentTimeMillis() + ".jpg";
-                FileOutputStream outputStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/" + fileName);
+            Assert.assertEquals(200, quicResponse.code);
+            if (quicResponse.buffer != null) {
+
+                FileOutputStream outputStream = new FileOutputStream(output);
                 byte[] data = new byte[4 * 1024];
                 int len = quicResponse.buffer.read(data, 0, data.length);
-                while (len != -1){
+                while (len != -1) {
                     outputStream.write(data, 0, len);
                     len = quicResponse.buffer.read(data, 0, data.length);
                 }
                 outputStream.flush();
                 outputStream.close();
 
+                long contentLength = Long.parseLong(quicResponse.headers.get("content-length"));
+                Assert.assertEquals(output.length(), contentLength);
+
+
+                for (Map.Entry<String, String> header : quicResponse.headers.entrySet()) {
+                    Log.d("QuicTest", "(" + header.getKey() + "|" + header.getValue() + ")");
+                }
             }
-
-
-            for(Map.Entry<String, String> header : quicResponse.headers.entrySet()){
-                Log.d("XIAO", "(" + header.getKey() + "|" + header.getValue() + ")");
-            }
-        } catch (QuicException e) {
-            throw e;
-        } catch (FileNotFoundException e) {
-            throw e;
-        }
-    }
-
-    @Test
-    public void testOutputStream() throws Exception{
-
-        MyOutputStream myOutputStream =new MyOutputStream();
-        myOutputStream.write(200);
-
-
-
-    }
-
-    class MyOutputStream extends OutputStream{
-        FileOutputStream fileOutputStream;
-        public MyOutputStream() throws FileNotFoundException {
-            fileOutputStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/Test/outputstream1.txt");
-
-        }
-
-
-        @Override
-        public void write(int b) throws IOException {
-            fileOutputStream.write(b);
-            fileOutputStream.flush();
-            fileOutputStream.close();
+        } finally {
+            output.delete();
         }
     }
 }

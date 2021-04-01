@@ -31,9 +31,9 @@ android {
         minSdkVersion 15
         targetSdkVersion 27
 
-        versionCode 10525
+        versionCode 10526
 
-        versionName "1.5.25"
+        versionName "1.5.26"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -73,7 +73,7 @@ dependencies {
     testCompileOnly 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    compileOnly project(path: ':foundation')
+    implementation project(path: ':foundation')
 }
 
 project.extensions.add('packageType', 'aar')

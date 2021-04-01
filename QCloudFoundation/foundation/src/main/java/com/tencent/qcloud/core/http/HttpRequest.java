@@ -272,6 +272,11 @@ public class HttpRequest<T> {
             return this;
         }
 
+        public Builder<T> encodedQuery(String queryString) {
+            httpUrlBuilder.encodedQuery(queryString);
+            return this;
+        }
+
         public Builder<T> query(Map<String, String> nameValues) {
             if (nameValues != null) {
                 for (Map.Entry<String, String> entry : nameValues.entrySet()) {
