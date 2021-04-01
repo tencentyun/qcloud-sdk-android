@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml.model.object;
 
+import android.net.Uri;
+
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.Range;
 import com.tencent.cos.xml.common.RequestMethod;
@@ -53,6 +55,8 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
     private String savePath;
     private String saveFileName;
 
+    private Uri fileContentUri;
+
     /**
      * GetObjectRequest 构造函数
      * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 bucket-1250000000)
@@ -75,6 +79,17 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
         super(bucket, cosPath);
         this.savePath = savePath;
         this.saveFileName = saveFileName;
+    }
+
+    /**
+     * GetObjectRequest 构造函数
+     * @param bucket 存储桶名称(cos v5 的 bucket格式为：xxx-appid, 如 bucket-1250000000)
+     * @param cosPath 远端路径，即存储到 COS 上的绝对路径
+     * @param fileContentUri 本地文件 Uri
+     */
+    public GetObjectRequest(String bucket, String cosPath, Uri fileContentUri) {
+        super(bucket, cosPath);
+        this.fileContentUri = fileContentUri;
     }
 
     public long getFileOffset() {
@@ -323,6 +338,10 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
             }
         }
         return path;
+    }
+
+    public Uri getFileContentUri() {
+        return fileContentUri;
     }
 
     @Override

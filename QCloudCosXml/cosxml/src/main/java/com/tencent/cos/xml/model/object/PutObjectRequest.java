@@ -23,6 +23,7 @@
 package com.tencent.cos.xml.model.object;
 
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
@@ -35,6 +36,7 @@ import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.ACLAccount;
+import com.tencent.cos.xml.model.tag.UrlUploadPolicy;
 import com.tencent.cos.xml.model.tag.pic.PicOperations;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 import com.tencent.qcloud.core.util.ContextHolder;
@@ -54,6 +56,7 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
     private InputStream inputStream;
     private String strData;
     private URL url;
+    private UrlUploadPolicy urlUploadPolicy;
     private long fileLength;
     private Uri uri;
     private CosXmlProgressListener progressListener;
@@ -220,6 +223,10 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
 
     public URL getUrl() {
         return url;
+    }
+
+    public UrlUploadPolicy getUrlUploadPolicy() {
+        return urlUploadPolicy;
     }
 
     public void setUrl(URL url) {
@@ -398,5 +405,13 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
      */
     public void setPicOperations(@NonNull PicOperations operations) {
         addHeader("Pic-Operations", operations.toJsonStr());
+    }
+
+    /**
+     * 设置URL上传策略
+     * @param urlUploadPolicy url上传策略
+     */
+    public void setUrlUploadPolicy(UrlUploadPolicy urlUploadPolicy) {
+        this.urlUploadPolicy = urlUploadPolicy;
     }
 }

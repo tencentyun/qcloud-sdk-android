@@ -25,22 +25,30 @@ package com.tencent.cos.xml.utils;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import androidx.annotation.Nullable;
+
 import com.tencent.cos.xml.common.ClientErrorCode;
+import com.tencent.cos.xml.common.Range;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.qcloud.core.util.Base64Utils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import okhttp3.internal.Util;
 
 /**
  * 编码加密工具类
@@ -73,6 +81,25 @@ public class DigestUtils {
             CloseUtil.closeQuietly(fileInputStream);
         }
         return md5;
+    }
+
+    @Nullable public static String getCOSMd5(InputStream inputStream, long size) throws IOException {
+        try{
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+            byte[] buff = new byte[8 * 1024];
+            int readLen;
+            long remainLength = size;
+            while (remainLength > 0L && (readLen = inputStream.read(buff, 0,
+                    (buff.length > remainLength ? (int) remainLength : buff.length)))!= -1){
+                messageDigest.update(buff, 0, readLen);
+                remainLength -= readLen;
+            }
+            return "\"" + StringUtils.toHexString(messageDigest.digest()) + "\"";
+        } catch (IOException e) {
+            throw e;
+        } catch (NoSuchAlgorithmException e) {
+            throw new IOException("unSupport Md5 algorithm", e);
+        }
     }
 
     public static String getSha1(String content) throws CosXmlClientException {
@@ -130,20 +157,20 @@ public class DigestUtils {
     }
 
     public static String getHmacSha1(String content, String key) throws CosXmlClientException {
-       String hmacSha1;
-       try {
-           byte[] byteKey = key.getBytes(Charset.forName("UTF-8"));
-           SecretKey hmacKey = new SecretKeySpec(byteKey, "HmacSHA1");
-           Mac mac = Mac.getInstance("HmacSHA1");
-           mac.init(hmacKey);
-           hmacSha1 = StringUtils.toHexString(mac.doFinal(content.getBytes(
-                   Charset.forName("UTF-8"))));
-       } catch (NoSuchAlgorithmException e) {
-           throw new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), e);
-       } catch (InvalidKeyException e) {
-           throw new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), e);
-       }
-       return hmacSha1;
+        String hmacSha1;
+        try {
+            byte[] byteKey = key.getBytes(Charset.forName("UTF-8"));
+            SecretKey hmacKey = new SecretKeySpec(byteKey, "HmacSHA1");
+            Mac mac = Mac.getInstance("HmacSHA1");
+            mac.init(hmacKey);
+            hmacSha1 = StringUtils.toHexString(mac.doFinal(content.getBytes(
+                    Charset.forName("UTF-8"))));
+        } catch (NoSuchAlgorithmException e) {
+            throw new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), e);
+        } catch (InvalidKeyException e) {
+            throw new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), e);
+        }
+        return hmacSha1;
     }
 
     public static String getBase64(String content) throws CosXmlClientException {
