@@ -7,8 +7,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 27
 
-        versionCode 10525
-        versionName "1.5.25"
+        versionCode 10526
+        versionName "1.5.26"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
