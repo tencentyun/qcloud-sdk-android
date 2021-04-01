@@ -22,6 +22,9 @@
 
 package com.tencent.cos.xml.transfer;
 
+import android.content.ContentResolver;
+import android.net.Uri;
+
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
@@ -47,6 +50,11 @@ public class ResponseFileBodySerializer<T2> extends ResponseFileConverter<T2> {
     private GetObjectResult getObjectResult;
     public ResponseFileBodySerializer(GetObjectResult getObjectResult, String absolutePath, long start){
         super(absolutePath, start);
+        this.getObjectResult = getObjectResult;
+    }
+    public ResponseFileBodySerializer(GetObjectResult getObjectResult, Uri contentUri,
+                                      ContentResolver contentResolver, long start){
+        super(contentUri, contentResolver, start);
         this.getObjectResult = getObjectResult;
     }
     @Override

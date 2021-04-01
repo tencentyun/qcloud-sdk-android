@@ -33,25 +33,45 @@ package com.tencent.cos.xml.common;
  */
 public enum COSStorageClass {
 
-    /** 标准存储 */
+    /**
+     * 标准存储
+     */
     STANDARD("STANDARD"),
 
-    /** 冷存储 */
+    /**
+     * 冷存储
+     */
     STANDARD_IA("STANDARD_IA"),
 
     /**
-     * archive
+     * 归档存储
      */
     ARCHIVE("ARCHIVE"),
 
     /**
-     * deep archive
+     * 深度归档存储
      */
     DEEP_ARCHIVE("DEEP_ARCHIVE"),
 
+    /**
+     * 智能分层存储
+     */
+    INTELLIGENT_TIERING("INTELLIGENT_TIERING"),
+
+    /**
+     * 标准存储（多 AZ）
+     */
     MAZ_STANDARD("MAZ_STANDARD"),
 
-    MAZ_STANDARD_IA("MAZ_STANDARD_IA");
+    /**
+     * 低频存储（多 AZ）
+     */
+    MAZ_STANDARD_IA("MAZ_STANDARD_IA"),
+
+    /**
+     * 智能分层存储（多 AZ）
+     */
+    MAZ_INTELLIGENT_TIERING("MAZ_INTELLIGENT_TIERING");
 
     private String cosStorageClass;
 

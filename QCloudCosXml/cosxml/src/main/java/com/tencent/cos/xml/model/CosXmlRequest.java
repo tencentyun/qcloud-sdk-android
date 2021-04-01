@@ -56,6 +56,7 @@ public abstract class CosXmlRequest{
      * url query集合
      */
     protected Map<String, String> queryParameters = new LinkedHashMap<>();
+    private String queryParameterEncodedString;
     /**
      * 请求http header集合
      */
@@ -143,6 +144,14 @@ public abstract class CosXmlRequest{
     }
 
     /**
+     * 设置 query 字符串
+     * @param queryParameterString
+     */
+    public void setQueryEncodedString(String queryParameterString) {
+        this.queryParameterEncodedString = queryParameterString;
+    }
+
+    /**
      * 设置请求http header集合
      * @param headers 请求http header集合
      */
@@ -176,6 +185,10 @@ public abstract class CosXmlRequest{
      */
     public Map<String, String> getQueryString(){
         return queryParameters;
+    }
+
+    public String getQueryEncodedString(){
+        return queryParameterEncodedString;
     }
 
     /**
