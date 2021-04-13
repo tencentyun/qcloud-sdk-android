@@ -23,6 +23,7 @@
 package com.tencent.qcloud.core.http;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.List;
 
 public class HttpTaskMetrics {
@@ -52,6 +53,7 @@ public class HttpTaskMetrics {
 
     String domainName;
     List<InetAddress> remoteAddress;
+    InetSocketAddress connectAddress;
 
     void onTaskStart() {
         fullTaskStartTime = System.nanoTime();
@@ -174,6 +176,10 @@ public class HttpTaskMetrics {
      */
     public List<InetAddress> getRemoteAddress() {
         return remoteAddress;
+    }
+
+    public InetSocketAddress getConnectAddress() {
+        return connectAddress;
     }
 
     /**
