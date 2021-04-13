@@ -29,6 +29,8 @@ import android.util.Log;
 import com.tencent.qcloud.core.BuildConfig;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
+import com.tencent.qcloud.core.logger.QCloudLogger;
+
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

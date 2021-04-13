@@ -62,6 +62,7 @@ public class CallMetricsListener extends EventListener {
 
     private String domainName;
     private List<InetAddress> inetAddressList;
+    private InetSocketAddress connectAddress;
 
     public CallMetricsListener(Call call) {
 
@@ -92,6 +93,7 @@ public class CallMetricsListener extends EventListener {
     @Override
     public void connectStart(Call call, InetSocketAddress inetSocketAddress, Proxy proxy) {
         super.connectStart(call, inetSocketAddress, proxy);
+        connectAddress = inetSocketAddress;
         connectStartTime = System.nanoTime();
     }
 
@@ -177,6 +179,11 @@ public class CallMetricsListener extends EventListener {
         metrics.writeRequestBodyTookTime += writeRequestBodyTookTime;
         metrics.readResponseHeaderTookTime += readResponseHeaderTookTime;
         metrics.readResponseBodyTookTime += readResponseBodyTookTime;
+        metrics.connectAddress = connectAddress;
+    }
+
+    public InetSocketAddress getConnectAddress() {
+        return connectAddress;
     }
 
     public List<InetAddress> dumpDns() {
