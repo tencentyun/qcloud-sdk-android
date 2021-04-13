@@ -354,7 +354,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 //            @Override
 //            public void onStateChanged(String taskId, int state) {
 //                if(IS_EXIT.get())return;
-//                updateState(TransferState.IN_PROGRESS, null, null, false);
+//                updateState(TransferState.WAITING, null, null, false);
 //            }
 //        });
         cosXmlService.initMultipartUploadAsync(initMultipartUploadRequest, new CosXmlResultListener() {
@@ -478,17 +478,36 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     private boolean verifyUploadParts(ListParts listParts, InputStream inputStream) throws IOException {
 
-        long start = 0;
-        long end = 0;
-        for (ListParts.Part part : listParts.parts) {
-            end = start + Long.parseLong(part.size) - 1;
-            String localMd5 = DigestUtils.getCOSMd5(inputStream, Long.parseLong(part.size));
+        List<ListParts.Part> parts = listParts.parts;
+        Collections.sort(parts, new Comparator<ListParts.Part>() {
+            @Override
+            public int compare(ListParts.Part a, ListParts.Part b) {
+                int aNumb = Integer.valueOf(a.partNumber);
+                int bNumb = Integer.valueOf(b.partNumber);
+                if(aNumb > bNumb) return 1;
+                if(aNumb < bNumb) return -1;
+                return 0;
+            }
+        });
+
+        boolean isFixSliceSize = isFixSliceSize(parts);
+        boolean isContinuousSlice = true;
+        int lastPartNumber = 0;
+        for (ListParts.Part part : parts) {
+            int partNumber = Integer.parseInt(part.partNumber);
+            isContinuousSlice = isContinuousSlice && lastPartNumber + 1 == partNumber;
+
+            // 变长分块大小，且不连续的分块会抛弃
+            if (!isFixSliceSize && !isContinuousSlice) {
+                return true;
+            }
+            String localMd5 = DigestUtils.getCOSMd5(inputStream, (partNumber - lastPartNumber - 1) * sliceSize, Long.parseLong(part.size));
             if (!part.eTag.equals(localMd5)) {
                 QCloudLogger.i(TAG, "verify upload parts failed, part number " +
                         part.partNumber + ", etag " + part.eTag + ", but local md5 is " + localMd5);
                 return false;
             }
-            start = end + 1;
+            lastPartNumber = partNumber;
         }
         return true;
     }
@@ -634,6 +653,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     @Override
     protected void internalPause() {
+
         long uploadSize = ALREADY_SEND_DATA_LEN != null ? ALREADY_SEND_DATA_LEN.get() : simpleAlreadySendDataLen;
         BeaconService.getInstance().reportUpload(region, uploadSize, TimeUtils.getTookTime(startTime));
         cancelAllRequest(cosXmlService);
@@ -670,6 +690,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
     }
 
     void cancelAllRequest(CosXmlSimpleService cosXmlService){
+
         PutObjectRequest tempPutObjectRequest = putObjectRequest;
         if(tempPutObjectRequest != null){
             cosXmlService.cancel(tempPutObjectRequest);
