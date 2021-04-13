@@ -35,6 +35,8 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
+import com.tencent.qcloud.core.http.HttpTaskMetrics;
+import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -63,6 +65,13 @@ public class DownloadTest {
         COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
                 getObjectRequest);
 
+        downloadTask.setOnGetHttpTaskMetrics(new COSXMLTask.OnGetHttpTaskMetrics() {
+            @Override
+            public void onGetHttpMetrics(String requestName, HttpTaskMetrics httpTaskMetrics) {
+                QCloudLogger.i(TestConst.UT_TAG, "connect ip is " + httpTaskMetrics.getConnectAddress().getAddress().getHostAddress());
+            }
+        });
+
         final TestLocker testLocker = new TestLocker();
         downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
@@ -76,6 +85,8 @@ public class DownloadTest {
                 testLocker.release();
             }
         });
+
+
 
         testLocker.lock();
         TestUtils.assertCOSXMLTaskSuccess(downloadTask);
