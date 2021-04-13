@@ -39,6 +39,8 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
+import com.tencent.qcloud.core.http.HttpTaskMetrics;
+import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -124,6 +126,12 @@ public class UploadTest {
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH, Uri.fromFile(new File(TestUtils.smallFilePath())));
 
         COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
+        uploadTask.setOnGetHttpTaskMetrics(new COSXMLTask.OnGetHttpTaskMetrics() {
+            @Override
+            public void onGetHttpMetrics(String requestName, HttpTaskMetrics httpTaskMetrics) {
+                QCloudLogger.i(TestConst.UT_TAG, "connect ip is " + httpTaskMetrics.getConnectAddress().getAddress().getHostAddress());
+            }
+        });
         final TestLocker testLocker = new TestLocker();
         uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
@@ -149,6 +157,18 @@ public class UploadTest {
         COSXMLUploadTask uploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
                 Uri.fromFile(new File(TestUtils.bigFilePath())), null);
         final TestLocker testLocker = new TestLocker();
+        uploadTask.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                QCloudLogger.i("QCloudTest", "state is " + state);
+            }
+        });
+        uploadTask.setOnGetHttpTaskMetrics(new COSXMLTask.OnGetHttpTaskMetrics() {
+            @Override
+            public void onGetHttpMetrics(String requestName, HttpTaskMetrics httpTaskMetrics) {
+                QCloudLogger.i(TestConst.UT_TAG, "connect ip is " + httpTaskMetrics.getConnectAddress().getAddress().getHostAddress());
+            }
+        });
         uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
@@ -312,7 +332,7 @@ public class UploadTest {
 
         final TestLocker uploadLocker = new TestLocker();
         String cosPath = UPLOAD_FOLDER+"uploadTask_resume" + System.currentTimeMillis();
-        final String srcPath = TestUtils.bigFilePath();
+        final String srcPath = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) + "/big.zip"; //TestUtils.bigFilePath();
         final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, cosPath, srcPath, null);
 
         cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
@@ -337,7 +357,7 @@ public class UploadTest {
         });
 
         // 上传 5s 后暂停
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         if (cosxmlUploadTask.getTaskState() == TransferState.COMPLETED) {
             Assert.assertTrue(true);
             return;

@@ -38,6 +38,8 @@ import com.tencent.cos.xml.model.object.ListPartsRequest;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
+import com.tencent.qcloud.core.logger.QCloudLogger;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -144,14 +146,21 @@ public abstract class COSXMLTask {
     }
 
     protected void getHttpMetrics(CosXmlRequest cosXmlRequest, final String requestName){
-        if(onGetHttpTaskMetrics != null){
-            cosXmlRequest.attachMetrics(new HttpTaskMetrics(){
-                @Override
-                public void onDataReady() {
-                    super.onDataReady();
-                    onGetHttpTaskMetrics.onGetHttpMetrics(requestName, this);
-                }
-            });
+        cosXmlRequest.attachMetrics(new COSXMLMetrics(requestName));
+    }
+
+    class COSXMLMetrics extends HttpTaskMetrics {
+
+        String requestName;
+        COSXMLMetrics(String requestName) {
+            this.requestName = requestName;
+        }
+        @Override
+        public void onDataReady() {
+            super.onDataReady();
+            if (onGetHttpTaskMetrics != null) {
+                onGetHttpTaskMetrics.onGetHttpMetrics(requestName, this);
+            }
         }
     }
 
@@ -269,6 +278,9 @@ public abstract class COSXMLTask {
      * @param newTaskState new state for operating
      */
     protected synchronized void updateState(TransferState newTaskState, Exception exception, CosXmlResult result, boolean isInit){
+
+        // QCloudLogger.i("QCloudTest", "newState " + newTaskState + ", current " + taskState + ", isinit " + isInit);
+
         if(isInit){
             if(exception != null){
                 if(cosXmlResultListener != null){

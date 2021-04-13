@@ -83,14 +83,21 @@ public class DigestUtils {
         return md5;
     }
 
-    @Nullable public static String getCOSMd5(InputStream inputStream, long size) throws IOException {
+    @Nullable public static String getCOSMd5(InputStream inputStream, long skip, long size) throws IOException {
         try{
+            long skipNumber = inputStream.skip(skip);
+            if (skipNumber != skip) {
+                return "";
+            }
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");
             byte[] buff = new byte[8 * 1024];
             int readLen;
             long remainLength = size;
-            while (remainLength > 0L && (readLen = inputStream.read(buff, 0,
-                    (buff.length > remainLength ? (int) remainLength : buff.length)))!= -1){
+            int needSize = Math.min((int)remainLength, buff.length);
+            while (remainLength > 0L && (readLen = inputStream.read(buff, 0, needSize))!= -1){
+                if (readLen < needSize) {
+                    return "";
+                }
                 messageDigest.update(buff, 0, readLen);
                 remainLength -= readLen;
             }

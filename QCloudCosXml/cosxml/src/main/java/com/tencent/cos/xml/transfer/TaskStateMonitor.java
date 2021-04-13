@@ -30,6 +30,8 @@ import android.os.MessageQueue;
 
 import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.model.CosXmlResult;
+import com.tencent.qcloud.core.http.HttpLoggingInterceptor;
+import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -114,6 +116,9 @@ final class TaskStateMonitor implements Runnable{
         taskHandler = new Handler(getLooper()){
             @Override
             public void handleMessage(Message msg) {
+
+
+
                 switch (msg.what){
                     case MESSAGE_TASK_RESULT:
                         StructMsg structMsg = (StructMsg) msg.obj;

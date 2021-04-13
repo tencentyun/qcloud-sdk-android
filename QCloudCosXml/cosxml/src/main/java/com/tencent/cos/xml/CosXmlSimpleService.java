@@ -387,7 +387,9 @@ public class CosXmlSimpleService implements SimpleCosXml {
             throws CosXmlClientException, CosXmlServiceException {
         long start = System.nanoTime();
         try {
-            cosXmlRequest.attachMetrics(new HttpTaskMetrics());
+            if (cosXmlRequest.getMetrics() == null) {
+                cosXmlRequest.attachMetrics(new HttpTaskMetrics());
+            }
             QCloudHttpRequest<T2> httpRequest = buildHttpRequest(cosXmlRequest, cosXmlResult);
             HttpTask<T2> httpTask;
 
@@ -447,7 +449,9 @@ public class CosXmlSimpleService implements SimpleCosXml {
         };
 
         try {
-            cosXmlRequest.attachMetrics(new HttpTaskMetrics());
+            if (cosXmlRequest.getMetrics() == null) {
+                cosXmlRequest.attachMetrics(new HttpTaskMetrics());
+            }
             QCloudHttpRequest<T2> httpRequest = buildHttpRequest(cosXmlRequest, cosXmlResult);
 
             HttpTask<T2> httpTask;
