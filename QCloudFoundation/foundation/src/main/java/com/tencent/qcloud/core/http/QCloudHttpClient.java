@@ -61,7 +61,7 @@ public final class QCloudHttpClient {
     private final Set<String> verifiedHost;
     private final Map<String, List<InetAddress>> dnsMap;
 
-    private final DnsRepository dnsRepository;
+    private final ConnectionRepository connectionRepository;
 
     private boolean dnsCache = true;
 
@@ -101,7 +101,7 @@ public final class QCloudHttpClient {
                 throw new UnknownHostException("can not resolve host name " + hostname);
             }
 
-            return dnsRepository.getDnsRecord(hostname);
+            return connectionRepository.getDnsRecord(hostname);
         }
     };
 
@@ -148,7 +148,7 @@ public final class QCloudHttpClient {
         this.verifiedHost = new HashSet<>(5);
         this.dnsMap = new HashMap<>(3);
         this.taskManager = TaskManager.getInstance();
-        this.dnsRepository = DnsRepository.getInstance();
+        this.connectionRepository = ConnectionRepository.getInstance();
         httpLogger = new HttpLogger(false);
         setDebuggable(false);
         NetworkClient networkClient = b.networkClient;
@@ -161,8 +161,8 @@ public final class QCloudHttpClient {
             networkClient.init(b, hostnameVerifier(), mDns, httpLogger);
             networkClientMap.put(hashCode, networkClient);
         }
-        dnsRepository.addPrefetchHosts(b.prefetchHost);
-        dnsRepository.init(); // 启动 dns 缓存
+        connectionRepository.addPrefetchHosts(b.prefetchHost);
+        connectionRepository.init(); // 启动 dns 缓存
     }
 
     public void setNetworkClientType(Builder b){

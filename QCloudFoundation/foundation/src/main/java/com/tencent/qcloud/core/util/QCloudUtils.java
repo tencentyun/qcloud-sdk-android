@@ -31,6 +31,7 @@ import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.provider.OpenableColumns;
+import android.text.TextUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -44,6 +45,10 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 
 public class QCloudUtils {
+
+    public static boolean isNotEmpty(String str) {
+        return !TextUtils.isEmpty(str);
+    }
 
     public static long getUriContentLength(Uri uri, ContentResolver contentResolver) {
         String scheme = uri.getScheme();

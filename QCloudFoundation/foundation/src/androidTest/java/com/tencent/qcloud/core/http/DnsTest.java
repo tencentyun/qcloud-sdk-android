@@ -64,8 +64,8 @@ public class DnsTest {
     public void testDNS() {
 
         Context context = InstrumentationRegistry.getContext();
-        DnsRepository.LocalDnsCache localDnsCache = new DnsRepository.LocalDnsCache(context);
-        DnsRepository.DnsFetcher dnsFetcher = new DnsRepository.DnsFetcher();
+        ConnectionRepository.LocalDnsCache localDnsCache = new ConnectionRepository.LocalDnsCache(context);
+        ConnectionRepository.DnsFetcher dnsFetcher = new ConnectionRepository.DnsFetcher();
         dnsFetcher.addHost(hostGuangzhou);
         Map<String, List<InetAddress>> fetchDnsRecords = dnsFetcher.fetchAll();
         Map<String, List<InetAddress>> loadDnsRecords = localDnsCache.loadFromLocal();
@@ -78,13 +78,13 @@ public class DnsTest {
         Assert.assertEquals(fetchDnsRecords.get(hostGuangzhou).size(), loadDnsRecords.get(hostGuangzhou).size());
 
 
-        DnsRepository dnsRepository = DnsRepository.getInstance();
+        ConnectionRepository connectionRepository = ConnectionRepository.getInstance();
         List<String> prefecthHosts = new LinkedList<>();
         prefecthHosts.add(hostBeijing);
-        dnsRepository.addPrefetchHosts(prefecthHosts);
+        connectionRepository.addPrefetchHosts(prefecthHosts);
 
         final CountDownLatch countDownLatch = new CountDownLatch(1);
-        dnsRepository.init(new DnsRepository.AsyncExecuteCompleteListener() {
+        connectionRepository.init(new ConnectionRepository.AsyncExecuteCompleteListener() {
             @Override
             public void onComplete() {
                 countDownLatch.countDown();
@@ -97,8 +97,8 @@ public class DnsTest {
         }
 
         try {
-            dnsRepository.getDnsRecord(hostGuangzhou);
-            dnsRepository.getDnsRecord(hostBeijing);
+            connectionRepository.getDnsRecord(hostGuangzhou);
+            connectionRepository.getDnsRecord(hostBeijing);
         } catch (UnknownHostException e) {
             e.printStackTrace();
             Assert.fail();
@@ -106,14 +106,14 @@ public class DnsTest {
 
         try {
             final CountDownLatch countDownLatch2 = new CountDownLatch(1);
-            dnsRepository.insertDnsRecordCache(hostShanghai, dnsRepository.getDnsRecord(hostBeijing), new DnsRepository.AsyncExecuteCompleteListener() {
+            connectionRepository.insertDnsRecordCache(hostShanghai, connectionRepository.getDnsRecord(hostBeijing), new ConnectionRepository.AsyncExecuteCompleteListener() {
                 @Override
                 public void onComplete() {
                     countDownLatch2.countDown();
                 }
             });
             countDownLatch2.await();
-            dnsRepository.getDnsRecord(hostShanghai);
+            connectionRepository.getDnsRecord(hostShanghai);
         } catch (UnknownHostException | InterruptedException e) {
             e.printStackTrace();
             Assert.fail();
@@ -142,7 +142,7 @@ public class DnsTest {
 
         try {
             List<InetAddress> addresses = debugDns(hostname);
-            DnsRepository.getInstance().insertDnsRecordCache(hostname, addresses);
+            ConnectionRepository.getInstance().insertDnsRecordCache(hostname, addresses);
             QCloudLogger.i(tag, "system lookup " + hostname);
             return addresses;
         } catch (UnknownHostException e) {
@@ -150,7 +150,7 @@ public class DnsTest {
             QCloudLogger.w(tag, "system dns failed, retry cache dns records.");
         }
         QCloudLogger.i(tag, "dns cache " + hostname);
-        return DnsRepository.getInstance().getDnsRecord(hostname);
+        return ConnectionRepository.getInstance().getDnsRecord(hostname);
     }
 
     private List<InetAddress> debugDns(String host) throws UnknownHostException {

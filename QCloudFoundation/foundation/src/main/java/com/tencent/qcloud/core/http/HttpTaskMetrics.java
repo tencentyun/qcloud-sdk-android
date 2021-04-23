@@ -22,6 +22,15 @@
 
 package com.tencent.qcloud.core.http;
 
+import android.text.TextUtils;
+import android.view.textservice.TextInfo;
+
+import androidx.annotation.Nullable;
+
+import com.tencent.qcloud.core.logger.QCloudLogger;
+
+import junit.framework.TestSuite;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -30,6 +39,9 @@ public class HttpTaskMetrics {
 
     private long fullTaskStartTime;
     private long fullTaskTookTime;
+
+    private long httpTaskStartTime;
+    private long httpTaskTookTime;
 
     private long calculateMD5StartTime;
     private long calculateMD5STookTime;
@@ -51,9 +63,12 @@ public class HttpTaskMetrics {
 
     long readResponseBodyTookTime;
 
-    String domainName;
-    List<InetAddress> remoteAddress;
-    InetSocketAddress connectAddress;
+    long requestBodyByteCount;
+    long responseBodyByteCount;
+
+    @Nullable String domainName;
+    @Nullable List<InetAddress> remoteAddress;
+    @Nullable InetSocketAddress connectAddress;
 
     void onTaskStart() {
         fullTaskStartTime = System.nanoTime();
@@ -62,6 +77,14 @@ public class HttpTaskMetrics {
     void onTaskEnd() {
         fullTaskTookTime = System.nanoTime() - fullTaskStartTime;
         onDataReady();
+    }
+
+    void onHttpTaskStart() {
+        httpTaskStartTime = System.nanoTime();
+    }
+
+    void onHttpTaskEnd() {
+        httpTaskTookTime = System.nanoTime() - httpTaskStartTime;
     }
 
     void onCalculateMD5Start() {
@@ -78,6 +101,23 @@ public class HttpTaskMetrics {
 
     void onSignRequestEnd() {
         signRequestTookTime += System.nanoTime() - signRequestStartTime;
+    }
+
+    public long requestBodyByteCount() {
+        return requestBodyByteCount;
+    }
+
+    public long responseBodyByteCount() {
+        return responseBodyByteCount;
+    }
+
+    /**
+     * 获取 http 请求执行时间
+     *
+     * @return http 请求执行时间，单位是秒
+     */
+    public double httpTaskFullTime() {
+        return toSeconds(httpTaskTookTime);
     }
 
     /**
@@ -162,7 +202,7 @@ public class HttpTaskMetrics {
     }
 
     /**
-     * 获取任务整体耗时
+     * 获取任务整体耗时，包括计算 md5 时间、计算签名时间和 http 请求时间
      *
      * @return 任务整体耗时，单位是秒
      */
@@ -174,11 +214,11 @@ public class HttpTaskMetrics {
      * 获取服务器IP地址
      * @return 服务器IP地址列表
      */
-    public List<InetAddress> getRemoteAddress() {
+    @Nullable public List<InetAddress> getRemoteAddress() {
         return remoteAddress;
     }
 
-    public InetSocketAddress getConnectAddress() {
+    @Nullable public InetSocketAddress getConnectAddress() {
         return connectAddress;
     }
 
@@ -186,12 +226,23 @@ public class HttpTaskMetrics {
      * 获取服务器域名
      * @return 服务器域名
      */
-    public String getDomainName() {
+    @Nullable public String getDomainName() {
         return domainName;
+    }
+
+    public void setDomainName(@Nullable String domainName) {
+        this.domainName = domainName;
     }
 
     private double toSeconds(long nanotime) {
         return (double)nanotime / 1_000_000_000.0;
+    }
+
+    public static HttpTaskMetrics createMetricsWithHost(String host) {
+        QCloudLogger.i("QCloudTest", "create HttpTaskMetrics with domain name  is " + host);
+        HttpTaskMetrics taskMetrics = new HttpTaskMetrics();
+        taskMetrics.domainName = host;
+        return taskMetrics;
     }
 
     /**
@@ -200,6 +251,44 @@ public class HttpTaskMetrics {
     public void onDataReady() {
 
     }
+
+    synchronized public HttpTaskMetrics merge(HttpTaskMetrics taskMetrics) {
+
+        QCloudLogger.i("QCloudTest", "domainName is " + domainName + ", other is " + taskMetrics.domainName);
+
+        if (!TextUtils.isEmpty(domainName) && !TextUtils.isEmpty(taskMetrics.domainName)
+            && !domainName.equals(taskMetrics.domainName)) {
+            return this;
+        }
+
+        if (TextUtils.isEmpty(domainName) && taskMetrics.domainName != null) {
+            domainName = taskMetrics.domainName;
+        }
+
+        dnsLookupTookTime = Math.max(taskMetrics.dnsLookupTookTime, dnsLookupTookTime);
+        connectTookTime = Math.max(taskMetrics.connectTookTime, connectTookTime);
+        secureConnectTookTime = Math.max(taskMetrics.secureConnectTookTime, secureConnectTookTime);
+        writeRequestHeaderTookTime += taskMetrics.writeRequestHeaderTookTime;
+        writeRequestBodyTookTime += taskMetrics.writeRequestBodyTookTime;
+        readResponseHeaderTookTime += taskMetrics.readResponseHeaderTookTime;
+        readResponseBodyTookTime += taskMetrics.readResponseBodyTookTime;
+        requestBodyByteCount += taskMetrics.requestBodyByteCount;
+        responseBodyByteCount += taskMetrics.responseBodyByteCount;
+        fullTaskTookTime += taskMetrics.fullTaskTookTime;
+        httpTaskTookTime += taskMetrics.httpTaskTookTime;
+        calculateMD5STookTime += taskMetrics.calculateMD5STookTime;
+        signRequestTookTime += taskMetrics.signRequestTookTime;
+        QCloudLogger.i("QCloudTest", "upload request size requestBodyByteCount " + requestBodyByteCount);
+        QCloudLogger.i("QCloudTest", "upload response size responseBodyByteCount " + responseBodyByteCount);
+        if (taskMetrics.getRemoteAddress() != null) {
+            remoteAddress = taskMetrics.getRemoteAddress();
+        }
+        if (taskMetrics.connectAddress != null) {
+            connectAddress = taskMetrics.getConnectAddress();
+        }
+        return this;
+    }
+
 
     @Override
     public String toString() {
