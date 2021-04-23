@@ -168,7 +168,7 @@ public class CopyTest {
         CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
                 TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
         COSXMLCopyTask cosxmlCopyTask = transferManager.copy(TestConst.PERSIST_BUCKET, cosPath, copySourceStruct);
-        TestUtils.sleep(2000);
+        TestUtils.sleep(1000);
         cosxmlCopyTask.pause();
         TestUtils.sleep(200);
         Assert.assertTrue(cosxmlCopyTask.getTaskState() == TransferState.PAUSED);
