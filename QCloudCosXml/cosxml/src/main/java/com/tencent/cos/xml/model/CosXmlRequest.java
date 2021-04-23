@@ -73,6 +73,8 @@ public abstract class CosXmlRequest{
     private HttpTaskMetrics metrics;
     private boolean isNeedMD5 = false;
     private boolean isSupportAccelerate = false;
+
+    protected int priority = -1;
     /**
      * 存储桶
      */
@@ -326,6 +328,7 @@ public abstract class CosXmlRequest{
         return config.getRequestHost(region, bucket, isSupportAccelerate);
     }
 
+
     /**
      * 是否启用全球加速
      * @param isSupportAccelerate 是否启用全球加速
@@ -465,12 +468,10 @@ public abstract class CosXmlRequest{
     }
 
     /**
-     * 获取优先级<br>
-     * 目前返回默认优先级PRIORITY_NORMAL
-     * @return 默认优先级PRIORITY_NORMAL
+     * 获取请求优先级<br>
      */
     public int getPriority() {
-       return -1;
+       return priority;
     }
 
     /**

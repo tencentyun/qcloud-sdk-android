@@ -7,6 +7,7 @@ def compileQuic() {
             .toString().contains("Debug") && "QCloudCosXml".equalsIgnoreCase(rootProject.name)
 }
 
+
 android {
 
     compileSdkVersion 28
@@ -16,8 +17,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 50603
-        versionName "5.6.3"
+        versionCode 50604
+        versionName "5.6.4"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -89,7 +90,7 @@ dependencies {
     api project(path: ':foundation')
     api project(path: ':logUtils')
 
-    if (compileQuic()) {
+    if (compileQuic() && false) {
         api project(path: ':quic')
     }
 
@@ -97,7 +98,7 @@ dependencies {
     annotationProcessor project(':xmlCompiler')
 
     //lite版本使用normalApi
-    //normalApi 'com.tencent.qcloud:beacon-android-release:4.1.13'
+    // normalApi 'com.tencent.qcloud:beacon-android-release:4.1.13'
     //normal版本使用api
     api 'com.tencent.qcloud:beacon-android-release:4.1.13'
     slimCompileOnly 'com.tencent.qcloud:beacon-android-release:4.1.13'

@@ -44,6 +44,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -65,10 +66,14 @@ public class DownloadTest {
         COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
                 getObjectRequest);
 
+        // downloadTask.startTimeoutTimer(100);
         downloadTask.setOnGetHttpTaskMetrics(new COSXMLTask.OnGetHttpTaskMetrics() {
             @Override
             public void onGetHttpMetrics(String requestName, HttpTaskMetrics httpTaskMetrics) {
-                QCloudLogger.i(TestConst.UT_TAG, "connect ip is " + httpTaskMetrics.getConnectAddress().getAddress().getHostAddress());
+                InetSocketAddress socketAddress = httpTaskMetrics.getConnectAddress();
+                if (socketAddress != null) {
+                    QCloudLogger.i(TestConst.UT_TAG, "connect ip is " + socketAddress.getAddress().getHostAddress());
+                }
             }
         });
 
@@ -83,6 +88,12 @@ public class DownloadTest {
             public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
                 TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
                 testLocker.release();
+            }
+        });
+        downloadTask.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                QCloudLogger.i("QCloudTest", "transfer state is " + state);
             }
         });
 
