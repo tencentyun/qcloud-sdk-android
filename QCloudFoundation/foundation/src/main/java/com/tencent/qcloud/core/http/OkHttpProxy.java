@@ -22,14 +22,8 @@
 
 package com.tencent.qcloud.core.http;
 
-import android.os.Build;
-import android.text.TextUtils;
-import android.util.Log;
-
-import com.tencent.qcloud.core.BuildConfig;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
-import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -91,6 +85,14 @@ public class OkHttpProxy<T> extends NetworkProxy<T> {
 
             response = httpCall.execute();
 
+            if (eventListener != null) {
+                eventListener.dumpMetrics(metrics);
+                if (eventListener.getConnectAddress() != null) {
+                    ConnectionRepository.getInstance().setConnectAddress(httpRequest.host(),
+                            eventListener.getConnectAddress());
+                }
+            }
+
             if (response != null) {
                 if (httpResult == null) {
                     httpResult = convertResponse(httpRequest, response);
@@ -112,9 +114,6 @@ public class OkHttpProxy<T> extends NetworkProxy<T> {
             if(response != null) Util.closeQuietly(response);
         }
 
-        if (eventListener != null) {
-            eventListener.dumpMetrics(metrics);
-        }
 
         if (clientException != null) {
             throw clientException;
@@ -132,7 +131,7 @@ public class OkHttpProxy<T> extends NetworkProxy<T> {
 
         List<InetAddress> dnsRecord = null;
         if (eventListener != null && (dnsRecord = eventListener.dumpDns()) != null) {
-            DnsRepository.getInstance().insertDnsRecordCache(host, dnsRecord);
+            ConnectionRepository.getInstance().insertDnsRecordCache(host, dnsRecord);
         }
     }
 

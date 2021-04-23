@@ -23,14 +23,15 @@
 package com.tencent.qcloud.core.http;
 
 import android.content.Context;
-import android.os.Environment;
 import android.text.TextUtils;
 
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import androidx.annotation.Nullable;
+
 import com.tencent.qcloud.core.util.ContextHolder;
 import com.tencent.qcloud.core.util.QCloudUtils;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -45,11 +46,13 @@ import okhttp3.Dns;
 /**
  * 管理 Dns 的预取和缓存
  */
-public class DnsRepository {
+public class ConnectionRepository {
 
     private Map<String, List<InetAddress>> dnsRecords;
 
-    private static volatile DnsRepository instance;
+    private Map<String, InetSocketAddress> connectAddressRecords;
+
+    private static volatile ConnectionRepository instance;
 
     private LocalDnsCache localDnsCache;
 
@@ -57,29 +60,30 @@ public class DnsRepository {
 
     private Executor singleExecutor;
 
-    public static DnsRepository getInstance() {
+    public static ConnectionRepository getInstance() {
 
         if (instance == null) {
-            synchronized (DnsRepository.class) {
+            synchronized (ConnectionRepository.class) {
                 if (instance == null) {
-                    instance = new DnsRepository();
+                    instance = new ConnectionRepository();
                 }
             }
         }
         return instance;
     }
 
-    private DnsRepository() {
+    private ConnectionRepository() {
 
         localDnsCache = new LocalDnsCache(ContextHolder.getAppContext());
         dnsFetcher = new DnsFetcher();
         dnsRecords = new ConcurrentHashMap<>();
+        connectAddressRecords = new ConcurrentHashMap<>();
         singleExecutor = Executors.newSingleThreadExecutor();
     }
 
     /**
      * 添加预取 Host，cos 存储桶的 host 一般格式为 bucket.cos.region.myqcloud.com。
-     * 添加后，会在调用 {@link DnsRepository#init()} 方法后进行预解析。
+     * 添加后，会在调用 {@link ConnectionRepository#init()} 方法后进行预解析。
      *
      * @param hosts 需要预解析的 host 列表
      */
@@ -102,12 +106,20 @@ public class DnsRepository {
         insertDnsRecordCache(host, inetAddresses, null);
     }
 
+    public void setConnectAddress(String host, InetSocketAddress socketAddress) {
+        connectAddressRecords.put(host, socketAddress);
+    }
+
+    public @Nullable InetSocketAddress getConnectAddress(String host) {
+        return connectAddressRecords.get(host);
+    }
+
     // public void deleteDnsRecordCache
 
     /**
      * 获取已经缓存的 DNS 记录
      * @param host
-     * @return
+     * @return 已经缓存的 DNS 记录
      * @throws UnknownHostException
      */
     public List<InetAddress> getDnsRecord(String host) throws UnknownHostException {
