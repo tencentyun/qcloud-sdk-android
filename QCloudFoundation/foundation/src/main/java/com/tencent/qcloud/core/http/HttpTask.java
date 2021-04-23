@@ -191,7 +191,9 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
             ((ProgressBody) httpRequest.getRequestBody()).setProgressListener(mProgressListener);
         }
         try {
+            metrics.onHttpTaskStart();
             httpResult = networkProxy.executeHttpRequest(httpRequest);
+            metrics.onHttpTaskEnd();
             return httpResult;
         } catch (QCloudServiceException serviceException) {
             if (isClockSkewedError(serviceException)) {
@@ -202,7 +204,9 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
                     metrics.onSignRequestEnd();
                 }
                 // try again
+                metrics.onHttpTaskStart();
                 httpResult = networkProxy.executeHttpRequest(httpRequest);
+                metrics.onHttpTaskEnd();
                 return httpResult;
             } else {
                 throw serviceException;
