@@ -28,6 +28,11 @@ package com.tencent.cos.xml.common;
  *     <li>Standard : 标准存储</li>
  *     <li>Standard_IA : 冷存储</li>
  *     <li>ARCHIVE : 近线存储</li>
+ *     <li>DEEP_ARCHIVE : 深度归档存储</li>
+ *     <li>INTELLIGENT_TIERING : 智能分层存储</li>
+ *     <li>MAZ_STANDARD : 标准存储（多 AZ）</li>
+ *     <li>MAZ_STANDARD_IA : 低频存储（多 AZ）</li>
+ *     <li>MAZ_INTELLIGENT_TIERING : 智能分层存储（多 AZ）</li>
  * 详细描述，请参考：<a href="https://cloud.tencent.com/document/product/436/33417">存储类型</a>
  * </ul>
  */

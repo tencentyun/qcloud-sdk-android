@@ -30,6 +30,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.junit.Assert.*;
 
 /**
@@ -54,5 +57,37 @@ public class RegionTest {
         assertEquals(Region.CN_SOUTH, Region.fromValue("cn-south"));
         assertEquals(Region.CN_EAST, Region.fromValue("cn-east"));
         assertEquals(Region.CN_SOUTHWEST, Region.fromValue("cn-southwest"));
+    }
+
+    @Test public void test2() {
+
+        // 按指定模式在字符串查找
+        String line = "android-ut-persist-bucket-1253653367.cos.ap-guangzhou.myqcloud.com";
+        String pattern = ".*\\.cos\\.(.*)\\.myqcloud.com";
+
+        // 创建 Pattern 对象
+        Pattern params = Pattern.compile(pattern);
+
+        // 现在创建 matcher 对象
+        Matcher matcher = params.matcher(line);
+
+
+        try {
+            if (matcher.find() ) {
+                // params.put("region", matcher.group(1));
+                System.out.println("Found value: " + matcher.group(0));
+                System.out.println("Found value: " + matcher.group(1));
+                System.out.println("Found value: " + matcher.group(2));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+//        if (m.find( )) {
+//            System.out.println("Found value: " + m.group(1) );
+//        } else {
+//            System.out.println("NO MATCH");
+//        }
     }
 }

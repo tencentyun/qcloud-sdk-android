@@ -31,6 +31,7 @@ import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
+import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.util.ContextHolder;
 
 import java.io.File;
@@ -226,6 +227,17 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
                 throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "upload file does not exist");
             }
         }
+    }
+
+    /**
+     *
+     */
+    public void setPriorityLow() {
+        this.priority = QCloudTask.PRIORITY_LOW;
+    }
+
+    public boolean isPriorityLow() {
+        return this.priority == QCloudTask.PRIORITY_LOW;
     }
 
     /**
