@@ -28,7 +28,7 @@ import com.tencent.qcloud.core.auth.STSCredentialScope;
 /**
  * 对象分块上传请求基类
  */
-public abstract class BaseMultipartUploadRequest extends ObjectRequest {
+public abstract class BaseMultipartUploadRequest extends UploadRequest {
 
     BaseMultipartUploadRequest(String bucket, String cosPath){
         super(bucket, cosPath);

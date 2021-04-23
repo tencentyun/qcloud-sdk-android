@@ -25,6 +25,8 @@ package com.tencent.cos.xml;
 import android.content.Context;
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import com.tencent.beacon.core.info.BeaconPubParams;
 import com.tencent.beacon.event.open.BeaconConfig;
 import com.tencent.beacon.event.open.BeaconEvent;
@@ -35,10 +37,16 @@ import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlRequest;
+import com.tencent.cos.xml.model.object.CopyObjectRequest;
+import com.tencent.cos.xml.model.object.GetObjectRequest;
+import com.tencent.cos.xml.model.object.ObjectRequest;
+import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.qcloud.core.common.QCloudAuthenticationException;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
-import com.tencent.qcloud.core.http.DnsRepository;
+import com.tencent.qcloud.core.http.ConnectionRepository;
+import com.tencent.qcloud.core.http.HttpRequest;
+import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
@@ -47,23 +55,29 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.HttpRetryException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLHandshakeException;
+
+import okhttp3.ConnectionPool;
 
 /**
  * 灯塔服务
  */
 public class BeaconService {
     private static final String TAG = "BeaconProxy";
-        private static final String APP_KEY = "0AND0VEVB24UBGDU";
-    private static final boolean IS_DEBUG = false;
+    private static final String APP_KEY = "0AND0VEVB24UBGDU";
+    private static final boolean IS_DEBUG = true;
 
     private static final String EVENT_CODE_BASE_SERVICE = "base_service";
     private static final String EVENT_CODE_DOWNLOAD = "cos_download";
@@ -114,28 +128,14 @@ public class BeaconService {
                 }
             }
         }
+
+
     }
 
     public static BeaconService getInstance() {
         return instance;
     }
 
-    private void report(String eventcode, Map<String, String> params) {
-        if(!isIncludeBeacon()) return;
-
-        BeaconEvent.Builder builder = BeaconEvent.builder()
-                .withAppKey(APP_KEY)
-                .withCode(eventcode)
-                .withType(EventType.NORMAL)
-                .withParams(params);
-        try {
-            builder.withIsSimpleParams(true);
-        } catch (NoSuchMethodError error) {
-            //APP使用了标准版的灯塔SDK 不支持withIsSimpleParams
-        }
-        EventResult result = BeaconReport.getInstance().report(builder.build());
-        QCloudLogger.d(TAG, "EventResult{ eventID:" + result.eventID + ", errorCode: " + result.errorCode + ", errorMsg: " + result.errMsg + "}");
-    }
 
     /*--------------------------reportBaseService-----------------------------*/
     /**
@@ -244,6 +244,361 @@ public class BeaconService {
             report(EVENT_CODE_UPLOAD, params);
         }
     }
+
+
+    public void reportRequestSuccess(CosXmlRequest request) {
+        reportRequestSuccess(parseEventCode(request), request, null);
+    }
+
+    public CosXmlClientException reportRequestClientException(CosXmlRequest request, QCloudClientException clientException) {
+        return reportClientException(parseEventCode(request), request, clientException, null);
+    }
+
+    public CosXmlServiceException reportRequestServiceException(CosXmlRequest request, QCloudServiceException serviceException) {
+        return reportServiceException(parseEventCode(request), request, serviceException, null);
+    }
+
+    public void reportUploadTaskSuccess(CosXmlRequest request) {
+        // 只需要一个 PutObjectRequest 壳，带上 HttpTaskMetrics 信息
+        reportRequestSuccess(EVENT_CODE_UPLOAD, request,
+                Collections.singletonMap("name", "UploadTask"));
+    }
+
+    public void reportUploadTaskClientException(CosXmlRequest request, QCloudClientException clientException) {
+        reportClientException(EVENT_CODE_UPLOAD, request, clientException,
+                createTransferExtra("UploadTask", request));
+    }
+
+    public void reportUploadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException) {
+        reportServiceException(EVENT_CODE_UPLOAD, request, serviceException,
+                createTransferExtra("UploadTask", request));
+    }
+
+    public void reportDownloadTaskSuccess(CosXmlRequest request) {
+        // 只需要一个 GetObjectRequest 壳，带上 HttpTaskMetrics 信息
+        reportRequestSuccess(EVENT_CODE_DOWNLOAD, request,
+                Collections.singletonMap("name", "DownloadTask"));
+    }
+
+    public void reportDownloadTaskClientException(CosXmlRequest request, QCloudClientException clientException) {
+        reportClientException(EVENT_CODE_DOWNLOAD, request, clientException,
+                createTransferExtra("DownloadTask", request));
+    }
+
+    public void reportDownloadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException) {
+        reportServiceException(EVENT_CODE_DOWNLOAD, request, serviceException,
+                createTransferExtra("DownloadTask", request));
+    }
+
+    public void reportCopyTaskSuccess(CosXmlRequest request) {
+        // 只需要一个 CopyObjectRequest 壳，带上 HttpTaskMetrics 信息
+        reportRequestSuccess(EVENT_CODE_COPY, request,
+                Collections.singletonMap("name", "CopyTask"));
+    }
+
+    public void reportCopyTaskClientException(CosXmlRequest request, CosXmlClientException clientException) {
+        reportClientException(EVENT_CODE_COPY, request, clientException,
+                createTransferExtra("CopyTask", request));
+    }
+
+    public void reportCopyTaskServiceException(CosXmlRequest request, CosXmlServiceException serviceException) {
+        reportServiceException(EVENT_CODE_COPY, request, serviceException,
+                createTransferExtra("CopyTask", request));
+    }
+
+    private Map<String, String> createTransferExtra(String name, CosXmlRequest request) {
+
+        Map<String, String> params = new HashMap<>();
+        params.put("name", name);
+        params.put("error_node", request.getClass().getSimpleName());
+        return params;
+    }
+
+
+    /**
+     * 单个请求，整体任务
+     *
+     * 成功：
+     *
+     * 1. host
+     * 2. region
+     * 3. length
+     * 4. time
+     */
+
+    private void reportRequestSuccess(String eventCode, CosXmlRequest request, @Nullable Map<String, String> extra) {
+
+        if(isReport(request)) {
+            HttpTaskMetrics taskMetrics = request.getMetrics();
+
+            // 添加 host region
+            Map<String, String> params = parseUrlParams(request);
+            // 添加基础参数
+            params.putAll(getCommonParams());
+            // 添加简单性能参数
+            params.putAll(parseSimplePerfParams(taskMetrics));
+            // 添加服务名称
+            if (extra == null || !extra.containsKey("name")) {
+                params.put("name", request.getClass().getSimpleName());
+            }
+            // 添加请求结果
+            params.put("result", EVENT_PARAMS_SUCCESS);
+            // 添加额外参数
+            if (extra != null) {
+                params.putAll(extra);
+            }
+            report(eventCode, params);
+        }
+    }
+
+    /**
+     * 上报客户端异常 单个请求，整体任务
+     *
+     * 失败：
+     * 1. host
+     * 2. region
+     * 3. 失败原因
+     * 4. errorcode
+     * 5. dns解析时间，建联时间，tls建联时间，ip列表，服务端ip，读写时间，请求整体耗时
+     */
+    private CosXmlClientException reportClientException(String eventCode, CosXmlRequest request, QCloudClientException clientException, @Nullable Map<String, String> extra) {
+
+        ReturnClientException returnClientException = getClientExceptionParams(clientException);
+        if (isReport(returnClientException.exception) && isReport(request)) {
+
+            HttpTaskMetrics taskMetrics = request.getMetrics();
+
+            // 添加 host region key
+            Map<String, String> params = parseUrlParams(request);
+            // 添加基础参数
+            params.putAll(getCommonParams());
+            // 添加错误信息
+            params.putAll(returnClientException.params);
+            // 添加性能参数
+            params.putAll(parsePerfParams(taskMetrics));
+            // 添加 dns 解析
+            params.putAll(parseDnsParams(request));
+            // 添加服务名称
+            if (extra == null || !extra.containsKey("name")) {
+                params.put("name", request.getClass().getSimpleName());
+            }
+            // 添加请求结果
+            params.put("result", EVENT_PARAMS_FAILURE);
+
+            // 添加额外参数
+            if (extra != null) {
+                params.putAll(extra);
+            }
+            report(eventCode, params);
+        }
+
+
+        return returnClientException.exception;
+    }
+
+    /**
+     * 上报服务端异常 单个请求，整体任务
+     *
+     * 失败：
+     * 1. host
+     * 2. region
+     * 3. 失败原因
+     * 4. errorcode
+     * 5. dns解析时间，建联时间，tls建联时间，ip列表，服务端ip，读写时间，请求整体耗时
+     * 6. requestid
+     */
+    private CosXmlServiceException reportServiceException(String eventCode, CosXmlRequest request, QCloudServiceException serviceException, @Nullable Map<String, String> extra) {
+
+        ReturnServiceException returnServiceException = getServiceExceptionParams(serviceException);
+
+        if (request instanceof ObjectRequest) {
+            String path = ((ObjectRequest) request).getCosPath();
+        }
+
+        if (isReport(returnServiceException.exception) && isReport(request)) {
+            // 添加 host region key
+            Map<String, String> params = parseUrlParams(request);
+            // 添加基础参数
+            params.putAll(getCommonParams());
+            // 添加错误信息
+            params.putAll(returnServiceException.params);
+            // 添加性能参数
+            params.putAll(parsePerfParams(request.getMetrics()));
+            // 添加 dns 解析
+            params.putAll(parseDnsParams(request));
+            // 添加服务名称
+            if (extra == null || !extra.containsKey("name")) {
+                params.put("name", request.getClass().getSimpleName());
+            }
+            // 添加请求结果
+            params.put("result", EVENT_PARAMS_FAILURE);
+
+            // 添加额外参数
+            if (extra != null) {
+                params.putAll(extra);
+            }
+            report(eventCode, params);
+        }
+        return returnServiceException.exception;
+    }
+
+    /**
+     * 如果域名从来没有解析成功过，那么这里返回的结果为空，比如一个错误的域名
+     * @param request
+     * @return
+     */
+    private Map<String, String> parseDnsParams(CosXmlRequest request) {
+        Map<String, String> params = new HashMap<>();
+        String host = parseHost(request);
+        HttpTaskMetrics taskMetrics = request.getMetrics();
+        if (TextUtils.isEmpty(host)) {
+            return params;
+        }
+        if (taskMetrics != null && taskMetrics.getConnectAddress() != null
+            && taskMetrics.getConnectAddress().getAddress() != null) {
+            params.put("ips", taskMetrics.getConnectAddress()
+                    .getAddress().getHostAddress());
+        } else {
+            InetSocketAddress connectionAddress = ConnectionRepository.getInstance().getConnectAddress(host);
+            if (connectionAddress != null && connectionAddress.getAddress() != null) {
+                params.put("ips", connectionAddress.getAddress().getHostAddress());
+            }
+        }
+        return params;
+    }
+
+    private @Nullable String parseHost(CosXmlRequest request) {
+        HttpTask httpTask = request.getHttpTask();
+        String host = null;
+        if (httpTask != null) {
+            HttpRequest httpRequest = httpTask.request();
+            if (httpRequest != null) {
+                host = httpRequest.host();
+            }
+        }
+        if (host == null && request.getMetrics() != null) {
+            host = request.getMetrics().getDomainName();
+        }
+
+
+        return host;
+    }
+
+    private Map<String, String> parsePerfParams(@Nullable HttpTaskMetrics taskMetrics) {
+
+        Map<String, String> params = new HashMap<>();
+
+        if (taskMetrics == null) {
+            return params;
+        }
+
+        params.put("took_time", String.valueOf(taskMetrics.httpTaskFullTime()));
+        params.put("http_dns", String.valueOf(taskMetrics.dnsLookupTookTime()));
+        params.put("http_connect", String.valueOf(taskMetrics.connectTookTime()));
+        params.put("http_secure_connect", String.valueOf(taskMetrics.secureConnectTookTime()));
+        params.put("http_md5", String.valueOf(taskMetrics.calculateMD5STookTime()));
+        params.put("http_sign", String.valueOf(taskMetrics.signRequestTookTime()));
+        params.put("http_read_header", String.valueOf(taskMetrics.readResponseHeaderTookTime()));
+        params.put("http_read_body", String.valueOf(taskMetrics.readResponseBodyTookTime()));
+        params.put("http_write_header", String.valueOf(taskMetrics.writeRequestHeaderTookTime()));
+        params.put("http_write_body", String.valueOf(taskMetrics.writeRequestBodyTookTime()));
+        params.put("http_full", String.valueOf(taskMetrics.fullTaskTookTime()));
+        params.put("size", String.valueOf(taskMetrics.requestBodyByteCount() + taskMetrics.responseBodyByteCount()));
+
+        return params;
+    }
+
+    private Map<String, String> parseSimplePerfParams(@Nullable HttpTaskMetrics taskMetrics) {
+
+        Map<String, String> params = new HashMap<>();
+        if (taskMetrics == null) {
+            return params;
+        }
+
+        params.put("took_time", String.valueOf(taskMetrics.httpTaskFullTime()));
+        params.put("size", String.valueOf(taskMetrics.requestBodyByteCount() + taskMetrics.responseBodyByteCount()));
+        return params;
+    }
+
+
+    private Map<String, String> parseUrlParams(CosXmlRequest request) {
+        Map<String, String> params = new HashMap<>();
+        String host = parseHost(request); // taskMetrics.getDomainName();
+        if (TextUtils.isEmpty(host)) {
+            return params;
+        }
+        params.put("host", host);
+        try {
+            Pattern pattern = Pattern.compile(".*\\.cos\\.(.*)\\.myqcloud.com");
+            Matcher matcher = pattern.matcher(host);
+            if (matcher.find()) {
+                params.put("region", matcher.group(1));
+            }
+        } catch (Exception e) {}
+
+        if (request instanceof ObjectRequest &&
+                !TextUtils.isEmpty(((ObjectRequest) request).getCosPath())) {
+            params.put("request_path", ((ObjectRequest) request).getCosPath());
+        }
+        return params;
+    }
+
+    private PutObjectRequest emptyPutObjectRequestWithMetrics(HttpTaskMetrics taskMetrics) {
+        PutObjectRequest putObjectRequest = new PutObjectRequest("", "", "");
+        putObjectRequest.attachMetrics(taskMetrics);
+        return putObjectRequest;
+    }
+
+    private CopyObjectRequest emptyCopyObjectRequestWithMetrics(HttpTaskMetrics taskMetrics) {
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest("", "", null);
+        copyObjectRequest.attachMetrics(taskMetrics);
+        return copyObjectRequest;
+    }
+
+    private GetObjectRequest emptyGetObjectRequestWithMetrics(HttpTaskMetrics taskMetrics) {
+        GetObjectRequest getObjectRequest = new GetObjectRequest("", "", "");
+        getObjectRequest.attachMetrics(taskMetrics);
+        return getObjectRequest;
+    }
+
+    private String parseEventCode(CosXmlRequest request) {
+
+        String eventCode = EVENT_CODE_BASE_SERVICE;
+        if (isUploadTaskRequest(request)) {
+            eventCode = EVENT_CODE_UPLOAD;
+        } else if (isDownloadTaskRequest(request)) {
+            eventCode = EVENT_CODE_DOWNLOAD;
+        }
+        return eventCode;
+    }
+
+    private void report(String eventCode, Map<String, String> params) {
+        if(!isIncludeBeacon()) return;
+
+        BeaconEvent.Builder builder = BeaconEvent.builder()
+                .withAppKey(APP_KEY)
+                .withCode(eventCode)
+                .withType(EventType.NORMAL)
+                .withParams(params);
+        try {
+            builder.withIsSimpleParams(true);
+        } catch (NoSuchMethodError error) {
+            //APP使用了标准版的灯塔SDK 不支持withIsSimpleParams
+        }
+        EventResult result = BeaconReport.getInstance().report(builder.build());
+        if (IS_DEBUG) {
+            StringBuilder mapAsString = new StringBuilder("{");
+            for (String key : params.keySet()) {
+                mapAsString.append(key + "=" + params.get(key) + ", ");
+            }
+            mapAsString.delete(mapAsString.length() - 2, mapAsString.length()).append("}");
+            QCloudLogger.d(TAG, "eventCode: %s, params: %s => result{ eventID: %s, errorCode: %d, errorMsg: %s}",
+                    eventCode, mapAsString, result.eventID, result.errorCode, result.errMsg);
+        }
+    }
+
+
+
     /*--------------------------reportUpload-----------------------------*/
 
     /*--------------------------reportCopy-----------------------------*/
@@ -324,13 +679,8 @@ public class BeaconService {
             if (host != null) {
                 params.put("host", host);
                 try {
-                    StringBuilder ipString = new StringBuilder();
-                    List<InetAddress> ips = DnsRepository.getInstance().getDnsRecord(host);
-                    for (InetAddress ip : ips) {
-                        ipString.append(ip.getHostAddress());
-                        ipString.append(",");
-                    }
-                    params.put("ips", ipString.toString());
+                    List<InetAddress> ips = ConnectionRepository.getInstance().getDnsRecord(host);
+                    params.put("ips", flatInetAddressList(ips));
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }
@@ -338,6 +688,26 @@ public class BeaconService {
         }
 
         return params;
+    }
+
+    private String flatInetAddressList(@Nullable List<InetAddress> ips) {
+        if (ips == null) {
+            return "";
+        }
+
+        StringBuilder ipString = new StringBuilder();
+        for (InetAddress ip : ips) {
+            ipString.append(ip.getHostAddress());
+            ipString.append(",");
+        }
+        return ipString.toString();
+    }
+
+    private String getConnectIp(@Nullable InetSocketAddress socketAddress) {
+        if (socketAddress == null || socketAddress.getAddress() == null) {
+            return "";
+        }
+        return socketAddress.getAddress().getHostAddress();
     }
 
     private Map<String, String> getDownloadParams(String region, boolean isSuccess) {
@@ -485,16 +855,35 @@ public class BeaconService {
      * @return 是否上报
      */
     private boolean isReport(CosXmlRequest cosXmlRequest) {
+        return true;
+    }
+
+
+    private boolean isDownloadTaskRequest(CosXmlRequest cosXmlRequest) {
+
         String requestName = cosXmlRequest.getClass().getSimpleName();
-        return !"PutObjectRequest".equals(requestName) &&
-                !"GetObjectRequest".equals(requestName) &&
-                !"SelectObjectContentRequest".equals(requestName) &&
-                !"InitMultipartUploadRequest".equals(requestName) &&
-                !"ListPartsRequest".equals(requestName) &&
-                !"UploadPartRequest".equals(requestName) &&
-                !"CompleteMultiUploadRequest".equals(requestName) &&
-                !"AbortMultiUploadRequest".equals(requestName) &&
-                !"UploadPartCopyRequest".equals(requestName);
+        return "HeadObjectRequest".equals(requestName) ||
+                "GetObjectRequest".equals(requestName);
+    }
+
+    private boolean isUploadTaskRequest(CosXmlRequest cosXmlRequest) {
+
+        String requestName = cosXmlRequest.getClass().getSimpleName();
+        return "PutObjectRequest".equals(requestName) ||
+                "InitMultipartUploadRequest".equals(requestName) ||
+                "ListPartsRequest".equals(requestName) ||
+                "UploadPartRequest".equals(requestName) ||
+                "CompleteMultiUploadRequest".equals(requestName) ||
+                "AbortMultiUploadRequest".equals(requestName);
+    }
+
+
+    // 这里有点问题，复制任务还包括了一部分分片上传的请求
+    private boolean isCopyTaskRequest(CosXmlRequest cosXmlRequest) {
+
+        String requestName = cosXmlRequest.getClass().getSimpleName();
+        return "UploadPartCopyRequest".equals(requestName) ||
+                "CopyObjectRequest".equals(requestName);
     }
 
     /**
@@ -504,18 +893,7 @@ public class BeaconService {
      * @return 是否上报
      */
     private boolean isReport(CosXmlServiceException e) {
-        return "BadDigest".equals(e.getErrorCode()) ||
-                "EntitySizeNotMatch".equals(e.getErrorCode()) ||
-                "IncompleteBody".equals(e.getErrorCode()) ||
-                "InvalidDigest".equals(e.getErrorCode()) ||
-                "InvalidSHA1Digest".equals(e.getErrorCode()) ||
-                "MalformedPOSTRequest".equals(e.getErrorCode()) ||
-                "MalformedXML".equals(e.getErrorCode()) ||
-                "MissingRequestBodyError".equals(e.getErrorCode()) ||
-                "RequestTimeout".equals(e.getErrorCode()) ||
-                "XMLSizeLimit".equals(e.getErrorCode()) ||
-                "SignatureDoesNotMatch".equals(e.getErrorCode()) ||
-                "MissingContentLength".equals(e.getErrorCode());
+        return true;
     }
 
     /**
@@ -525,16 +903,8 @@ public class BeaconService {
      * @return 是否上报
      */
     private boolean isReport(CosXmlClientException e) {
-        return e.errorCode == ClientErrorCode.UNKNOWN.getCode() ||
-                e.errorCode == ClientErrorCode.INTERNAL_ERROR.getCode() ||
-                e.errorCode == ClientErrorCode.SERVERERROR.getCode() ||
-                e.errorCode == ClientErrorCode.IO_ERROR.getCode() ||
-                e.errorCode == PoorNetworkCode.UnknownHostException ||
-                e.errorCode == PoorNetworkCode.SocketTimeoutException ||
-                e.errorCode == PoorNetworkCode.ConnectException ||
-                e.errorCode == PoorNetworkCode.HttpRetryException ||
-                e.errorCode == PoorNetworkCode.NoRouteToHostException ||
-                e.errorCode == PoorNetworkCode.SSLHandshakeException;
+        boolean notReport = e.getMessage() != null && e.getMessage().toLowerCase().contains("canceled");
+        return !notReport;
     }
 
     /**

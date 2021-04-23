@@ -750,7 +750,7 @@ public class CosXmlServiceConfig implements Parcelable {
          * 是否将签名放在 URL 中，默认放在 Header 中
          *
          * @param signInUrl
-         * @return
+         * @return Builder 对象
          */
         public Builder setSignInUrl(boolean signInUrl) {
             this.signInUrl = signInUrl;

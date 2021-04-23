@@ -39,6 +39,7 @@ import com.tencent.cos.xml.model.tag.ACLAccount;
 import com.tencent.cos.xml.model.tag.UrlUploadPolicy;
 import com.tencent.cos.xml.model.tag.pic.PicOperations;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
+import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.util.ContextHolder;
 
 import java.io.File;
@@ -50,7 +51,7 @@ import java.net.URL;
  * @see com.tencent.cos.xml.SimpleCosXml#putObject(PutObjectRequest)
  * @see com.tencent.cos.xml.SimpleCosXml#putObjectAsync(PutObjectRequest, CosXmlResultListener)
  */
-public class PutObjectRequest extends ObjectRequest implements TransferRequest {
+public class PutObjectRequest extends UploadRequest implements TransferRequest {
     private String srcPath;
     private byte[] data;
     private InputStream inputStream;
@@ -132,6 +133,17 @@ public class PutObjectRequest extends ObjectRequest implements TransferRequest {
     @Override
     public String getMethod() {
         return RequestMethod.PUT;
+    }
+
+    /**
+     *
+     */
+    public void setPriorityLow() {
+        this.priority = QCloudTask.PRIORITY_LOW;
+    }
+
+    public boolean isPriorityLow() {
+        return this.priority == QCloudTask.PRIORITY_LOW;
     }
 
     @Override

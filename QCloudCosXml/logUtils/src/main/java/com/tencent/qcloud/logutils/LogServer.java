@@ -65,26 +65,30 @@ public class LogServer implements Application.ActivityLifecycleCallbacks, View.O
 
     @Override
     public void onActivityStarted(Activity activity) {
-        activeActivityCount ++;
-        if(!isAppForeground){
-            isAppForeground = true; // background switch foreground
-            Log.d(TAG, "background to foreground");
-            if(clipboardManager != null && clipboardManager.hasPrimaryClip()){
-                ClipData clipData = clipboardManager.getPrimaryClip();
-                if(clipData == null) return;
-                ClipData.Item item = clipData.getItemAt(0);
-                if(item == null) return;
-                CharSequence content = item.getText();
-                if(content == null)return;
-                content = content.toString().trim();
-                Log.d(TAG, "clip content: " + content);
-                if(KEY_LOG.equals(content)){
-                    Log.d(TAG, "hit it");
-                    clipboardManager.setPrimaryClip(ClipData.newPlainText(null, ""));
-                    currentContext = activity;
-                    tipsDialog();
+        try {
+            activeActivityCount ++;
+            if(!isAppForeground){
+                isAppForeground = true; // background switch foreground
+                Log.d(TAG, "background to foreground");
+                if(clipboardManager != null && clipboardManager.hasPrimaryClip()){
+                    ClipData clipData = clipboardManager.getPrimaryClip();
+                    if(clipData == null) return;
+                    ClipData.Item item = clipData.getItemAt(0);
+                    if(item == null) return;
+                    CharSequence content = item.getText();
+                    if(content == null)return;
+                    content = content.toString().trim();
+                    Log.d(TAG, "clip content: " + content);
+                    if(KEY_LOG.equals(content)){
+                        Log.d(TAG, "hit it");
+                        clipboardManager.setPrimaryClip(ClipData.newPlainText(null, ""));
+                        currentContext = activity;
+                        tipsDialog();
+                    }
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
