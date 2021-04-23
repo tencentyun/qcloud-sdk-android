@@ -60,9 +60,15 @@ public class CallMetricsListener extends EventListener {
     private long readResponseBodyStartTime;
     private long readResponseBodyTookTime;
 
+    /**
+     * domainName inetAddressList connectAddress 都可能是空值
+     */
     private String domainName;
     private List<InetAddress> inetAddressList;
     private InetSocketAddress connectAddress;
+
+    private long requestBodyByteCount;
+    private long responseBodyByteCount;
 
     public CallMetricsListener(Call call) {
 
@@ -143,6 +149,7 @@ public class CallMetricsListener extends EventListener {
     public void requestBodyEnd(Call call, long byteCount) {
         super.requestBodyEnd(call, byteCount);
         writeRequestBodyTookTime += System.nanoTime() - writeRequestBodyStartTime;
+        requestBodyByteCount = byteCount;
     }
 
     @Override
@@ -167,6 +174,7 @@ public class CallMetricsListener extends EventListener {
     public void responseBodyEnd(Call call, long byteCount) {
         super.responseBodyEnd(call, byteCount);
         readResponseBodyTookTime += System.nanoTime() - readResponseBodyStartTime;
+        responseBodyByteCount = byteCount;
     }
 
     public void dumpMetrics(HttpTaskMetrics metrics) {
@@ -180,6 +188,8 @@ public class CallMetricsListener extends EventListener {
         metrics.readResponseHeaderTookTime += readResponseHeaderTookTime;
         metrics.readResponseBodyTookTime += readResponseBodyTookTime;
         metrics.connectAddress = connectAddress;
+        metrics.requestBodyByteCount = requestBodyByteCount;
+        metrics.responseBodyByteCount = responseBodyByteCount;
     }
 
     public InetSocketAddress getConnectAddress() {

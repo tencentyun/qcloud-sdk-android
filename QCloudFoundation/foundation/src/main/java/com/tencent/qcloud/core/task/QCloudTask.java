@@ -75,6 +75,7 @@ public abstract class QCloudTask<T> implements Callable<T> {
     private int mState;
 
     private int weight = WEIGHT_LOW; //
+    private OnRequestWeightListener onRequestWeightListener;
 
     private Executor observerExecutor;
     private Executor workerExecutor;
@@ -83,7 +84,6 @@ public abstract class QCloudTask<T> implements Callable<T> {
     private Set<QCloudProgressListener> mProgressListeners = new HashSet<>(2);
     private Set<QCloudTaskStateListener> mStateListeners = new HashSet<>(2);
 
-    private OnRequestWeightListener onRequestWeightListener;
 
     public QCloudTask(String identifier, Object tag) {
         this.identifier = identifier;
@@ -141,7 +141,12 @@ public abstract class QCloudTask<T> implements Callable<T> {
             public Task<Void> then(Task<T> task) throws Exception {
                 if (task.isFaulted() || task.isCancelled()) {
                     if (observerExecutor == null) {
-                        onFailure();
+                        try {
+                            onFailure();
+                        }catch (Exception e){ // 用户处理回调时引起的异常，直接 error 掉, 不走回调了
+                            e.printStackTrace();
+                            throw new Error(e);
+                        }
                         return null;
                     } else {
                         return Task.call(new Callable<Void>() {
@@ -150,6 +155,7 @@ public abstract class QCloudTask<T> implements Callable<T> {
                                 try {
                                     onFailure();
                                 }catch (Exception e){ // 用户处理回调时引起的异常，直接 error 掉, 不走回调了
+                                    e.printStackTrace();
                                     throw new Error(e);
                                 }
                                 return null;
@@ -158,7 +164,12 @@ public abstract class QCloudTask<T> implements Callable<T> {
                     }
                 } else {
                     if (observerExecutor == null) {
-                        onSuccess();
+                        try {
+                            onSuccess();
+                        } catch (Exception e) {// 用户处理回调时引起的异常，直接 error 掉, 不走回调了
+                            e.printStackTrace();
+                            throw new Error(e);
+                        }
                         return null;
                     } else {
                         return Task.call(new Callable<Void>() {
@@ -167,6 +178,7 @@ public abstract class QCloudTask<T> implements Callable<T> {
                                 try {
                                     onSuccess();
                                 } catch (Exception e) {// 用户处理回调时引起的异常，直接 error 掉, 不走回调了
+                                    e.printStackTrace();
                                     throw new Error(e);
                                 }
                                 return null;
