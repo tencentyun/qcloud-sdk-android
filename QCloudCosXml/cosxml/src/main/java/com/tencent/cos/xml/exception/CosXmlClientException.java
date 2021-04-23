@@ -43,16 +43,16 @@ public class CosXmlClientException extends QCloudClientException {
 
     public CosXmlClientException(int errorCode, String message){
         super(message);
-        this.errorCode = ClientErrorCode.to(errorCode).getCode();
+        this.errorCode = errorCode;
     }
 
     public CosXmlClientException(int errorCode, String message, Throwable cause){
         super(message, cause);
-        this.errorCode = ClientErrorCode.to(errorCode).getCode();
+        this.errorCode = errorCode;
     }
 
     public CosXmlClientException(int errorCode, Throwable cause){
         super(cause);
-        this.errorCode = ClientErrorCode.to(errorCode).getCode();
+        this.errorCode = errorCode;
     }
 }

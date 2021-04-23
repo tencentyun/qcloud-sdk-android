@@ -58,6 +58,7 @@ import com.tencent.cos.xml.model.object.UploadPartCopyRequest;
 import com.tencent.cos.xml.model.object.UploadPartCopyResult;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.cos.xml.model.object.UploadPartResult;
+import com.tencent.cos.xml.model.object.UploadRequest;
 import com.tencent.cos.xml.transfer.ResponseBytesConverter;
 import com.tencent.cos.xml.transfer.ResponseFileBodySerializer;
 import com.tencent.cos.xml.transfer.ResponseXmlS3BodySerializer;
@@ -385,7 +386,6 @@ public class CosXmlSimpleService implements SimpleCosXml {
      */
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> T2 execute(T1 cosXmlRequest, T2 cosXmlResult)
             throws CosXmlClientException, CosXmlServiceException {
-        long start = System.nanoTime();
         try {
             if (cosXmlRequest.getMetrics() == null) {
                 cosXmlRequest.attachMetrics(new HttpTaskMetrics());
@@ -410,12 +410,12 @@ public class CosXmlSimpleService implements SimpleCosXml {
 
             HttpResult<T2> httpResult = httpTask.executeNow();
 
-            BeaconService.getInstance().reportBaseService(cosXmlRequest, TimeUtils.getTookTime(start));
+            BeaconService.getInstance().reportRequestSuccess(cosXmlRequest);
             return httpResult != null ? httpResult.content() : null;
         } catch (QCloudServiceException e) {
-            throw BeaconService.getInstance().reportBaseService(cosXmlRequest, TimeUtils.getTookTime(start), e);
+            throw BeaconService.getInstance().reportRequestServiceException(cosXmlRequest, e);
         } catch (QCloudClientException e) {
-            throw BeaconService.getInstance().reportBaseService(cosXmlRequest, TimeUtils.getTookTime(start), e);
+            throw BeaconService.getInstance().reportRequestClientException(cosXmlRequest, e);
         }
     }
 
@@ -424,26 +424,21 @@ public class CosXmlSimpleService implements SimpleCosXml {
      */
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> void schedule(final T1 cosXmlRequest, T2 cosXmlResult,
                                                                                 final CosXmlResultListener cosXmlResultListener) {
-        final long start = System.nanoTime();
         QCloudResultListener<HttpResult<T2>> qCloudResultListener = new QCloudResultListener<HttpResult<T2>>() {
             @Override
             public void onSuccess(HttpResult<T2> result) {
-                BeaconService.getInstance().reportBaseService(cosXmlRequest, TimeUtils.getTookTime(start));
+                BeaconService.getInstance().reportRequestSuccess(cosXmlRequest);
                 cosXmlResultListener.onSuccess(cosXmlRequest, result.content());
             }
 
             @Override
             public void onFailure(QCloudClientException clientException, QCloudServiceException serviceException) {
-                long tookTime = TimeUtils.getTookTime(start);
                 if (clientException != null) {
-                    CosXmlClientException xmlClientException = BeaconService.getInstance().reportBaseService(cosXmlRequest, tookTime, clientException);
+                    CosXmlClientException xmlClientException = BeaconService.getInstance().reportRequestClientException(cosXmlRequest, clientException);
                     cosXmlResultListener.onFail(cosXmlRequest, xmlClientException,null);
                 } else if (serviceException != null) {
-                    CosXmlServiceException xmlServiceException = BeaconService.getInstance().reportBaseService(cosXmlRequest, tookTime, serviceException);
+                    CosXmlServiceException xmlServiceException = BeaconService.getInstance().reportRequestServiceException(cosXmlRequest, serviceException);
                     cosXmlResultListener.onFail(cosXmlRequest, null, xmlServiceException);
-                } else {
-                    CosXmlClientException xmlClientException = BeaconService.getInstance().reportBaseService(cosXmlRequest, tookTime, new CosXmlClientException(ClientErrorCode.UNKNOWN.getCode(), "Unknown Error"));
-                    cosXmlResultListener.onFail(cosXmlRequest, xmlClientException, null);
                 }
             }
         };
@@ -485,18 +480,18 @@ public class CosXmlSimpleService implements SimpleCosXml {
             if (observeExecutor != null) {
                 httpTask.observeOn(observeExecutor);
             }
-
+            httpTask.addResultListener(qCloudResultListener);
             if(executor != null){
                 httpTask.scheduleOn(executor);
-            }else if(cosXmlRequest instanceof BaseMultipartUploadRequest){
+            }else if(cosXmlRequest instanceof UploadRequest){
                 httpTask.scheduleOn(TaskExecutors.UPLOAD_EXECUTOR, cosXmlRequest.getPriority());
             }
             else {
                 httpTask.schedule();
             }
-            httpTask.addResultListener(qCloudResultListener);
+
         } catch (QCloudClientException e) {
-            CosXmlClientException clientException = BeaconService.getInstance().reportBaseService(cosXmlRequest, TimeUtils.getTookTime(start), e);
+            CosXmlClientException clientException = BeaconService.getInstance().reportRequestClientException(cosXmlRequest, e);
             cosXmlResultListener.onFail(cosXmlRequest, clientException,null);
         }
     }

@@ -39,9 +39,12 @@ import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.util.QCloudUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_CONSTRAINT;
@@ -103,6 +106,9 @@ public abstract class COSXMLTask {
     /** 获取 http metrics */
     protected OnGetHttpTaskMetrics onGetHttpTaskMetrics;
 
+    // 等待超时计时器
+    protected Timer waitTimeoutTimer;
+
     /**
      * 设置COS服务
      * @param cosXmlService COS服务类
@@ -149,6 +155,22 @@ public abstract class COSXMLTask {
         cosXmlRequest.attachMetrics(new COSXMLMetrics(requestName));
     }
 
+    public void startTimeoutTimer(long millisecond) {
+//        if (millisecond < 1000) {
+//            return;
+//        }
+
+        waitTimeoutTimer = new Timer();
+        waitTimeoutTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (taskState == TransferState.WAITING || taskState == TransferState.RESUMED_WAITING) {
+                    encounterError(new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), "Task waiting timeout."), null);
+                }
+            }
+        }, millisecond);
+    }
+
     class COSXMLMetrics extends HttpTaskMetrics {
 
         String requestName;
@@ -173,6 +195,8 @@ public abstract class COSXMLTask {
     protected void internalCancel(){}
 
     protected void internalResume(){}
+
+    abstract protected void encounterError(CosXmlClientException clientException, CosXmlServiceException serviceException);
 
     /**
      * 限制条件被满足，状态应该由 {@link TransferState#CONSTRAINED} 切换到 {@link TransferState#RESUMED_WAITING}

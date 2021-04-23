@@ -39,15 +39,19 @@ import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.HeadObjectRequest;
+import com.tencent.cos.xml.utils.COSUtils;
 import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.cos.xml.utils.FileUtils;
 import com.tencent.cos.xml.utils.TimeUtils;
 import com.tencent.qcloud.core.common.QCloudTaskStateListener;
 import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.task.QCloudTask;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * 下载传输任务
@@ -145,9 +149,10 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 if(request != getObjectRequest){
                     return;
                 }
+                BeaconService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
+
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
-                BeaconService.getInstance().reportDownload(region, downloadComplete, TimeUtils.getTookTime(startTime));
                 updateState(TransferState.COMPLETED, null, result, false);
             }
 
@@ -156,22 +161,20 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 if(request != getObjectRequest){
                     return;
                 }
-                if(IS_EXIT.get())return;
-                IS_EXIT.set(true);
 
-                Exception causeException;
+                Exception causeException = null;
                 if (clientException != null) {
-                    BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_GET, clientException);
+                    BeaconService.getInstance().reportDownloadTaskClientException(request, clientException);
                     causeException = clientException;
                 } else if (serviceException != null) {
-                    BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_GET, serviceException);
+                    // BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_GET, serviceException);
+                    BeaconService.getInstance().reportDownloadTaskServiceException(request, serviceException);
                     causeException = serviceException;
-                } else {
-                    CosXmlClientException cosXmlClientException = new CosXmlClientException(ClientErrorCode.UNKNOWN.getCode(), "Unknown Error");
-                    BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_GET, cosXmlClientException);
-                    causeException = cosXmlClientException;
                 }
-                causeException.printStackTrace();
+                // causeException.printStackTrace();
+
+                if(IS_EXIT.get())return;
+                IS_EXIT.set(true);
                 updateState(TransferState.FAILED, causeException, null, false);
             }
         });
@@ -306,8 +309,9 @@ public final class COSXMLDownloadTask extends COSXMLTask{
             @Override
             public void onStateChanged(String taskId, int state) {
                 if(IS_EXIT.get())return;
-                updateState(TransferState.IN_PROGRESS, null, null, false);
-
+                if (state != QCloudTask.STATE_QUEUEING) {
+                    updateState(TransferState.IN_PROGRESS, null, null, false);
+                }
             }
         });
 
@@ -355,25 +359,11 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                     return;
                 }
                 if(IS_EXIT.get())return;
-//                IS_EXIT.set(true);
-//                Exception causeException = exception == null ? serviceException : exception;
-//                causeException.printStackTrace();
-//                updateState(TransferState.FAILED, causeException, null, false);
-
-                Exception causeException;
-                if (clientException != null) {
-                    BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_HEAD, clientException);
-                    causeException = clientException;
-                } else if (serviceException != null) {
-                    BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_HEAD, serviceException);
-                    causeException = serviceException;
-                } else {
-                    CosXmlClientException cosXmlClientException = new CosXmlClientException(ClientErrorCode.UNKNOWN.getCode(), "Unknown Error");
-                    BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_HEAD, cosXmlClientException);
-                    causeException = cosXmlClientException;
-                }
-
+                Exception causeException = clientException == null ? serviceException : clientException;
+                causeException.printStackTrace();
+                updateState(TransferState.FAILED, causeException, null, false);
                 QCloudLogger.i(TAG, "head " + cosPath + "failed !, exception is " + causeException.getMessage());
+
                 // head 失败后，也会先删除本地文件，然后全部重新下载
                 FileUtils.deleteFileIfExist(downloadPath);
                 hasWriteDataLen = 0L;
@@ -394,7 +384,10 @@ public final class COSXMLDownloadTask extends COSXMLTask{
 
     @Override
     protected void internalPause() {
-        BeaconService.getInstance().reportDownload(region, downloadComplete, TimeUtils.getTookTime(startTime));
+
+        if (getObjectRequest != null) {
+            BeaconService.getInstance().reportUploadTaskSuccess(getObjectRequest);
+        }
         cancelAllRequest();
     }
 
@@ -409,6 +402,13 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         taskState = TransferState.WAITING;
         IS_EXIT.set(false);
         download();
+    }
+
+    @Override
+    protected void encounterError(CosXmlClientException clientException, CosXmlServiceException serviceException) {
+        if(IS_EXIT.get())return;
+        IS_EXIT.set(true);
+        updateState(TransferState.FAILED, COSUtils.mergeException(clientException, serviceException), null, false);
     }
 
     /**
