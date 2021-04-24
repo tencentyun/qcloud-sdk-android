@@ -523,7 +523,7 @@ public class UploadTest {
 
         final TestLocker uploadLocker = new TestLocker();
         String cosPath = UPLOAD_FOLDER+"uploadTask_resume" + System.currentTimeMillis();
-        final String srcPath = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) + TestUtils.bigFilePath();
+        final String srcPath = TestUtils.bigFilePath();
         final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, cosPath, srcPath, null);
 
         cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
