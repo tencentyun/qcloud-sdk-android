@@ -329,12 +329,6 @@ public class UploadTest {
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH, Uri.fromFile(new File(TestUtils.smallFilePath())));
 
         COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
-        uploadTask.setOnGetHttpTaskMetrics(new COSXMLTask.OnGetHttpTaskMetrics() {
-            @Override
-            public void onGetHttpMetrics(String requestName, HttpTaskMetrics httpTaskMetrics) {
-                QCloudLogger.i(TestConst.UT_TAG, "connect ip is " + httpTaskMetrics.getConnectAddress().getAddress().getHostAddress());
-            }
-        });
         final TestLocker testLocker = new TestLocker();
         uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
