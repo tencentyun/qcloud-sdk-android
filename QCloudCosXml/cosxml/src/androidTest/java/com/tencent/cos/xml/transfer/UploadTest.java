@@ -548,17 +548,17 @@ public class UploadTest {
         });
 
         // 上传 5s 后暂停
-        Thread.sleep(10000);
+        Thread.sleep(1000);
         if (cosxmlUploadTask.getTaskState() == TransferState.COMPLETED) {
             Assert.assertTrue(true);
             return;
         } else if (cosxmlUploadTask.getTaskState() == TransferState.IN_PROGRESS) {
 
             cosxmlUploadTask.pauseSafely();
-            Thread.sleep(2000);
+            Thread.sleep(200);
             cosxmlUploadTask.resume();
         } else {
-            Assert.fail();
+            Assert.fail("task state is not complete or in progress, real state is " + cosxmlUploadTask.getTaskState());
             return;
         }
 
