@@ -360,12 +360,6 @@ public class UploadTest {
                 QCloudLogger.i("QCloudTest", "state is " + state);
             }
         });
-        uploadTask.setOnGetHttpTaskMetrics(new COSXMLTask.OnGetHttpTaskMetrics() {
-            @Override
-            public void onGetHttpMetrics(String requestName, HttpTaskMetrics httpTaskMetrics) {
-                QCloudLogger.i(TestConst.UT_TAG, "connect ip is " + httpTaskMetrics.getConnectAddress().getAddress().getHostAddress());
-            }
-        });
         uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
