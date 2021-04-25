@@ -68,7 +68,7 @@ public class HttpTaskMetrics {
 
     @Nullable String domainName;
     @Nullable List<InetAddress> remoteAddress;
-    @Nullable InetSocketAddress connectAddress;
+    @Nullable InetAddress connectAddress;
 
     void onTaskStart() {
         fullTaskStartTime = System.nanoTime();
@@ -218,7 +218,7 @@ public class HttpTaskMetrics {
         return remoteAddress;
     }
 
-    @Nullable public InetSocketAddress getConnectAddress() {
+    @Nullable public InetAddress getConnectAddress() {
         return connectAddress;
     }
 
