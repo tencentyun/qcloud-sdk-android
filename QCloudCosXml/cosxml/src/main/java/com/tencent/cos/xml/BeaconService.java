@@ -77,7 +77,7 @@ import okhttp3.ConnectionPool;
 public class BeaconService {
     private static final String TAG = "BeaconProxy";
     private static final String APP_KEY = "0AND0VEVB24UBGDU";
-    private static final boolean IS_DEBUG = true;
+    private static final boolean IS_DEBUG = false;
 
     private static final String EVENT_CODE_BASE_SERVICE = "base_service";
     private static final String EVENT_CODE_DOWNLOAD = "cos_download";
