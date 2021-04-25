@@ -65,7 +65,7 @@ public class CallMetricsListener extends EventListener {
      */
     private String domainName;
     private List<InetAddress> inetAddressList;
-    private InetSocketAddress connectAddress;
+    private InetAddress connectAddress;
 
     private long requestBodyByteCount;
     private long responseBodyByteCount;
@@ -99,7 +99,6 @@ public class CallMetricsListener extends EventListener {
     @Override
     public void connectStart(Call call, InetSocketAddress inetSocketAddress, Proxy proxy) {
         super.connectStart(call, inetSocketAddress, proxy);
-        connectAddress = inetSocketAddress;
         connectStartTime = System.nanoTime();
     }
 
@@ -177,6 +176,13 @@ public class CallMetricsListener extends EventListener {
         responseBodyByteCount = byteCount;
     }
 
+    public void recordConnection(InetAddress address) {
+        if (address != null) {
+            domainName = address.getHostName();
+            connectAddress = address;
+        }
+    }
+
     public void dumpMetrics(HttpTaskMetrics metrics) {
         metrics.domainName = domainName;
         metrics.remoteAddress = inetAddressList;
@@ -187,13 +193,9 @@ public class CallMetricsListener extends EventListener {
         metrics.writeRequestBodyTookTime += writeRequestBodyTookTime;
         metrics.readResponseHeaderTookTime += readResponseHeaderTookTime;
         metrics.readResponseBodyTookTime += readResponseBodyTookTime;
-        metrics.connectAddress = connectAddress;
         metrics.requestBodyByteCount = requestBodyByteCount;
         metrics.responseBodyByteCount = responseBodyByteCount;
-    }
-
-    public InetSocketAddress getConnectAddress() {
-        return connectAddress;
+        metrics.connectAddress = connectAddress;
     }
 
     public List<InetAddress> dumpDns() {
