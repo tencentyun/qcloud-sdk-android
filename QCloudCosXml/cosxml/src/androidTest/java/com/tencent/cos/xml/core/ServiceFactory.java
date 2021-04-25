@@ -23,6 +23,8 @@ public class ServiceFactory {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setDebuggable(true)
+                .setConnectionTimeout(4000)
+                .setSocketTimeout(4000)
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
 
