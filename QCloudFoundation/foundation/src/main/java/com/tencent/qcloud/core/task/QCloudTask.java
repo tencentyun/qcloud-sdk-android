@@ -375,8 +375,10 @@ public abstract class QCloudTask<T> implements Callable<T> {
             for (QCloudResultListener resultListener : listeners) {
                 if (exception instanceof QCloudClientException) {
                     resultListener.onFailure((QCloudClientException) exception, null);
-                } else {
+                } else if (exception instanceof QCloudServiceException){
                     resultListener.onFailure(null, (QCloudServiceException) exception);
+                } else {
+                    resultListener.onFailure(new QCloudClientException(exception.getCause()), null);
                 }
             }
         }

@@ -86,22 +86,44 @@ public final class QCloudHttpClient {
 
         @Override
         public List<InetAddress> lookup(String hostname) throws UnknownHostException {
+
+            List<InetAddress> dns = null;
+
+            // 首先使用用户设置的 dns
             if (dnsMap.containsKey(hostname)) {
-                return dnsMap.get(hostname);
+                dns = dnsMap.get(hostname);
             }
 
-            try {
-                return Dns.SYSTEM.lookup(hostname);
-            } catch (UnknownHostException e) {
-                // e.printStackTrace();
-                QCloudLogger.w(HTTP_LOG_TAG, "system dns failed, retry cache dns records.");
+            // 然后使用系统的 dns
+            if (dns == null) {
+                try {
+                    dns = Dns.SYSTEM.lookup(hostname);
+                } catch (UnknownHostException e) {
+                    // e.printStackTrace();
+                    QCloudLogger.w(HTTP_LOG_TAG, "system dns failed, retry cache dns records.");
+                }
             }
 
-            if (!dnsCache) {
+            if (dns == null && !dnsCache) {
                 throw new UnknownHostException("can not resolve host name " + hostname);
             }
 
-            return connectionRepository.getDnsRecord(hostname);
+            // 最后使用缓存的 dns
+            if (dns == null) {
+                try {
+                    dns = connectionRepository.getDnsRecord(hostname);
+                } catch (UnknownHostException e) {
+                    QCloudLogger.w(HTTP_LOG_TAG, "Not found dns in cache records.");
+                }
+            }
+
+            if (dns != null) {
+                ConnectionRepository.getInstance().insertDnsRecordCache(hostname, dns);
+            } else {
+                throw new UnknownHostException(hostname);
+            }
+
+            return dns;
         }
     };
 

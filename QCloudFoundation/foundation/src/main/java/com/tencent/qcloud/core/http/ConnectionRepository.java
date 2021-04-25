@@ -50,8 +50,6 @@ public class ConnectionRepository {
 
     private Map<String, List<InetAddress>> dnsRecords;
 
-    private Map<String, InetSocketAddress> connectAddressRecords;
-
     private static volatile ConnectionRepository instance;
 
     private LocalDnsCache localDnsCache;
@@ -77,7 +75,6 @@ public class ConnectionRepository {
         localDnsCache = new LocalDnsCache(ContextHolder.getAppContext());
         dnsFetcher = new DnsFetcher();
         dnsRecords = new ConcurrentHashMap<>();
-        connectAddressRecords = new ConcurrentHashMap<>();
         singleExecutor = Executors.newSingleThreadExecutor();
     }
 
@@ -104,14 +101,6 @@ public class ConnectionRepository {
      */
     public void insertDnsRecordCache(final String host, final List<InetAddress> inetAddresses) {
         insertDnsRecordCache(host, inetAddresses, null);
-    }
-
-    public void setConnectAddress(String host, InetSocketAddress socketAddress) {
-        connectAddressRecords.put(host, socketAddress);
-    }
-
-    public @Nullable InetSocketAddress getConnectAddress(String host) {
-        return connectAddressRecords.get(host);
     }
 
     // public void deleteDnsRecordCache

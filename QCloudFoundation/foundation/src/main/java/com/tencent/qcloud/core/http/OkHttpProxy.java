@@ -87,10 +87,6 @@ public class OkHttpProxy<T> extends NetworkProxy<T> {
 
             if (eventListener != null) {
                 eventListener.dumpMetrics(metrics);
-                if (eventListener.getConnectAddress() != null) {
-                    ConnectionRepository.getInstance().setConnectAddress(httpRequest.host(),
-                            eventListener.getConnectAddress());
-                }
             }
 
             if (response != null) {
@@ -120,9 +116,9 @@ public class OkHttpProxy<T> extends NetworkProxy<T> {
         } else if (serviceException != null) {
             throw serviceException;
         } else {
-            if (isCosResponse(response)) {
-                recordDns(httpRequest.host(), eventListener);
-            }
+//            if (isCosResponse(response)) {
+//                recordDns(httpRequest.host(), eventListener);
+//            }
             return httpResult;
         }
     }
