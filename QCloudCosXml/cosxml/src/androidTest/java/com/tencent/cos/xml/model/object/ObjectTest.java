@@ -2,6 +2,7 @@ package com.tencent.cos.xml.model.object;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.model.RequestTestAdapter;
 
 import org.junit.Test;

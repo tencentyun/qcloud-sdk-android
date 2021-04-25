@@ -69,8 +69,6 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import okhttp3.ConnectionPool;
-
 /**
  * 灯塔服务
  */
@@ -450,22 +448,30 @@ public class BeaconService {
     private Map<String, String> parseDnsParams(CosXmlRequest request) {
         Map<String, String> params = new HashMap<>();
         String host = parseHost(request);
-        HttpTaskMetrics taskMetrics = request.getMetrics();
+
         if (TextUtils.isEmpty(host)) {
             return params;
         }
-        if (taskMetrics != null && taskMetrics.getConnectAddress() != null
-            && taskMetrics.getConnectAddress().getAddress() != null) {
-            params.put("ips", taskMetrics.getConnectAddress()
-                    .getAddress().getHostAddress());
-        } else {
-            InetSocketAddress connectionAddress = ConnectionRepository.getInstance().getConnectAddress(host);
-            if (connectionAddress != null && connectionAddress.getAddress() != null) {
-                params.put("ips", connectionAddress.getAddress().getHostAddress());
-            }
+
+        HttpTaskMetrics taskMetrics = request.getMetrics();
+        List<InetAddress> dns = null;
+        try {
+            dns = ConnectionRepository.getInstance().getDnsRecord(host);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
         }
+        params.put("ips", flatDns(taskMetrics.getConnectAddress(), dns));
         return params;
     }
+
+    private String flatDns(@Nullable InetAddress connect, @Nullable List<InetAddress> dns) {
+
+        if (connect != null && connect.getHostAddress() != null) {
+            return String.format("{%s}", connect.getHostAddress());
+        }
+        return flatInetAddressList(dns);
+    }
+
 
     private @Nullable String parseHost(CosXmlRequest request) {
         HttpTask httpTask = request.getHttpTask();
@@ -692,13 +698,19 @@ public class BeaconService {
 
     private String flatInetAddressList(@Nullable List<InetAddress> ips) {
         if (ips == null) {
-            return "";
+            return "{}";
         }
 
-        StringBuilder ipString = new StringBuilder();
+        StringBuilder ipString = new StringBuilder("{");
+        int count = 0;
         for (InetAddress ip : ips) {
             ipString.append(ip.getHostAddress());
-            ipString.append(",");
+            boolean isLast = ++count == ips.size();
+            if (isLast) {
+                ipString.append("}");
+            } else {
+                ipString.append(",");
+            }
         }
         return ipString.toString();
     }

@@ -37,6 +37,7 @@ import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.util.QCloudUtils;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -44,6 +45,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -70,9 +72,9 @@ public class DownloadTest {
         downloadTask.setOnGetHttpTaskMetrics(new COSXMLTask.OnGetHttpTaskMetrics() {
             @Override
             public void onGetHttpMetrics(String requestName, HttpTaskMetrics httpTaskMetrics) {
-                InetSocketAddress socketAddress = httpTaskMetrics.getConnectAddress();
+                InetAddress socketAddress = httpTaskMetrics.getConnectAddress();
                 if (socketAddress != null) {
-                    QCloudLogger.i(TestConst.UT_TAG, "connect ip is " + socketAddress.getAddress().getHostAddress());
+                    QCloudLogger.i(TestConst.UT_TAG, "connect ip is " + socketAddress.getHostAddress());
                 }
             }
         });

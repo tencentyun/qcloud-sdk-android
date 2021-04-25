@@ -163,10 +163,12 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 }
 
                 Exception causeException = null;
-                if (clientException != null) {
+                if (clientException != null && taskState != TransferState.PAUSED && taskState != TransferState.CANCELED) {
                     BeaconService.getInstance().reportDownloadTaskClientException(request, clientException);
                     causeException = clientException;
-                } else if (serviceException != null) {
+                }
+
+                if (serviceException != null && taskState != TransferState.PAUSED && taskState != TransferState.CANCELED) {
                     // BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_GET, serviceException);
                     BeaconService.getInstance().reportDownloadTaskServiceException(request, serviceException);
                     causeException = serviceException;
@@ -386,7 +388,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
     protected void internalPause() {
 
         if (getObjectRequest != null) {
-            BeaconService.getInstance().reportUploadTaskSuccess(getObjectRequest);
+            BeaconService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
         }
         cancelAllRequest();
     }
