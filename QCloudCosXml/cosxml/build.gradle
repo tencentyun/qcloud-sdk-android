@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply from: '../version.gradle'
 apply from: 'jacoco.gradle'
+apply plugin: 'com.github.dcendents.android-maven'
 
 def compileQuic() {
     return getGradle().getStartParameter().getTaskRequests()
