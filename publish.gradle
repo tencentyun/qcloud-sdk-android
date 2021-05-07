@@ -1,0 +1,135 @@
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+def repository = 'maven'
+def qCloudGroupId = 'com.tencent.qcloud'
+
+
+def bintrayUser = findProperty("user")
+def bintrayApikey = findProperty("key")
+
+def developerId = 'tencentqcloud'
+def developerName = 'tencentqcloudterminal'
+def developerEmail = 'qcloudterminal@gmail.com'
+
+def userOrganization = 'tencentqcloudterminal'
+def siteUrl = 'https://cloud.tencent.com/'
+def gitUrl = 'https://github.com/tencentyun/qcloud-sdk-android.git'
+def qcloudLicenses = ["MIT"]
+
+def projectVersionName = android.defaultConfig.versionName
+def projectArtifactId = project.extensions.getByName('artifactId')
+def projectDesc = project.extensions.getByName('artifactDesc')
+def projectPackageName = project.extensions.findByName('packageName')
+def artifactProduct = project.extensions.findByName('artifactProduct')
+def lang = project.extensions.findByName('lang')
+if (!lang) {
+    lang = 'java'
+}
+def packageType = project.extensions.findByName('packageType')
+packageType = packageType == null ? "jar" : packageType
+
+
+group = qCloudGroupId
+version = android.defaultConfig.versionName
+archivesBaseName = projectArtifactId
+if (!projectPackageName) {
+	projectPackageName = projectArtifactId
+}
+
+// generate javadoc
+android.libraryVariants.all { variant ->
+     if(variant.name == 'release' || (artifactProduct && variant.name == artifactProduct + 'Release')) {
+        task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
+            description "Generates Javadoc for $variant.name."
+            source = variant.javaCompile.source
+            options.encoding("utf-8")
+            // exclude '**/BuildConfig.java'
+            exclude '**/R.java'
+            doFirst {
+                classpath = files(variant.javaCompile.classpath.files, project.android.getBootClasspath())
+            }
+        }
+        task("javadocJar", type: Jar, dependsOn: "generate${variant.name.capitalize()}Javadoc") {
+            classifier = 'javadoc'
+            from tasks.getByName("generate${variant.name.capitalize()}Javadoc").destinationDir
+        }
+        task("sourcesJar", type: Jar) {
+            classifier = 'sources'
+            from artifactProduct ? android.sourceSets."${artifactProduct}".java.srcDirs + android.sourceSets.main.java.srcDirs : android.sourceSets.main.java.srcDirs
+        }
+        def releaseJavaTask = artifactProduct ? "compile${artifactProduct.capitalize()}ReleaseJavaWithJavac" :
+                "compileRelease${lang == 'kotlin' ? 'Kotlin' : 'JavaWithJavac'}"
+        task("androidLibraryJar", type: Jar, dependsOn: releaseJavaTask ) {
+            from tasks.getByName(releaseJavaTask).destinationDir
+            exclude '**/R.class'
+            exclude '**/R$*.class'
+            exclude '**/BuildConfig.class'
+        }
+        artifacts {
+            if (!packageType.equals("aar")) {
+		        archives tasks.getByName("androidLibraryJar")
+            }
+            archives tasks.getByName("javadocJar")
+            archives tasks.getByName("sourcesJar")
+        }
+    }
+}
+
+task releaseLibrary(type: Copy){
+    from('build/libs/')
+    into("../release/${projectVersionName}/")
+}
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging packageType
+                groupId qCloudGroupId // CREATE A GROUP ID FOR YOUR LIBRARY
+                artifactId projectArtifactId // THE NAME OF YOUR MODULE
+                name projectArtifactId // YOUR LIBRARY NAME
+                description projectDesc // YOUR LIBRARY DESCRIPTION
+                version projectVersionName
+                url siteUrl // YOUR SITE
+
+                licenses {
+                    license {
+                        name 'MIT License'
+                        url 'https://github.com/tencentyun/qcloud-sdk-android/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id developerId //YOUR ID
+                        name developerName //YOUR NAME
+                        email developerEmail //YOUR EMAIL
+                    }
+                }
+                scm {
+                    connection gitUrl // YOUR GIT REPO
+                    developerConnection gitUrl // YOUR GIT REPO
+                    url siteUrl // YOUR SITE
+                }
+            }
+        }
+    }
+}
+
+bintray{
+    user = bintrayUser
+    key = bintrayApikey
+    configurations = ['archives']
+    pkg {
+        userOrg = userOrganization
+        repo = repository
+        name = projectPackageName //YOUR PACKAGE NAME
+        desc = projectDesc // YOUR LIBRARY DESCRIPTION
+        websiteUrl = siteUrl // YOUR SITE
+        vcsUrl = gitUrl // YOUR GIT REPO
+        licenses = qcloudLicenses // A LIST OF YOUR LICENCES
+        publish = true
+        override = findProperty('override') == 'true'
+        publicDownloadNumbers = true
+    }
+}
