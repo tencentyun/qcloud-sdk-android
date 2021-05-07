@@ -2,7 +2,6 @@
 
 [![GitHub release](https://img.shields.io/github/release/tencentyun/qcloud-sdk-android.svg)](https://github.com/tencentyun/qcloud-sdk-android/releases/latest)
 [![Travis CI](https://travis-ci.org/tencentyun/qcloud-sdk-android.svg?branch=master)](https://travis-ci.org/tencentyun/qcloud-sdk-android)
-[![](https://jitpack.io/v/tencentyun/qcloud-sdk-android.svg)](https://jitpack.io/#tencentyun/qcloud-sdk-android)
 
 腾讯云 Android SDK 发布仓库
 
