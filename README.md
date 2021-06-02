@@ -23,14 +23,14 @@ Android 平台上，我们提供 gradle 远程依赖或者 jar 包两种主流�
 
 如果您使用 Android Studio 作为开发工具或者使用 gradle 编译系统，**我们推荐您使用此方式集成依赖。**
 
-#### 1. 使用 jcenter 作为仓库来源
+#### 1. 使用 mavenCentral 作为仓库来源
 
 在工程根目录下的 build.gradle 使用 jcenter 作为远程仓库：
 
 ```
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         ...
@@ -39,7 +39,7 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()
+        mavenCentral()
     }
 }
 ```
@@ -51,7 +51,7 @@ allprojects {
 ```
 dependencies {
     //增加这行
-    compile 'com.tencent.qcloud:cosxml:5.5.+'
+    compile 'com.qcloud.cos:cos-android:5.6.+'
 }
 ```
 
@@ -62,7 +62,7 @@ dependencies {
 ##### COS XML SDK
 
 ```
-compile 'com.tencent.qcloud:cosxml:5.5.+'
+compile 'com.qcloud.cos:cos-android:5.6.+'
 ```
 
 ### 手动集成
