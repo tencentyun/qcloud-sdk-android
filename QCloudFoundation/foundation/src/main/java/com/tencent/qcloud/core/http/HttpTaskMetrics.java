@@ -29,7 +29,6 @@ import androidx.annotation.Nullable;
 
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
-import junit.framework.TestSuite;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -239,10 +238,16 @@ public class HttpTaskMetrics {
     }
 
     public static HttpTaskMetrics createMetricsWithHost(String host) {
-        QCloudLogger.i("QCloudTest", "create HttpTaskMetrics with domain name  is " + host);
         HttpTaskMetrics taskMetrics = new HttpTaskMetrics();
         taskMetrics.domainName = host;
         return taskMetrics;
+    }
+
+    public void recordConnectAddress(InetAddress address) {
+        if (address != null) {
+            domainName = address.getHostName();
+            connectAddress = address;
+        }
     }
 
     /**
@@ -253,8 +258,6 @@ public class HttpTaskMetrics {
     }
 
     synchronized public HttpTaskMetrics merge(HttpTaskMetrics taskMetrics) {
-
-        QCloudLogger.i("QCloudTest", "domainName is " + domainName + ", other is " + taskMetrics.domainName);
 
         if (!TextUtils.isEmpty(domainName) && !TextUtils.isEmpty(taskMetrics.domainName)
             && !domainName.equals(taskMetrics.domainName)) {
@@ -278,8 +281,6 @@ public class HttpTaskMetrics {
         httpTaskTookTime += taskMetrics.httpTaskTookTime;
         calculateMD5STookTime += taskMetrics.calculateMD5STookTime;
         signRequestTookTime += taskMetrics.signRequestTookTime;
-        QCloudLogger.i("QCloudTest", "upload request size requestBodyByteCount " + requestBodyByteCount);
-        QCloudLogger.i("QCloudTest", "upload response size responseBodyByteCount " + responseBodyByteCount);
         if (taskMetrics.getRemoteAddress() != null) {
             remoteAddress = taskMetrics.getRemoteAddress();
         }

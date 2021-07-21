@@ -36,6 +36,8 @@ import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.task.TaskExecutors;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -111,6 +113,10 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
         return this;
     }
 
+    public HttpTaskMetrics metrics() {
+        return metrics;
+    }
+
     public boolean isUploadTask() {
         if (httpRequest.getRequestBody() instanceof StreamingRequestBody) {
             return ((StreamingRequestBody) httpRequest.getRequestBody()).isLargeData();
@@ -160,6 +166,11 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
         super.cancel();
     }
 
+    private boolean isCompleteMultipartRequest(HttpRequest httpRequest) {
+        Set<String> queryKeys = httpRequest.queries.keySet();
+        return queryKeys != null && queryKeys.size() == 1 && queryKeys.contains("uploadId");
+    }
+
     @Override
     protected HttpResult<T> execute() throws QCloudClientException, QCloudServiceException {
         if (metrics == null) {
@@ -167,6 +178,12 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
         }
         networkProxy.metrics = metrics;
         metrics.onTaskStart();
+
+//        if (isCompleteMultipartRequest(httpRequest)) {
+//            QCloudServiceException serviceException = new QCloudServiceException("NoSuchUpload");
+//            serviceException.setErrorCode("Request is expired");
+//            throw serviceException;
+//        }
 
         // 准备请求，包括计算MD5和签名
         if (httpRequest.shouldCalculateContentMD5()) {
@@ -267,7 +284,7 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
             try {
                 requestBody.writeTo(sink);
             } catch (IOException e) {
-                throw new QCloudClientException("calculate md5 error", e);
+                throw new QCloudClientException("calculate md5 error" + e.getMessage(), e);
             }
 
             String md5 = sink.md5().base64();

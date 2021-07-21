@@ -63,9 +63,7 @@ public class CallMetricsListener extends EventListener {
     /**
      * domainName inetAddressList connectAddress 都可能是空值
      */
-    private String domainName;
     private List<InetAddress> inetAddressList;
-    private InetAddress connectAddress;
 
     private long requestBodyByteCount;
     private long responseBodyByteCount;
@@ -92,7 +90,6 @@ public class CallMetricsListener extends EventListener {
         ipList.append("}");
         QCloudLogger.i(QCloudHttpClient.HTTP_LOG_TAG, "dns: " + domainName + ":" + ipList.toString());
         dnsLookupTookTime += System.nanoTime() - dnsStartTime;
-        this.domainName = domainName;
         this.inetAddressList = inetAddressList;
     }
 
@@ -176,15 +173,7 @@ public class CallMetricsListener extends EventListener {
         responseBodyByteCount = byteCount;
     }
 
-    public void recordConnection(InetAddress address) {
-        if (address != null) {
-            domainName = address.getHostName();
-            connectAddress = address;
-        }
-    }
-
     public void dumpMetrics(HttpTaskMetrics metrics) {
-        metrics.domainName = domainName;
         metrics.remoteAddress = inetAddressList;
         metrics.dnsLookupTookTime += dnsLookupTookTime;
         metrics.connectTookTime += connectTookTime;
@@ -195,7 +184,6 @@ public class CallMetricsListener extends EventListener {
         metrics.readResponseBodyTookTime += readResponseBodyTookTime;
         metrics.requestBodyByteCount = requestBodyByteCount;
         metrics.responseBodyByteCount = responseBodyByteCount;
-        metrics.connectAddress = connectAddress;
     }
 
     public List<InetAddress> dumpDns() {

@@ -207,6 +207,10 @@ public class RetryInterceptor implements Interceptor {
             } else if (shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled()) {
                 QCloudLogger.i(HTTP_LOG_TAG, "%s failed for %s, code is %d", request, e, statusCode);
                 retryStrategy.onTaskEnd(false, e);
+                if (response != null && response.body() != null) {
+                    response.close();
+                }
+
             } else {
                 QCloudLogger.i(HTTP_LOG_TAG, "%s ends for %s, code is %d", request, e, statusCode);
                 break;
@@ -327,6 +331,7 @@ public class RetryInterceptor implements Interceptor {
 
 
     private boolean shouldRetry(Request request, Response response, int attempts, int weight, long startTime, IOException e, int statusCode) {
+
         if (isUserCancelled(e)) {
             return false;
         }

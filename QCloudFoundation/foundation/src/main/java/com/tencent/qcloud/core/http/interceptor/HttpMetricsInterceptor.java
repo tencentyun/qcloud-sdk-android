@@ -1,12 +1,14 @@
 package com.tencent.qcloud.core.http.interceptor;
 
-import com.tencent.qcloud.core.http.CallMetricsListener;
+import com.tencent.qcloud.core.http.HttpTask;
+import com.tencent.qcloud.core.http.HttpTaskMetrics;
+import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.task.TaskManager;
 
 import java.io.IOException;
 import java.net.Socket;
 
 import okhttp3.Connection;
-import okhttp3.EventListener;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -26,18 +28,21 @@ public class HttpMetricsInterceptor implements Interceptor {
 
         Request request = chain.request();
 
-        if (chain instanceof RealInterceptorChain) {
-            RealInterceptorChain realChain = (RealInterceptorChain) chain;
-            Connection connection = chain.connection();
-            if (connection instanceof RealConnection) {
-                RealConnection realConnection = (RealConnection) connection;
-                Socket socket = realConnection.socket();
-                EventListener eventListener = realChain.eventListener();
-                if (eventListener instanceof CallMetricsListener && socket != null) {
-                    CallMetricsListener callMetricsListener = (CallMetricsListener) eventListener;
-                    callMetricsListener.recordConnection(socket.getInetAddress());
+        try {
+            if (chain instanceof RealInterceptorChain) {
+                Connection connection = chain.connection();
+                if (connection instanceof RealConnection) {
+                    RealConnection realConnection = (RealConnection) connection;
+                    Socket socket = realConnection.socket();
+                    HttpTask task = (HttpTask) TaskManager.getInstance().get((String) request.tag());
+                    HttpTaskMetrics metrics = task.metrics();
+                    if (metrics != null) {
+                        metrics.recordConnectAddress(socket.getInetAddress());
+                    }
                 }
             }
+        } catch (Exception e) {
+            QCloudLogger.d("HttpMetricsInterceptor", e.getMessage());
         }
 
         return chain.proceed(request);
