@@ -25,7 +25,7 @@ package com.tencent.qcloud.core;
 import android.content.Context;
 import android.net.Uri;
 import androidx.annotation.Nullable;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import android.util.Log;
 
