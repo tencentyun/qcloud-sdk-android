@@ -23,10 +23,11 @@
 package com.tencent.cos.xml.transfer;
 
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.CosXmlSimpleService;
@@ -40,6 +41,8 @@ import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.AbortMultiUploadRequest;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadRequest;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadResult;
+import com.tencent.cos.xml.model.object.HeadObjectRequest;
+import com.tencent.cos.xml.model.object.HeadObjectResult;
 import com.tencent.cos.xml.model.object.InitMultipartUploadRequest;
 import com.tencent.cos.xml.model.object.InitMultipartUploadResult;
 import com.tencent.cos.xml.model.object.ListPartsRequest;
@@ -49,12 +52,10 @@ import com.tencent.cos.xml.model.object.PutObjectResult;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.cos.xml.model.object.UploadPartResult;
 import com.tencent.cos.xml.model.tag.ListParts;
+import com.tencent.cos.xml.model.tag.UrlUploadPolicy;
 import com.tencent.cos.xml.model.tag.pic.PicUploadResult;
-import com.tencent.cos.xml.utils.COSUtils;
 import com.tencent.cos.xml.utils.CloseUtil;
 import com.tencent.cos.xml.utils.DigestUtils;
-import com.tencent.cos.xml.utils.FileUtils;
-import com.tencent.cos.xml.utils.TimeUtils;
 import com.tencent.qcloud.core.common.QCloudTaskStateListener;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
@@ -64,9 +65,9 @@ import com.tencent.qcloud.core.util.QCloudUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -74,8 +75,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -106,8 +105,14 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     private Uri uri;
 
+    private URL url;
+    private UrlUploadPolicy urlUploadPolicy;
+
     /** 简单上传 */
     private PutObjectRequest putObjectRequest;
+
+    // 查询文件
+    private HeadObjectRequest headObjectRequest;
 
     /** 分片上传*/
     private boolean isSliceUpload = false;
@@ -133,6 +138,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
     boolean priorityLow = false;
 
     HttpTaskMetrics httpTaskMetrics;
+
 
     /**
      * 正在发送 CompleteMultiUpload 请求的过程中不允许暂停
@@ -190,6 +196,19 @@ public final class COSXMLUploadTask extends COSXMLTask {
         this.uploadId = uploadId;
     }
 
+    COSXMLUploadTask(CosXmlSimpleService cosXmlService, String region, String bucket, String cosPath, URL url, UrlUploadPolicy urlUploadPolicy, String uploadId){
+        this(cosXmlService, region, bucket, cosPath);
+        this.url = url;
+        this.urlUploadPolicy = urlUploadPolicy;
+        this.uploadId = uploadId;
+    }
+    
+    COSXMLUploadTask(CosXmlSimpleService cosXmlService, String region, String bucket, String cosPath, URL url, String uploadId){
+        this(cosXmlService, region, bucket, cosPath);
+        this.url = url;
+        this.uploadId = uploadId;
+    }
+
     COSXMLUploadTask(CosXmlSimpleService cosXmlService, String region, String bucket, String cosPath, byte[] bytes){
         this(cosXmlService, region, bucket, cosPath);
         this.bytes = bytes;
@@ -205,6 +224,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
 //                putObjectRequest.getSrcPath(), uploadId);
         this(cosXmlService, putObjectRequest.getRegion(), putObjectRequest.getBucket(), putObjectRequest.getPath(cosXmlService.getConfig()));
         this.uri = putObjectRequest.getUri();
+        this.url = putObjectRequest.getUrl();
+        this.urlUploadPolicy = putObjectRequest.getUrlUploadPolicy();
         this.srcPath = putObjectRequest.getSrcPath();
         this.bytes = putObjectRequest.getData();
         this.inputStream = putObjectRequest.getInputStream();
@@ -218,7 +239,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
 
     protected boolean checkParameter(){
-        if(bytes == null && inputStream == null && srcPath == null && uri == null){
+        if(bytes == null && inputStream == null && srcPath == null && uri == null && url == null){
             if(IS_EXIT.get()) return false;
             IS_EXIT.set(true);
             multiUploadsStateListenerHandler.onFailed(new PutObjectRequest(bucket, cosPath, ""),
@@ -243,6 +264,18 @@ public final class COSXMLUploadTask extends COSXMLTask {
             Context context = ContextHolder.getAppContext();
             if (context != null) {
                 fileLength = QCloudUtils.getUriContentLength(uri, context.getContentResolver());
+            }
+        }
+
+        if(url != null && urlUploadPolicy != null){
+            if(urlUploadPolicy.getDownloadType()!= UrlUploadPolicy.Type.NOTSUPPORT) {
+                fileLength = urlUploadPolicy.getFileLength();
+            } else {
+                if(IS_EXIT.get())return false;
+                monitor.sendStateMessage(this, TransferState.FAILED,
+                        new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "url not support download"), null, TaskStateMonitor.MESSAGE_TASK_RESULT);
+                IS_EXIT.set(true);
+                return false;
             }
         }
 
@@ -276,12 +309,18 @@ public final class COSXMLUploadTask extends COSXMLTask {
             putObjectRequest = new PutObjectRequest(bucket, cosPath, inputStream);
         }else if (uri != null) {
             putObjectRequest = new PutObjectRequest(bucket, cosPath, uri);
+        }else if (url != null) {
+            putObjectRequest = new PutObjectRequest(bucket, cosPath, url);
         } else {
             putObjectRequest = new PutObjectRequest(bucket, cosPath, srcPath);
         }
 
         putObjectRequest.setRegion(region);
-        putObjectRequest.setNeedMD5(isNeedMd5);
+        if (url != null) {
+            putObjectRequest.setNeedMD5(false);
+        } else {
+            putObjectRequest.setNeedMD5(isNeedMd5);
+        }
         putObjectRequest.setRequestHeaders(headers);
 
         if(onSignatureListener != null){
@@ -336,6 +375,10 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     private void reportException(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
 
+        if (request == null) {
+            request = buildCOSXMLTaskRequest();
+        }
+        
         if (clientException != null) {
             BeaconService.getInstance().reportUploadTaskClientException(request, clientException);
         }
@@ -429,49 +472,71 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 //update list part, then upload part.
                 if(IS_EXIT.get())return;
 
-                // 虽然这里默认是在 TaskExecutors.UPLOAD_EXECUTOR 线程中回调，但是用户可能主动设置了
-                // UI 线程为 observe 线程，这里为了防止阻塞 UI，另起一个线程池
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
+                // 外部URL链接不做校验
+                if (url != null) {
+                    updateSlicePart((ListPartsResult)result);
+                    multiUploadsStateListenerHandler.onListParts();
+                } else {
+                    // 虽然这里默认是在 TaskExecutors.UPLOAD_EXECUTOR 线程中回调，但是用户可能主动设置了
+                    // UI 线程为 observe 线程，这里为了防止阻塞 UI，另起一个线程池
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
 
-                        boolean verifySuccess;
-                        InputStream uploadFileStream = null;
-                        try {
-                            uploadFileStream = openUploadFileStream();
-                            verifySuccess = verifyUploadParts(((ListPartsResult)result).listParts, uploadFileStream);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            verifySuccess = false;
-                        } finally {
-                            if (uploadFileStream != null) {
-                                try {
-                                    CloseUtil.closeQuietly(uploadFileStream);
-                                } catch (CosXmlClientException e) {
-                                    e.printStackTrace();
+                            boolean verifySuccess;
+                            InputStream uploadFileStream = null;
+                            try {
+                                uploadFileStream = openUploadFileStream();
+                                verifySuccess = verifyUploadParts(((ListPartsResult)result).listParts, uploadFileStream);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                verifySuccess = false;
+                            } finally {
+                                if (uploadFileStream != null) {
+                                    try {
+                                        CloseUtil.closeQuietly(uploadFileStream);
+                                    } catch (CosXmlClientException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
-                        }
 
-                        if (verifySuccess) {
-                            updateSlicePart((ListPartsResult)result);
-                            multiUploadsStateListenerHandler.onListParts();
-                        } else {
-                            reTrans();
+                            if (verifySuccess) {
+                                updateSlicePart((ListPartsResult)result);
+                                multiUploadsStateListenerHandler.onListParts();
+                            } else {
+                                reTrans();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
 
             @Override
-            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+            public void onFail(final CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
                 if(request != listPartsRequest){
                     return;
                 }
                 if(IS_EXIT.get())return;
 
+
                 if (serviceException != null && "NoSuchUpload".equals(serviceException.getErrorCode())) {
-                    reTrans();
+
+                    // uploadId 不存在，可以分为两种情况：
+                    // 1. 文件已经已经上传；
+                    // 2. 文件没有上传；
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            HeadObjectResult headObjectResult = headObjectToCheckCRC64();
+                            if (headObjectResult != null) {
+                                onTransferComplete(request, headObjectResult);
+                            } else if(!IS_EXIT.get()) {
+                                reTrans();
+                            }
+                        }
+                    });
+
                 } else {
                     IS_EXIT.set(true);
                     multiUploadsStateListenerHandler.onFailed(request, clientException, serviceException);
@@ -482,11 +547,17 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     private void onUpdateInProgress() {
         updateState(TransferState.IN_PROGRESS, null, null, false);
-        if (waitTimeoutTimer != null) {
-            waitTimeoutTimer.cancel();
+
+        synchronized (timerLock) {
+            if (waitTimeoutTimer != null) {
+                waitTimeoutTimer.cancel();
+                waitTimeoutTimer = null;
+            }
         }
+
     }
 
+    // 需要主动关闭流
     private InputStream openUploadFileStream() throws IOException {
 
         if (srcPath != null) {
@@ -537,6 +608,38 @@ public final class COSXMLUploadTask extends COSXMLTask {
         return true;
     }
 
+    //
+
+    /**
+     * 通过校验 crc64 来检查文件是否已经上传过了
+     *
+     */
+    private @Nullable HeadObjectResult headObjectToCheckCRC64() {
+        try {
+            headObjectRequest  = new HeadObjectRequest(bucket, cosPath);
+            HeadObjectResult headObjectResult = cosXmlService.headObject(headObjectRequest);
+            String crcValue = getCRCValue(headObjectResult);
+            long remoteCrc64 = DigestUtils.getBigIntFromString(crcValue);
+            InputStream inputStream = openUploadFileStream();
+            long localCrc64 = DigestUtils.getCRC64(inputStream);
+            inputStream.close();
+            if (remoteCrc64 == localCrc64) {
+                return headObjectResult;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private @Nullable String getCRCValue(HeadObjectResult headObjectResult) {
+        List<String> crc64Values = headObjectResult.headers.get("x-cos-hash-crc64ecma");
+        if (crc64Values != null && crc64Values.size() == 1) {
+            return crc64Values.get(0);
+        }
+        return null;
+    }
+
 
     private void multiUploadPart(CosXmlSimpleService cosXmlService){
         //是否已上传完
@@ -548,14 +651,26 @@ public final class COSXMLUploadTask extends COSXMLTask {
             if(!slicePartStruct.isAlreadyUpload && !IS_EXIT.get()){
                 isUploadFinished = false;
 
+                UploadPartRequest uploadPartRequest = null;
+                if(srcPath != null){
+                    uploadPartRequest = new UploadPartRequest(bucket, cosPath, slicePartStruct.partNumber, srcPath, slicePartStruct.offset, slicePartStruct.sliceSize,  uploadId);
+                }
+                if(uri != null){
+                    uploadPartRequest = new UploadPartRequest(bucket, cosPath, slicePartStruct.partNumber, uri, slicePartStruct.offset, slicePartStruct.sliceSize, uploadId);
+                }
+                if(url != null){
+                    uploadPartRequest = new UploadPartRequest(bucket, cosPath, slicePartStruct.partNumber, url, slicePartStruct.offset, slicePartStruct.sliceSize,  uploadId);
+                }
 
-                final UploadPartRequest uploadPartRequest = srcPath != null ? new UploadPartRequest(bucket, cosPath, slicePartStruct.partNumber, srcPath, slicePartStruct.offset, slicePartStruct.sliceSize,  uploadId) :
-                        new UploadPartRequest(bucket, cosPath, slicePartStruct.partNumber, uri, slicePartStruct.offset, slicePartStruct.sliceSize, uploadId);
                 if (priorityLow) {
                     uploadPartRequest.setPriorityLow();
                 }
                 uploadPartRequest.setRegion(region);
-                uploadPartRequest.setNeedMD5(isNeedMd5);
+                if(url == null) {
+                    uploadPartRequest.setNeedMD5(isNeedMd5);
+                } else {
+                    uploadPartRequest.setNeedMD5(false);
+                }
                 uploadPartRequest.setRequestHeaders(headers);
                 uploadPartRequest.setOnRequestWeightListener(new CosXmlRequest.OnRequestWeightListener() {
                     @Override
@@ -571,23 +686,25 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 getHttpMetrics(uploadPartRequest, "UploadPartRequest");
 
                 uploadPartRequestLongMap.put(uploadPartRequest, 0L);
+                final UploadPartRequest finalUploadPartRequest = uploadPartRequest;
                 uploadPartRequest.setProgressListener(new CosXmlProgressListener() {
                     @Override
                     public void onProgress(long complete, long target) {
                         if(IS_EXIT.get())return;//已经上报失败了
                         try {
-                            long dataLen = ALREADY_SEND_DATA_LEN.addAndGet(complete - uploadPartRequestLongMap.get(uploadPartRequest));
-                            uploadPartRequestLongMap.put(uploadPartRequest, complete);
+                            long dataLen = ALREADY_SEND_DATA_LEN.addAndGet(complete - uploadPartRequestLongMap.get(finalUploadPartRequest));
+                            uploadPartRequestLongMap.put(finalUploadPartRequest, complete);
                             dispatchProgressChange(dataLen, fileLength);
                         }catch (Exception e){
                             //cause by cancel or pause
                         }
                     }
                 });
+                final UploadPartRequest finalUploadPartRequest1 = uploadPartRequest;
                 cosXmlService.uploadPartAsync(uploadPartRequest, new CosXmlResultListener() {
                     @Override
                     public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                        if(request != uploadPartRequest){
+                        if(request != finalUploadPartRequest1){
                             return;
                         }
                         httpTaskMetrics.merge(request.getMetrics());
@@ -604,7 +721,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
                     @Override
                     public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
-                        if(request != uploadPartRequest){
+                        if(request != finalUploadPartRequest1){
                             return;
                         }
                         if(IS_EXIT.get())return;//已经上报失败了
@@ -633,7 +750,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         }
 
         completeMultiUploadRequest.setNeedMD5(isNeedMd5);
-        completeMultiUploadRequest.setRequestHeaders(headers);
+        // completeMultiUploadRequest.setRequestHeaders(headers);
 
         if(onSignatureListener != null){
             completeMultiUploadRequest.setSign(onSignatureListener.onGetSign(completeMultiUploadRequest));
@@ -647,29 +764,51 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 if(request != completeMultiUploadRequest){
                     return;
                 }
-                request.attachMetrics(httpTaskMetrics);
-                if(IS_EXIT.get())return;
-                IS_EXIT.set(true);
-                // BeaconService.getInstance().reportUpload(region, ALREADY_SEND_DATA_LEN.get(), TimeUtils.getTookTime(startTime));
-                BeaconService.getInstance().reportUploadTaskSuccess(completeMultiUploadRequest);
-                multiUploadsStateListenerHandler.onCompleted(request, result);
-
                 sendingCompleteRequest.set(false);
+                onTransferComplete(request, result);
             }
 
             @Override
-            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
+            public void onFail(final CosXmlRequest request, final CosXmlClientException clientException, final CosXmlServiceException serviceException) {
                 if(request != completeMultiUploadRequest){
                     return;
                 }
-                if(IS_EXIT.get())return;
-                IS_EXIT.set(true);
-                multiUploadsStateListenerHandler.onFailed(request, exception, serviceException);
 
-                sendingCompleteRequest.set(false);
+                // 如果是 404，检查上传是否已经成功
+                // 由于有重试机制，对于首次超时，但实际后台实际成功后，sdk 重试时，会报 NoSuchUpload 错误，可以在
+                if (serviceException != null && "NoSuchUpload".equals(serviceException.getErrorCode())) {
+
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            HeadObjectResult headObjectResult = headObjectToCheckCRC64();
+                            if (headObjectResult != null) { // 上传成功
+                                onTransferComplete(request, headObjectResult);
+                            } else {
+                                encounterError(request, clientException, serviceException);
+                            }
+                            sendingCompleteRequest.set(false);
+                        }
+                    });
+
+                } else {
+                    encounterError(request, clientException, serviceException);
+                    sendingCompleteRequest.set(false);
+                }
             }
         });
     }
+
+
+    private void onTransferComplete(CosXmlRequest request, CosXmlResult result) {
+
+        request.attachMetrics(httpTaskMetrics);
+        if(IS_EXIT.get())return;
+        IS_EXIT.set(true);
+        BeaconService.getInstance().reportUploadTaskSuccess(request);
+        multiUploadsStateListenerHandler.onCompleted(request, result);
+    }
+
 
     @Override
     protected void internalCompleted() {
@@ -721,13 +860,20 @@ public final class COSXMLUploadTask extends COSXMLTask {
     }
 
     @Override
-    protected void encounterError(CosXmlClientException clientException, CosXmlServiceException serviceException) {
+    protected void encounterError(@Nullable CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
         if(IS_EXIT.get())return;
         IS_EXIT.set(true);
-        multiUploadsStateListenerHandler.onFailed(putObjectRequest, clientException, serviceException);
+        multiUploadsStateListenerHandler.onFailed(request != null ? request : buildCOSXMLTaskRequest(),
+                clientException, serviceException);
     }
 
+
     void cancelAllRequest(CosXmlSimpleService cosXmlService){
+
+        HeadObjectRequest tempHeadObjectRequest = headObjectRequest;
+        if (tempHeadObjectRequest != null) {
+            cosXmlService.cancel(tempHeadObjectRequest);
+        }
 
         PutObjectRequest tempPutObjectRequest = putObjectRequest;
         if(tempPutObjectRequest != null){

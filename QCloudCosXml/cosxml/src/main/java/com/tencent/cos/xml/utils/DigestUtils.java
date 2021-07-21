@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.Range;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.util.Base64Utils;
 
 import java.io.File;
@@ -38,11 +39,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.zip.CRC32;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -81,6 +84,26 @@ public class DigestUtils {
             CloseUtil.closeQuietly(fileInputStream);
         }
         return md5;
+    }
+
+    public static long getBigIntFromString(String value) {
+        return new BigInteger(value).longValue();
+    }
+    
+    @Nullable public static long getCRC64(InputStream inputStream) {
+
+        try {
+            CRC64 crc64 = new CRC64();
+            int readLen;
+            byte[] buff = new byte[8 * 1024];
+            while ((readLen = inputStream.read(buff)) != -1){
+                crc64.update(buff, readLen);
+            }
+            return crc64.getValue();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     @Nullable public static String getCOSMd5(InputStream inputStream, long skip, long size) throws IOException {

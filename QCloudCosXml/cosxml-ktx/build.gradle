@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 29
-        versionCode 50605
-        versionName "5.6.5"
+        versionCode 50614
+        versionName "5.6.14"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -39,7 +39,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.4"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.4"
-    implementation 'com.tencent.qcloud:cosxml:5.6.2'
+    implementation 'com.qcloud.cos:cos-android:5.6.7'
 
     androidTestImplementation 'junit:junit:4.13'
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.4"
@@ -48,7 +48,9 @@ dependencies {
 
 }
 
-project.extensions.add('artifactId', 'cosxml-ktx')
+project.extensions.add('artifactId', 'cos-ktx')
 project.extensions.add('artifactDesc', 'Tencent COSXml SDK Kotlin Extension')
 project.extensions.add('lang', 'kotlin')
+project.extensions.add('archiveFilePath', 'outputs/aar/cos-ktx-release.aar')
 
+apply from: '../../publishMavenCentral.gradle'

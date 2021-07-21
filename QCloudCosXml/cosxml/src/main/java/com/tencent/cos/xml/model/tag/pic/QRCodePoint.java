@@ -22,67 +22,35 @@
 
 package com.tencent.cos.xml.model.tag.pic;
 
+import android.graphics.Point;
+import android.util.Pair;
+
+import androidx.annotation.Nullable;
+
 import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
+
+import java.util.List;
 
 /**
  * 盲水印图片处理结果
  */
-@XmlBean(name = "Object")
-public class PicObject {
+@XmlBean(name = "Point")
+public class QRCodePoint {
 
     /** 文件名 */
-    @XmlElement(name = "Key")
-    public String key;
+    @XmlElement(name = "Point")
+    public String point;
 
-    /** 图片路径 */
-    @XmlElement(name = "Location")
-    public String location;
-
-    /** 图片格式 */
-    @XmlElement(name = "Format")
-    public String format;
-
-    /** 图片宽度 */
-    @XmlElement(name = "Width")
-    public int width;
-
-    /** 图片高度 */
-    @XmlElement(name = "Height")
-    public int height;
-
-    /** 图片大小 */
-    @XmlElement(name = "Size")
-    public int size;
-
-    /** 图片质量 */
-    @XmlElement(name = "Quality")
-    public int quality;
-
-    /** 图片质量 */
-    @XmlElement(name = "ETag")
-    public String etag;
-    
-    
-    /**
-     * 构造盲水印图片处理结果
-     * @param key 文件名
-     * @param location 图片路径
-     * @param format 图片格式
-     * @param width 图片宽度
-     * @param height 图片高度
-     * @param size 图片大小
-     * @param quality 图片质量
-     */
-    public PicObject(String key, String location, String format, int width, int height, int size, int quality) {
-        this.key = key;
-        this.location = location;
-        this.format = format;
-        this.width = width;
-        this.height = height;
-        this.size = size;
-        this.quality = quality;
+    public QRCodePoint(String point) {
+        this.point = point;
     }
 
-    public PicObject() {}
+    public QRCodePoint() {}
+    
+    public @Nullable Point point() {
+        String[] xy = point.split(",");
+        return xy.length == 2 ? new Point(Integer.parseInt(xy[0]), 
+                Integer.parseInt(xy[1])) : null;
+    }
 }

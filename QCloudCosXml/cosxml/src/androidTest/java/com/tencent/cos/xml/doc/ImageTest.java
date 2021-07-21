@@ -1,10 +1,10 @@
-package com.tencent.cos.xml.image;
+package com.tencent.cos.xml.doc;
 
+import android.os.Environment;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestLocker;
@@ -24,7 +24,6 @@ import com.tencent.cos.xml.model.tag.pic.PicUploadResult;
 import com.tencent.cos.xml.transfer.COSXMLUploadTask;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,6 +31,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
 /**
  * <p>
@@ -43,19 +44,19 @@ public class ImageTest {
 
     final static String localImageName ="/test_image.png";
 
-    @BeforeClass public static void downloadImageToLocalPath() {
-
-        TestUtils.removeLocalFile(TestUtils.localPath(localImageName));
-        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
-                TestConst.PERSIST_BUCKET_PIC_PATH, TestUtils.localParentPath(), localImageName);
-
-        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
-        try {
-            cosXmlSimpleService.getObject(getObjectRequest);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-    }
+//    @BeforeClass public static void downloadImageToLocalPath() {
+//
+//        TestUtils.removeLocalFile(TestUtils.localPath(localImageName));
+//        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+//                TestConst.PERSIST_BUCKET_PIC_PATH, TestUtils.localParentPath(), localImageName);
+//
+//        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+//        try {
+//            cosXmlSimpleService.getObject(getObjectRequest);
+//        } catch (Exception e) {
+//            Assert.fail(e.getMessage());
+//        }
+//    }
 
     // 通过 CosXmlService#putObject() 方法简单上传，返回 PutObjectResult
     @Test public void testPicOperationRule()  {
@@ -85,6 +86,30 @@ public class ImageTest {
             Assert.fail(exception.getMessage());
         }
     }
+
+    // 二维码识别
+    @Test public void testQRCode()  {
+
+        PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_PIC_PATH, Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) + "/Qrcode.jpg");
+
+        List<PicOperationRule> rules = new LinkedList<>();
+        rules.add(new PicOperationRule("/test.png", "QRcode/cover/0"));
+        PicOperations picOperations = new PicOperations(false, rules);
+        putObjectRequest.setPicOperations(picOperations);
+
+        PutObjectResult putObjectResult = null;
+        try {
+            putObjectResult = ServiceFactory.INSTANCE.newDefaultService().putObject(putObjectRequest);
+            PicUploadResult uploadResult = putObjectResult.picUploadResult();
+            Assert.assertNotNull(uploadResult);
+            // Assert.assertFalse(uploadResult.processResults.isEmpty());
+            Assert.assertEquals(200, putObjectResult.httpCode);
+        } catch (Exception exception) {
+            Assert.fail(exception.getMessage());
+        }
+    }
+
 
     // 通过 TransferManager 分片上传，返回 CompleteMultiUploadResult
     @Test public void transferManagerUploadPic() {

@@ -13,7 +13,7 @@ public class PutObjectTaggingTestAdapter extends NormalRequestTestAdapter<PutObj
     protected PutObjectTaggingRequest newRequestInstance() {
         PutObjectTaggingRequest putObjectTaggingRequest = new PutObjectTaggingRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
         putObjectTaggingRequest.addTag("key", "value");
-        putObjectTaggingRequest.addTag("hello", "world");
+        putObjectTaggingRequest.addTag("hello", "你好");
         putObjectTaggingRequest.setVersionId(null);
         return putObjectTaggingRequest;
     }
