@@ -6,7 +6,12 @@ import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
+import com.tencent.cos.xml.model.CosXmlRequest;
+import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.NormalRequestTestAdapter;
+import com.tencent.cos.xml.transfer.COSXMLUploadTask;
+
+import java.io.File;
 
 public class GetObjectTaggingTestAdapter extends NormalRequestTestAdapter<GetObjectTaggingRequest, GetObjectTaggingResult> {
     @Override

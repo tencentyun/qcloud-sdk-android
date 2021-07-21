@@ -62,7 +62,7 @@ public class PutObjectRequest extends UploadRequest implements TransferRequest {
     private Uri uri;
     private CosXmlProgressListener progressListener;
 
-    private PutObjectRequest(String bucket, String cosPath){
+    protected PutObjectRequest(String bucket, String cosPath){
         super(bucket, cosPath);
         setNeedMD5(true);
     }

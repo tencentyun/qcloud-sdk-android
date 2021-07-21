@@ -64,4 +64,9 @@ public class ObjectTest {
             adapter.testSyncRequest();
         }
     }
+
+    @Test public void testGetSnapshot() {
+
+
+    }
 }

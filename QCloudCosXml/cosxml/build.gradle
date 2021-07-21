@@ -1,7 +1,6 @@
 apply plugin: 'com.android.library'
 apply from: '../version.gradle'
 apply from: 'jacoco.gradle'
-apply plugin: 'com.github.dcendents.android-maven'
 
 def compileQuic() {
     return getGradle().getStartParameter().getTaskRequests()
@@ -18,8 +17,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 50605
-        versionName "5.6.5"
+        versionCode 50614
+        versionName "5.6.14"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -70,17 +69,19 @@ android {
 
     // 切换发 normal 或者 slim 包，需要同步修改 pom.artifactId 信息
     defaultPublishConfig "normalRelease"
-    // defaultPublishConfig  "slimRelease"
+    //  defaultPublishConfig  "slimRelease"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
     }
+
     buildToolsVersion = '28.0.2'
 
 }
 
 dependencies {
+
     compileOnly 'androidx.appcompat:appcompat:1.2.0'
     testCompileOnly 'junit:junit:4.13'
 
@@ -89,7 +90,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
     api project(path: ':foundation')
-    api project(path: ':logUtils')
+    // api project(path: ':logUtils')
 
     if (compileQuic() && false) {
         api project(path: ':quic')
@@ -99,29 +100,32 @@ dependencies {
     annotationProcessor project(':xmlCompiler')
 
     //lite版本使用normalApi
-    // normalApi 'com.tencent.qcloud:beacon-android-release:4.1.13'
+    normalApi 'com.qcloud.cos:beacon-android-release:4.1.22.11'
     //normal版本使用api
-    api 'com.tencent.qcloud:beacon-android-release:4.1.13'
-    slimCompileOnly 'com.tencent.qcloud:beacon-android-release:4.1.13'
+    // api 'com.qcloud.cos:beacon-android-release:4.1.22.11'
+    slimCompileOnly 'com.qcloud.cos:beacon-android-release:4.1.22.11'
 }
 
 
 // 发布到 bintray
 
 if (android.defaultPublishConfig.contains("slim")){
-    project.extensions.add('artifactId', 'cosxml-lite')
+    project.extensions.add('artifactId', 'cos-android-lite')
     project.extensions.add('packageName', 'QCloudCosXmlLite')
     project.extensions.add('packageType', 'aar')
     project.extensions.add('artifactProduct', 'slim')
     project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
+    project.extensions.add('archiveName', 'cos-android-slim-release.aar')
+    project.extensions.add('archiveFilePath', 'outputs/aar/cos-android-lite-slim-release.aar')
 }else {
-    project.extensions.add('artifactId', 'cosxml')
+    project.extensions.add('artifactId', 'cos-android')
     project.extensions.add('packageName', 'QCloudCosXml')
     project.extensions.add('packageType', 'aar')
     project.extensions.add('artifactProduct', 'normal')
     project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
+    project.extensions.add('archiveFilePath', 'outputs/aar/cos-android-normal-release.aar')
 }
-
+apply from: '../../publishMavenCentral.gradle'
 
 
 // 发布到内部仓库
@@ -184,4 +188,12 @@ task(printEnvs) {
 
     println('System envs region are :')
     println(quotWrapper(System.getenv("REGION")))
+}
+
+
+android.libraryVariants.all { variant ->
+    variant.outputs.all {
+        // System.out.println('variant is ' + variant.name)
+        // outputFileName = "${project.extensions.artifactId}-release.aar"
+    }
 }

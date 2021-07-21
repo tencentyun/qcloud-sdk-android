@@ -37,6 +37,11 @@ public class NormalObjectTest {
 //            new RestoreObjectTestAdapter()
     };
 
+    @Test public void testTagging() {
+
+        new PutObjectTaggingTestAdapter().testAsyncRequest();
+    }
+
     @Test
     public void testAsync() {
 

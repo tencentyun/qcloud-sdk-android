@@ -31,7 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * 盲水印处理规则
+ * 图片处理规则
  */
 public class PicOperationRule {
     private static final String TAG = "PicOperationRule";
@@ -40,6 +40,15 @@ public class PicOperationRule {
     private String fileId;
 
     private String rule;
+
+    /**
+     * 构造盲水印处理规则
+     * @param rule 处理参数，参见数据万象图片处理 API。 若按指定样式处理，则以style/开头，后加样式名，如样式名为“test”，则 rule 字段为style/test
+     */
+    public PicOperationRule(String rule) {
+        this.fileId = fileId;
+        this.rule = rule;
+    }
 
     /**
      * 构造盲水印处理规则
@@ -63,6 +72,14 @@ public class PicOperationRule {
         this.rule = rule;
     }
 
+    public void setBucket(String bucket) {
+        this.bucket = bucket;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
+
     /**
      * 转换为json字符串
      * @return json字符串
@@ -73,7 +90,9 @@ public class PicOperationRule {
             if (!TextUtils.isEmpty(bucket)) {
                 ruleJson.put("bucket", bucket);
             }
-            ruleJson.put("fileid", fileId);
+            if (!TextUtils.isEmpty(fileId)) {
+                ruleJson.put("fileid", fileId);
+            }
             ruleJson.put("rule", rule);
         } catch (JSONException e) {
             BeaconService.getInstance().reportError(TAG, e);

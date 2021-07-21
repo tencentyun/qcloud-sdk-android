@@ -50,6 +50,7 @@ final public class PutObjectResult extends CosXmlResult {
     public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
         super.parseResponseBody(response);
         eTag = response.header("ETag");
+
         try {
             picUploadResult = QCloudXml.fromXml(response.byteStream(), PicUploadResult.class);
         } catch (IOException e) {
@@ -60,9 +61,8 @@ final public class PutObjectResult extends CosXmlResult {
     }
 
     /**
-     * 获取盲水印结果<br>
-     * 详情请参考：<a herf="https://cloud.tencent.com/document/product/1246/45384">盲水印功能</a>
-     * @return 盲水印结果
+     * 图片处理印结果<br>
+     * @return 图片处理
      */
     public @Nullable PicUploadResult picUploadResult() {
         return picUploadResult;

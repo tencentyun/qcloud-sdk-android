@@ -32,6 +32,7 @@ import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlBooleanListener;
+import com.tencent.cos.xml.model.object.GetSnapshotTestAdapter;
 import com.tencent.cos.xml.model.object.NormalPutObjectTestAdapter;
 import com.tencent.cos.xml.model.tag.COSMetaData;
 
@@ -202,5 +203,10 @@ public class OtherObjectTest {
                 Assert.fail(TestUtils.getCosExceptionMessage(exception, serviceException));
             }
         });
+    }
+
+    @Test public void testGetSnapshot() {
+
+        new GetSnapshotTestAdapter().testSyncRequest();
     }
 }  

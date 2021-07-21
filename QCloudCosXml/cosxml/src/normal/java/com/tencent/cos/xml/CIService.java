@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.ci.DeleteBucketDPStateRequest;
@@ -12,9 +13,15 @@ import com.tencent.cos.xml.model.ci.GetBucketDPStateRequest;
 import com.tencent.cos.xml.model.ci.GetBucketDPStateResult;
 import com.tencent.cos.xml.model.ci.PutBucketDPStateRequest;
 import com.tencent.cos.xml.model.ci.PutBucketDPStateResult;
+import com.tencent.cos.xml.model.ci.QRCodeUploadRequest;
+import com.tencent.cos.xml.model.ci.QRCodeUploadResult;
+import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionRequest;
+import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionResult;
+import com.tencent.cos.xml.model.service.GetServiceResult;
 import com.tencent.qcloud.core.auth.COSXmlSigner;
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
 import com.tencent.qcloud.core.auth.SignerFactory;
+import com.tencent.qcloud.core.common.QCloudResultListener;
 
 /**
  * <p>
@@ -51,5 +58,19 @@ public class CIService extends CosXmlService {
     public DeleteBucketDPStateResult deleteBucketDocumentPreviewState(DeleteBucketDPStateRequest request)
             throws CosXmlClientException, CosXmlServiceException{
         return execute(request, new DeleteBucketDPStateResult());
+    }
+
+    public QRCodeUploadResult qrCodeUpload(QRCodeUploadRequest request) 
+            throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new QRCodeUploadResult());
+    }
+
+    public void qrCodeUploadAsync(QRCodeUploadRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new QRCodeUploadResult(), cosXmlResultListener);
+    }
+    
+    public SensitiveContentRecognitionResult sensitiveContentRecognition(SensitiveContentRecognitionRequest request) 
+        throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new SensitiveContentRecognitionResult());
     }
 }

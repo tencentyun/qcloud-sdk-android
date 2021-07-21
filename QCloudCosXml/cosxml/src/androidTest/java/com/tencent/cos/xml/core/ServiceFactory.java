@@ -1,5 +1,6 @@
 package com.tencent.cos.xml.core;
 
+import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -98,7 +99,10 @@ public class ServiceFactory {
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
 
-        return new TransferManager(newService(cosXmlServiceConfig), new TransferConfig.Builder().build());
+        return new TransferManager(newService(cosXmlServiceConfig), new TransferConfig.Builder()
+                .setDivisionForUpload(2 * 1024 * 1024)
+                .setSliceSizeForUpload(1024 * 1024)
+                .build());
     }
 
     public TransferManager newCdnTransferManager() {
@@ -106,9 +110,8 @@ public class ServiceFactory {
     }
 
     private CosXmlSimpleService newService(CosXmlServiceConfig cosXmlServiceConfig) {
-        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
+        return new CosXmlService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
 
     }
-
 }

@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml.transfer;
 
+import androidx.annotation.Nullable;
+
 import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.ClientErrorCode;
@@ -109,6 +111,8 @@ public abstract class COSXMLTask {
     // 等待超时计时器
     protected Timer waitTimeoutTimer;
 
+    protected final Object timerLock = new Object();
+
     /**
      * 设置COS服务
      * @param cosXmlService COS服务类
@@ -156,19 +160,28 @@ public abstract class COSXMLTask {
     }
 
     public void startTimeoutTimer(long millisecond) {
-//        if (millisecond < 1000) {
-//            return;
-//        }
+        if (millisecond < 1000) {
+            return;
+        }
 
-        waitTimeoutTimer = new Timer();
-        waitTimeoutTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (taskState == TransferState.WAITING || taskState == TransferState.RESUMED_WAITING) {
-                    encounterError(new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), "Task waiting timeout."), null);
-                }
+        synchronized (timerLock) {
+
+            if (isTaskWaiting() && waitTimeoutTimer == null) {
+                waitTimeoutTimer = new Timer();
+                waitTimeoutTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (isTaskWaiting()) {
+                            encounterError(null, new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), "Task waiting timeout."), null);
+                        }
+                    }
+                }, millisecond);
             }
-        }, millisecond);
+        }
+    }
+
+    private boolean isTaskWaiting() {
+        return taskState == TransferState.WAITING || taskState == TransferState.RESUMED_WAITING;
     }
 
     class COSXMLMetrics extends HttpTaskMetrics {
@@ -196,7 +209,7 @@ public abstract class COSXMLTask {
 
     protected void internalResume(){}
 
-    abstract protected void encounterError(CosXmlClientException clientException, CosXmlServiceException serviceException);
+    abstract protected void encounterError(@Nullable CosXmlRequest cosXmlRequest, CosXmlClientException clientException, CosXmlServiceException serviceException);
 
     /**
      * 限制条件被满足，状态应该由 {@link TransferState#CONSTRAINED} 切换到 {@link TransferState#RESUMED_WAITING}
