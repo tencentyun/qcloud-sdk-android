@@ -25,16 +25,16 @@ package com.tencent.qcloud.core.http;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.InetAddress;
+import java.util.List;
+
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.internal.Util;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.net.InetAddress;
-import java.util.List;
 
 public class OkHttpProxy<T> extends NetworkProxy<T> {
 
@@ -80,6 +80,7 @@ public class OkHttpProxy<T> extends NetworkProxy<T> {
                     eventListener = (CallMetricsListener) eventListenerFiled.get(httpCall);
                 } catch (NoSuchFieldException ignore) {
                 } catch (IllegalAccessException ignore) {
+                } catch (ClassCastException ignore) {
                 }
             }
 
