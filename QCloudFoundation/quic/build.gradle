@@ -31,9 +31,9 @@ android {
         minSdkVersion 15
         targetSdkVersion 27
 
-        versionCode 10529
+        versionCode 10531
 
-        versionName "1.5.29"
+        versionName "1.5.31"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -80,4 +80,7 @@ project.extensions.add('packageType', 'aar')
 project.extensions.add('packageName', 'Quic')
 project.extensions.add('artifactId', 'quic')
 project.extensions.add('artifactDesc', 'the cos quic for tencent cloud sdk')
+project.extensions.add('archiveFilePath', 'outputs/aar/quic-release.aar')
 
+// 
+apply from: '../../publishMavenCentral.gradle'
