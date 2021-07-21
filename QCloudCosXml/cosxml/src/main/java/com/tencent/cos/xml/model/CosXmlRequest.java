@@ -288,7 +288,6 @@ public abstract class CosXmlRequest{
                 value = URLEncodeUtils.cosPathEncode(value);
             }
             addHeader(key, value);
-
         }
     }
 

@@ -111,6 +111,8 @@ import com.tencent.cos.xml.model.bucket.PutBucketVersioningRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketVersioningResult;
 import com.tencent.cos.xml.model.bucket.PutBucketWebsiteRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketWebsiteResult;
+import com.tencent.cos.xml.model.ci.GetSnapshotRequest;
+import com.tencent.cos.xml.model.ci.GetSnapshotResult;
 import com.tencent.cos.xml.model.ci.PreviewDocumentRequest;
 import com.tencent.cos.xml.model.ci.PreviewDocumentResult;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
@@ -1796,6 +1798,29 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
      */
     public void previewDocumentAsync(PreviewDocumentRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new PreviewDocumentResult(request.getDownloadPath()), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 获取截图的同步方法
+     * </p>
+     *
+     * @param request 获取截图的同步方法 {@link GetSnapshotRequest}
+     */
+    public GetSnapshotResult getSnapshot(GetSnapshotRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetSnapshotResult());
+    }
+
+    /**
+     * <p>
+     * 获取截图的异步方法
+     * </p>
+     *
+     * @param request 获取截图的异步方法 {@link GetSnapshotRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void getSnapshotAsync(GetSnapshotRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new GetSnapshotResult(), cosXmlResultListener);
     }
 
     @Override

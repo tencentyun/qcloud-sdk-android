@@ -28,61 +28,22 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 /**
  * 盲水印图片处理结果
  */
-@XmlBean(name = "Object")
-public class PicObject {
+@XmlBean(name = "QRcodeInfo")
+public class QRCodeInfo {
 
     /** 文件名 */
-    @XmlElement(name = "Key")
-    public String key;
+    @XmlElement(name = "CodeUrl")
+    public String codeUrl;
 
     /** 图片路径 */
-    @XmlElement(name = "Location")
-    public String location;
+    @XmlElement(name = "CodeLocation")
+    public QRCodeLocation location;
 
-    /** 图片格式 */
-    @XmlElement(name = "Format")
-    public String format;
 
-    /** 图片宽度 */
-    @XmlElement(name = "Width")
-    public int width;
+    public QRCodeInfo() {}
 
-    /** 图片高度 */
-    @XmlElement(name = "Height")
-    public int height;
-
-    /** 图片大小 */
-    @XmlElement(name = "Size")
-    public int size;
-
-    /** 图片质量 */
-    @XmlElement(name = "Quality")
-    public int quality;
-
-    /** 图片质量 */
-    @XmlElement(name = "ETag")
-    public String etag;
-    
-    
-    /**
-     * 构造盲水印图片处理结果
-     * @param key 文件名
-     * @param location 图片路径
-     * @param format 图片格式
-     * @param width 图片宽度
-     * @param height 图片高度
-     * @param size 图片大小
-     * @param quality 图片质量
-     */
-    public PicObject(String key, String location, String format, int width, int height, int size, int quality) {
-        this.key = key;
+    public QRCodeInfo(String codeUrl, QRCodeLocation location) {
+        this.codeUrl = codeUrl;
         this.location = location;
-        this.format = format;
-        this.width = width;
-        this.height = height;
-        this.size = size;
-        this.quality = quality;
     }
-
-    public PicObject() {}
 }

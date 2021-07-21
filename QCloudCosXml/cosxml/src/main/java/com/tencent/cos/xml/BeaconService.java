@@ -33,6 +33,8 @@ import com.tencent.beacon.event.open.BeaconEvent;
 import com.tencent.beacon.event.open.BeaconReport;
 import com.tencent.beacon.event.open.EventResult;
 import com.tencent.beacon.event.open.EventType;
+import com.tencent.beacon.qimei.IAsyncQimeiListener;
+import com.tencent.beacon.qimei.Qimei;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
@@ -41,6 +43,7 @@ import com.tencent.cos.xml.model.object.CopyObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.ObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
+import com.tencent.qcloud.core.BuildConfig;
 import com.tencent.qcloud.core.common.QCloudAuthenticationException;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
@@ -75,7 +78,7 @@ import javax.net.ssl.SSLHandshakeException;
 public class BeaconService {
     private static final String TAG = "BeaconProxy";
     private static final String APP_KEY = "0AND0VEVB24UBGDU";
-    private static final boolean IS_DEBUG = false;
+    private static final boolean IS_DEBUG = BuildConfig.DEBUG;
 
     private static final String EVENT_CODE_BASE_SERVICE = "base_service";
     private static final String EVENT_CODE_DOWNLOAD = "cos_download";
@@ -109,140 +112,62 @@ public class BeaconService {
                 instance = new BeaconService(applicationContext, serviceConfig);
 
                 if(isIncludeBeacon()) {
-                    BeaconConfig config = BeaconConfig.builder()
+                    BeaconConfig.Builder builder = BeaconConfig.builder()
                             .auditEnable(false)
                             .bidEnable(false)
-                            .collectMACEnable(false)
-                            .collectIMEIEnable(false)
-                            .collectAndroidIdEnable(false)
-                            .collectProcessInfoEnable(false)
                             .qmspEnable(false)
                             .pagePathEnable(false)
-                            .setNormalPollingTime(5000)
-                            .build();
+                            .setNormalPollingTime(30000);
+                    BeaconConfig config = builder.build();
+
                     BeaconReport beaconReport = BeaconReport.getInstance();
                     beaconReport.setLogAble(IS_DEBUG);//是否打开日志
+                    try {
+                        beaconReport.setCollectMac(false); //该项设为false即关闭采集Mac功能
+                        beaconReport.setCollectAndroidID(false); //该项设为false即关闭采集AndroidId功能
+                        beaconReport.setCollectImei(false); //该项设为false即关闭采集IMEI和IMSI的功能
+                        beaconReport.setCollectProcessInfo(false); //该项设为false即关闭采集processInfo功能
+                    } catch (NoSuchMethodError error) {
+                    }
                     beaconReport.start(applicationContext, APP_KEY, config);
+                    //某些灯塔sdk版本，start之前setCollectMac等无效
+                    try {
+                        beaconReport.setCollectMac(false); //该项设为false即关闭采集Mac功能
+                        beaconReport.setCollectAndroidID(false); //该项设为false即关闭采集AndroidId功能
+                        beaconReport.setCollectImei(false); //该项设为false即关闭采集IMEI和IMSI的功能
+                        beaconReport.setCollectProcessInfo(false); //该项设为false即关闭采集processInfo功能
+                    } catch (NoSuchMethodError error) {
+                    }
+
+                    //qimei获取兼容4.1和4.2
+                    try {
+                        beaconReport.getQimei(new IAsyncQimeiListener() {
+                            @Override
+                            public void onQimeiDispatch(Qimei qimei) {
+                                QCloudLogger.i("QCloudTest", qimei.getQimeiOld());
+                                QCloudLogger.i("QCloudTest", qimei.getQimeiNew());
+                            }
+                        });
+                    } catch (NoClassDefFoundError error) {
+                        try {
+                            beaconReport.getQimei(new IAsyncQimeiListener(){
+                                @Override
+                                public void onQimeiDispatch(Qimei qimei) {
+                                    QCloudLogger.i("QCloudTest", qimei.getQimeiOld());
+                                    QCloudLogger.i("QCloudTest", qimei.getQimeiNew());
+                                }
+                            });
+                        } catch (NoClassDefFoundError error1) {
+                        }
+                    }
                 }
             }
         }
-
-
     }
 
     public static BeaconService getInstance() {
         return instance;
     }
-
-
-    /*--------------------------reportBaseService-----------------------------*/
-    /**
-     * 上报基础服务成功事件
-     *
-     * @param cosXmlRequest cos请求
-     * @param tookTime      耗时
-     */
-    public void reportBaseService(CosXmlRequest cosXmlRequest, long tookTime) {
-        if(isReport(cosXmlRequest)) {
-            Map<String, String> params = getBaseServiceParams(cosXmlRequest, tookTime, true);
-            report(EVENT_CODE_BASE_SERVICE, params);
-        }
-    }
-
-    /**
-     * 上报基础服务客户端异常事件
-     *
-     * @param cosXmlRequest cos请求
-     * @param tookTime      耗时
-     * @param e             客户端异常
-     * @return 客户端异常
-     */
-    public CosXmlClientException reportBaseService(CosXmlRequest cosXmlRequest, long tookTime, QCloudClientException e) {
-        ReturnClientException returnClientException = getClientExceptionParams(e);
-        if (isReport(returnClientException.exception) && isReport(cosXmlRequest)) {
-            Map<String, String> params = getBaseServiceParams(cosXmlRequest, tookTime, false);
-            params.putAll(returnClientException.params);
-            report(EVENT_CODE_BASE_SERVICE, params);
-        }
-        return returnClientException.exception;
-    }
-
-    /**
-     * 上报基础服务服务端异常事件
-     *
-     * @param cosXmlRequest cos请求
-     * @param tookTime      耗时
-     * @param e             服务端异常
-     * @return 服务端异常
-     */
-    public CosXmlServiceException reportBaseService(CosXmlRequest cosXmlRequest, long tookTime, QCloudServiceException e) {
-        ReturnServiceException returnServiceException = getServiceExceptionParams(e);
-        if (isReport(returnServiceException.exception) && isReport(cosXmlRequest)) {
-            Map<String, String> params = getBaseServiceParams(cosXmlRequest, tookTime, false);
-            params.putAll(returnServiceException.params);
-            report(EVENT_CODE_BASE_SERVICE, params);
-        }
-        return returnServiceException.exception;
-    }
-    /*--------------------------reportBaseService-----------------------------*/
-
-    /*--------------------------reportDownload-----------------------------*/
-    public void reportDownload(String region, long size, long tookTime) {
-        Map<String, String> params = getDownloadParams(region, true);
-        params.put("took_time", String.valueOf(tookTime));
-        params.put("size", String.valueOf(size));
-        report(EVENT_CODE_DOWNLOAD, params);
-    }
-
-    public void reportDownload(String region, String error_node, QCloudClientException e) {
-        ReturnClientException returnClientException = getClientExceptionParams(e);
-        if (isReport(returnClientException.exception)) {
-            Map<String, String> params = getDownloadParams(region, false);
-            params.putAll(returnClientException.params);
-            params.put("error_node", error_node);
-            report(EVENT_CODE_DOWNLOAD, params);
-        }
-    }
-
-    public void reportDownload(String region, String error_node, QCloudServiceException e) {
-        ReturnServiceException returnServiceException = getServiceExceptionParams(e);
-        if (isReport(returnServiceException.exception)) {
-            Map<String, String> params = getDownloadParams(region, false);
-            params.putAll(returnServiceException.params);
-            params.put("error_node", error_node);
-            report(EVENT_CODE_DOWNLOAD, params);
-        }
-    }
-    /*--------------------------reportDownload-----------------------------*/
-
-    /*--------------------------reportUpload-----------------------------*/
-    public void reportUpload(String region, long size, long tookTime) {
-        Map<String, String> params = getUploadParams(region, true);
-        params.put("took_time", String.valueOf(tookTime));
-        params.put("size", String.valueOf(size));
-        report(EVENT_CODE_UPLOAD, params);
-    }
-
-    public void reportUpload(String region, String error_node, QCloudClientException e) {
-        ReturnClientException returnClientException = getClientExceptionParams(e);
-        if (isReport(returnClientException.exception)) {
-            Map<String, String> params = getUploadParams(region, false);
-            params.putAll(returnClientException.params);
-            params.put("error_node", error_node);
-            report(EVENT_CODE_UPLOAD, params);
-        }
-    }
-
-    public void reportUpload(String region, String error_node, QCloudServiceException e) {
-        ReturnServiceException returnServiceException = getServiceExceptionParams(e);
-        if (isReport(returnServiceException.exception)) {
-            Map<String, String> params = getUploadParams(region, false);
-            params.putAll(returnServiceException.params);
-            params.put("error_node", error_node);
-            report(EVENT_CODE_UPLOAD, params);
-        }
-    }
-
 
     public void reportRequestSuccess(CosXmlRequest request) {
         reportRequestSuccess(parseEventCode(request), request, null);
@@ -308,7 +233,7 @@ public class BeaconService {
 
         Map<String, String> params = new HashMap<>();
         params.put("name", name);
-        params.put("error_node", request.getClass().getSimpleName());
+        params.put("error_node", request != null ? request.getClass().getSimpleName() : "null");
         return params;
     }
 
@@ -598,41 +523,11 @@ public class BeaconService {
                 mapAsString.append(key + "=" + params.get(key) + ", ");
             }
             mapAsString.delete(mapAsString.length() - 2, mapAsString.length()).append("}");
-            QCloudLogger.d(TAG, "eventCode: %s, params: %s => result{ eventID: %s, errorCode: %d, errorMsg: %s}",
+            QCloudLogger.i(TAG, "eventCode: %s, params: %s => result{ eventID: %s, errorCode: %d, errorMsg: %s}",
                     eventCode, mapAsString, result.eventID, result.errorCode, result.errMsg);
         }
     }
 
-
-
-    /*--------------------------reportUpload-----------------------------*/
-
-    /*--------------------------reportCopy-----------------------------*/
-    public void reportCopy(String region) {
-        Map<String, String> params = getUploadParams(region, true);
-        report(EVENT_CODE_COPY, params);
-    }
-
-    public void reportCopy(String region, String error_node, QCloudClientException e) {
-        ReturnClientException returnClientException = getClientExceptionParams(e);
-        if (isReport(returnClientException.exception)) {
-            Map<String, String> params = getUploadParams(region, false);
-            params.putAll(returnClientException.params);
-            params.put("error_node", error_node);
-            report(EVENT_CODE_COPY, params);
-        }
-    }
-
-    public void reportCopy(String region, String error_node, QCloudServiceException e) {
-        ReturnServiceException returnServiceException = getServiceExceptionParams(e);
-        if (isReport(returnServiceException.exception)) {
-            Map<String, String> params = getUploadParams(region, false);
-            params.putAll(returnServiceException.params);
-            params.put("error_node", error_node);
-            report(EVENT_CODE_COPY, params);
-        }
-    }
-    /*--------------------------reportCopy---------------------------*/
 
     /**
      * 上报异常

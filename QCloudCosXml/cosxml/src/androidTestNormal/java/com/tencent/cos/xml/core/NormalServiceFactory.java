@@ -24,7 +24,7 @@ public class NormalServiceFactory {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setDebuggable(true)
-                .setAppidAndRegion(TestConst.COS_APPID, TestConst.PERSIST_BUCKET_REGION)
+                // .setAppidAndRegion(TestConst.COS_APPID, TestConst.PERSIST_BUCKET_REGION)
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
 

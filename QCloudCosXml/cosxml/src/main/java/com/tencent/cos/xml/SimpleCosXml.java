@@ -26,6 +26,7 @@ package com.tencent.cos.xml;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
+import com.tencent.cos.xml.listener.CosXmlResultSimpleListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.object.AbortMultiUploadRequest;
 import com.tencent.cos.xml.model.object.AbortMultiUploadResult;
@@ -598,6 +599,35 @@ public interface SimpleCosXml {
      */
     void completeMultiUploadAsync(CompleteMultiUploadRequest request, final CosXmlResultListener cosXmlResultListener);
 
+
+    /**
+     * <p>
+     * 预连接的同步方法。
+     * </p>
+     *
+     * @param bucket bucket 名称, 如 test-1250000000
+     * @return 预连接是否成功
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    boolean preBuildConnection(String bucket) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 预连接的异步方法。
+     * </p>
+     *
+     * @param bucket bucket 名称, 如 test-1250000000
+     * @param listener 结果回调函数
+     */
+    void preBuildConnectionAsync(String bucket, CosXmlResultSimpleListener listener);
+
+    /**
+     * 获取对象的 url 地址
+     *
+     * @return 对象的 url 地址
+     */
+    String getObjectUrl(String bucket, String region, String key);
 
     /**
      * 取消请求任务
