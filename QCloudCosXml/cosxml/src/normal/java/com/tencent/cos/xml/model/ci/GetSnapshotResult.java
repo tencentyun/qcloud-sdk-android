@@ -1,37 +1,3 @@
-apply plugin: 'com.android.library'
-apply from: '../version.gradle'
-
-android {
-    compileSdkVersion 27
-
-    defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 27
-        versionCode sdkVersionCode
-        versionName "5.6.14"
-
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-
-}
-
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    compileOnly 'androidx.appcompat:appcompat:1.0.0'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
-}
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -54,10 +20,18 @@ dependencies {
  *  SOFTWARE.
  */
 
-// 模块名
-project.extensions.add('artifactId', 'logUtils')
-project.extensions.add('packageType', 'aar')
-project.extensions.add('packageName', 'LogUtils')
-project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk logUtils')
+package com.tencent.cos.xml.model.ci;
 
+import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.model.object.GetObjectResult;
+import com.tencent.qcloud.core.http.HttpResponse;
 
+/**
+ * 预览文档的返回结果.
+ * @see com.tencent.cos.xml.CosXmlService#previewDocument(PreviewDocumentRequest)
+ * @see PreviewDocumentRequest
+ */
+public class GetSnapshotResult extends GetObjectResult {
+
+}

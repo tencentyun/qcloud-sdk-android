@@ -23,6 +23,8 @@
 package com.tencent.cos.xml.transfer;
 
 
+import androidx.annotation.Nullable;
+
 import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.ClientErrorCode;
@@ -515,7 +517,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
     }
 
     @Override
-    protected void encounterError(CosXmlClientException clientException, CosXmlServiceException serviceException) {
+    protected void encounterError(@Nullable CosXmlRequest cosXmlRequest, CosXmlClientException clientException, CosXmlServiceException serviceException) {
         if(IS_EXIT.get())return;
         IS_EXIT.set(true);
         largeCopyStateListenerHandler.onFailed(copyObjectRequest, clientException, serviceException);

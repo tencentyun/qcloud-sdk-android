@@ -29,11 +29,11 @@ import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
+import com.tencent.cos.xml.listener.CosXmlResultSimpleListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.AbortMultiUploadRequest;
 import com.tencent.cos.xml.model.object.AbortMultiUploadResult;
-import com.tencent.cos.xml.model.object.BaseMultipartUploadRequest;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadRequest;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadResult;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
@@ -52,6 +52,8 @@ import com.tencent.cos.xml.model.object.ListPartsRequest;
 import com.tencent.cos.xml.model.object.ListPartsResult;
 import com.tencent.cos.xml.model.object.PostObjectRequest;
 import com.tencent.cos.xml.model.object.PostObjectResult;
+import com.tencent.cos.xml.model.object.PreBuildConnectionRequest;
+import com.tencent.cos.xml.model.object.PreBuildConnectionResult;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectResult;
 import com.tencent.cos.xml.model.object.UploadPartCopyRequest;
@@ -63,7 +65,6 @@ import com.tencent.cos.xml.transfer.ResponseBytesConverter;
 import com.tencent.cos.xml.transfer.ResponseFileBodySerializer;
 import com.tencent.cos.xml.transfer.ResponseXmlS3BodySerializer;
 import com.tencent.cos.xml.utils.StringUtils;
-import com.tencent.cos.xml.utils.TimeUtils;
 import com.tencent.cos.xml.utils.URLEncodeUtils;
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
 import com.tencent.qcloud.core.auth.QCloudLifecycleCredentials;
@@ -867,6 +868,58 @@ public class CosXmlSimpleService implements SimpleCosXml {
         schedule(request, completeMultiUploadResult, cosXmlResultListener);
     }
 
+
+    /**
+     * <p>
+     * 预连接的同步方法.&nbsp。
+     * </p>
+     */
+    @Override
+    public boolean preBuildConnection(String bucket) {
+        PreBuildConnectionRequest preBuildConnectionRequest = new PreBuildConnectionRequest(bucket);
+        try {
+            execute(preBuildConnectionRequest, new PreBuildConnectionResult());
+        } catch (CosXmlClientException e) {
+            return false;
+        } catch (CosXmlServiceException e) {
+            return e.getStatusCode() != 404;
+        }
+        return true;
+    }
+
+    /**
+     * <p>
+     * 预连接的异步方法.&nbsp。
+     * </p>
+     */
+    @Override
+    public void preBuildConnectionAsync(String bucket, final CosXmlResultSimpleListener listener) {
+        PreBuildConnectionRequest preBuildConnectionRequest = new PreBuildConnectionRequest(bucket);
+        schedule(preBuildConnectionRequest, new PreBuildConnectionResult(), new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                listener.onSuccess();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                if(serviceException != null && serviceException.getStatusCode() != 404){
+                    listener.onSuccess();
+                } else {
+                    listener.onFail(clientException, serviceException);
+                }
+            }
+        });
+    }
+
+    @Override
+    public String getObjectUrl(String bucket, String region, String key) {
+
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, key, "");
+        putObjectRequest.setRegion(region);
+        return getAccessUrl(putObjectRequest);
+    }
+
     /**
      * 取消请求任务.&nbsp;
      * 详细介绍，请查看:{@link  SimpleCosXml#cancel(CosXmlRequest)}
@@ -898,6 +951,8 @@ public class CosXmlSimpleService implements SimpleCosXml {
     public void release() {
         cancelAll();
     }
+
+
 
     @Deprecated
     public String getAppid() {

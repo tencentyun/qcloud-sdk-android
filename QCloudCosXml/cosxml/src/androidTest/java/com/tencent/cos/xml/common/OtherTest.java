@@ -22,10 +22,29 @@
 
 package com.tencent.cos.xml.common;
 
+import android.os.Environment;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.tencent.cos.xml.CosXmlSimpleService;
+import com.tencent.cos.xml.core.ServiceFactory;
+import com.tencent.cos.xml.core.TestConst;
+import com.tencent.cos.xml.core.TestUtils;
+import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.listener.CosXmlResultSimpleListener;
+import com.tencent.cos.xml.utils.DigestUtils;
+import com.tencent.qcloud.core.logger.QCloudLogger;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
 
@@ -41,5 +60,57 @@ public class OtherTest {
     public void testServerEncryptType(){
         assertEquals("SSE-C", ServerEncryptType.SSE_C.getType());
         assertEquals(ServerEncryptType.SSE_COS, ServerEncryptType.fromString("SSE-COS"));
+    }
+
+    @Test
+    public void testGetService() {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+        boolean b = cosXmlSimpleService.preBuildConnection(TestConst.PERSIST_BUCKET);
+        Assert.assertTrue(b);
+    }
+
+    @Test
+    public void testGetServiceAsync() {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+        cosXmlSimpleService.preBuildConnectionAsync(TestConst.PERSIST_BUCKET, new CosXmlResultSimpleListener() {
+            @Override
+            public void onSuccess() {
+                Assert.assertTrue(true);
+            }
+
+            @Override
+            public void onFail(CosXmlClientException exception, CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(exception, serviceException));
+            }
+        });
+    }
+
+    @Test public void testCRC64() {
+
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "12345.zip");
+        QCloudLogger.i(TestConst.UT_TAG, "file path is " + file.getAbsolutePath());
+
+        BigInteger bi = new BigInteger("9668868296014390415");
+        QCloudLogger.i(TestConst.UT_TAG, "remote crc64 is " + bi.longValue());
+
+        try {
+            QCloudLogger.i(TestConst.UT_TAG, "file crc64 is " + DigestUtils.getCRC64(new FileInputStream(file)));
+//            QCloudLogger.i(TestConst.UT_TAG, "file crc64 is " + DigestUtils.getCRC64(new ByteArrayInputStream(
+//                    "123456789".getBytes()
+//            )));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test public void testGetObjectUrl() {
+
+        CosXmlSimpleService defaultService = ServiceFactory.INSTANCE.newDefaultService();
+        String bucket = "bucket";
+        String region = "ap-shanghai";
+        String key = "objectexample";
+        String url = defaultService.getObjectUrl(bucket, region, key);
+        QCloudLogger.i("QCloudTest", url);
+        Assert.assertEquals("https://bucket.cos.ap-shanghai.myqcloud.com/objectexample", url);
     }
 }
