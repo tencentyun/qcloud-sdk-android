@@ -33,6 +33,7 @@ import com.tencent.beacon.event.open.BeaconEvent;
 import com.tencent.beacon.event.open.BeaconReport;
 import com.tencent.beacon.event.open.EventResult;
 import com.tencent.beacon.event.open.EventType;
+
 import com.tencent.beacon.qimei.IAsyncQimeiListener;
 import com.tencent.beacon.qimei.Qimei;
 import com.tencent.cos.xml.common.ClientErrorCode;
@@ -43,7 +44,6 @@ import com.tencent.cos.xml.model.object.CopyObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.ObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
-import com.tencent.qcloud.core.BuildConfig;
 import com.tencent.qcloud.core.common.QCloudAuthenticationException;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
@@ -52,6 +52,7 @@ import com.tencent.qcloud.core.http.HttpRequest;
 import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.track.TrackService;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -110,57 +111,7 @@ public class BeaconService {
         synchronized (BeaconService.class) {
             if (instance == null) {
                 instance = new BeaconService(applicationContext, serviceConfig);
-
-                if(isIncludeBeacon()) {
-                    BeaconConfig.Builder builder = BeaconConfig.builder()
-                            .auditEnable(false)
-                            .bidEnable(false)
-                            .qmspEnable(false)
-                            .pagePathEnable(false)
-                            .setNormalPollingTime(30000);
-                    BeaconConfig config = builder.build();
-
-                    BeaconReport beaconReport = BeaconReport.getInstance();
-                    beaconReport.setLogAble(IS_DEBUG);//是否打开日志
-                    try {
-                        beaconReport.setCollectMac(false); //该项设为false即关闭采集Mac功能
-                        beaconReport.setCollectAndroidID(false); //该项设为false即关闭采集AndroidId功能
-                        beaconReport.setCollectImei(false); //该项设为false即关闭采集IMEI和IMSI的功能
-                        beaconReport.setCollectProcessInfo(false); //该项设为false即关闭采集processInfo功能
-                    } catch (NoSuchMethodError error) {
-                    }
-                    beaconReport.start(applicationContext, APP_KEY, config);
-                    //某些灯塔sdk版本，start之前setCollectMac等无效
-                    try {
-                        beaconReport.setCollectMac(false); //该项设为false即关闭采集Mac功能
-                        beaconReport.setCollectAndroidID(false); //该项设为false即关闭采集AndroidId功能
-                        beaconReport.setCollectImei(false); //该项设为false即关闭采集IMEI和IMSI的功能
-                        beaconReport.setCollectProcessInfo(false); //该项设为false即关闭采集processInfo功能
-                    } catch (NoSuchMethodError error) {
-                    }
-
-                    //qimei获取兼容4.1和4.2
-                    try {
-                        beaconReport.getQimei(new IAsyncQimeiListener() {
-                            @Override
-                            public void onQimeiDispatch(Qimei qimei) {
-                                QCloudLogger.i("QCloudTest", qimei.getQimeiOld());
-                                QCloudLogger.i("QCloudTest", qimei.getQimeiNew());
-                            }
-                        });
-                    } catch (NoClassDefFoundError error) {
-                        try {
-                            beaconReport.getQimei(new IAsyncQimeiListener(){
-                                @Override
-                                public void onQimeiDispatch(Qimei qimei) {
-                                    QCloudLogger.i("QCloudTest", qimei.getQimeiOld());
-                                    QCloudLogger.i("QCloudTest", qimei.getQimeiNew());
-                                }
-                            });
-                        } catch (NoClassDefFoundError error1) {
-                        }
-                    }
-                }
+                TrackService.init(applicationContext, APP_KEY, IS_DEBUG);
             }
         }
     }
@@ -211,6 +162,46 @@ public class BeaconService {
     public void reportDownloadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException) {
         reportServiceException(EVENT_CODE_DOWNLOAD, request, serviceException,
                 createTransferExtra("DownloadTask", request));
+    }
+
+    private String cosUploadName(boolean cse) {
+        return cse? "COSUploadTask-CSE" : "COSUploadTask";
+    }
+
+    private String cosDownloadName(boolean cse) {
+        return cse? "COSDownloadTask-CSE" : "COSDownloadTask";
+    }
+    
+    public void reportCOSUploadTaskSuccess(CosXmlRequest request, boolean cse) {
+        // 只需要一个 PutObjectRequest 壳，带上 HttpTaskMetrics 信息
+        reportRequestSuccess(EVENT_CODE_UPLOAD, request,
+                Collections.singletonMap("name", cosUploadName(cse)));
+    }
+
+    public void reportCOSUploadTaskClientException(CosXmlRequest request, QCloudClientException clientException, boolean cse) {
+        reportClientException(EVENT_CODE_UPLOAD, request, clientException,
+                createTransferExtra(cosUploadName(cse), request));
+    }
+
+    public void reportCOSUploadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException, boolean cse) {
+        reportServiceException(EVENT_CODE_UPLOAD, request, serviceException,
+                createTransferExtra(cosUploadName(cse), request));
+    }
+
+    public void reportCOSDownloadTaskSuccess(CosXmlRequest request, boolean cse) {
+        // 只需要一个 GetObjectRequest 壳，带上 HttpTaskMetrics 信息
+        reportRequestSuccess(EVENT_CODE_DOWNLOAD, request,
+                Collections.singletonMap("name", cosDownloadName(cse)));
+    }
+
+    public void reportCOSDownloadTaskClientException(CosXmlRequest request, QCloudClientException clientException, boolean cse) {
+        reportClientException(EVENT_CODE_DOWNLOAD, request, clientException,
+                createTransferExtra(cosDownloadName(cse), request));
+    }
+
+    public void reportCOSDownloadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException, boolean cse) {
+        reportServiceException(EVENT_CODE_DOWNLOAD, request, serviceException,
+                createTransferExtra(cosDownloadName(cse), request));
     }
 
     public void reportCopyTaskSuccess(CosXmlRequest request) {
@@ -505,27 +496,7 @@ public class BeaconService {
 
     private void report(String eventCode, Map<String, String> params) {
         if(!isIncludeBeacon()) return;
-
-        BeaconEvent.Builder builder = BeaconEvent.builder()
-                .withAppKey(APP_KEY)
-                .withCode(eventCode)
-                .withType(EventType.NORMAL)
-                .withParams(params);
-        try {
-            builder.withIsSimpleParams(true);
-        } catch (NoSuchMethodError error) {
-            //APP使用了标准版的灯塔SDK 不支持withIsSimpleParams
-        }
-        EventResult result = BeaconReport.getInstance().report(builder.build());
-        if (IS_DEBUG) {
-            StringBuilder mapAsString = new StringBuilder("{");
-            for (String key : params.keySet()) {
-                mapAsString.append(key + "=" + params.get(key) + ", ");
-            }
-            mapAsString.delete(mapAsString.length() - 2, mapAsString.length()).append("}");
-            QCloudLogger.i(TAG, "eventCode: %s, params: %s => result{ eventID: %s, errorCode: %d, errorMsg: %s}",
-                    eventCode, mapAsString, result.eventID, result.errorCode, result.errMsg);
-        }
+        TrackService.getInstance().track(APP_KEY, eventCode, params);
     }
 
 

@@ -50,14 +50,27 @@ public class CIService extends CosXmlService {
         return execute(request, new GetBucketDPStateResult());
     }
 
+    public void getBucketDocumentPreviewStateAsync(GetBucketDPStateRequest request, CosXmlResultListener listener) {
+        schedule(request, new GetBucketDPStateResult(), listener);
+    }
+
     public PutBucketDPStateResult putBucketDocumentPreviewState(PutBucketDPStateRequest request)
             throws CosXmlClientException, CosXmlServiceException{
         return execute(request, new PutBucketDPStateResult());
     }
 
+    public void putBucketDocumentPreviewStateAsync(PutBucketDPStateRequest request, CosXmlResultListener listener) {
+        schedule(request, new PutBucketDPStateResult(), listener);
+    }
+
     public DeleteBucketDPStateResult deleteBucketDocumentPreviewState(DeleteBucketDPStateRequest request)
-            throws CosXmlClientException, CosXmlServiceException{
+            throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new DeleteBucketDPStateResult());
+    }
+
+    public void deleteBucketDocumentPreviewStateAsync(DeleteBucketDPStateRequest request, CosXmlResultListener listener)
+            throws CosXmlClientException, CosXmlServiceException {
+        schedule(request, new DeleteBucketDPStateResult(), listener);
     }
 
     public QRCodeUploadResult qrCodeUpload(QRCodeUploadRequest request) 
@@ -72,5 +85,9 @@ public class CIService extends CosXmlService {
     public SensitiveContentRecognitionResult sensitiveContentRecognition(SensitiveContentRecognitionRequest request) 
         throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new SensitiveContentRecognitionResult());
+    }
+
+    public void sensitiveContentRecognitionAsync(SensitiveContentRecognitionRequest request, CosXmlResultListener listener) {
+        schedule(request, new SensitiveContentRecognitionResult(), listener);
     }
 }

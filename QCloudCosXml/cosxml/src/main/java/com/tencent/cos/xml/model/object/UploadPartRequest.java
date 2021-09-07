@@ -57,6 +57,8 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
 
     private CosXmlProgressListener progressListener;
 
+    private boolean lastPart;
+
     private UploadPartRequest(String bucket, String cosPath){
         super(bucket, cosPath);
         setNeedMD5(true);
@@ -117,6 +119,16 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
         fileContentLength = -1L;
     }
 
+    public UploadPartRequest(String bucket, String cosPath, int partNumber, InputStream inputStream, long size, String uploadId) throws CosXmlClientException {
+        this(bucket, cosPath);
+        this.partNumber = partNumber;
+        this.inputStream = inputStream;
+        //this.srcPath = FileUtils.tempCache(inputStream);
+        this.uploadId = uploadId;
+        this.fileOffset = 0;
+        fileContentLength = size;
+    }
+
     public UploadPartRequest(String bucket, String cosPath, int partNumber, URL url, String uploadId) {
         this(bucket, cosPath);
         this.partNumber = partNumber;
@@ -168,6 +180,34 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
      */
     public String getUploadId() {
         return uploadId;
+    }
+
+    public long getFileOffset() {
+        return fileOffset;
+    }
+
+    public long getFileContentLength() {
+        return fileContentLength;
+    }
+
+    public void setInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
+    public void setFileOffset(long fileOffset) {
+        this.fileOffset = fileOffset;
+    }
+
+    public void setFileContentLength(long fileContentLength) {
+        this.fileContentLength = fileContentLength;
+    }
+
+    public boolean isLastPart() {
+        return lastPart;
+    }
+
+    public void setLastPart(boolean lastPart) {
+        this.lastPart = lastPart;
     }
 
     @Override
@@ -268,6 +308,11 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
      */
     public String getSrcPath() {
         return srcPath;
+    }
+
+
+    public Uri getUri() {
+        return uri;
     }
 
     /**

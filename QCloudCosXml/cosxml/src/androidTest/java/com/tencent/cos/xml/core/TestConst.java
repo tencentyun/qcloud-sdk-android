@@ -37,6 +37,9 @@ public class TestConst {
     public static final String PERSIST_BUCKET_SMALL_OBJECT_PATH = "/do_not_remove/small_object";
     public static final String PERSIST_BUCKET_BIG_OBJECT_PATH = "/do_not_remove/big_object";
 
+    public static final String PERSIST_BUCKET_CSE_SMALL_OBJECT_PATH = "/do_not_remove/cse_small_object";
+    public static final String PERSIST_BUCKET_CSE_BIG_OBJECT_PATH = "/do_not_remove/cse_big_object";
+
     public static final String TEMP_BUCKET_REGION = BuildConfig.TEMP_BUCKET_REGION;
     public static final String TEMP_BUCKET = BuildConfig.TEMP_BUCKET;
 

@@ -27,6 +27,7 @@ import android.util.Base64;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.common.ClientErrorCode;
+import com.tencent.cos.xml.crypto.ObjectMetadata;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.utils.DigestUtils;
@@ -82,8 +83,10 @@ public abstract class ObjectRequest extends CosXmlRequest {
         return cosPath;
     }
 
+
     @Override
     public void checkParameters() throws CosXmlClientException {
+        super.checkParameters();
         if(requestURL != null){
             return;
         }
@@ -94,6 +97,7 @@ public abstract class ObjectRequest extends CosXmlRequest {
             throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "cosPath must not be null ");
         }
     }
+
 
     /**
      * 对象SSE-COS服务端加密配置

@@ -7,7 +7,6 @@ def compileQuic() {
             .toString().contains("Debug") && "QCloudCosXml".equalsIgnoreCase(rootProject.name)
 }
 
-
 android {
 
     compileSdkVersion 28
@@ -17,8 +16,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 50614
-        versionName "5.6.14"
+        versionCode 50701
+        versionName "5.7.1"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -68,14 +67,13 @@ android {
     }
 
     // 切换发 normal 或者 slim 包，需要同步修改 pom.artifactId 信息
-    defaultPublishConfig "normalRelease"
-    //  defaultPublishConfig  "slimRelease"
+    // defaultPublishConfig "normalRelease"
+    defaultPublishConfig  "slimRelease"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
     }
-
     buildToolsVersion = '28.0.2'
 
 }
@@ -92,18 +90,21 @@ dependencies {
     api project(path: ':foundation')
     // api project(path: ':logUtils')
 
-    if (compileQuic() && false) {
-        api project(path: ':quic')
-    }
+//    if (compileQuic() && false) {
+//        api project(path: ':quic')
+//    }
 
     compileOnly project(':xmlAnnoation')
     annotationProcessor project(':xmlCompiler')
 
     //lite版本使用normalApi
-    normalApi 'com.qcloud.cos:beacon-android-release:4.1.22.11'
+    // normalApi 'com.tencent.qcloud:beacon-android-release:4.1.13'
     //normal版本使用api
-    // api 'com.qcloud.cos:beacon-android-release:4.1.22.11'
-    slimCompileOnly 'com.qcloud.cos:beacon-android-release:4.1.22.11'
+    implementation 'com.tencent.qcloud:beacon-android-release:4.1.13'
+
+    // kms 加密
+    compileOnly 'com.tencentcloudapi:tencentcloud-sdk-java-kms:3.1.213'
+    compileOnly 'xerces:xercesImpl:2.12.0'
 }
 
 
@@ -193,7 +194,7 @@ task(printEnvs) {
 
 android.libraryVariants.all { variant ->
     variant.outputs.all {
-        // System.out.println('variant is ' + variant.name)
+        System.out.println('variant is ' + variant.name)
         // outputFileName = "${project.extensions.artifactId}-release.aar"
     }
 }

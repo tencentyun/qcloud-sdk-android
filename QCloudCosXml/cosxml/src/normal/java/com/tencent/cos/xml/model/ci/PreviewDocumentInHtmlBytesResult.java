@@ -20,51 +20,41 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.model.bucket;
+package com.tencent.cos.xml.model.ci;
 
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
-import com.tencent.cos.xml.model.tag.ListMultipartUploads;
-import com.tencent.cos.xml.transfer.XmlParser;
 import com.tencent.qcloud.core.http.HttpResponse;
-
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
 /**
- * 查询存储桶（Bucket）中正在进行中的分块上传对象的返回结果.
- * @see com.tencent.cos.xml.CosXml#listMultiUploads(ListMultiUploadsRequest)
- * @see ListMultiUploadsRequest
+ * 以HTML格式直出内容预览文档的返回结果.
+ *
+ * @see com.tencent.cos.xml.CosXmlService#previewDocumentInHtmlBytes(String, String)
+ * @see PreviewDocumentInHtmlBytesRequest
  */
-final public class ListMultiUploadsResult extends CosXmlResult {
-
-    /**
-     * 所有分块上传的信息
-     */
-    public ListMultipartUploads listMultipartUploads;
+public class PreviewDocumentInHtmlBytesResult extends CosXmlResult {
+    public byte[] data;
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
+    public void parseResponseBody(HttpResponse response) throws CosXmlClientException, CosXmlServiceException {
         super.parseResponseBody(response);
-        listMultipartUploads = new ListMultipartUploads();
         try {
-            XmlParser.parseListMultipartUploadsResult(response.byteStream(), listMultipartUploads);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
+            data = response.bytes();
         } catch (IOException e) {
             throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
         }
     }
 
-    @Override
-    public String printResult() {
-        if(listMultipartUploads != null){
-            return listMultipartUploads.toString();
-        }else{
-            return super.printResult();
-        }
+    /**
+     * 获取直出HTML预览内容
+     *
+     * @return 直出HTML预览内容
+     */
+    public byte[] getData() {
+        return data;
     }
 }
