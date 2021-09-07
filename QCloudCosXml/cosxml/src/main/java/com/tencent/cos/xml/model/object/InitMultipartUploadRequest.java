@@ -26,6 +26,8 @@ import com.tencent.cos.xml.common.COSACL;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.COSStorageClass;
 import com.tencent.cos.xml.common.RequestMethod;
+import com.tencent.cos.xml.crypto.ObjectMetadata;
+import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.ACLAccount;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
@@ -38,6 +40,8 @@ import java.util.Map;
  * @see com.tencent.cos.xml.SimpleCosXml#initMultipartUploadAsync(InitMultipartUploadRequest, CosXmlResultListener)
  */
 final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest {
+
+    private ObjectMetadata metadata;
 
     /**
      * InitMultipartUploadRequest 构造方法
@@ -75,6 +79,24 @@ final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest
         addHeader(COSRequestHeaderKey.CONTENT_ENCODING,contentEncoding);
     }
 
+    @Override
+    public void checkParameters() throws CosXmlClientException {
+        super.checkParameters();
+        if (metadata != null) {
+
+            Map<String, Object> rawMetadata = metadata.getRawMetadata();
+            Map<String, String> useMetadata = metadata.getUserMetadata();
+
+            for (Map.Entry<String, Object> entry : rawMetadata.entrySet()) {
+                addHeader(entry.getKey(), entry.getValue().toString());
+            }
+            for (Map.Entry<String, String> entry : useMetadata.entrySet()) {
+                addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+
+    }
+
     /**
      * 设置 Expires 头部
      * @param expires Expires 头部
@@ -103,6 +125,16 @@ final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest
         if(cosacl != null){
             addHeader(COSRequestHeaderKey.X_COS_ACL,cosacl);
         }
+    }
+
+
+    public void setMetadata(ObjectMetadata metadata) {
+        this.metadata = metadata;
+    }
+
+
+    public ObjectMetadata getMetadata() {
+        return metadata;
     }
 
     /**

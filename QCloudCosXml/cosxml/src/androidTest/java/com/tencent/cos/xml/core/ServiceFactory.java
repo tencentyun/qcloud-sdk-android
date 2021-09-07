@@ -3,9 +3,12 @@ package com.tencent.cos.xml.core;
 import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.CosXmlSimpleService;
+import com.tencent.cos.xml.crypto.KMSEncryptionMaterialsProvider;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.transfer.TransferConfig;
 import com.tencent.cos.xml.transfer.TransferManager;
+import com.tencent.cos.xml.transfer.TransferService;
+import com.tencent.qcloud.core.auth.QCloudSigner;
 import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
 
 import static com.tencent.cos.xml.core.TestUtils.getContext;
@@ -44,6 +47,19 @@ public class ServiceFactory {
         return newService(cosXmlServiceConfig);
     }
 
+    public CosXmlSimpleService newSignerService(QCloudSigner signer) {
+
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setConnectionTimeout(4000)
+                .setSocketTimeout(4000)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .builder();
+
+        return newSignerService(cosXmlServiceConfig, signer);
+    }
+
     public CosXmlSimpleService newCDNService() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
@@ -58,8 +74,32 @@ public class ServiceFactory {
 
     public TransferManager newDefaultTransferManager() {
 
-        TransferConfig transferConfig = new TransferConfig.Builder().build();
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .setDivisionForUpload(2 * 1024 * 1024)
+                .setSliceSizeForUpload(1024 * 1024)
+                .build();
         return new TransferManager(newDefaultService(), transferConfig);
+    }
+
+    public TransferService newDefaultTransferService() {
+
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .setDivisionForUpload(2 * 1024 * 1024)
+                .setSliceSizeForUpload(1024 * 1024)
+                .build();
+        return new TransferService(newDefaultService(), transferConfig);
+    }
+
+    public TransferManager newSingerTransferManager(QCloudSigner signer) {
+
+        TransferConfig transferConfig = new TransferConfig.Builder().build();
+        return new TransferManager(newSignerService(signer), transferConfig);
+    }
+
+    public TransferService newCesTransferService() {
+        TransferConfig transferConfig = new TransferConfig.Builder().build();
+        return new TransferService(newDefaultService(), transferConfig,
+                new KMSEncryptionMaterialsProvider("kms-8xy4m0eb"));
     }
 
     public TransferManager newForceSimpleUploadTransferManager() {
@@ -112,6 +152,11 @@ public class ServiceFactory {
     private CosXmlSimpleService newService(CosXmlServiceConfig cosXmlServiceConfig) {
         return new CosXmlService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
+
+    }
+
+    private CosXmlSimpleService newSignerService(CosXmlServiceConfig cosXmlServiceConfig, QCloudSigner signer) {
+        return new CosXmlService(getContext(), cosXmlServiceConfig, signer);
 
     }
 }

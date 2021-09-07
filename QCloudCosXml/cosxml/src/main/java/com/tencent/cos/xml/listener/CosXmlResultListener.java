@@ -50,9 +50,9 @@ public interface CosXmlResultListener {
     /**
      * 失败回调
      * @param request COS请求 {@link CosXmlRequest}
-     * @param exception 客户端异常 {@link CosXmlClientException}
+     * @param clientException 客户端异常 {@link CosXmlClientException}
      * @param serviceException 服务端异常 {@link CosXmlServiceException}
      */
-    void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException);
+    void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException);
 
 }

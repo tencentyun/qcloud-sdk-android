@@ -102,11 +102,11 @@ public class TransferConfig {
 
         /**
          * 设置分块复制时的分块大小
-         * @param sliceSizee 分块复制时的分块大小
+         * @param sliceSize 分块复制时的分块大小
          */
-        public Builder setSliceSizeForCopy(long sliceSizee){
-            if(sliceSizee > 0){
-                this.sliceSizeForCopy = sliceSizee;
+        public Builder setSliceSizeForCopy(long sliceSize){
+            if(sliceSize > 0){
+                this.sliceSizeForCopy = sliceSize;
             }
             return this;
         }

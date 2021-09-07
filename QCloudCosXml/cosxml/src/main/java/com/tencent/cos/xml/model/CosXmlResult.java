@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml.model;
 
+import androidx.annotation.Nullable;
+
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.qcloud.core.http.HttpResponse;
@@ -71,5 +73,16 @@ public abstract class CosXmlResult {
      */
     public String printResult(){
         return httpCode + "|" + httpMessage;
+    }
+
+    @Nullable public String getHeader(String key) {
+
+        if (headers.containsKey(key)) {
+            List<String> values = headers.get(key);
+            if (values != null && !values.isEmpty()) {
+                return values.get(0);
+            }
+        }
+        return null;
     }
 }

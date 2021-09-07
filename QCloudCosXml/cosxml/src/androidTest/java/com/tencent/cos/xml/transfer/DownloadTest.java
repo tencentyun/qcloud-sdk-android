@@ -65,6 +65,9 @@ public class DownloadTest {
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
                 TestUtils.localParentPath());
+        getObjectRequest.setRange(100, 200);
+
+        /// getObjectRequest.addNoSignHeader("Range");
         COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
                 getObjectRequest);
 

@@ -28,30 +28,23 @@ import android.util.Base64;
 import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.common.Range;
 import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.qcloud.core.logger.QCloudLogger;
-import com.tencent.qcloud.core.util.Base64Utils;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.zip.CRC32;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-
-import okhttp3.internal.Util;
 
 /**
  * 编码加密工具类
@@ -89,15 +82,42 @@ public class DigestUtils {
     public static long getBigIntFromString(String value) {
         return new BigInteger(value).longValue();
     }
+
+    public static String getBigIntToString(long l) {
+        return BigInteger.valueOf(l).toString();
+    }
     
     @Nullable public static long getCRC64(InputStream inputStream) {
-
         try {
             CRC64 crc64 = new CRC64();
             int readLen;
             byte[] buff = new byte[8 * 1024];
             while ((readLen = inputStream.read(buff)) != -1){
                 crc64.update(buff, readLen);
+            }
+            return crc64.getValue();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    @Nullable public static long getCRC64(InputStream inputStream, long skip, long size) {
+
+        try {
+            long skipNumber = inputStream.skip(skip);
+            if (skipNumber != skip) {
+                return -1;
+            }
+            CRC64 crc64 = new CRC64();
+            byte[] buff = new byte[8 * 1024];
+            int readLen;
+            long remainLength = size >= 0 ? size : Long.MAX_VALUE;
+            int needSize = (int) Math.min(remainLength, buff.length);
+
+            while (remainLength > 0L && (readLen = inputStream.read(buff, 0, needSize))!= -1){
+                crc64.update(buff, readLen);
+                remainLength -= readLen;
             }
             return crc64.getValue();
         } catch (IOException e) {
@@ -115,8 +135,8 @@ public class DigestUtils {
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");
             byte[] buff = new byte[8 * 1024];
             int readLen;
-            long remainLength = size;
-            int needSize = Math.min((int)remainLength, buff.length);
+            long remainLength = size >= 0 ? size : Long.MAX_VALUE;
+            int needSize = (int) Math.min(remainLength, buff.length);
             while (remainLength > 0L && (readLen = inputStream.read(buff, 0, needSize))!= -1){
                 if (readLen < needSize) {
                     return "";
@@ -212,5 +232,25 @@ public class DigestUtils {
         } catch (UnsupportedEncodingException e) {
             throw new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), e);
         }
+    }
+
+    /**
+     * 获取URL安全的base64编码字符串<br>
+     * 1、将普通 BASE64 编码结果中的加号（+）替换成连接号（-）
+     * 2、将编码结果中的正斜线（/）替换成下划线（_）
+     * 3、保留编码结果中末尾的全部等号（=）
+     *
+     * @param content 原始字符串
+     * @return URL安全的base64编码字符串
+     */
+    public static String getSecurityBase64(String content) throws CosXmlClientException {
+        String base64 = getBase64(content);
+        if(TextUtils.isEmpty(base64)){
+            return base64;
+        }
+
+        base64 = base64.replace("+","-");
+        base64 = base64.replace("/","_");
+        return base64;
     }
 }

@@ -77,4 +77,74 @@ public class StringUtils {
         return flat.toString();
     }
 
+    /**
+     * 提取一个完整路径的文件名，比如：
+     *
+     * resource/image/logo.png  -> logo.png
+     * resource/image/          -> image/
+     * resource/image           -> image
+     * image/                   -> image/
+     * image                    -> image
+     */
+    public static String extractFileName(String absolutePath) {
+
+        if (TextUtils.isEmpty(absolutePath)) {
+            return "";
+        }
+
+        int lastSlashIndex = absolutePath.lastIndexOf('/');
+        if (lastSlashIndex < 0) {
+            return absolutePath;
+        }
+
+        if (lastSlashIndex == absolutePath.length() - 1) {
+            lastSlashIndex = absolutePath.substring(0, absolutePath.length()-1).lastIndexOf('/');
+        }
+        return absolutePath.substring(lastSlashIndex + 1);
+    }
+
+    /**
+     *  提取一个路径或者文件名中的名称（不含后缀），比如：
+     *
+     *  resource/image/logo.png   -> logo
+     *  logo.png                  -> logo
+     *  logo                      -> logo
+     */
+    public static String extractNameNoSuffix(String absolutePath) {
+        String fileName = extractFileName(absolutePath);
+
+        if (TextUtils.isEmpty(fileName)) {
+            return "";
+        }
+
+        int lastIndexOfDot = fileName.lastIndexOf('.');
+        if (lastIndexOfDot > 0) {
+            return fileName.substring(0, lastIndexOfDot);
+        } else {
+            return fileName;
+        }
+    }
+
+    /**
+     *  提取一个路径或者文件名中的后缀，比如：
+     *
+     *  resource/image/logo.png   -> .png
+     *  logo.png                  -> .png
+     *  logo                      ->
+     */
+    public static String extractSuffix(String absolutePath) {
+        if (TextUtils.isEmpty(absolutePath)) {
+            return "";
+        }
+
+        if (absolutePath.endsWith("/")) {
+            return "/";
+        }
+
+        int lastIndexOfDot = absolutePath.lastIndexOf('.');
+        if (lastIndexOfDot > 0) {
+            return absolutePath.substring(lastIndexOfDot);
+        }
+        return "";
+    }
 }

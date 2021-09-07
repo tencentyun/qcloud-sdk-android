@@ -4,11 +4,8 @@ import android.content.Context
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
 import android.util.Log
-import com.tencent.cos.xml.common.COSACL
 import com.tencent.cos.xml.exception.CosXmlServiceException
 import com.tencent.cos.xml.model.tag.ACLAccount
-import com.tencent.qcloud.core.auth.SessionCredentialProvider
-import com.tencent.qcloud.core.auth.SessionQCloudCredentials
 import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert

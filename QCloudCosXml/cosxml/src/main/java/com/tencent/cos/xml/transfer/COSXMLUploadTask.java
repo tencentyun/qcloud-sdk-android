@@ -202,7 +202,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         this.urlUploadPolicy = urlUploadPolicy;
         this.uploadId = uploadId;
     }
-    
+
     COSXMLUploadTask(CosXmlSimpleService cosXmlService, String region, String bucket, String cosPath, URL url, String uploadId){
         this(cosXmlService, region, bucket, cosPath);
         this.url = url;
@@ -240,6 +240,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     protected boolean checkParameter(){
         if(bytes == null && inputStream == null && srcPath == null && uri == null && url == null){
+
             if(IS_EXIT.get()) return false;
             IS_EXIT.set(true);
             multiUploadsStateListenerHandler.onFailed(new PutObjectRequest(bucket, cosPath, ""),
@@ -320,6 +321,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
             putObjectRequest.setNeedMD5(false);
         } else {
             putObjectRequest.setNeedMD5(isNeedMd5);
+
         }
         putObjectRequest.setRequestHeaders(headers);
 
@@ -547,14 +549,9 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     private void onUpdateInProgress() {
         updateState(TransferState.IN_PROGRESS, null, null, false);
-
-        synchronized (timerLock) {
-            if (waitTimeoutTimer != null) {
-                waitTimeoutTimer.cancel();
-                waitTimeoutTimer = null;
-            }
+        if (waitTimeoutTimer != null) {
+            waitTimeoutTimer.cancel();
         }
-
     }
 
     // 需要主动关闭流
@@ -661,6 +658,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 if(url != null){
                     uploadPartRequest = new UploadPartRequest(bucket, cosPath, slicePartStruct.partNumber, url, slicePartStruct.offset, slicePartStruct.sliceSize,  uploadId);
                 }
+
 
                 if (priorityLow) {
                     uploadPartRequest.setPriorityLow();

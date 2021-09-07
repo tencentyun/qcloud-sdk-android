@@ -25,6 +25,7 @@ package com.tencent.cos.xml.model;
 import android.text.TextUtils;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.crypto.ObjectMetadata;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.utils.URLEncodeUtils;
 import com.tencent.qcloud.core.auth.COSXmlSignSourceProvider;
@@ -73,6 +74,7 @@ public abstract class CosXmlRequest{
     private HttpTaskMetrics metrics;
     private boolean isNeedMD5 = false;
     private boolean isSupportAccelerate = false;
+
 
     protected int priority = -1;
     /**
@@ -212,7 +214,9 @@ public abstract class CosXmlRequest{
      * sdk 参数校验
      * @throws CosXmlClientException cosXmlClientException
      */
-    public abstract void checkParameters() throws CosXmlClientException;
+    public void checkParameters() throws CosXmlClientException {
+
+    }
 
     /**
      * 针对有请求体的 PUT 和 POST 请求，此头部是必选项。
@@ -266,6 +270,7 @@ public abstract class CosXmlRequest{
     public boolean isSignInUrl() {
         return signInUrl;
     }
+
 
     @Deprecated
     public void setRequestHeaders(String key, String value) throws CosXmlClientException {
@@ -480,6 +485,14 @@ public abstract class CosXmlRequest{
     public int getWeight() {
         return onRequestWeightListener != null ? onRequestWeightListener.onWeight() :
                 QCloudTask.WEIGHT_LOW;
+    }
+
+    /**
+     * header是否有不安全的非Ascii字符
+     * @return header是否有不安全的非Ascii字符
+     */
+    public boolean headersHasUnsafeNonAscii(){
+        return false;
     }
 
     /**

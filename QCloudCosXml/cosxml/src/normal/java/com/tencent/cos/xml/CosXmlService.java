@@ -83,8 +83,6 @@ import com.tencent.cos.xml.model.bucket.ListBucketInventoryRequest;
 import com.tencent.cos.xml.model.bucket.ListBucketInventoryResult;
 import com.tencent.cos.xml.model.bucket.ListBucketVersionsRequest;
 import com.tencent.cos.xml.model.bucket.ListBucketVersionsResult;
-import com.tencent.cos.xml.model.bucket.ListMultiUploadsRequest;
-import com.tencent.cos.xml.model.bucket.ListMultiUploadsResult;
 import com.tencent.cos.xml.model.bucket.PutBucketACLRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketACLResult;
 import com.tencent.cos.xml.model.bucket.PutBucketAccelerateRequest;
@@ -111,8 +109,16 @@ import com.tencent.cos.xml.model.bucket.PutBucketVersioningRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketVersioningResult;
 import com.tencent.cos.xml.model.bucket.PutBucketWebsiteRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketWebsiteResult;
+import com.tencent.cos.xml.model.ci.FormatConversionRequest;
+import com.tencent.cos.xml.model.ci.FormatConversionResult;
 import com.tencent.cos.xml.model.ci.GetSnapshotRequest;
 import com.tencent.cos.xml.model.ci.GetSnapshotResult;
+import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlBytesRequest;
+import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlBytesResult;
+import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlLinkRequest;
+import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlLinkResult;
+import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlRequest;
+import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlResult;
 import com.tencent.cos.xml.model.ci.PreviewDocumentRequest;
 import com.tencent.cos.xml.model.ci.PreviewDocumentResult;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
@@ -765,30 +771,7 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
         schedule(request, new HeadBucketResult(), cosXmlResultListener);
     }
 
-    /**
-     * <p>
-     * 查询存储桶（Bucket）中正在进行中的分块上传对象的同步方法.&nbsp;
-     *
-     * 详细介绍，请查看:{@link  CosXml#listMultiUploads(ListMultiUploadsRequest request)}
-     *</p>
-     */
-    @Override
-    public ListMultiUploadsResult listMultiUploads(ListMultiUploadsRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new ListMultiUploadsResult());
-    }
-
-    /**
-     * <p>
-     * 查询存储桶（Bucket）中正在进行中的分块上传对象的异步方法.&nbsp;
-     *
-     * 详细介绍，请查看:{@link  CosXml#listMultiUploadsAsync(ListMultiUploadsRequest request, CosXmlResultListener cosXmlResultListener)}
-     *</p>
-     */
-    @Override
-    public void listMultiUploadsAsync(ListMultiUploadsRequest request, CosXmlResultListener cosXmlResultListener) {
-        schedule(request, new ListMultiUploadsResult(), cosXmlResultListener);
-    }
-
+   
     /**
      * <p>
      * 设置存储桶（Bucket） 的访问权限（Access Control List, ACL)的同步方法.&nbsp;
@@ -1784,6 +1767,7 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
      * @throws CosXmlClientException 客户端异常
      * @throws CosXmlServiceException 服务端异常
      */
+    @Override
     public PreviewDocumentResult previewDocument(PreviewDocumentRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new PreviewDocumentResult(request.getDownloadPath()));
     }
@@ -1796,8 +1780,80 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
      * @param request 预览文档的请求 {@link PreviewDocumentRequest}
      * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
      */
+    @Override
     public void previewDocumentAsync(PreviewDocumentRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new PreviewDocumentResult(request.getDownloadPath()), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 以HTML格式预览文档的同步方法。
+     * </p>
+     * @param request 以HTML格式预览文档的请求 {@link PreviewDocumentInHtmlRequest}
+     * @return 以HTML格式预览文档的返回结果 {@link PreviewDocumentInHtmlResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    @Override
+    public PreviewDocumentInHtmlResult previewDocumentInHtml(PreviewDocumentInHtmlRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PreviewDocumentInHtmlResult(request.getDownloadPath()));
+    }
+
+    /**
+     * <p>
+     * 以HTML格式预览文档的异步方法
+     * </p>
+     *
+     * @param request 以HTML格式预览文档的请求 {@link PreviewDocumentInHtmlRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    @Override
+    public void previewDocumentInHtmlAsync(PreviewDocumentInHtmlRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PreviewDocumentInHtmlResult(request.getDownloadPath()), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 以HTML格式链接预览文档的同步方法。
+     * </p>
+     * @param request 以HTML格式链接预览文档的请求 {@link PreviewDocumentInHtmlLinkRequest}
+     * @return 以HTML格式链接预览文档的返回结果 {@link PreviewDocumentInHtmlLinkResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    @Override
+    public PreviewDocumentInHtmlLinkResult previewDocumentInHtmlLink(PreviewDocumentInHtmlLinkRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PreviewDocumentInHtmlLinkResult());
+    }
+
+    /**
+     * <p>
+     * 以HTML格式链接预览文档的异步方法
+     * </p>
+     *
+     * @param request 以HTML格式链接预览文档的请求 {@link PreviewDocumentInHtmlLinkRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    @Override
+    public void previewDocumentInHtmlLinkAsync(PreviewDocumentInHtmlLinkRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PreviewDocumentInHtmlLinkResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 以HTML格式直出内容预览文档到字节数组
+     * <p>
+     * 详细介绍，请查看:{@link CosXml#previewDocumentInHtmlBytes(String, String)}
+     */
+    @Override
+    public byte[] previewDocumentInHtmlBytes(String bucketName, String objectName) throws CosXmlClientException, CosXmlServiceException {
+        PreviewDocumentInHtmlBytesRequest previewDocumentInHtmlBytesRequest = new PreviewDocumentInHtmlBytesRequest(bucketName, objectName);
+        PreviewDocumentInHtmlBytesResult previewDocumentInHtmlBytesResult = execute(previewDocumentInHtmlBytesRequest, new PreviewDocumentInHtmlBytesResult());
+        return previewDocumentInHtmlBytesResult != null ? previewDocumentInHtmlBytesResult.data : new byte[0];
+    }
+
+    public void formatConversionAsync(FormatConversionRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new FormatConversionResult(), cosXmlResultListener);
     }
 
     /**
@@ -1806,7 +1862,11 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
      * </p>
      *
      * @param request 获取截图的同步方法 {@link GetSnapshotRequest}
+     * @return 获取截图的返回结果 {@link GetSnapshotResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
      */
+    @Override
     public GetSnapshotResult getSnapshot(GetSnapshotRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new GetSnapshotResult());
     }
@@ -1819,6 +1879,7 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
      * @param request 获取截图的异步方法 {@link GetSnapshotRequest}
      * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
      */
+    @Override
     public void getSnapshotAsync(GetSnapshotRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetSnapshotResult(), cosXmlResultListener);
     }

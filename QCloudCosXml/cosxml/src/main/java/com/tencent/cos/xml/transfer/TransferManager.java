@@ -27,9 +27,16 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
+import com.tencent.cos.xml.crypto.CryptoModuleAE;
+import com.tencent.cos.xml.crypto.CryptoModuleBase;
+import com.tencent.cos.xml.crypto.EncryptionMaterialsProvider;
+import com.tencent.cos.xml.crypto.QCLOUDKMS;
+import com.tencent.cos.xml.crypto.TencentCloudKMSClient;
+import com.tencent.cos.xml.crypto.COSDirectImpl;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
+import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
 
 import java.io.InputStream;
 
@@ -41,7 +48,6 @@ public class TransferManager{
 
     protected CosXmlSimpleService cosXmlService;
     protected TransferConfig transferConfig;
-
 
     /**
      * TransferManager 构造器，
@@ -59,6 +65,7 @@ public class TransferManager{
         this.cosXmlService = cosXmlService;
         this.transferConfig = transferConfig;
     }
+    
 
     /**
      * 通过初始化 {@link PutObjectRequest} 来上传文件

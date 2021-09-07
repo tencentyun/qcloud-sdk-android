@@ -10,6 +10,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
+import com.tencent.cos.xml.transfer.COSTransferTask;
 import com.tencent.cos.xml.transfer.COSXMLTask;
 import com.tencent.cos.xml.transfer.TransferState;
 import com.tencent.qcloud.core.common.QCloudClientException;
@@ -47,6 +48,12 @@ public class TestUtils {
     public static void assertCOSXMLTaskSuccess(COSXMLTask cosxmlTask) {
 
         Assert.assertTrue(getCosExceptionMessage(cosxmlTask.getException()),
+                cosxmlTask.getTaskState() == TransferState.COMPLETED);
+    }
+
+    public static void assertCOSXMLTaskSuccess(COSTransferTask cosxmlTask) {
+
+        Assert.assertTrue(getCosExceptionMessage(cosxmlTask.getClientException(), cosxmlTask.getServiceException()),
                 cosxmlTask.getTaskState() == TransferState.COMPLETED);
     }
 
@@ -183,7 +190,7 @@ public class TestUtils {
             return source + clientException.getMessage();
         }
         if (serviceException != null) {
-            return source + serviceException.getErrorCode() + " : " + serviceException.getErrorMessage();
+            return source + serviceException.getErrorCode() + " : " + serviceException.getErrorMessage() + " " + serviceException.getRequestId();
         }
         return source + "Unknown Error";
     }

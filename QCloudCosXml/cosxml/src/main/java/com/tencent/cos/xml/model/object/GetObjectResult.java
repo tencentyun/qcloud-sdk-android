@@ -33,6 +33,8 @@ import com.tencent.qcloud.core.http.HttpResponse;
  * @see GetObjectRequest
  */
 public class GetObjectResult extends CosXmlResult {
+
+
     @Override
     public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
         super.parseResponseBody(response);
