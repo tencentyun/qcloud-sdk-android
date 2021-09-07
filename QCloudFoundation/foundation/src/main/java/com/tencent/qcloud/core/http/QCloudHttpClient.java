@@ -251,7 +251,7 @@ public final class QCloudHttpClient {
 
         public Builder setConnectionTimeout(int connectionTimeout) {
             if (connectionTimeout < 3 * 1000) {
-                throw new IllegalArgumentException("connection timeout must be larger than 10 seconds.");
+                throw new IllegalArgumentException("connection timeout must be larger than 3 seconds.");
             }
             this.connectionTimeout = connectionTimeout;
             return this;
@@ -259,7 +259,7 @@ public final class QCloudHttpClient {
 
         public Builder setSocketTimeout(int socketTimeout) {
             if (socketTimeout < 3 * 1000) {
-                throw new IllegalArgumentException("socket timeout must be larger than 10 seconds.");
+                throw new IllegalArgumentException("socket timeout must be larger than 3 seconds.");
             }
             this.socketTimeout = socketTimeout;
             return this;
