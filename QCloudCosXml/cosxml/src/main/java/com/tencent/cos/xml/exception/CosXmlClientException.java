@@ -41,6 +41,10 @@ public class CosXmlClientException extends QCloudClientException {
      */
     public final int errorCode;
 
+    public CosXmlClientException(ClientErrorCode errorCode) {
+        this(errorCode.getCode(), errorCode.getErrorMsg());
+    }
+
     public CosXmlClientException(int errorCode, String message){
         super(message);
         this.errorCode = errorCode;
@@ -54,5 +58,21 @@ public class CosXmlClientException extends QCloudClientException {
     public CosXmlClientException(int errorCode, Throwable cause){
         super(cause);
         this.errorCode = errorCode;
+    }
+
+    public static CosXmlClientException manualCancelException() {
+        return new CosXmlClientException(ClientErrorCode.USER_CANCELLED);
+    }
+
+    public static CosXmlClientException internalException(String message) {
+        return new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), message);
+    }
+
+    @Override
+    public String toString() {
+        return "CosXmlClientException{" +
+                "errorCode=" + errorCode +
+                "message=" + getMessage() +
+                '}';
     }
 }

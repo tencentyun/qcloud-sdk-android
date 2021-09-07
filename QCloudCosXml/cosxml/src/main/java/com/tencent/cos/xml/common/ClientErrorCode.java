@@ -82,7 +82,9 @@ public enum ClientErrorCode {
     /**
      * 重复任务
      */
-    DUPLICATE_TASK(30002, "DuplicateTask");
+    DUPLICATE_TASK(30002, "DuplicateTask"),
+
+    KMS_ERROR(40000, "KMSError");
 
     private int code;
     private String errorMsg;

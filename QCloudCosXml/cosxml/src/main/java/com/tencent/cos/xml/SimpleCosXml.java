@@ -28,6 +28,8 @@ import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.listener.CosXmlResultSimpleListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
+import com.tencent.cos.xml.model.bucket.ListMultiUploadsRequest;
+import com.tencent.cos.xml.model.bucket.ListMultiUploadsResult;
 import com.tencent.cos.xml.model.object.AbortMultiUploadRequest;
 import com.tencent.cos.xml.model.object.AbortMultiUploadResult;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadRequest;
@@ -599,6 +601,43 @@ public interface SimpleCosXml {
      */
     void completeMultiUploadAsync(CompleteMultiUploadRequest request, final CosXmlResultListener cosXmlResultListener);
 
+    /**
+     * <p>
+     * 查询存储桶（Bucket）中正在进行中的分块上传对象的同步方法.&nbsp;
+     * <p>
+     * COS 支持查询 Bucket 中有哪些正在进行中的分块上传对象，单次请求操作最多列出 1000 个正在进行中的
+     * 分块上传对象.
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/7736">
+     * https://cloud.tencent.com/document/product/436/7736.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/34536#.E6.9F.A5.E8.AF.A2.E5.88.86.E5.9D.97.E4.B8.8A.E4.BC.A0">查询分块上传示例</a>
+     *
+     * @param request 查询 Bucket 中正在进行中的分块上传对象请求 {@link ListMultiUploadsRequest}
+     * @return 查询 Bucket 中正在进行中的分块上传对象请求返回的结果 {@link ListMultiUploadsResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    ListMultiUploadsResult listMultiUploads(ListMultiUploadsRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 查询存储桶（Bucket）中正在进行中的分块上传对象的异步方法.&nbsp;
+     * <p>
+     * COS 支持查询 Bucket 中有哪些正在进行中的分块上传对象，单次请求操作最多列出 1000 个正在进行中的
+     * 分块上传对象.
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/7736">https://cloud.tencent.com/document/product/436/7736.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/34536#.E6.9F.A5.E8.AF.A2.E5.88.86.E5.9D.97.E4.B8.8A.E4.BC.A0">查询分块上传示例</a>
+     *
+     * @param request 查询 Bucket 中正在进行中的分块上传对象请求 {@link ListMultiUploadsRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void listMultiUploadsAsync(ListMultiUploadsRequest request, CosXmlResultListener cosXmlResultListener);
+    
 
     /**
      * <p>
