@@ -1,3 +1,6 @@
+## v5.7.0、v5.7.1
+1. 支持客户端加密。
+
 ## v5.6.14
 1. 修复重试时没有关闭 okhttp 流，导致报错在 okhttp 3.14 以上版本会报错 cannot make a new request because the previous response is still open: please call response.close()。
 2. 更新事件上报 sdk。
