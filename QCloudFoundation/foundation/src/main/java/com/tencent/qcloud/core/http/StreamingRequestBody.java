@@ -67,6 +67,8 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
 
     protected CountingSink countingSink;
 
+    private boolean deleteFileWhenComplete = false;
+
     public void setProgressListener(QCloudProgressListener progressListener) {
         this.progressListener = progressListener;
     }
@@ -115,7 +117,7 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
         requestBody.file = tmpFile;
         requestBody.offset = offset < 0 ? 0 : offset;
         requestBody.requiredLength = length;
-
+        requestBody.deleteFileWhenComplete = true;
         return requestBody;
     }
 
@@ -292,5 +294,15 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
         } finally {
             if(inputStream != null)Util.closeQuietly(inputStream);
         }
+    }
+
+    //
+    public void release() {
+        if (deleteFileWhenComplete) {
+            if (file != null) {
+                file.delete();
+            }
+        }
+
     }
 }

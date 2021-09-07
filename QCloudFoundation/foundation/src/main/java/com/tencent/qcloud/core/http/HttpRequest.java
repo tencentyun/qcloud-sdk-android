@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 import okhttp3.CacheControl;
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.Request;
@@ -327,6 +328,23 @@ public class HttpRequest<T> {
                         }
                     }
                 }
+            }
+            return this;
+        }
+
+        public Builder<T> addHeadersUnsafeNonAscii(Map<String, List<String>> headers) {
+            if (headers != null) {
+                Headers.Builder headerBuilder = new Headers.Builder();
+                for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+                    String name = entry.getKey();
+                    for (String value : entry.getValue()) {
+                        if (name != null && value != null) {
+                            headerBuilder.addUnsafeNonAscii(name, value);
+                            addHeaderNameValue(this.headers, name, value);
+                        }
+                    }
+                }
+                requestBuilder.headers(headerBuilder.build());
             }
             return this;
         }
