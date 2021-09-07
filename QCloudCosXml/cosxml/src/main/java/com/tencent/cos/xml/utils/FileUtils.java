@@ -29,15 +29,45 @@ import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import okhttp3.internal.Util;
 
 /**
  * 文件工具类
  */
 
 public class FileUtils {
+
+
+
+    public static void saveInputStreamToTmpFile(InputStream stream, File file, long offset, long size) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            byte[] buffer = new byte[8 * 1024];
+            int bytesRead;
+            long bytesTotal = 0;
+            long bytesLimit = size;
+            if (bytesLimit < 0) {
+                bytesLimit = Long.MAX_VALUE;
+            }
+            if (offset > 0) {
+                long skip = stream.skip(offset);
+            }
+            while (bytesTotal < bytesLimit && (bytesRead = stream.read(buffer)) != -1) {
+                fos.write(buffer, 0, (int) Math.min(bytesRead, bytesLimit - bytesTotal));
+                bytesTotal += bytesRead;
+            }
+            fos.flush();
+        } finally {
+            if(fos != null) Util.closeQuietly(fos);
+        }
+    }
 
     public static String tempCache(InputStream inputStream) throws CosXmlClientException {
         if(inputStream == null)return null;
@@ -63,6 +93,42 @@ public class FileUtils {
             CloseUtil.closeQuietly(inputStream);
         }
     }
+    
+    public static void intercept(String filePath, long offset, long size) throws IOException {
+
+        if (size <= 0) {
+            clearFile(filePath);
+        }
+
+        File sourceFile = new File(filePath);
+        File tempFile = new File(filePath.concat("." + System.currentTimeMillis() + ".temp"));
+        FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+        FileInputStream fileInputStream = new FileInputStream(sourceFile);
+
+        if (offset > 0) {
+            long skip = fileInputStream.skip(offset);
+            if (skip != offset) {
+                throw new IOException("skip size is not equal to offset");
+            }  
+        }
+
+        long remainSize = size;
+        byte[] buffer = new byte[1024 * 64];
+        int pageLength = (int) Math.min(buffer.length, remainSize);
+        int readLength = 0;
+        while ((readLength = fileInputStream.read(buffer, 0, pageLength)) > 0) {
+            fileOutputStream.write(buffer, 0, readLength);
+            remainSize -= readLength;
+            pageLength = (int) Math.min(buffer.length, remainSize);
+        }
+
+        deleteFileIfExist(filePath);
+        boolean rename = tempFile.renameTo(sourceFile);
+        
+        if (!rename) {
+            throw new IOException("rename to " + filePath + "failed");
+        }
+    }
 
     public static boolean deleteFileIfExist(String filePath) {
 
@@ -72,6 +138,15 @@ public class FileUtils {
         }
         return false;
     }
+    
+    public static boolean clearFile(String filePath) throws IOException {
+        
+        if (deleteFileIfExist(filePath)) {
+            return new File(filePath).createNewFile();
+        }
+        return false;
+    }
+
 
     public static File[] listFile(File file){
         if(file != null && file.isDirectory()){

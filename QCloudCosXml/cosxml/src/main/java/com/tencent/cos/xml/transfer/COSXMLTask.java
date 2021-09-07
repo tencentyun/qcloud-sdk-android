@@ -111,8 +111,6 @@ public abstract class COSXMLTask {
     // 等待超时计时器
     protected Timer waitTimeoutTimer;
 
-    protected final Object timerLock = new Object();
-
     /**
      * 设置COS服务
      * @param cosXmlService COS服务类
@@ -160,28 +158,19 @@ public abstract class COSXMLTask {
     }
 
     public void startTimeoutTimer(long millisecond) {
-        if (millisecond < 1000) {
-            return;
-        }
+//        if (millisecond < 1000) {
+//            return;
+//        }
 
-        synchronized (timerLock) {
-
-            if (isTaskWaiting() && waitTimeoutTimer == null) {
-                waitTimeoutTimer = new Timer();
-                waitTimeoutTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        if (isTaskWaiting()) {
-                            encounterError(null, new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), "Task waiting timeout."), null);
-                        }
-                    }
-                }, millisecond);
+        waitTimeoutTimer = new Timer();
+        waitTimeoutTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (taskState == TransferState.WAITING || taskState == TransferState.RESUMED_WAITING) {
+                    encounterError(null, new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), "Task waiting timeout."), null);
+                }
             }
-        }
-    }
-
-    private boolean isTaskWaiting() {
-        return taskState == TransferState.WAITING || taskState == TransferState.RESUMED_WAITING;
+        }, millisecond);
     }
 
     class COSXMLMetrics extends HttpTaskMetrics {

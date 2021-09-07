@@ -67,4 +67,9 @@ public class CosXmlServiceException extends QCloudServiceException {
                 + "; Error Code: " + getErrorCode()
                 + "; Request ID: " + getRequestId() + ")";
     }
+
+    @Override
+    public String toString() {
+        return "CosXmlServiceException{" + getMessage() + '}';
+    }
 }

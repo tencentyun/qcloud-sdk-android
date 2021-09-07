@@ -76,8 +76,6 @@ import com.tencent.cos.xml.model.bucket.ListBucketInventoryRequest;
 import com.tencent.cos.xml.model.bucket.ListBucketInventoryResult;
 import com.tencent.cos.xml.model.bucket.ListBucketVersionsRequest;
 import com.tencent.cos.xml.model.bucket.ListBucketVersionsResult;
-import com.tencent.cos.xml.model.bucket.ListMultiUploadsRequest;
-import com.tencent.cos.xml.model.bucket.ListMultiUploadsResult;
 import com.tencent.cos.xml.model.bucket.PutBucketACLRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketACLResult;
 import com.tencent.cos.xml.model.bucket.PutBucketAccelerateRequest;
@@ -104,6 +102,14 @@ import com.tencent.cos.xml.model.bucket.PutBucketVersioningRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketVersioningResult;
 import com.tencent.cos.xml.model.bucket.PutBucketWebsiteRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketWebsiteResult;
+import com.tencent.cos.xml.model.ci.GetSnapshotRequest;
+import com.tencent.cos.xml.model.ci.GetSnapshotResult;
+import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlLinkRequest;
+import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlLinkResult;
+import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlRequest;
+import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlResult;
+import com.tencent.cos.xml.model.ci.PreviewDocumentRequest;
+import com.tencent.cos.xml.model.ci.PreviewDocumentResult;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
 import com.tencent.cos.xml.model.object.DeleteMultiObjectRequest;
 import com.tencent.cos.xml.model.object.DeleteMultiObjectResult;
@@ -1503,44 +1509,6 @@ public interface CosXml extends SimpleCosXml {
 //    void getBucketTaggingAsync(GetBucketTaggingRequest request, CosXmlResultListener cosXmlResultListener);
 
 
-    /**
-     * <p>
-     * 查询存储桶（Bucket）中正在进行中的分块上传对象的同步方法.&nbsp;
-     * <p>
-     * COS 支持查询 Bucket 中有哪些正在进行中的分块上传对象，单次请求操作最多列出 1000 个正在进行中的
-     * 分块上传对象.
-     * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/7736">
-     * https://cloud.tencent.com/document/product/436/7736.</a>
-     * <br>
-     * <p>
-     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/34536#.E6.9F.A5.E8.AF.A2.E5.88.86.E5.9D.97.E4.B8.8A.E4.BC.A0">查询分块上传示例</a>
-     * 
-     * @param request 查询 Bucket 中正在进行中的分块上传对象请求 {@link ListMultiUploadsRequest}
-     * @return 查询 Bucket 中正在进行中的分块上传对象请求返回的结果 {@link ListMultiUploadsResult}
-     * @throws CosXmlClientException 客户端异常
-     * @throws CosXmlServiceException 服务端异常
-     */
-    ListMultiUploadsResult listMultiUploads(ListMultiUploadsRequest request) throws CosXmlClientException, CosXmlServiceException;
-
-    /**
-     * <p>
-     * 查询存储桶（Bucket）中正在进行中的分块上传对象的异步方法.&nbsp;
-     * <p>
-     * COS 支持查询 Bucket 中有哪些正在进行中的分块上传对象，单次请求操作最多列出 1000 个正在进行中的
-     * 分块上传对象.
-     * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/7736">https://cloud.tencent.com/document/product/436/7736.</a>
-     * <br>
-     * <p>
-     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/34536#.E6.9F.A5.E8.AF.A2.E5.88.86.E5.9D.97.E4.B8.8A.E4.BC.A0">查询分块上传示例</a>
-     *
-     * @param request 查询 Bucket 中正在进行中的分块上传对象请求 {@link ListMultiUploadsRequest}
-     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
-     */
-    void listMultiUploadsAsync(ListMultiUploadsRequest request, CosXmlResultListener cosXmlResultListener);
-
-
 //    /**
 //     * <p>
 //     * 暂时不支持
@@ -2339,6 +2307,121 @@ public interface CosXml extends SimpleCosXml {
      */
     void getBucketIntelligentTieringAsync(GetBucketIntelligentTieringRequest request, CosXmlResultListener resultListener);
 
+    /**
+     * <p>
+     * 预览文档的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/54058">https://cloud.tencent.com/document/product/436/54058.</a>
+     *
+     * @param request 预览文档的请求 {@link PreviewDocumentRequest}
+     * @return 预览文档的返回结果 {@link PreviewDocumentResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    PreviewDocumentResult previewDocument(PreviewDocumentRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+
+    /**
+     * <p>
+     * 预览文档的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/54058">https://cloud.tencent.com/document/product/436/54058.</a>
+     *
+     * @param request 预览文档的请求 {@link PreviewDocumentRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void previewDocumentAsync(PreviewDocumentRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 以HTML格式预览文档的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/54059">https://cloud.tencent.com/document/product/436/54059.</a>
+     *
+     * @param request 以HTML格式预览文档的请求 {@link PreviewDocumentInHtmlRequest}
+     * @return 以HTML格式预览文档的返回结果 {@link PreviewDocumentInHtmlResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    PreviewDocumentInHtmlResult previewDocumentInHtml(PreviewDocumentInHtmlRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+
+    /**
+     * <p>
+     * 以HTML格式预览文档的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/54059">https://cloud.tencent.com/document/product/436/54059.</a>
+     *
+     * @param request 以HTML格式预览文档的请求 {@link PreviewDocumentInHtmlRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void previewDocumentInHtmlAsync(PreviewDocumentInHtmlRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 以HTML格式链接预览文档的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/54060#3.-.E8.8E.B7.E5.8F.96.E5.9C.A8.E7.BA.BF.E6.96.87.E6.A1.A3.E9.A2.84.E8.A7.88.E5.9C.B0.E5.9D.80">https://cloud.tencent.com/document/product/436/54060.</a>
+     *
+     * @param request 以HTML格式链接预览文档的请求 {@link PreviewDocumentInHtmlLinkRequest}
+     * @return 以HTML格式链接预览文档的返回结果 {@link PreviewDocumentInHtmlLinkResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    PreviewDocumentInHtmlLinkResult previewDocumentInHtmlLink(PreviewDocumentInHtmlLinkRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+
+    /**
+     * <p>
+     * 以HTML格式链接预览文档的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/54060#3.-.E8.8E.B7.E5.8F.96.E5.9C.A8.E7.BA.BF.E6.96.87.E6.A1.A3.E9.A2.84.E8.A7.88.E5.9C.B0.E5.9D.80">https://cloud.tencent.com/document/product/436/54060.</a>
+     *
+     * @param request 以HTML格式链接预览文档的请求 {@link PreviewDocumentInHtmlLinkRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void previewDocumentInHtmlLinkAsync(PreviewDocumentInHtmlLinkRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 以HTML格式直出内容预览文档到字节数组的同步方法<br>
+     * 和{@link #previewDocumentInHtml(PreviewDocumentInHtmlRequest)}类似，只是返回结果形式不同
+     * </p>
+     * <p>
+     * 注意：请不要通过本接口预览大文件，否则容易造成内存溢出。
+     * </p>
+     *
+     * @param bucketName 存储桶名称
+     * @param objectName 对象远端路径，即存储到 COS 上的绝对路径
+     * @return 预览结果的字节数据
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    byte[] previewDocumentInHtmlBytes(String bucketName, String objectName) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 获取截图的同步方法
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/55671">https://cloud.tencent.com/document/product/436/55671.</a>
+     *
+     * @param request 获取截图的同步方法 {@link GetSnapshotRequest}
+     * @return 获取截图的返回结果 {@link GetSnapshotResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetSnapshotResult getSnapshot(GetSnapshotRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 获取截图的异步方法
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/55671">https://cloud.tencent.com/document/product/436/55671.</a>
+     *
+     * @param request 获取截图的异步方法 {@link GetSnapshotRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void getSnapshotAsync(GetSnapshotRequest request, CosXmlResultListener cosXmlResultListener);
 
     /**
      * <p>
@@ -2503,5 +2586,4 @@ public interface CosXml extends SimpleCosXml {
      * @param booleanListener 结果回调函数
      */
     void updateObjectMetaDataAsync(String bucketName, String objectName, COSMetaData metaData, final CosXmlBooleanListener booleanListener);
-
 }

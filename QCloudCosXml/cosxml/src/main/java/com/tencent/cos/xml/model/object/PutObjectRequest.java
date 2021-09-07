@@ -32,6 +32,7 @@ import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.COSStorageClass;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
+import com.tencent.cos.xml.crypto.ObjectMetadata;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
@@ -45,6 +46,7 @@ import com.tencent.qcloud.core.util.ContextHolder;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Map;
 
 /**
  * 简单上传的请求.
@@ -61,6 +63,8 @@ public class PutObjectRequest extends UploadRequest implements TransferRequest {
     private long fileLength;
     private Uri uri;
     private CosXmlProgressListener progressListener;
+    private ObjectMetadata metadata;
+
 
     protected PutObjectRequest(String bucket, String cosPath){
         super(bucket, cosPath);
@@ -146,6 +150,7 @@ public class PutObjectRequest extends UploadRequest implements TransferRequest {
         return this.priority == QCloudTask.PRIORITY_LOW;
     }
 
+
     @Override
     public RequestBodySerializer getRequestBody() throws CosXmlClientException {
         if(srcPath != null){
@@ -178,8 +183,32 @@ public class PutObjectRequest extends UploadRequest implements TransferRequest {
                 throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "upload file does not exist");
             }
         }
+
+        if (metadata != null) {
+
+            Map<String, Object> rawMetadata = metadata.getRawMetadata();
+            Map<String, String> useMetadata = metadata.getUserMetadata();
+
+            for (Map.Entry<String, Object> entry : rawMetadata.entrySet()) {
+                addHeader(entry.getKey(), entry.getValue().toString());
+            }
+            for (Map.Entry<String, String> entry : useMetadata.entrySet()) {
+                addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+
     }
 
+
+
+    public void setMetadata(ObjectMetadata metadata) {
+        this.metadata = metadata;
+    }
+
+
+    public ObjectMetadata getMetadata() {
+        return metadata;
+    }
 
     /**
      * 上传进度回调

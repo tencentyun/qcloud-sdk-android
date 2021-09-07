@@ -32,6 +32,8 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.listener.CosXmlResultSimpleListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
+import com.tencent.cos.xml.model.bucket.ListMultiUploadsRequest;
+import com.tencent.cos.xml.model.bucket.ListMultiUploadsResult;
 import com.tencent.cos.xml.model.object.AbortMultiUploadRequest;
 import com.tencent.cos.xml.model.object.AbortMultiUploadResult;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadRequest;
@@ -166,6 +168,10 @@ public class CosXmlSimpleService implements SimpleCosXml {
                 configuration.getRegion(), true));
         client.setDebuggable(configuration.isDebuggable());
         ContextHolder.setContext(context);
+    }
+
+    public QCloudCredentialProvider getCredentialProvider() {
+        return credentialProvider;
     }
 
     /**
@@ -336,7 +342,11 @@ public class CosXmlSimpleService implements SimpleCosXml {
             extraHeaders.put(HttpConstants.Header.HOST, hostHeaderValue);
         }
 
-        httpRequestBuilder.addHeaders(extraHeaders);
+        if(cosXmlRequest.headersHasUnsafeNonAscii()){
+            httpRequestBuilder.addHeadersUnsafeNonAscii(extraHeaders);
+        } else {
+            httpRequestBuilder.addHeaders(extraHeaders);
+        }
         if (cosXmlRequest.isNeedMD5()) {
             httpRequestBuilder.contentMD5();
         }
@@ -911,6 +921,31 @@ public class CosXmlSimpleService implements SimpleCosXml {
             }
         });
     }
+
+    /**
+     * <p>
+     * 查询存储桶（Bucket）中正在进行中的分块上传对象的同步方法.&nbsp;
+     *
+     * 详细介绍，请查看:{@link  CosXml#listMultiUploads(ListMultiUploadsRequest request)}
+     *</p>
+     */
+    @Override
+    public ListMultiUploadsResult listMultiUploads(ListMultiUploadsRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new ListMultiUploadsResult());
+    }
+
+    /**
+     * <p>
+     * 查询存储桶（Bucket）中正在进行中的分块上传对象的异步方法.&nbsp;
+     *
+     * 详细介绍，请查看:{@link  CosXml#listMultiUploadsAsync(ListMultiUploadsRequest request, CosXmlResultListener cosXmlResultListener)}
+     *</p>
+     */
+    @Override
+    public void listMultiUploadsAsync(ListMultiUploadsRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new ListMultiUploadsResult(), cosXmlResultListener);
+    }
+
 
     @Override
     public String getObjectUrl(String bucket, String region, String key) {
