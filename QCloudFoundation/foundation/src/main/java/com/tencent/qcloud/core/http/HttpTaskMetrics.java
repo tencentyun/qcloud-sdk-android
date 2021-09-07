@@ -294,6 +294,8 @@ public class HttpTaskMetrics {
     @Override
     public String toString() {
         return new StringBuilder().append("Http Metrics: \n")
+                .append("domain : ").append(domainName).append("\n")
+                .append("dns : ").append(connectAddress != null ? connectAddress.getHostAddress() : "null").append("\n")
                 .append("fullTaskTookTime : ").append(fullTaskTookTime()).append("\n")
                 .append("calculateMD5STookTime : ").append(calculateMD5STookTime()).append("\n")
                 .append("signRequestTookTime : ").append(signRequestTookTime()).append("\n")

@@ -22,7 +22,6 @@
 
 package com.tencent.qcloud.core.http;
 
-
 import com.tencent.qcloud.core.auth.QCloudSignSourceProvider;
 import com.tencent.qcloud.core.auth.QCloudSigner;
 import com.tencent.qcloud.core.auth.STSCredentialScope;

@@ -236,6 +236,11 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
                     e.printStackTrace();
                 }
             }
+
+            if (httpRequest.getRequestBody() instanceof StreamingRequestBody) {
+                ((StreamingRequestBody) httpRequest.getRequestBody()).release();
+            }
+
             metrics.onTaskEnd();
         }
     }
