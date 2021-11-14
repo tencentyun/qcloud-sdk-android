@@ -1,3 +1,14 @@
+## v5.7.5
+1. 支持 AppendObject、GetMediaInfo、PutBucketReferer
+2. 优化 TransferService 接口。
+ 
+## v5.7.4
+1. 优化获取上传时文件长度方式；
+2. 支持取消传输时的线程动态控制；
+
+## v5.7.2 v5.7.3
+1. 增加 SelfSiger 签名方式，用户可以通过直接设置计算好的签名信息来对请求签名。
+
 ## v5.7.0、v5.7.1
 1. 支持客户端加密。
 
