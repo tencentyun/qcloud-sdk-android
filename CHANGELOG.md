@@ -1,3 +1,11 @@
+## v5.7.7 
+1. 修复 TransferService 加密分片上传。
+2. 优化签名。
+
+## v5.7.6
+1. QUIC sdk 增加网络配置接口。
+2. 优化签名。
+
 ## v5.7.5
 1. 支持 AppendObject、GetMediaInfo、PutBucketReferer
 2. 优化 TransferService 接口。
