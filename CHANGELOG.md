@@ -1,7 +1,8 @@
 ## v5.7.7 v5.7.8
 1. 修复 TransferService 加密分片上传和下载。
 2. 修复分片上传时未解析万象参数。
-3. 优化签名。
+3. 将 TransferService 分片上传返回的 CompleteMultipartUploadResult 对象统一转化为 PutObjectResult。
+4. 优化签名。
 
 ## v5.7.6
 1. QUIC sdk 增加网络配置接口。
