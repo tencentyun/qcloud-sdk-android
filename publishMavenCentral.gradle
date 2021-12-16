@@ -1,0 +1,164 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+def repository = 'maven'
+def qCloudGroupId = 'com.qcloud.cos'
+
+
+def sonatypeUsername = findProperty("ossrhUsername")
+def sonatypePassword = findProperty("ossrhPassword")
+
+System.out.println("sonatypeUsername " + sonatypeUsername)
+
+def developerId = 'tencentqcloud'
+def developerName = 'tencentqcloudterminal'
+def developerEmail = 'qcloudterminal@gmail.com'
+
+def userOrganization = 'tencentqcloudterminal'
+def siteUrl = 'https://cloud.tencent.com/'
+def gitUrl = 'https://github.com/tencentyun/qcloud-sdk-android.git'
+def githubUrl = 'https://github.com/tencentyun/qcloud-sdk-android'
+def licensesUrl = 'https://github.com/tencentyun/qcloud-sdk-android/blob/master/LICENSE'
+def qcloudLicenses = ["MIT"]
+
+def projectVersionName = android.defaultConfig.versionName
+def projectArtifactId = project.extensions.getByName('artifactId')
+// def projectArchiveName = project.extensions.getByName('archiveName')
+def projectDesc = project.extensions.getByName('artifactDesc')
+def projectPackageName = project.extensions.findByName('packageName')
+def artifactProduct = project.extensions.findByName('artifactProduct')
+def archiveFilePath = project.extensions.findByName('archiveFilePath')
+def lang = project.extensions.findByName('lang')
+if (!lang) {
+    lang = 'java'
+}
+def packageType = project.extensions.findByName('packageType')
+packageType = packageType == null ? "jar" : packageType
+packageType = 'aar'
+
+group = qCloudGroupId
+version = android.defaultConfig.versionName
+archivesBaseName = projectArtifactId
+if (!projectPackageName) {
+	projectPackageName = projectArtifactId
+}
+
+
+// publish to mavencentral
+publishing {
+    publications {
+        mavenAar(MavenPublication) {
+            groupId group
+            artifactId projectArtifactId
+            version version
+            artifact("$buildDir/${archiveFilePath}")
+            pom {
+                name = projectArtifactId
+                description = projectDesc
+                url = githubUrl
+                packaging = packageType
+                licenses {
+                    license {
+                        name = 'Tencent Binary License'
+                        url = licensesUrl
+                    }
+                }
+                developers {
+                    developer {
+                        id = ossrhUsername
+                        name = ossrhUsername
+                        email = 'qcloudterminal@gmail.com'
+                    }
+                } 
+                scm {
+                    url = 'scm:git@github.com:tencentyun/qcloud-sdk-android.git'
+                    connection = 'scm:git@github.com:tencentyun/qcloud-sdk-android.git'
+                    developerConnection = 'scm:git@github.com:tencentyun/qcloud-sdk-android.git'
+                }
+
+                withXml {
+
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    //拿到所有编译时的依赖
+                    def dependenciesList = []
+                    dependenciesList.addAll(configurations.implementation.allDependencies)
+                    dependenciesList.addAll(configurations.api.allDependencies)
+                    dependenciesList.each {
+                        if (null != it.group) {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', it.group)
+                            def artifactId = it.name
+                            if (it.hasProperty('dependencyProject')) {
+                                artifactId = it.dependencyProject.extensions.findByName('artifactId')
+                            }
+                            System.out.println('artifactId is ${}' + artifactId)
+                            dependencyNode.appendNode('artifactId', artifactId)
+                            dependencyNode.appendNode('version', it.version)
+                            dependencyNode.appendNode('scope', 'compile')
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username = sonatypeUsername
+                password = sonatypePassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenAar
+}
+
+// generate javadoc
+android.libraryVariants.all { variant ->
+     if(variant.name == 'release' || (artifactProduct && variant.name == artifactProduct + 'Release')) {
+        task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
+            description "Generates Javadoc for $variant.name."
+            source = variant.javaCompile.source
+            options.encoding("utf-8")
+            // exclude '**/BuildConfig.java'
+            exclude '**/R.java'
+            doFirst {
+                classpath = files(variant.javaCompile.classpath.files, project.android.getBootClasspath())
+            }
+        }
+        task("javadocJar", type: Jar, dependsOn: "generate${variant.name.capitalize()}Javadoc") {
+            classifier = 'javadoc'
+            from tasks.getByName("generate${variant.name.capitalize()}Javadoc").destinationDir
+        }
+        task("sourcesJar", type: Jar) {
+            classifier = 'sources'
+            from artifactProduct ? android.sourceSets."${artifactProduct}".java.srcDirs + android.sourceSets.main.java.srcDirs : android.sourceSets.main.java.srcDirs
+        }
+        def releaseJavaTask = artifactProduct ? "compile${artifactProduct.capitalize()}ReleaseJavaWithJavac" :
+                "compileRelease${lang == 'kotlin' ? 'Kotlin' : 'JavaWithJavac'}"
+        task("androidLibraryJar", type: Jar, dependsOn: releaseJavaTask ) {
+            from tasks.getByName(releaseJavaTask).destinationDir
+            exclude '**/R.class'
+            exclude '**/R$*.class'
+            exclude '**/BuildConfig.class'
+        }
+        artifacts {
+            if (!packageType.equals("aar")) {
+		        archives tasks.getByName("androidLibraryJar")
+            }
+            archives tasks.getByName("javadocJar")
+            archives tasks.getByName("sourcesJar")
+        }
+    }
+}
+
+task releaseLibrary(type: Copy){
+    from('build/libs/')
+    into("../release/${projectVersionName}/")
+}
