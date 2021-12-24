@@ -55,10 +55,10 @@ project.extensions.add('artifactDesc', 'the core foundation for tencent cloud sd
 project.extensions.add('archiveFilePath', 'outputs/aar/qcloud-foundation-release.aar')
 
 
-apply from: '../../publishMavenCentral.gradle'
+// apply from: '../../publishMavenCentral.gradle'
 
 /*
- * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights res
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal

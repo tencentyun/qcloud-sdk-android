@@ -126,7 +126,7 @@ if (android.defaultPublishConfig.contains("slim")){
     project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
     project.extensions.add('archiveFilePath', 'outputs/aar/cos-android-normal-release.aar')
 }
-apply from: '../../publishMavenCentral.gradle'
+// apply from: '../../publishMavenCentral.gradle'
 
 
 // 发布到内部仓库
