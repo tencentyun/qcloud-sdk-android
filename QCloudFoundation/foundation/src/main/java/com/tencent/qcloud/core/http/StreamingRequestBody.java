@@ -23,12 +23,15 @@
 package com.tencent.qcloud.core.http;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
+import android.os.Environment;
 
 import com.tencent.qcloud.core.common.QCloudDigistListener;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.util.Base64Utils;
+import com.tencent.qcloud.core.util.ContextHolder;
 import com.tencent.qcloud.core.util.QCloudUtils;
 
 import java.io.ByteArrayInputStream;
@@ -176,7 +179,7 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
             } else if (bytes != null) {
                 contentRawLength = bytes.length;
             } else if (uri != null) {
-                contentRawLength = QCloudUtils.getUriContentLength(uri, contentResolver);
+                contentRawLength = QCloudUtils.getUriContentLength2(uri, contentResolver);
             }
         }
 
@@ -242,6 +245,8 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
         }
     }
 
+
+
     @Override
     public void writeTo(BufferedSink sink) throws IOException {
         InputStream inputStream = null;
@@ -260,12 +265,12 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
                 }
                 bufferedSink.flush();
             }
+
         } finally {
             if(inputStream != null) Util.closeQuietly(inputStream);
             if(source != null) Util.closeQuietly(source);
             if(countingSink != null) Util.closeQuietly(countingSink);
         }
-
     }
 
     @Override

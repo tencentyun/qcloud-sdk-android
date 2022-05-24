@@ -51,6 +51,24 @@ public class QCloudStringUtils {
         return new String(bytes, Charset.forName("UTF-8"));
     }
 
+    /**
+     *
+     * @param name
+     * @return
+     */
+    public static String getExtension(String name) {
+
+        if (name == null) {
+            return null;
+        }
+        int index = name.lastIndexOf(".");
+        if (index >= 0) {
+            return name.substring(index + 1);
+        } else {
+            return null;
+        }
+    }
+
     static boolean regionMatches(CharSequence cs, boolean ignoreCase, int thisStart,
                                         CharSequence substring, int start, int length) {
         if (cs instanceof String && substring instanceof String) {

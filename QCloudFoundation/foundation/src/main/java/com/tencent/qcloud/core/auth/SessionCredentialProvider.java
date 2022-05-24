@@ -35,9 +35,9 @@ import org.json.JSONObject;
 /**
  * 服务端临时证书提供器<br>
  * 搭建一个返回临时密钥的服务，即可给终端 COS 请求进行授权，我们强烈建议您使用这种方式，<br>
- * 具体请参见 <a herf="https://cloud.tencent.com/document/product/436/9068">移动应用直传实践</a>
+ * 具体请参见 <a href="https://cloud.tencent.com/document/product/436/9068">移动应用直传实践</a>
  * <p>
- * SDK 示例：<a herf="https://cloud.tencent.com/document/product/436/12159#.E5.88.9D.E5.A7.8B.E5.8C.96.E6.9C.8D.E5.8A.A1">方式一：通过临时密钥进行授权（推荐）</a>
+ * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/12159#.E5.88.9D.E5.A7.8B.E5.8C.96.E6.9C.8D.E5.8A.A1">方式一：通过临时密钥进行授权（推荐）</a>
  */
 
 public class SessionCredentialProvider extends BasicLifecycleCredentialProvider {

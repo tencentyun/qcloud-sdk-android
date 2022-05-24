@@ -31,7 +31,7 @@ import com.tencent.qcloud.core.http.HttpConfiguration;
  * 非常不推荐直接使用这种方式，因为会在客户端暴露您的secretId, secretKey，导致秘钥泄露，<br>
  * 推荐使用服务端下发临时秘钥的方式实现 {@link SessionCredentialProvider}
  * <p>
- * SDK 示例：<a herf="https://cloud.tencent.com/document/product/436/12159#.E5.88.9D.E5.A7.8B.E5.8C.96.E6.9C.8D.E5.8A.A1">方式三：通过永久密钥进行授权（不推荐）</a>
+ * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/12159#.E5.88.9D.E5.A7.8B.E5.8C.96.E6.9C.8D.E5.8A.A1">方式三：通过永久密钥进行授权（不推荐）</a>
  */
 
 public class ShortTimeCredentialProvider extends BasicLifecycleCredentialProvider {
