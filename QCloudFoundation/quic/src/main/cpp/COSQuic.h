@@ -36,7 +36,7 @@ private:
 
 public:
 
-    COSQuic(JNIEnv *env, jobject jcaller, jint handle_id);
+    COSQuic(JNIEnv *env, jobject jcaller, jint handle_id, const TnetConfig& tnetConfig);
     ~COSQuic() override;
     jboolean Connect(JNIEnv *env,
                  const jobject jcaller,

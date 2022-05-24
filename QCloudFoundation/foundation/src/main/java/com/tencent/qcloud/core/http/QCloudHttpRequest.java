@@ -22,6 +22,7 @@
 
 package com.tencent.qcloud.core.http;
 
+import com.tencent.qcloud.core.auth.QCloudSelfSigner;
 import com.tencent.qcloud.core.auth.QCloudSignSourceProvider;
 import com.tencent.qcloud.core.auth.QCloudSigner;
 import com.tencent.qcloud.core.auth.STSCredentialScope;
@@ -37,7 +38,7 @@ public class QCloudHttpRequest<T> extends HttpRequest<T> {
     private final QCloudSignSourceProvider signProvider;
     private final String signerType;
     private final STSCredentialScope[] credentialScope;
-
+    private QCloudSelfSigner selfSigner;
     /**
      * 是否将签名信息放到 params 中
      */
@@ -50,6 +51,7 @@ public class QCloudHttpRequest<T> extends HttpRequest<T> {
         signProvider = builder.signProvider;
         credentialScope = builder.credentialScope;
         signInUrl = builder.signInUrl;
+        selfSigner = builder.selfSigner;
     }
 
     public QCloudSignSourceProvider getSignProvider() {
@@ -76,6 +78,11 @@ public class QCloudHttpRequest<T> extends HttpRequest<T> {
         return signer;
     }
 
+    @Override
+    QCloudSelfSigner getQCloudSelfSigner() throws QCloudClientException {
+        return selfSigner;
+    }
+
     private boolean shouldCalculateAuth() {
         return QCloudStringUtils.isEmpty(header(HttpConstants.Header.AUTHORIZATION));
     }
@@ -86,6 +93,7 @@ public class QCloudHttpRequest<T> extends HttpRequest<T> {
         private String signerType;
         private STSCredentialScope[] credentialScope;
         private boolean signInUrl;
+        private QCloudSelfSigner selfSigner;
 
         public Builder<T> signer(String signerType, QCloudSignSourceProvider signProvider) {
             this.signerType = signerType;
@@ -93,6 +101,11 @@ public class QCloudHttpRequest<T> extends HttpRequest<T> {
             return this;
         }
 
+        public Builder<T> selfSigner(QCloudSelfSigner selfSigner) {
+            this.selfSigner = selfSigner;
+            return this;
+        }
+        
         public Builder<T> credentialScope(STSCredentialScope[] credentialScope) {
             this.credentialScope = credentialScope;
             return this;
@@ -162,6 +175,8 @@ public class QCloudHttpRequest<T> extends HttpRequest<T> {
         public Builder<T> setUseCache(boolean cacheEnabled) {
             return (Builder<T>) super.setUseCache(cacheEnabled);
         }
+
+
 
         @Override
         public Builder<T> body(RequestBodySerializer bodySerializer) {

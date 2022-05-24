@@ -23,13 +23,15 @@
 package com.tencent.qcloud.core.track;
 
 import android.content.Context;
+
 import com.tencent.beacon.event.open.BeaconConfig;
 import com.tencent.beacon.event.open.BeaconEvent;
 import com.tencent.beacon.event.open.BeaconReport;
 import com.tencent.beacon.event.open.EventResult;
 import com.tencent.beacon.event.open.EventType;
 import com.tencent.qcloud.core.logger.QCloudLogger;
-import com.tencent.qcloud.core.util.QCloudStringUtils;
+import com.tencent.qimei.sdk.IQimeiSDK;
+import com.tencent.qimei.sdk.QimeiSDK;
 
 import java.util.Map;
 
@@ -63,32 +65,37 @@ public class TrackService {
                             .bidEnable(false)
                             .qmspEnable(false)
                             .pagePathEnable(false)
+//                            .setNeedInitQimei(false)
                             .setNormalPollingTime(30000);
-                    try {
-                        builder.collectMACEnable(false)
-                                .collectIMEIEnable(false)
-                                .collectAndroidIdEnable(false)
-                                .collectProcessInfoEnable(false);
-                    } catch (NoSuchMethodError error) {
-                        //APP使用了标准版的灯塔SDK builder不支持collectXXX
-                    }
                     BeaconConfig config = builder.build();
 
                     BeaconReport beaconReport = BeaconReport.getInstance();
                     beaconReport.setLogAble(debug);//是否打开日志
                     try {
-                        beaconReport.setCollectMac(false); //该项设为false即关闭采集Mac功能
-                        beaconReport.setCollectAndroidID(false); //该项设为false即关闭采集AndroidId功能
-                        beaconReport.setCollectImei(false); //该项设为false即关闭采集IMEI和IMSI的功能
                         beaconReport.setCollectProcessInfo(false); //该项设为false即关闭采集processInfo功能
                     } catch (NoSuchMethodError error) {
                     }
-                    beaconReport.start(context, beaconKey, config);
+                    // 多次初始化，或者初始化时传入的appkey和manifest.xml文件内不同，debug模式
+                    // 下会主动抛出异常
+                    try {
+                        IQimeiSDK qimeiSDK = QimeiSDK.getInstance(beaconKey);
+                        qimeiSDK.getStrategy()
+                                .enableOAID(false)           // 关闭oaid采集，这里设置false
+                                .enableIMEI(false)           // 关闭imei采集，这里设置false，建议如用户授权，尽可能采集，便于复核问题
+                                .enableIMSI(false)           // 关闭imsi采集，这里设置false
+                                .enableAndroidId(false)          // 关闭android id采集，这里设置false，建议如用户授权，尽可能采集，便于复核问题
+                                .enableMAC(false)            // 关闭mac采集，这里设置false
+                                .enableCid(false)           // 关闭cid采集，这里设置false
+                                .enableProcessInfo(false)        // 关闭应用列表枚举，这里设置false，1.0.5以上版本有效
+                                .enableBuildModel(false);     // 关闭BUILD.MODEL采集，这里设置false，1.2.3以上版本有效
+
+                        beaconReport.start(context, beaconKey, config);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                     //某些灯塔sdk版本，start之前setCollectMac等无效
                     try {
-                        beaconReport.setCollectMac(false); //该项设为false即关闭采集Mac功能
-                        beaconReport.setCollectAndroidID(false); //该项设为false即关闭采集AndroidId功能
-                        beaconReport.setCollectImei(false); //该项设为false即关闭采集IMEI和IMSI的功能
                         beaconReport.setCollectProcessInfo(false); //该项设为false即关闭采集processInfo功能
                     } catch (NoSuchMethodError error) {
                     }
@@ -113,11 +120,6 @@ public class TrackService {
                 .withCode(eventCode)
                 .withType(EventType.NORMAL)
                 .withParams(params);
-        try {
-            builder.withIsSimpleParams(true);
-        } catch (NoSuchMethodError error) {
-            //APP使用了标准版的灯塔SDK 不支持withIsSimpleParams
-        }
         EventResult result = BeaconReport.getInstance().report(builder.build());
         if (debug) {
             StringBuilder mapAsString = new StringBuilder("{");
@@ -131,9 +133,10 @@ public class TrackService {
     }
 
 
-    private static boolean isIncludeBeacon(){
+    public static boolean isIncludeBeacon(){
         try {
             Class.forName("com.tencent.beacon.event.open.BeaconReport");
+            Class.forName("com.tencent.qimei.sdk.QimeiSDK");
             return true;
         } catch (ClassNotFoundException e){
             return false;

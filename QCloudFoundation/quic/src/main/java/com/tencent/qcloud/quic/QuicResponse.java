@@ -60,7 +60,7 @@ public class QuicResponse {
     }
 
     //设置下载文件到本地地址
-    public void setOutputStream(OutputStream outputStream){
+    public void setOutputStream(OutputStream outputStream) {
         fileSink = Okio.buffer(Okio.sink(outputStream));
     }
 

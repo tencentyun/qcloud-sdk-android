@@ -23,6 +23,7 @@
 package com.tencent.qcloud.core.http;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public final class MimeType {
@@ -82,7 +83,7 @@ public final class MimeType {
         if (startIndex!=-1) {
             extension = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
         }
-        String type = mimeTypes.get(extension.toLowerCase());
+        String type = mimeTypes.get(extension.toLowerCase(Locale.ROOT));
         if (type == null) {
             type = mimeTypes.get("bin");
         }
