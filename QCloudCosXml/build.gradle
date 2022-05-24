@@ -31,6 +31,9 @@ buildscript {
 
     repositories {
         mavenLocal()
+        mavenCentral()
+        maven { url "https://mirrors.tencent.com/repository/maven/tencent_public" }
+        maven {	url "https://mirrors.tencent.com/repository/maven/qmsp-oaid2" }
         google()
         jcenter()
     }
@@ -39,6 +42,7 @@ buildscript {
         classpath "com.github.dcendents:android-maven-gradle-plugin:2.0"
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.github.kezong:fat-aar:1.3.6'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
         // classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -48,6 +52,9 @@ buildscript {
 allprojects {
     repositories {
         mavenLocal()
+        mavenCentral()
+        maven { url "https://mirrors.tencent.com/repository/maven/tencent_public" }
+        maven {	url "https://mirrors.tencent.com/repository/maven/qmsp-oaid2" }
         google()
         jcenter()
 

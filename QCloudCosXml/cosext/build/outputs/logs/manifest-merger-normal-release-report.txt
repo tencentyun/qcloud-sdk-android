@@ -1,0 +1,37 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml:23:1-24:37
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml:23:1-24:37
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml:23:1-24:37
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml:23:1-24:37
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml:23:1-24:37
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml:23:1-24:37
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml:23:1-24:37
+	package
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml:24:5-34
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml:23:1-24:37
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml:23:1-24:37
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml:23:11-69
+uses-sdk
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosext/src/main/AndroidManifest.xml

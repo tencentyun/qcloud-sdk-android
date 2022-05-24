@@ -1,10 +1,9 @@
 #!/bin/sh
 
-./gradlew :cosxml:clean
-./gradlew :cosxml:assemble
-./gradlew :cosxml:publishToMavenLocal
-#
-#cd ../QCloudFoundation
 #./gradlew :foundation:clean
 #./gradlew :foundation:assemble
 #./gradlew :foundation:publishToMavenLocal
+
+./gradlew :cos-android:clean
+./gradlew :cos-android:assemble
+./gradlew :cos-android:publishToMavenLocal

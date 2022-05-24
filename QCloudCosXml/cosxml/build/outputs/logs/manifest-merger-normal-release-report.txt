@@ -1,0 +1,57 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:24:1-33:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:24:1-33:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:24:1-33:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:24:1-33:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:24:1-33:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:24:1-33:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:24:1-33:12
+	package
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:25:5-34
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:24:1-33:12
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:24:1-33:12
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:24:11-69
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:27:5-79
+	android:name
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:27:22-76
+uses-permission#android.permission.INTERNET
+ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:28:5-67
+	android:name
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:28:22-64
+uses-permission#android.permission.READ_EXTERNAL_STORAGE
+ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:29:5-80
+	android:name
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:29:22-77
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:30:5-81
+	android:name
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:30:22-78
+uses-permission#android.permission.ACCESS_WIFI_STATE
+ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:31:5-76
+	android:name
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml:31:22-73
+uses-sdk
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml
+		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudCosXml/cosxml/src/main/AndroidManifest.xml

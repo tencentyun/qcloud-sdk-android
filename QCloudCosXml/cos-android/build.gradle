@@ -1,0 +1,253 @@
+apply plugin: 'com.android.library'
+apply from: '../version.gradle'
+apply from: 'jacoco.gradle'
+apply plugin: 'com.kezong.fat-aar'
+
+def compileQuic() {
+    return getGradle().getStartParameter().getTaskRequests()
+            .toString().contains("Debug") && "QCloudCosXml".equalsIgnoreCase(rootProject.name)
+}
+
+//是否包含灯塔
+def includeBeacon = true
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+android {
+
+    compileSdkVersion 28
+
+    defaultConfig {
+
+        minSdkVersion 15
+        targetSdkVersion 28
+
+        versionCode cosSdkVersionCode
+        versionName "5.8.7"
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+
+
+
+    buildTypes {
+
+        debug {
+            testCoverageEnabled = true
+//            it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
+//            it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
+            it.buildConfigField 'String', 'OWNER_UIN', quotWrapper(System.getenv("OWNER_UIN"))
+            it.buildConfigField 'String', 'COS_APPID', quotWrapper(System.getenv("COS_APPID"))
+            it.buildConfigField 'String', 'COS_SECRET_ID', quotWrapper(System.getenv("COS_SECRET_ID"))
+            it.buildConfigField 'String', 'COS_SECRET_KEY', quotWrapper(System.getenv("COS_SECRET_KEY"))
+            it.buildConfigField 'String', 'CI_SECRET_ID', quotWrapper(System.getenv("CI_SECRET_ID"))
+            it.buildConfigField 'String', 'CI_SECRET_KEY', quotWrapper(System.getenv("CI_SECRET_KEY"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_REGION', quotWrapper(System.getenv("PERSIST_BUCKET_REGION"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET', quotWrapper(System.getenv("PERSIST_BUCKET"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_CDN_SIGN', quotWrapper(System.getenv("PERSIST_BUCKET_CDN_SIGN"))
+            it.buildConfigField 'String', 'TEMP_BUCKET_REGION', quotWrapper(System.getenv("TEMP_BUCKET_REGION"))
+            it.buildConfigField 'String', 'TEMP_BUCKET', quotWrapper(System.getenv("TEMP_BUCKET"))
+            it.buildConfigField 'Boolean', 'WEAK_NETWORK_TEST', safeEnvBoolean(System.getenv("WEAK_NETWORK_TEST"))
+            it.buildConfigField 'Boolean', 'QUIC_TEST', safeEnvBoolean(System.getenv("QUIC_TEST"))
+            it.buildConfigField 'String', 'QUIC_BUCKET_REGION', quotWrapper(System.getenv("QUIC_BUCKET_REGION"))
+            it.buildConfigField 'String', 'QUIC_BUCKET', quotWrapper(System.getenv("QUIC_BUCKET"))
+            it.buildConfigField 'String', 'QUIC_TEST_IP', quotWrapper(System.getenv("QUIC_TEST_IP"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_REPLICATION', quotWrapper(System.getenv("PERSIST_BUCKET_REPLICATION"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_REPLICATION_REGION', quotWrapper(System.getenv("PERSIST_BUCKET_REPLICATION_REGION"))
+        }
+
+        release {
+//            it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
+//            it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+    flavorDimensions "production"
+
+    productFlavors {
+        normal { dimension "production" }
+        slim { dimension "production" }
+    }
+    lintOptions {
+        abortOnError false
+    }
+
+    // 切换发 normal 或者 slim 包，需要同步修改 pom.artifactId 信息
+    defaultPublishConfig "normalRelease"
+    //  defaultPublishConfig  "slimRelease"
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+    buildToolsVersion = '28.0.2'
+
+}
+
+fataar {
+    /**
+     * If transitive is true, local jar module and remote library's dependencies will be embed.
+     * If transitive is false, just embed first level dependency
+     * Local aar project does not support transitive, always embed first level
+     * Default value is false
+     * @since 1.3.0
+     */
+    transitive = true
+}
+
+dependencies {
+
+    compileOnly 'androidx.appcompat:appcompat:1.2.0'
+    testCompileOnly 'junit:junit:4.13'
+
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+
+//    if (compileQuic() && false) {
+//        api project(path: ':quic')
+//    }
+
+//    compileOnly project(path: ':quic')
+    compileOnly project(':xmlAnnoation')
+    annotationProcessor project(':xmlCompiler')
+
+    api project(':foundation')
+    embed project(':cos-android-base')
+    if(includeBeacon){
+        embed('com.tencent.beacon:beacon-android-release:4.2.80.6:official@aar') {
+            exclude(group:'com.android.support', module:'support-annotations')
+        }
+        embed('com.tencent.qimei:qimei:1.2.13.1') {
+            exclude(group:'com.android.support', module:'support-annotations')
+        }
+    } else {
+        compileOnly 'com.tencent.beacon:beacon-android-release:4.2.80.6:official@aar'
+        compileOnly 'com.tencent.qimei:qimei:1.2.13.1'
+    }
+
+    // kms 加密
+    compileOnly 'com.tencentcloudapi:tencentcloud-sdk-java-kms:3.1.213'
+    compileOnly 'xerces:xercesImpl:2.12.0'
+}
+
+
+// 发布到 bintray
+
+if (android.defaultPublishConfig.contains("slim")){
+    if(includeBeacon){
+        project.extensions.add('artifactId', 'cos-android-lite')
+        project.extensions.add('packageName', 'QCloudCosXmlLite')
+        project.extensions.add('packageType', 'aar')
+        project.extensions.add('artifactProduct', 'slim')
+        project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
+        project.extensions.add('archiveName', 'cos-android-slim-release.aar')
+        project.extensions.add('archiveFilePath', 'outputs/aar/cos-android-lite-slim-release.aar')
+    } else {
+        project.extensions.add('artifactId', 'cos-android-lite-nobeacon')
+        project.extensions.add('packageName', 'QCloudCosXmlLite')
+        project.extensions.add('packageType', 'aar')
+        project.extensions.add('artifactProduct', 'slim')
+        project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk - no beacon')
+        project.extensions.add('archiveName', 'cos-android-nobeacon-slim-release.aar')
+        project.extensions.add('archiveFilePath', 'outputs/aar/cos-android-lite-nobeacon-slim-release.aar')
+    }
+}else {
+    if(includeBeacon) {
+        project.extensions.add('artifactId', 'cos-android')
+        project.extensions.add('packageName', 'QCloudCosXml')
+        project.extensions.add('packageType', 'aar')
+        project.extensions.add('artifactProduct', 'normal')
+        project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
+        project.extensions.add('archiveFilePath', 'outputs/aar/cos-android-normal-release.aar')
+    } else {
+        project.extensions.add('artifactId', 'cos-android-nobeacon')
+        project.extensions.add('packageName', 'QCloudCosXml')
+        project.extensions.add('packageType', 'aar')
+        project.extensions.add('artifactProduct', 'normal')
+        project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk - -no beacon')
+        project.extensions.add('archiveFilePath', 'outputs/aar/cos-android-nobeacon-normal-release.aar')
+    }
+}
+apply from: '../../publishMavenCentral.gradle'
+
+
+// 发布到内部仓库
+// 已经不再需要发布到内部仓库了
+
+//apply plugin: 'maven'
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            repository(url: 'https://mirrors.tencent.com/repository/maven/cos_terminal/com/tencent/qcloud'){
+//                authentication(userName: 'rickenwang', password: 'xxxxxx')
+//                pom.groupId = 'com.tencent.qcloud'
+//                pom.version = "${version_name}"
+//                pom.artifactId = 'cosxml-lite'
+//            }
+//        }
+//    }
+//}
+
+static String quotWrapper(key) {
+    if (key == null) {
+        return "\"\""
+    }
+    return "\"".concat(key).concat("\"")
+}
+
+static String safeEnvBoolean(b) {
+
+    if (b == null) {
+        return "false"
+    }
+
+    return b
+}
+
+
+task(requestPermission) {
+
+    def adb = android.getAdbExecutable().toString()
+    def testApplicationId = "com.tencent.cos.xml.test"
+    println "Granting permissions"
+    "${adb} shell pm grant ${testApplicationId} android.permission.WRITE_EXTERNAL_STORAGE".execute()
+    "${adb} shell pm grant ${testApplicationId} android.permission.READ_EXTERNAL_STORAGE".execute()
+
+
+
+    // 禁止 UP-TO-DATE
+    // outputs.upToDateWhen { false }
+}
+
+preBuild.dependsOn "requestPermission"
+
+task(printEnvs) {
+
+    def packageType = project.extensions.findByName('packageType')
+    packageType = packageType == null ? "jar" : packageType
+    if (packageType.equals("aar")) {
+        println('Yes : aar')
+    }
+
+    println('System envs region are :')
+    println(quotWrapper(System.getenv("REGION")))
+}
+
+
+android.libraryVariants.all { variant ->
+    variant.outputs.all {
+        System.out.println('variant is ' + variant.name)
+        // outputFileName = "${project.extensions.artifactId}-release.aar"
+    }
+}
