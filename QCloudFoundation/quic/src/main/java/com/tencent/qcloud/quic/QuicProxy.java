@@ -25,16 +25,31 @@ package com.tencent.qcloud.quic;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.common.QCloudServiceException;
-import com.tencent.qcloud.core.http.*;
+import com.tencent.qcloud.core.http.CallMetricsListener;
+import com.tencent.qcloud.core.http.HttpLogger;
+import com.tencent.qcloud.core.http.HttpLoggingInterceptor;
+import com.tencent.qcloud.core.http.HttpRequest;
+import com.tencent.qcloud.core.http.HttpResponse;
+import com.tencent.qcloud.core.http.HttpResult;
+import com.tencent.qcloud.core.http.NetworkProxy;
+import com.tencent.qcloud.core.http.OkHttpLoggingUtils;
+import com.tencent.qcloud.core.http.ResponseBodyConverter;
+import com.tencent.qcloud.core.http.ResponseFileConverter;
 import com.tencent.qcloud.core.task.RetryStrategy;
-
-import okhttp3.*;
-import okhttp3.internal.Util;
 
 import java.net.InetAddress;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import okhttp3.Dns;
+import okhttp3.Headers;
+import okhttp3.HttpUrl;
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.internal.Util;
 
 
 public class QuicProxy<T> extends NetworkProxy<T> {
@@ -56,6 +71,16 @@ public class QuicProxy<T> extends NetworkProxy<T> {
     public void cancel(){
         if(quic != null){
             quic.cancelConnect();
+        }
+    }
+
+    public static void setTnetConfig(QuicConfig quicConfig) {
+        if (quicConfig != null) {
+            QuicNative.setTnetConfigRaceType(quicConfig.raceType);
+            QuicNative.setTnetConfigIsCustomProtocol(quicConfig.isCustomProtocol);
+            if (quicConfig.getTotalTimeoutSec() > 0) {
+                QuicNative.setTnetConfigTotalTimeoutSec(quicConfig.getTotalTimeoutSec());
+            }
         }
     }
 
@@ -97,7 +122,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                 int port = httpUrl.port();
                 int tcpPort = 80;
 
-                String method = okHttpRequest.method().toUpperCase();
+                String method = okHttpRequest.method().toUpperCase(Locale.ROOT);
 
                 QuicRequest quicRequest = new QuicRequest(host, ip, port, tcpPort);
                 quicRequest.addHeader(":scheme", isHttps? "https" :"http");
@@ -112,7 +137,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                 for(int i = 0, size = headers.size(); i < size; i ++){
                     String headerKey = headers.name(i);
                     if("Host".equalsIgnoreCase(headerKey)){
-                        quicRequest.addHeader("Vod-Forward-Cos".toLowerCase(), headers.value(i));
+                        quicRequest.addHeader("Vod-Forward-Cos".toLowerCase(Locale.ROOT), headers.value(i));
                     }
                     // 不要修改 ua，否则签名会不一致
 //                    else if("User-Agent".equalsIgnoreCase(headerKey)){
@@ -122,11 +147,11 @@ public class QuicProxy<T> extends NetworkProxy<T> {
 //                        stringBuilder.append(headerValue.substring(0, pos))
 //                                .append("-quic-")
 //                                .append(headerValue.substring(pos + 1));
-//                        quicRequest.addHeader("User-Agent".toLowerCase(), stringBuilder.toString());
+//                        quicRequest.addHeader("User-Agent".toLowerCase(Locale.ROOT), stringBuilder.toString());
 //                    }
 
                     else {
-                        quicRequest.addHeader(headers.name(i).toLowerCase(), headers.value(i));
+                        quicRequest.addHeader(headers.name(i).toLowerCase(Locale.ROOT), headers.value(i));
                     }
                 }
 
@@ -134,8 +159,8 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                 if (httpRequest.getRequestBody() != null) {
                     String contentType = requestBody.contentType() != null ?
                             requestBody.contentType().toString() : "application/octet-stream";
-                    quicRequest.addHeader("Content-Type".toLowerCase(), contentType);
-                    quicRequest.addHeader("Content-Length".toLowerCase(), String.valueOf(requestBody.contentLength()));
+                    quicRequest.addHeader("Content-Type".toLowerCase(Locale.ROOT), contentType);
+                    quicRequest.addHeader("Content-Length".toLowerCase(Locale.ROOT), String.valueOf(requestBody.contentLength()));
                 }
 
                 // 打印 request

@@ -32,7 +32,7 @@ import com.tencent.qcloud.core.http.QCloudHttpClient;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 /**
  * STS临时证书提供器
- * STS信息请参考：<a herf="https://cloud.tencent.com/document/product/598/33416">STS相关接口</a>
+ * STS信息请参考：<a href="https://cloud.tencent.com/document/product/598/33416">STS相关接口</a>
  */
 
 public class STSScopeLimitCredentialProvider extends BasicScopeLimitCredentialProvider {

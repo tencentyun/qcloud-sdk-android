@@ -75,6 +75,7 @@ public abstract class QCloudTask<T> implements Callable<T> {
     private int mState;
 
     private int weight = WEIGHT_LOW; //
+    private boolean enableTraffic = true;
     private OnRequestWeightListener onRequestWeightListener;
 
     private Executor observerExecutor;
@@ -209,6 +210,14 @@ public abstract class QCloudTask<T> implements Callable<T> {
         if (mCancellationTokenSource != null) {
             mCancellationTokenSource.cancel();
         }
+    }
+
+    public void setTransferThreadControl(boolean enableTraffic) {
+        this.enableTraffic = enableTraffic;
+    }
+
+    public boolean isEnableTraffic() {
+        return enableTraffic;
     }
 
     /**

@@ -31,13 +31,12 @@ import com.tencent.qcloud.core.http.QCloudHttpRequest;
  * 详情请参考文档：<a href="https://cloud.tencent.com/document/product/436/7778">请求签名</a>
  */
 
-public interface QCloudSigner {
+public interface QCloudSelfSigner {
     /**
-     * 使用指定的证书对请求进行签名
+     * 对请求进行签名
      *
      * @param request 需要签名的请求
-     * @param credentials 用于签名的证书
      * @throws QCloudClientException 客户端异常
      */
-    void sign(QCloudHttpRequest request, QCloudCredentials credentials) throws QCloudClientException;
+    void sign(QCloudHttpRequest request) throws QCloudClientException;
 }

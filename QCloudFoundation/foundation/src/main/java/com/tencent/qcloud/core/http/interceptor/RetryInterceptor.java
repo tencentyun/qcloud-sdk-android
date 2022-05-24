@@ -23,6 +23,8 @@
 package com.tencent.qcloud.core.http.interceptor;
 
 
+import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
+
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.HttpConfiguration;
@@ -61,8 +63,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 import okio.BufferedSource;
-
-import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
 
 public class RetryInterceptor implements Interceptor {
 
@@ -251,7 +251,7 @@ public class RetryInterceptor implements Interceptor {
 
     private boolean isUserCancelled(IOException exception) {
         return exception != null && exception.getMessage() != null &&
-                exception.getMessage().toLowerCase().equals("canceled");
+                exception.getMessage().toLowerCase(Locale.ROOT).equals("canceled");
     }
 
     Response processSingleRequest(Chain chain, Request request) throws IOException {
@@ -260,7 +260,7 @@ public class RetryInterceptor implements Interceptor {
 
     String getClockSkewError(Response response, int statusCode) {
         if (response != null && statusCode == HttpURLConnection.HTTP_FORBIDDEN) {
-            if(response.request().method().toUpperCase().equals("HEAD")) return QCloudServiceException.ERR0R_REQUEST_IS_EXPIRED;
+            if(response.request().method().toUpperCase(Locale.ROOT).equals("HEAD")) return QCloudServiceException.ERR0R_REQUEST_IS_EXPIRED;
             ResponseBody body = response.body();
             if (body != null) {
                 try {
