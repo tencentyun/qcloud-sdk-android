@@ -1,11 +1,14 @@
 package com.tencent.qcloud.qcloudxml.compiler.utils;
 
+import static com.tencent.qcloud.qcloudxml.compiler.XmlProcessor.ELEMENT_UTILS;
+
 import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 import com.tencent.qcloud.qcloudxml.compiler.ProcessingException;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
@@ -14,8 +17,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
-
-import static com.tencent.qcloud.qcloudxml.compiler.XmlProcessor.ELEMENT_UTILS;
 
 public class Util {
     private static final String TAG = "Util";
@@ -30,9 +31,9 @@ public class Util {
         if (originalStr == null || originalStr.length() <= 0) return originalStr;
 
         if (originalStr.length() == 1) {
-            return originalStr.toLowerCase();
+            return originalStr.toLowerCase(Locale.ROOT);
         } else {
-            String initials = originalStr.substring(0, 1).toLowerCase();
+            String initials = originalStr.substring(0, 1).toLowerCase(Locale.ROOT);
             return initials + originalStr.substring(1);
         }
     }
@@ -47,9 +48,9 @@ public class Util {
         if (originalStr == null || originalStr.length() <= 0) return originalStr;
 
         if (originalStr.length() == 1) {
-            return originalStr.toUpperCase();
+            return originalStr.toUpperCase(Locale.ROOT);
         } else {
-            String initials = originalStr.substring(0, 1).toUpperCase();
+            String initials = originalStr.substring(0, 1).toUpperCase(Locale.ROOT);
             return initials + originalStr.substring(1);
         }
     }
@@ -101,6 +102,45 @@ public class Util {
     public static boolean ignoreListNote(Element element) {
         if (element.getAnnotation(XmlElement.class) != null) {
             return element.getAnnotation(XmlElement.class).ignoreListNote();
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 获取Element名字是否忽略
+     * @param element Element节点
+     * @return Element名字是否忽略
+     */
+    public static boolean ignoreName(Element element) {
+        if (element.getAnnotation(XmlElement.class) != null) {
+            return element.getAnnotation(XmlElement.class).ignoreName();
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Element值为0时是否忽略
+     * @param element Element节点
+     * @return Element值为0时是否忽略
+     */
+    public static boolean ignoreZero(Element element) {
+        if (element.getAnnotation(XmlElement.class) != null) {
+            return element.getAnnotation(XmlElement.class).ignoreZero();
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 获取Element是否是平铺的List节点
+     * @param element Element节点
+     * @return Element是否是平铺的List节点
+     */
+    public static boolean flatListNote(Element element) {
+        if (element.getAnnotation(XmlElement.class) != null) {
+            return element.getAnnotation(XmlElement.class).flatListNote();
         } else {
             return false;
         }
