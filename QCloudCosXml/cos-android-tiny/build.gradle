@@ -1,0 +1,176 @@
+apply plugin: 'com.android.library'
+apply from: '../version.gradle'
+apply from: 'jacoco.gradle'
+
+def compileQuic() {
+    return getGradle().getStartParameter().getTaskRequests()
+            .toString().contains("Debug") && "QCloudCosXml".equalsIgnoreCase(rootProject.name)
+}
+
+android {
+
+    compileSdkVersion 28
+    defaultConfig {
+
+        minSdkVersion 15
+        targetSdkVersion 28
+
+        versionCode 50807
+        versionName "5.8.7"
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+
+
+
+    buildTypes {
+
+        debug {
+            testCoverageEnabled = true
+
+            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            //it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
+            //it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
+            it.buildConfigField 'String', 'OWNER_UIN', quotWrapper(System.getenv("OWNER_UIN"))
+            it.buildConfigField 'String', 'COS_APPID', quotWrapper(System.getenv("COS_APPID"))
+            it.buildConfigField 'String', 'COS_SECRET_ID', quotWrapper(System.getenv("COS_SECRET_ID"))
+            it.buildConfigField 'String', 'COS_SECRET_KEY', quotWrapper(System.getenv("COS_SECRET_KEY"))
+            it.buildConfigField 'String', 'CI_SECRET_ID', quotWrapper(System.getenv("CI_SECRET_ID"))
+            it.buildConfigField 'String', 'CI_SECRET_KEY', quotWrapper(System.getenv("CI_SECRET_KEY"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_REGION', quotWrapper(System.getenv("PERSIST_BUCKET_REGION"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET', quotWrapper(System.getenv("PERSIST_BUCKET"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_CDN_SIGN', quotWrapper(System.getenv("PERSIST_BUCKET_CDN_SIGN"))
+            it.buildConfigField 'String', 'TEMP_BUCKET_REGION', quotWrapper(System.getenv("TEMP_BUCKET_REGION"))
+            it.buildConfigField 'String', 'TEMP_BUCKET', quotWrapper(System.getenv("TEMP_BUCKET"))
+            it.buildConfigField 'Boolean', 'WEAK_NETWORK_TEST', safeEnvBoolean(System.getenv("WEAK_NETWORK_TEST"))
+            it.buildConfigField 'Boolean', 'QUIC_TEST', safeEnvBoolean(System.getenv("QUIC_TEST"))
+            it.buildConfigField 'String', 'QUIC_BUCKET_REGION', quotWrapper(System.getenv("QUIC_BUCKET_REGION"))
+            it.buildConfigField 'String', 'QUIC_BUCKET', quotWrapper(System.getenv("QUIC_BUCKET"))
+            it.buildConfigField 'String', 'QUIC_TEST_IP', quotWrapper(System.getenv("QUIC_TEST_IP"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_REPLICATION', quotWrapper(System.getenv("PERSIST_BUCKET_REPLICATION"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_REPLICATION_REGION', quotWrapper(System.getenv("PERSIST_BUCKET_REPLICATION_REGION"))
+        }
+
+        release {
+            //it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
+            //it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
+
+            minifyEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+    lintOptions {
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+    buildToolsVersion = '28.0.2'
+
+}
+
+dependencies {
+
+    compileOnly 'androidx.appcompat:appcompat:1.2.0'
+    testCompileOnly 'junit:junit:4.13'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+
+    // api project(path: ':foundation')
+    api 'com.squareup.okhttp3:okhttp:3.11.0'
+    // api 'com.parse.bolts:bolts-tasks:1.4.0'
+}
+
+
+// 发布到 bintray
+
+
+project.extensions.add('artifactId', 'cos-android-tiny')
+project.extensions.add('packageName', 'QCloudCosXml')
+project.extensions.add('packageType', 'aar')
+project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
+project.extensions.add('archiveFilePath', 'outputs/aar/cos-android-tiny-release.aar')
+
+apply from: '../../publishMavenCentral.gradle'
+
+
+// 发布到内部仓库
+// 已经不再需要发布到内部仓库了
+
+//apply plugin: 'maven'
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            repository(url: 'https://mirrors.tencent.com/repository/maven/cos_terminal/com/tencent/qcloud'){
+//                authentication(userName: 'rickenwang', password: 'xxxxxx')
+//                pom.groupId = 'com.tencent.qcloud'
+//                pom.version = "${version_name}"
+//                pom.artifactId = 'cosxml-lite'
+//            }
+//        }
+//    }
+//}
+
+static String quotWrapper(key) {
+    if (key == null) {
+        return "\"\""
+    }
+    return "\"".concat(key).concat("\"")
+}
+
+static String safeEnvBoolean(b) {
+
+    if (b == null) {
+        return "false"
+    }
+
+    return b
+}
+
+
+task(requestPermission) {
+
+    def adb = android.getAdbExecutable().toString()
+    def testApplicationId = "com.tencent.cos.xml.test"
+    println "Granting permissions"
+    "${adb} shell pm grant ${testApplicationId} android.permission.WRITE_EXTERNAL_STORAGE".execute()
+    "${adb} shell pm grant ${testApplicationId} android.permission.READ_EXTERNAL_STORAGE".execute()
+
+
+
+    // 禁止 UP-TO-DATE
+    // outputs.upToDateWhen { false }
+}
+
+preBuild.dependsOn "requestPermission"
+
+task(printEnvs) {
+
+    def packageType = project.extensions.findByName('packageType')
+    packageType = packageType == null ? "jar" : packageType
+    if (packageType.equals("aar")) {
+        println('Yes : aar')
+    }
+
+    println('System envs region are :')
+    println(quotWrapper(System.getenv("REGION")))
+}
+
+
+android.libraryVariants.all { variant ->
+    variant.outputs.all {
+        System.out.println('variant is ' + variant.name)
+        // outputFileName = "${project.extensions.artifactId}-release.aar"
+    }
+}
