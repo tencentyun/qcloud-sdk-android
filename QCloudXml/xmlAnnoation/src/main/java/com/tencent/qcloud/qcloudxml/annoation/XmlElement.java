@@ -64,4 +64,62 @@ public @interface XmlElement {
    * @return 是否忽略List节点
    */
   boolean ignoreListNote() default false;
+
+  /**
+   * 是否是平铺的List节点
+   * 仅用于fromxml
+   * 如下XML
+   *   <Response>
+   *     <MediaBucketList>
+   *           <BucketId></BucketId>
+   *           <Region></Region>
+   *           <CreateTime></CreateTime>
+   *     </MediaBucketList>
+   *     <MediaBucketList>
+   *           <BucketId></BucketId>
+   *           <Region></Region>
+   *           <CreateTime></CreateTime>
+   *     </MediaBucketList>
+   * </Response>
+   *
+   *  @XmlBean(name = "Response")
+   *  public class DescribeMediaBucketsResult {
+   *     //媒体 Bucket 列表
+   *     @XmlElement(flatListNote = true)
+   *     public List<MediaBucketList> mediaBucketList;
+   *
+   *     @XmlBean
+   *     public static class MediaBucketList{
+   *         //存储桶 ID
+   *         public String bucketId;
+   *     }
+   * }
+   *
+   * @return 是否是平铺的List节点
+   */
+  boolean flatListNote() default false;
+
+  /**
+   * 忽略Element名称
+   * 目前仅用于toxml，用于适配以下XML
+   *   <DomainList>
+   *     <Domain>*.qq.com</Domain>
+   *     <Domain>*.qcloud.com</Domain>
+   *   </DomainList>
+   *
+   *   public List<Domain> domainList;
+   *   @XmlBean
+   *   public static class Domain{
+   *       @XmlElement(ignoreName = true)
+   *       public String domain;
+   *   }
+   * @return 是否忽略Element名称
+   */
+  boolean ignoreName() default false;
+
+  /**
+   * 是否忽略0值
+   * @return 是否忽略0值
+   */
+  boolean ignoreZero() default false;
 }

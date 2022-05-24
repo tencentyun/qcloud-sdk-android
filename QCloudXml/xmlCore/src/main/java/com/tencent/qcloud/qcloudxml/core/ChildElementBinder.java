@@ -24,5 +24,5 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 public interface ChildElementBinder<T> {
-  void fromXml(XmlPullParser xmlPullParser, T value) throws IOException, XmlPullParserException;
+  void fromXml(XmlPullParser xmlPullParser, T value, String elementName) throws IOException, XmlPullParserException;
 }

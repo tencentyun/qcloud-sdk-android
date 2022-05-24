@@ -1,6 +1,9 @@
 package com.tencent.qcloud.qcloudxml.compiler.utils;
 
 
+import static com.tencent.qcloud.qcloudxml.compiler.XmlProcessor.ELEMENT_UTILS;
+import static com.tencent.qcloud.qcloudxml.compiler.XmlProcessor.TYPE_UTILS;
+
 import com.tencent.qcloud.qcloudxml.compiler.TypeXmlKind;
 
 import java.util.ArrayList;
@@ -15,9 +18,6 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
-
-import static com.tencent.qcloud.qcloudxml.compiler.XmlProcessor.ELEMENT_UTILS;
-import static com.tencent.qcloud.qcloudxml.compiler.XmlProcessor.TYPE_UTILS;
 
 public class ElementUtil {
     public static final String INTERFACE_LIST = "java.util.List";
@@ -192,5 +192,11 @@ public class ElementUtil {
             name = name.substring(0, typeParamStart);
         }
         return name;
+    }
+
+    public static TypeElement typeMirrorToTypeElement(TypeMirror typeMirror){
+        Element element =  TYPE_UTILS.asElement(typeMirror);
+        return (element instanceof TypeElement)
+                ? (TypeElement)element : null;
     }
 }

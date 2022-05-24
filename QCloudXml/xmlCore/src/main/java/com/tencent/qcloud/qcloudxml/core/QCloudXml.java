@@ -26,8 +26,12 @@ public final class QCloudXml {
     }
 
     public static <T> T fromXml(XmlPullParser xmlPullParser, Class<T> clazz) throws XmlPullParserException, IOException {
+        return fromXml(xmlPullParser, clazz, null);
+    }
+
+    public static <T> T fromXml(XmlPullParser xmlPullParser, Class<T> clazz, String elementName) throws XmlPullParserException, IOException {
         IXmlAdapter<T> adapter = createXmlAdapter(clazz);
-        return adapter.fromXml(xmlPullParser);
+        return adapter.fromXml(xmlPullParser, elementName);
     }
 
     public static <T> String toXml(T value) throws XmlPullParserException, IOException{
@@ -47,9 +51,13 @@ public final class QCloudXml {
     }
 
     public static <T> void toXml(XmlSerializer xmlSerializer, T value) throws XmlPullParserException, IOException{
+        toXml(xmlSerializer, value, null);
+    }
+
+    public static <T> void toXml(XmlSerializer xmlSerializer, T value, String elementName) throws XmlPullParserException, IOException{
         Class<?> clazz = value.getClass();
         IXmlAdapter<T> adapter = createXmlAdapter(clazz);
-        adapter.toXml(xmlSerializer, value);
+        adapter.toXml(xmlSerializer, value, elementName);
     }
 
     private static <T> IXmlAdapter<T> createXmlAdapter(Class<?> targetClass) {
