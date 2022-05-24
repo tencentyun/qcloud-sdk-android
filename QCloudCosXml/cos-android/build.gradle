@@ -27,7 +27,7 @@ android {
         targetSdkVersion 28
 
         versionCode cosSdkVersionCode
-        versionName "5.8.7"
+        versionName cosSdkVersionName
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
