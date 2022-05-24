@@ -31,7 +31,7 @@
 #include<iostream>
 using namespace std;
 
-#define TAG "COSQUIC"
+#define TAG "QCloudQuic"
 #define LOGI(debug, ...) {if(debug)__android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__);}
 #define LOGD(debug, ...) {if(debug)__android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__);}
 #define LOGE(debug, ...) {if(debug)__android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__);}
@@ -43,6 +43,12 @@ extern "C"{
 void init(JNIEnv *env, jobject thiz);
 
 void set_debug_log(JNIEnv *env, jobject thiz, jboolean is_debug);
+
+void set_tnet_config_race_type(JNIEnv *env, jobject thiz, jint race_type);
+
+void set_tnet_config_is_custom_protocol(JNIEnv *env, jobject thiz, jboolean is_custom_protocol);
+
+void set_tnet_config_total_timeout_sec(JNIEnv *env, jobject thiz, jint total_timeout_sec);
 
 void connect(JNIEnv *env, jobject thiz, jint handle_id, jstring host, jstring ip, jint port, jint tcp_port);
 

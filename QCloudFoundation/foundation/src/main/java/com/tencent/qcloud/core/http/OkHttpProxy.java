@@ -61,7 +61,7 @@ public class OkHttpProxy<T> extends NetworkProxy<T> {
         Response response = null;
         CallMetricsListener eventListener = null;
         HttpResult<T> httpResult = null;
-
+        boolean selfCloseConverter = httpRequest.getResponseBodyConverter() instanceof SelfCloseConverter;
         try {
             httpRequest.setOkHttpRequestTag(identifier);
 
@@ -108,7 +108,9 @@ public class OkHttpProxy<T> extends NetworkProxy<T> {
                 clientException = new QCloudClientException(e);
             }
         } finally {
-            if(response != null) Util.closeQuietly(response);
+            if(response != null && !selfCloseConverter) {
+                Util.closeQuietly(response);
+            }
         }
 
 

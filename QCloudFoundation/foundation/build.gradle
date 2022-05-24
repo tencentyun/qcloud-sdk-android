@@ -7,8 +7,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 10533
-        versionName "1.5.33"
+        versionCode 10545
+        versionName "1.5.45"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -29,14 +29,14 @@ android {
     lintOptions {
         abortOnError false
     }
-
 }
 
 
 
 dependencies {
 //    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api 'com.squareup.okhttp3:okhttp:3.12.1'
+    api 'com.squareup.okhttp3:okhttp:3.12.6'
+    api 'com.squareup.okio:okio:1.11.0'
     api 'com.parse.bolts:bolts-tasks:1.4.0'
 
     androidTestImplementation 'androidx.annotation:annotation:1.0.0'
@@ -46,8 +46,8 @@ dependencies {
     testCompileOnly 'org.mockito:mockito-core:1.10.19'
 
     compileOnly 'androidx.appcompat:appcompat:1.0.0'
-
-    compileOnly 'com.tencent.qcloud:beacon-android-release:4.1.13'
+    compileOnly 'com.tencent.beacon:beacon-android-release:4.2.80.6:official@aar'
+    compileOnly 'com.tencent.qimei:qimei:1.2.13.1'
 }
 
 project.extensions.add('artifactId', 'qcloud-foundation')
@@ -55,10 +55,10 @@ project.extensions.add('artifactDesc', 'the core foundation for tencent cloud sd
 project.extensions.add('archiveFilePath', 'outputs/aar/qcloud-foundation-release.aar')
 
 
-// apply from: '../../publishMavenCentral.gradle'
+apply from: '../../publishMavenCentral.gradle'
 
 /*
- * Copyright (c) 2010-2020 Tencent Cloud. All rights res
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal

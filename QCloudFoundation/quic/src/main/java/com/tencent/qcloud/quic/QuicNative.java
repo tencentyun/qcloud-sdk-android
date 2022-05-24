@@ -141,13 +141,18 @@ public class QuicNative {
     }
 
     public void clear(){
-
         QCloudLogger.d(QCloudHttpClient.QUIC_LOG_TAG, "CallNative: clear, handleId = %s", handleId);
         clear(handleId);
     }
 
 
     public static native void init();
+
+    public static native void setTnetConfigRaceType(int raceType);
+
+    public static native void setTnetConfigIsCustomProtocol(boolean isCustomProtocol);
+
+    public static native void setTnetConfigTotalTimeoutSec(int totalTimeoutSec);
 
     public static native void setDebugLog(boolean isEnable);
 

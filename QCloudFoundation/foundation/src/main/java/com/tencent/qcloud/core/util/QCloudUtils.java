@@ -30,16 +30,19 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -72,6 +75,94 @@ public class QCloudUtils {
         }
 
         return -1;
+    }
+
+    /**
+     * 部分 vivo 机型
+     *
+     * @param uri
+     * @param contentResolver
+     * @return
+     */
+    public static long getUriContentLength2(Uri uri, ContentResolver contentResolver) {
+        String scheme = uri.getScheme();
+        if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
+            return getUriContentLengthByRead(uri, contentResolver);
+        } else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
+            File file = new File(uri.getPath());
+            return file.length();
+        }
+
+        return -1;
+    }
+
+    public static boolean doesUriFileExist(Uri uri, ContentResolver contentResolver) {
+
+        try {
+            ParcelFileDescriptor fileDescriptor = contentResolver.openFileDescriptor(uri, "r");
+            fileDescriptor.close();
+            return true;
+        } catch (FileNotFoundException fileNotFoundException) {
+            fileNotFoundException.printStackTrace();
+            return false;
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+            return true;
+        }
+    }
+
+    private static long getUriContentLengthByRead(Uri uri, ContentResolver contentResolver) {
+        InputStream inputStream = null;
+        try {
+            inputStream = contentResolver.openInputStream(uri);
+            long length = 0;
+            byte[] buff = new byte[8192];
+
+            int readLen;
+            while((readLen = inputStream.read(buff)) != -1) {
+                length += readLen;
+            }
+
+            return length;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1L;
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private static long getUriContentLengthBySkip(Uri uri, ContentResolver contentResolver) {
+        InputStream inputStream = null;
+        try {
+            inputStream = contentResolver.openInputStream(uri);
+            long length = 0;
+            int skipStep = 8192;
+
+            long skipLen;
+            while((skipLen = inputStream.skip(skipStep)) != -1L) {
+                length += skipLen;
+            }
+
+            return length;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1L;
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public static byte[] toBytes(Object obj) {

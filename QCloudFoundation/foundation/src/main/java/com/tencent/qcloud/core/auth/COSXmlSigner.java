@@ -28,20 +28,19 @@ import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.QCloudHttpRequest;
 
 import java.net.URL;
-
-import okhttp3.HttpUrl;
+import java.util.Locale;
 
 /**
  * COS签名器<br>
  * 对请求进行签名
- * 请参考文档：<a herf="https://cloud.tencent.com/document/product/436/7778">请求签名</a>
+ * 请参考文档：<a href="https://cloud.tencent.com/document/product/436/7778">请求签名</a>
  */
 public class COSXmlSigner implements QCloudSigner {
 
     final static String COS_SESSION_TOKEN = "x-cos-security-token";
 
     /**
-     * 使用指定的证书按照<a herf="https://cloud.tencent.com/document/product/436/7778">请求签名</a>文档规则对请求进行签名
+     * 使用指定的证书按照<a href="https://cloud.tencent.com/document/product/436/7778">请求签名</a>文档规则对请求进行签名
      * @param request 需要签名的请求
      * @param credentials 用于签名的证书
      * @throws QCloudClientException 客户端异常
@@ -60,7 +59,10 @@ public class COSXmlSigner implements QCloudSigner {
 
         QCloudLifecycleCredentials lifecycleCredentials = (QCloudLifecycleCredentials) credentials;
 
-        String keyTime = lifecycleCredentials.getKeyTime();
+        String keyTime = request.getKeyTime();
+        if (keyTime == null) {
+            keyTime = lifecycleCredentials.getKeyTime();
+        }
         sourceProvider.setSignTime(keyTime);
         String signature = signature(sourceProvider.source(request), lifecycleCredentials.getSignKey());
 
@@ -72,9 +74,9 @@ public class COSXmlSigner implements QCloudSigner {
                 .append(AuthConstants.Q_KEY_TIME).append("=")
                 .append(lifecycleCredentials.getKeyTime()).append("&")
                 .append(AuthConstants.Q_HEADER_LIST).append("=")
-                .append(sourceProvider.getRealHeaderList().toLowerCase()).append("&")
+                .append(sourceProvider.getRealHeaderList().toLowerCase(Locale.ROOT)).append("&")
                 .append(AuthConstants.Q_URL_PARAM_LIST).append("=")
-                .append(sourceProvider.getRealParameterList().toLowerCase()).append("&")
+                .append(sourceProvider.getRealParameterList().toLowerCase(Locale.ROOT)).append("&")
                 .append(AuthConstants.Q_SIGNATURE).append("=").append(signature);
         String auth = authorization.toString();
 

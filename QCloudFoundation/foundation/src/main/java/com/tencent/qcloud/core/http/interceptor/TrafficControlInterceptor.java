@@ -22,6 +22,8 @@
 
 package com.tencent.qcloud.core.http.interceptor;
 
+import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
+
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.HttpTask;
@@ -38,10 +40,8 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
-
 public class TrafficControlInterceptor implements Interceptor {
-
+    // TODO: 2022/5/12 maxConcurrent为多少比较合适？
     private TrafficStrategy uploadTrafficStrategy = new ModerateTrafficStrategy("UploadStrategy-", 2);
     private TrafficStrategy downloadTrafficStrategy = new AggressiveTrafficStrategy("DownloadStrategy-", 3);
 
@@ -169,6 +169,9 @@ public class TrafficControlInterceptor implements Interceptor {
     }
 
     private TrafficStrategy getSuitableStrategy(HttpTask task) {
+        if (!task.isEnableTraffic()) {
+            return null;
+        }
         return task.isDownloadTask() ? downloadTrafficStrategy : task.isUploadTask() ? uploadTrafficStrategy : null;
     }
 
@@ -190,7 +193,6 @@ public class TrafficControlInterceptor implements Interceptor {
         if (strategy != null) {
             strategy.waitForPermit();
         }
-
         QCloudLogger.i(HTTP_LOG_TAG, " %s begin to execute", request);
         IOException e;
         try {

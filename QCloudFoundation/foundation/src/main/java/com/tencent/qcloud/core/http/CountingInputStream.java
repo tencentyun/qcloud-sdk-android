@@ -22,26 +22,26 @@
 
 package com.tencent.qcloud.core.http;
 
-import android.util.Log;
-
 import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
-import okio.Buffer;
-import okio.ForwardingSink;
-import okio.Sink;
 
-class CountingSink extends ForwardingSink {
+class CountingInputStream extends FilterInputStream {
 
     private long bytesWritten = 0;
     private long bytesTotal = 0;
     private long recentReportBytes = 0;
 
+    private long mark = -1L;
+
     private QCloudProgressListener progressListener;
 
-    public CountingSink(Sink delegate, long bytesTotal, QCloudProgressListener progressListener) {
+
+    public CountingInputStream(InputStream delegate, long bytesTotal, QCloudProgressListener progressListener) {
         super(delegate);
         this.bytesTotal = bytesTotal;
         this.progressListener = progressListener;
@@ -60,7 +60,7 @@ class CountingSink extends ForwardingSink {
         }
     }
 
-    void writeBytesInternal(long byteCount) {
+    void readBytesInternal(long byteCount) {
         bytesWritten += byteCount;
         reportProgress();
     }
@@ -69,10 +69,47 @@ class CountingSink extends ForwardingSink {
         return bytesWritten;
     }
 
-    @Override
-    public void write(Buffer source, long byteCount) throws IOException {
-        super.write(source, byteCount);
-        writeBytesInternal(byteCount);
+    long getBytesTotal(){
+        return bytesTotal;
     }
 
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        int count = super.read(b, off, len);
+        if (count > 0) {
+            readBytesInternal(count);
+        }
+        return count;
+    }
+
+    @Override
+    public long skip(long n) throws IOException {
+        long count = super.skip(n);
+        readBytesInternal(count);
+        return count;
+    }
+
+    @Override
+    public synchronized void mark(int readlimit) {
+        super.mark(readlimit);
+        this.mark = this.bytesWritten;
+    }
+
+    @Override
+    public synchronized void reset() throws IOException {
+        if (!this.in.markSupported()) {
+            throw new IOException("Mark not supported");
+        } else if (this.mark == -1L) {
+            throw new IOException("Mark not set");
+        } else {
+            this.in.reset();
+            this.bytesWritten = this.mark;
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        super.close();
+        QCloudLogger.i("Test", "CountingInputStream is closed");
+    }
 }

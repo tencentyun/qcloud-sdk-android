@@ -23,15 +23,16 @@
 #include <inttypes.h>
 #include "COSQuic.h"
 
-COSQuic::COSQuic(JNIEnv *env, jobject jcaller, jint handle_id){
+COSQuic::COSQuic(JNIEnv *env, jobject jcaller, jint handle_id, const TnetConfig& tnetConfig){
 
     this->m_caller = reinterpret_cast<jobject>(env->NewGlobalRef(jcaller));
     this->m_handle_id = handle_id;
-    TnetConfig tnetConfig;
-    // tnetConfig.fallback_tcp = false;
-    tnetConfig.upload_optimize_ = true;
-    tnetConfig.congestion_type_ = kBBR;
+//    TnetConfig tnetConfig;
+//    tnetConfig.upload_optimize_ = true;
+//    tnetConfig.congestion_type_ = kBBR;
 //    m_tnetQuic = new TnetQuicRequest(this, tnetConfig);
+    LOGI(debug, "[%d] tnetConfig", tnetConfig.race_type);
+    LOGI(debug, "[%d] tnetConfig", tnetConfig.is_custom_);
     m_tnetQuic = new TnetQuicRequest(this, tnetConfig);
 }
 

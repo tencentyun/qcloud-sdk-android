@@ -22,6 +22,7 @@
 
 package com.tencent.qcloud.core.http;
 
+import com.tencent.qcloud.core.auth.QCloudSelfSigner;
 import com.tencent.qcloud.core.auth.QCloudSigner;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.util.QCloudStringUtils;
@@ -48,20 +49,22 @@ public class HttpRequest<T> {
     protected final Map<String, List<String>> headers;
     protected final Map<String, String> queries;
     protected final Set<String> noSignHeaders;
+    protected final Set<String> noSignParams;
     protected final RequestBody requestBody;
     protected final String method;
     protected final Object tag;
     protected final URL url;
     protected final ResponseBodyConverter<T> responseBodyConverter;
-
     protected final boolean calculateContentMD5;
-
+    protected final String keyTime;
     HttpRequest(Builder<T> builder) {
         requestBuilder = builder.requestBuilder;
         responseBodyConverter = builder.responseBodyConverter;
         headers = builder.headers;
         queries = builder.queries;
         noSignHeaders = builder.noSignHeaderKeys;
+        noSignParams = builder.noSignParamsKeys;
+        this.keyTime = builder.keyTime;
         method = builder.method;
         calculateContentMD5 = builder.calculateContentMD5;
         if (builder.tag == null) {
@@ -76,6 +79,7 @@ public class HttpRequest<T> {
         } else {
             requestBody = null;
         }
+
         requestBuilder.method(builder.method, requestBody);
     }
 
@@ -85,6 +89,14 @@ public class HttpRequest<T> {
 
     public Set<String> getNoSignHeaders() {
         return noSignHeaders;
+    }
+
+    public Set<String> getNoSignParams() {
+        return noSignParams;
+    }
+
+    public String getKeyTime() {
+        return keyTime;
     }
 
     public Map<String, String> queries() {
@@ -175,6 +187,10 @@ public class HttpRequest<T> {
     QCloudSigner getQCloudSigner() throws QCloudClientException {
         return null;
     }
+    
+    QCloudSelfSigner getQCloudSelfSigner() throws QCloudClientException {
+        return null;
+    }
 
     private static void addHeaderNameValue(Map<String, List<String>> headers, String name, String value) {
         List<String> values = headers.get(name);
@@ -197,6 +213,7 @@ public class HttpRequest<T> {
         Map<String, String> queries = new HashMap<>(10);
 
         Set<String> noSignHeaderKeys = new HashSet<>(); // 不签名的 header
+        Set<String> noSignParamsKeys = new HashSet<>(); // 不签名的 header
 
         RequestBodySerializer requestBodySerializer;
         ResponseBodyConverter<T> responseBodyConverter;
@@ -204,6 +221,8 @@ public class HttpRequest<T> {
         boolean calculateContentMD5;
 
         boolean isCacheEnabled = true;
+
+        String keyTime;
 
         public Builder() {
             httpUrlBuilder = new HttpUrl.Builder();
@@ -356,13 +375,27 @@ public class HttpRequest<T> {
         }
 
 
-        public Builder<T> addNoSignHeaderKeys(List<String> keys) {
+        public Builder<T> addNoSignHeaderKeys(Set<String> keys) {
             noSignHeaderKeys.addAll(keys);
+            return this;
+        }
+
+        public Builder<T> addNoSignParamKeys(Set<String> keys) {
+            noSignParamsKeys.addAll(keys);
+            return this;
+        }
+
+        public Builder<T> setKeyTime(String keyTime) {
+            this.keyTime = keyTime;
             return this;
         }
 
         public Set<String> getNoSignHeaderKeys() {
             return noSignHeaderKeys;
+        }
+
+        public Set<String> getNoSignParamsKeys() {
+            return noSignParamsKeys;
         }
 
         public Builder<T> userAgent(String userAgent) {

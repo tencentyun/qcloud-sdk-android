@@ -189,7 +189,7 @@ public class ConnectionRepository {
             }
         }
 
-        void save2Local(Map<String, List<InetAddress>> dnsRecords) {
+        synchronized void save2Local(Map<String, List<InetAddress>> dnsRecords) {
 
             if (cacheFilePath == null) {
                 return;
@@ -200,7 +200,7 @@ public class ConnectionRepository {
         }
 
 
-        Map<String, List<InetAddress>> loadFromLocal() {
+        synchronized Map<String, List<InetAddress>> loadFromLocal() {
 
             if (cacheFilePath == null) {
                 return null;
@@ -229,19 +229,19 @@ public class ConnectionRepository {
             hosts = new LinkedList<>();
         }
 
-        void addHosts(List<String> hosts) {
+        synchronized void addHosts(List<String> hosts) {
             this.hosts.addAll(hosts);
         }
 
-        void addHost(String host) {
+        synchronized void addHost(String host) {
             this.hosts.add(host);
         }
 
-        Map<String, List<InetAddress>> fetchAll()  {
+        synchronized Map<String, List<InetAddress>> fetchAll()  {
 
             Map<String, List<InetAddress>> dnsRecords = new HashMap<>();
 
-            for (String host : hosts) {
+            for (String host : new LinkedList<>(hosts)) {
 
                 List<InetAddress> ips;
                 if (!TextUtils.isEmpty(host) && ((ips = fetch(host, maxRetry)) != null)) {

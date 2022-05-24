@@ -22,6 +22,11 @@
 
 package com.tencent.qcloud.core.auth;
 
+import static com.tencent.qcloud.core.http.HttpConstants.Header.CONTENT_LENGTH;
+import static com.tencent.qcloud.core.http.HttpConstants.Header.CONTENT_TYPE;
+import static com.tencent.qcloud.core.http.HttpConstants.Header.DATE;
+import static com.tencent.qcloud.core.http.HttpConstants.Header.TRANSFER_ENCODING;
+
 import android.text.TextUtils;
 
 import com.tencent.qcloud.core.common.QCloudClientException;
@@ -33,6 +38,7 @@ import com.tencent.qcloud.core.util.QCloudStringUtils;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -40,20 +46,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.tencent.qcloud.core.http.HttpConstants.Header.CONTENT_LENGTH;
-import static com.tencent.qcloud.core.http.HttpConstants.Header.CONTENT_TYPE;
-import static com.tencent.qcloud.core.http.HttpConstants.Header.DATE;
-import static com.tencent.qcloud.core.http.HttpConstants.Header.TRANSFER_ENCODING;
-import static com.tencent.qcloud.core.http.HttpConstants.Header.USER_AGENT;
-
 /**
  * 提供COS请求中参与签名的字段
  * <p>
- * 具体请参考：<a herf="https://cloud.tencent.com/document/product/436/7778#.E7.AD.BE.E5.90.8D.E6.AD.A5.E9.AA.A4">签名步骤</a>中的 步骤6：生成 StringToSign
+ * 具体请参考：<a href="https://cloud.tencent.com/document/product/436/7778#.E7.AD.BE.E5.90.8D.E6.AD.A5.E9.AA.A4">签名步骤</a>中的 步骤6：生成 StringToSign
  */
 
 public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
@@ -113,39 +114,69 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
 
     }
 
+    // 只会签名如下 header
+    private final List<String> needToSignHeaders = Arrays.asList(
+            "cache-control",
+            "content-disposition",
+            "content-encoding",
+            "content-length",
+            "content-md5",
+            "content-type",
+            "expect",
+            "expires",
+            "host",
+            "if-match",
+            "if-modified-since",
+            "if-none-match",
+            "if-unmodified-since",
+            "origin",
+            "range",
+            "response-cache-control",
+            "response-content-disposition",
+            "response-content-encoding",
+            "response-content-language",
+            "response-content-type",
+            "response-expires",
+            "transfer-encoding",
+            "versionid"
+    );
+
     @Override
     public <T> String source(HttpRequest<T> request) throws QCloudClientException {
         if (request == null) {
             return null;
         }
 
-        List<String> keysToSign = new LinkedList<>(request.headers().keySet());
-        // 强制签名如下 OkHttp 自动添加的 Header
-        keysToSign.remove(USER_AGENT);
-        keysToSign.add(CONTENT_TYPE);
-        keysToSign.add(CONTENT_LENGTH);
+        Set<String> signHeaders = new HashSet<>();
+        signHeaders.add(CONTENT_TYPE);
+        signHeaders.add(CONTENT_LENGTH);
 
-        // 默认头部字段参与计算
-        if (headerKeysRequiredToSign.size() < 1) {
-            for (String headerKey : keysToSign) {
-
-                if (request.getNoSignHeaders().contains(headerKey)) {
-                    continue;
-                }
-                headerKeysRequiredToSign.add(headerKey);
-//                if (HttpConstants.Header.CONTENT_MD5.equalsIgnoreCase(headerKey) ||
-//                        HttpConstants.Header.CONTENT_DISPOSITION.equalsIgnoreCase(headerKey) ||
-//                        HttpConstants.Header.CONTENT_ENCODING.equalsIgnoreCase(headerKey) ||
-//                        (headerKey.startsWith("x-cos-") && !COSXmlSigner.COS_SESSION_TOKEN.equals(headerKey))) {
-//                    headerKeysRequiredToSign.add(headerKey);
-//                }
-                //
+        for (String key : request.headers().keySet()) {
+            String lowerKey = key.toLowerCase(Locale.ROOT);
+            if (needToSignHeaders.contains(lowerKey) || lowerKey.startsWith("x-cos-")) {
+                signHeaders.add(key);
             }
         }
 
-        // 默认URL参数字段参与计算
+        // 减去用户设置的不需要签名的 header
+        if (request.getNoSignHeaders() != null) {
+            for (String noSignHeader : request.getNoSignHeaders()) {
+                signHeaders.remove(noSignHeader);
+            }
+        }
+
+
+        // 默认头部字段参与计算
+        if (headerKeysRequiredToSign.size() < 1) {
+            headerKeysRequiredToSign.addAll(signHeaders);
+        }
+
+        // 默认URL参数字段参与计算，需要减去设置的不需要签名的 params
         if (parametersRequiredToSign.size() < 1) {
             Map<String, List<String>> queryNameValues = QCloudHttpUtils.getQueryPair(request.url());
+            for (String noSignParam : request.getNoSignHeaders()) {
+                queryNameValues.remove(QCloudHttpUtils.urlDecodeString(noSignParam));
+            }
             parametersRequiredToSign.addAll(queryNameValues.keySet());
         }
 
@@ -154,7 +185,10 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
             Set<String> lowerCaseHeaders = toLowerCase(headerKeysRequiredToSign);
 
             // 1、是否存在Content-Type
-            if (lowerCaseHeaders != null && lowerCaseHeaders.contains(CONTENT_TYPE.toLowerCase()) && request.getRequestBody() != null) {
+            if (lowerCaseHeaders != null
+                    && lowerCaseHeaders.contains(CONTENT_TYPE.toLowerCase(Locale.ROOT))
+                    && request.getRequestBody() != null
+                    && !request.headers().containsKey(CONTENT_TYPE)) {
                 String contentType = request.contentType();
                 if (contentType != null) {
                     request.addHeader(CONTENT_TYPE, contentType);
@@ -162,7 +196,7 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
             }
 
             // 2、是否存在Content-Length
-            if (lowerCaseHeaders != null && lowerCaseHeaders.contains(CONTENT_LENGTH.toLowerCase()) && request.getRequestBody() != null) {
+            if (lowerCaseHeaders != null && lowerCaseHeaders.contains(CONTENT_LENGTH.toLowerCase(Locale.ROOT)) && request.getRequestBody() != null) {
                 long contentLength;
                 try {
                     contentLength = request.contentLength();
@@ -180,13 +214,13 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
             }
 
             // 3、是否存在Date
-            if (lowerCaseHeaders != null && lowerCaseHeaders.contains(DATE.toLowerCase())) {
+            if (lowerCaseHeaders != null && lowerCaseHeaders.contains(DATE.toLowerCase(Locale.ROOT))) {
                 request.addHeader(DATE, HttpConfiguration.getGMTDate(new Date()));
             }
         }
 
         // 添加method
-        StringBuilder formatString = new StringBuilder(request.method().toLowerCase());
+        StringBuilder formatString = new StringBuilder(request.method().toLowerCase(Locale.ROOT));
         formatString.append("\n");
 
         // 添加path
@@ -265,7 +299,7 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
             Set<String> lowerSet = new HashSet<>();
             for (String key : set) {
                 if (key != null) {
-                    lowerSet.add(key.toLowerCase());
+                    lowerSet.add(key.toLowerCase(Locale.ROOT));
                 }
             }
             return lowerSet;
@@ -281,7 +315,8 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
         // 1、将所有的key值进行 url 编码，然后转化为小写，并进行排序
         List<String> orderKeys = new LinkedList<>();
         for (String key : keys) {
-            orderKeys.add(QCloudHttpUtils.urlEncodeString(key).toLowerCase());
+            // orderKeys.add(QCloudHttpUtils.urlEncodeString(key).toLowerCase(Locale.ROOT));
+            orderKeys.add(key.toLowerCase(Locale.ROOT));
         }
         Collections.sort(orderKeys, new Comparator<String>() {
             @Override
@@ -295,7 +330,7 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
         Set<String> queryNames = queryNameValues.keySet();
         Map<String, String> maps = new HashMap<>();
         for (String name : queryNames) {
-            maps.put(name.toLowerCase(), name);
+            maps.put(name.toLowerCase(Locale.ROOT), name);
         }
 
         // 3、取出需要的参数
@@ -307,8 +342,8 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
                         out.append('&');
                     }
                     isFirst = false;
-                    realKeys.add(key.toLowerCase());
-                    out.append(key.toLowerCase()).append('=');
+                    realKeys.add(key.toLowerCase(Locale.ROOT));
+                    out.append(key.toLowerCase(Locale.ROOT)).append('=');
                     if (!TextUtils.isEmpty(value)) {
                         out.append(QCloudHttpUtils.urlEncodeString(value));
                     }
@@ -325,7 +360,7 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
         // 1、将所有的key值进行 url 编码，然后转化为小写，并进行排序
         List<String> orderKeys = new LinkedList<>();
         for (String key : keys) {
-            orderKeys.add(QCloudHttpUtils.urlEncodeString(key).toLowerCase());
+            orderKeys.add(QCloudHttpUtils.urlEncodeString(key).toLowerCase(Locale.ROOT));
         }
         Collections.sort(orderKeys, new Comparator<String>() {
             @Override
@@ -338,7 +373,7 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
         Set<String> headerNames = headers.keySet();
         Map<String, String> maps = new HashMap<>();
         for (String name : headerNames) {
-            maps.put(name.toLowerCase(), name);
+            maps.put(name.toLowerCase(Locale.ROOT), name);
         }
 
         // 3、取出需要的参数
@@ -350,8 +385,8 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
                         out.append('&');
                     }
                     isFirst = false;
-                    realKeys.add(key.toLowerCase());
-                    out.append(key.toLowerCase()).append('=');
+                    realKeys.add(key.toLowerCase(Locale.ROOT));
+                    out.append(key.toLowerCase(Locale.ROOT)).append('=');
                     if (!TextUtils.isEmpty(value)) {
                         out.append(QCloudHttpUtils.urlEncodeString(value));
                     }

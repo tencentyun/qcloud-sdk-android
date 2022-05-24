@@ -29,6 +29,10 @@ import com.tencent.qcloud.core.common.QCloudServiceException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import okio.Buffer;
+import okio.Okio;
+import okio.Source;
+
 /**
  * 响应体转换器
  * @param <T>
@@ -76,6 +80,7 @@ public abstract class ResponseBodyConverter<T> {
         }
     }
 
+
     /**
      * 获取文件转换器
      * @param filePath 文件路径
@@ -103,6 +108,7 @@ public abstract class ResponseBodyConverter<T> {
         return new StringConverter();
     }
 
+
     /**
      * 获取字节数组转换器
      * @return 字节数组转换器
@@ -119,3 +125,4 @@ public abstract class ResponseBodyConverter<T> {
         return new InputStreamConverter();
     }
 }
+

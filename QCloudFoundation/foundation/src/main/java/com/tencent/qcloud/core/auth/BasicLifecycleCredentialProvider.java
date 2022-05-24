@@ -33,7 +33,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * 用于定义如何获取具有生命周期的证书{@link QCloudLifecycleCredentials}，<br>
  * 您可以自定义临时密钥服务的 HTTP 响应体，给终端返回服务器时间作为签名的开始时间，用来避免由于用户手机本地时间偏差过大导致的签名不正确，或者使用其他的协议来进行终端和服务端之间的通信。
  * <p>
- * SDK 示例：<a herf="https://cloud.tencent.com/document/product/436/12159#.E5.88.9D.E5.A7.8B.E5.8C.96.E6.9C.8D.E5.8A.A1">方式二：自定义响应体授权</a>
+ * SDK 示例：
+ * @see <a href="https://cloud.tencent.com/document/product/436/12159#.E5.88.9D.E5.A7.8B.E5.8C.96.E6.9C.8D.E5.8A.A1">方式二：自定义响应体授权</a>
  */
 
 public abstract class BasicLifecycleCredentialProvider implements QCloudCredentialProvider {

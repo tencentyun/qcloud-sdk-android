@@ -27,11 +27,16 @@ struct QUIC_HANDLE_STRUCT *quic_handle_struct = NULL;
 bool debug = false;
 bool is_init = false;
 
+TnetConfig tnetConfig;
+
 map<int, COSQuic *> cos_quic_map;
 pthread_mutex_t g_mut;
 
 static JNINativeMethod g_methods[] = {
         {"init", "()V", (void *)init},
+        {"setTnetConfigRaceType", "(I)V", (void *)set_tnet_config_race_type},
+        {"setTnetConfigIsCustomProtocol", "(Z)V", (void *)set_tnet_config_is_custom_protocol},
+        {"setTnetConfigTotalTimeoutSec", "(I)V", (void *)set_tnet_config_total_timeout_sec},
         {"setDebugLog", "(Z)V", (void *)set_debug_log},
         {"connect", "(ILjava/lang/String;Ljava/lang/String;II)V", (void *)connect},
         {"addHeader", "(ILjava/lang/String;Ljava/lang/String;)V", (void *)add_header},
@@ -102,6 +107,9 @@ void init(JNIEnv *env, jobject thiz){
     if(!local_complete) return;
     quic_handle_struct->close = local_close;
 
+    tnetConfig.upload_optimize_ = true;
+    tnetConfig.congestion_type_ = kBBR;
+
     is_init = true;
 }
 
@@ -110,12 +118,31 @@ void set_debug_log(JNIEnv *env, jobject thiz, jboolean is_debug){
 }
 
 
+void set_tnet_config_race_type(JNIEnv *env, jobject thiz, jint race_type) {
+
+    if (race_type == 0) {
+        tnetConfig.race_type = kOnlyQUIC;
+    } else if (race_type == 1) {
+        tnetConfig.race_type = kQUICHTTP;
+    } else if (race_type == 2) {
+        tnetConfig.race_type = kOnlyHTTP;
+    }
+}
+
+void set_tnet_config_is_custom_protocol(JNIEnv *env, jobject thiz, jboolean is_custom_protocol) {
+    tnetConfig.is_custom_ = is_custom_protocol;
+}
+
+void set_tnet_config_total_timeout_sec(JNIEnv *env, jobject thiz, jint total_timeout_sec) {
+    tnetConfig.total_timeout_sec_ = total_timeout_sec;
+}
+
 void connect(JNIEnv *env, jobject thiz, jint handle_id, jstring host, jstring ip, jint port, jint tcp_port){
     //根据 handle_Id 找到对应的 COSQUIC
     int key_id = handle_id;
     pthread_mutex_lock(&g_mut);
     if(cos_quic_map.count(key_id) == 0){
-        COSQuic *cos_quic = new COSQuic(env, thiz, handle_id);
+        COSQuic *cos_quic = new COSQuic(env, thiz, handle_id, tnetConfig);
         cos_quic_map.insert(pair<int, COSQuic *>(key_id, cos_quic));
     }
     COSQuic *tmp = cos_quic_map[key_id];
@@ -127,7 +154,7 @@ void add_header(JNIEnv *env, jobject thiz, jint handle_id, jstring key, jstring 
     int key_id = handle_id;
     pthread_mutex_lock(&g_mut);
     if(cos_quic_map.count(key_id) == 0){
-        COSQuic *cos_quic = new COSQuic(env, thiz, handle_id);
+        COSQuic *cos_quic = new COSQuic(env, thiz, handle_id, tnetConfig);
         cos_quic_map.insert(pair<int, COSQuic *>(key_id, cos_quic));
     }
     COSQuic *tmp = cos_quic_map[key_id];
@@ -139,7 +166,7 @@ void send_request(JNIEnv *env, jobject thiz, jint handle_id, jbyteArray data, ji
     int key_id = handle_id;
     pthread_mutex_lock(&g_mut);
     if(cos_quic_map.count(key_id) == 0){
-        COSQuic *cos_quic = new COSQuic(env, thiz, handle_id);
+        COSQuic *cos_quic = new COSQuic(env, thiz, handle_id, tnetConfig);
         cos_quic_map.insert(pair<int, COSQuic *>(key_id, cos_quic));
     }
     COSQuic *tmp = cos_quic_map[key_id];
@@ -162,7 +189,7 @@ jstring get_state(JNIEnv *env, jobject thiz, jint handle_id){
     int key_id = handle_id;
     pthread_mutex_lock(&g_mut);
     if(cos_quic_map.count(key_id) == 0){
-        COSQuic *cos_quic = new COSQuic(env, thiz, handle_id);
+        COSQuic *cos_quic = new COSQuic(env, thiz, handle_id, tnetConfig);
         cos_quic_map.insert(pair<int, COSQuic *>(key_id, cos_quic));
     }
     COSQuic *tmp = cos_quic_map[key_id];

@@ -40,6 +40,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -54,7 +55,7 @@ public final class QCloudHttpClient {
 
    // private NetworkClient networkClient;
     private String networkClientType = OkHttpClientImpl.class.getName();
-    private static Map<Integer, NetworkClient> networkClientMap = new HashMap<>(2);
+    private static Map<Integer, NetworkClient> networkClientMap = new ConcurrentHashMap<>(2);
     private final TaskManager taskManager;
     private final HttpLogger httpLogger;
 
@@ -168,7 +169,7 @@ public final class QCloudHttpClient {
 
     private QCloudHttpClient(Builder b) {
         this.verifiedHost = new HashSet<>(5);
-        this.dnsMap = new HashMap<>(3);
+        this.dnsMap = new ConcurrentHashMap<>(3);
         this.taskManager = TaskManager.getInstance();
         this.connectionRepository = ConnectionRepository.getInstance();
         httpLogger = new HttpLogger(false);

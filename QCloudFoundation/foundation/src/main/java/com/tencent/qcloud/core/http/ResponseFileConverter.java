@@ -54,6 +54,8 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
 
     private CountingSink countingSink;
 
+    private InputStream inputStream;
+
     public ResponseFileConverter(String filePath, long offset) {
         this.filePath = filePath;
         this.offset = offset;
@@ -63,6 +65,9 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
         this.contentUri = contentUri;
         this.contentResolver = contentResolver;
         this.offset = offset;
+    }
+
+    public ResponseFileConverter() {
     }
 
     @Override
@@ -125,6 +130,7 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
         }
     }
 
+
     private T downloadToAbsolutePath(HttpResponse<T> response, long contentLength)
             throws QCloudClientException, QCloudServiceException {
         File downloadFilePath = new File(filePath);
@@ -185,7 +191,7 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
             } catch (FileNotFoundException e) {
                 throw new QCloudClientException(e);
             }
-        } else {
+        }  else {
             throw new QCloudClientException(new IllegalArgumentException("filePath or ContentUri are both null"));
         }
     }

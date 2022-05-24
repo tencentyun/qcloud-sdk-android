@@ -25,6 +25,7 @@ package com.tencent.qcloud.core.http;
 
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
 import com.tencent.qcloud.core.auth.QCloudCredentials;
+import com.tencent.qcloud.core.auth.QCloudSelfSigner;
 import com.tencent.qcloud.core.auth.QCloudSigner;
 import com.tencent.qcloud.core.auth.ScopeLimitCredentialProvider;
 import com.tencent.qcloud.core.common.QCloudAuthenticationException;
@@ -204,6 +205,13 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
             signRequest(signer, (QCloudHttpRequest) httpRequest);
             metrics.onSignRequestEnd();
         }
+        QCloudSelfSigner selfSigner = httpRequest.getQCloudSelfSigner();
+        if (selfSigner != null) {
+            metrics.onSignRequestStart();
+            selfSigner.sign((QCloudHttpRequest) httpRequest);
+            metrics.onSignRequestEnd();
+        }
+        
         if (httpRequest.getRequestBody() instanceof ProgressBody) {
             ((ProgressBody) httpRequest.getRequestBody()).setProgressListener(mProgressListener);
         }
@@ -265,6 +273,8 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
         }
         signer.sign(request, credentials);
     }
+    
+    
 
     private void calculateContentMD5() throws QCloudClientException {
         RequestBody requestBody = httpRequest.getRequestBody();
