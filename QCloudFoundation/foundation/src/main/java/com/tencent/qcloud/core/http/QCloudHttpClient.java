@@ -34,7 +34,6 @@ import com.tencent.qcloud.core.task.TaskManager;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,7 +45,9 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
-import okhttp3.*;
+import okhttp3.Call;
+import okhttp3.Dns;
+import okhttp3.OkHttpClient;
 
 public final class QCloudHttpClient {
 
@@ -164,7 +165,7 @@ public final class QCloudHttpClient {
     }
 
     public void setDebuggable(boolean debuggable) {
-        httpLogger.setDebug(debuggable || QCloudLogger.isLoggableOnLogcat(QCloudLogger.DEBUG, HTTP_LOG_TAG));
+        httpLogger.setDebug(debuggable);
     }
 
     private QCloudHttpClient(Builder b) {
