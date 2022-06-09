@@ -18,8 +18,8 @@ android {
     buildTypes {
         debug {
             testCoverageEnabled = true
-//            it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
-//            it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
+            it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
+            it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
 
             it.buildConfigField 'String', 'OWNER_UIN', quotWrapper(System.getenv("OWNER_UIN"))
             it.buildConfigField 'String', 'COS_APPID', quotWrapper(System.getenv("COS_APPID"))
@@ -42,8 +42,8 @@ android {
         }
 
         release {
-//            it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
-//            it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
+            it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
+            it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
 
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

@@ -64,6 +64,7 @@ import com.tencent.qcloud.core.http.OkHttpClientImpl;
 import com.tencent.qcloud.core.http.QCloudHttpClient;
 import com.tencent.qcloud.core.http.QCloudHttpRequest;
 import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
+import com.tencent.qcloud.core.logger.AndroidLogcatAdapter;
 import com.tencent.qcloud.core.logger.FileLogAdapter;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.QCloudTask;
@@ -130,6 +131,11 @@ public class CosXmlBaseService implements BaseCosXml {
             LogServerProxy.init(context, fileLogAdapter);
             QCloudLogger.addAdapter(fileLogAdapter);
         }
+        if(configuration.isDebuggable()){
+            AndroidLogcatAdapter logcatAdapter = new AndroidLogcatAdapter();
+            QCloudLogger.addAdapter(logcatAdapter);
+        }
+
         BeaconService.init(context.getApplicationContext(), configuration);
         appCachePath = context.getApplicationContext().getFilesDir().getPath();
 

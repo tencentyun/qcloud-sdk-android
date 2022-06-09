@@ -22,10 +22,11 @@
 
 package com.tencent.cos.xml.transfer;
 
+import static com.tencent.cos.xml.common.ClientErrorCode.ETAG_NOT_FOUND;
+
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.SparseArray;
-import android.util.SparseLongArray;
 
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.crypto.COSDirect;
@@ -51,8 +52,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import bolts.Task;
 import bolts.TaskCompletionSource;
-
-import static com.tencent.cos.xml.common.ClientErrorCode.ETAG_NOT_FOUND;
 
 
 abstract class BaseUploadPartsTask {
@@ -240,7 +239,7 @@ class SerialUploadPartsTask extends BaseUploadPartsTask {
  */
 class ParallelUploadPartsTask extends BaseUploadPartsTask {
 
-    private Set<UploadPartRequest> runningRequestSet = Collections.synchronizedSet(new HashSet<UploadPartRequest>());
+    private final Set<UploadPartRequest> runningRequestSet = Collections.synchronizedSet(new HashSet<UploadPartRequest>());
     private TaskCompletionSource<Set<COSUploadTask.UploadPart>> tcs = new TaskCompletionSource<>();
     private SparseArray<Long> uploadPartProgress = new SparseArray<>();
     private AtomicLong mTotalProgress = new AtomicLong(0);
@@ -269,13 +268,16 @@ class ParallelUploadPartsTask extends BaseUploadPartsTask {
                     updateProgress(uploadPartRequest, complete);
                 }
             });
-            runningRequestSet.add(uploadPartRequest);
+            synchronized(runningRequestSet) {
+                runningRequestSet.add(uploadPartRequest);
+            }
 
             mCosDirect.uploadPartAsync(uploadPartRequest, new CosXmlResultListener() {
                 @Override
                 public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-
-                    runningRequestSet.remove(uploadPartRequest);
+                    synchronized(runningRequestSet) {
+                        runningRequestSet.remove(uploadPartRequest);
+                    }
                     UploadPartResult uploadPartResult = (UploadPartResult) result;
                     String eTag = uploadPartResult.eTag;
                     COSTransferTask.loggerInfo(TAG, taskId, "upload part %d, etag=%s", partNumber, eTag);
@@ -343,8 +345,10 @@ class ParallelUploadPartsTask extends BaseUploadPartsTask {
     }
     
     private void cancelAllUploadingRequests() {
-        for (UploadPartRequest request : runningRequestSet) {
-            mCosDirect.cancel(request);
+        synchronized(runningRequestSet) {
+            for (UploadPartRequest request : runningRequestSet) {
+                mCosDirect.cancel(request);
+            }
         }
     }
 }
