@@ -22,19 +22,15 @@
 
 package com.tencent.qcloud.core.logger;
 
-import androidx.annotation.Nullable;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class QCloudLogger {
-
     private static final List<LogAdapter> logAdapters = new ArrayList<>();
-    private static final AndroidLogcatAdapter logcatAdapter = new AndroidLogcatAdapter();
-    static {
-        logAdapters.add(logcatAdapter);
-    }
 
     /**
      * Priority constant for the println method; use LogUtils.v.
@@ -212,19 +208,6 @@ public final class QCloudLogger {
      */
     public static void e(String tag, Throwable tr, String format, Object... args) {
         print(ERROR, tag, tr, format, args);
-    }
-
-    /**
-     * Used to determine whether log should be printed out or not on logcat.
-     *
-     * @param priority is the log level e.g. DEBUG, WARNING
-     * @param tag is the given tag for the log message
-     *
-     * @return is used to determine if log should printed.
-     *         If it is true, it will be printed, otherwise it'll be ignored.
-     */
-    public static boolean isLoggableOnLogcat(int priority, String tag) {
-        return logcatAdapter.isLoggable(priority, tag);
     }
 
     private static void print(int priority, String tag, @Nullable Throwable tr, String format, Object... args) {
