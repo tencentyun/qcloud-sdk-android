@@ -1,3 +1,7 @@
+## v5.8.9
+1. 解决新高级上传cancel ConcurrentModificationException。
+2. 启动日志开关。
+
 ## v5.8.7
 1. 万象审核相关功能。
 2. 分离出cos-android-base。
