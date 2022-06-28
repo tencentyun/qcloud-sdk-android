@@ -407,6 +407,9 @@ public class CosXmlBaseService implements BaseCosXml {
             HttpResult<T2> httpResult = httpTask.executeNow();
 
             BeaconService.getInstance().reportRequestSuccess(cosXmlRequest);
+
+            logRequestMetrics(cosXmlRequest);
+
             return httpResult != null ? httpResult.content() : null;
         } catch (QCloudServiceException e) {
             throw BeaconService.getInstance().reportRequestServiceException(cosXmlRequest, e);
@@ -424,11 +427,13 @@ public class CosXmlBaseService implements BaseCosXml {
             @Override
             public void onSuccess(HttpResult<T2> result) {
                 BeaconService.getInstance().reportRequestSuccess(cosXmlRequest);
+                logRequestMetrics(cosXmlRequest);
                 cosXmlResultListener.onSuccess(cosXmlRequest, result.content());
             }
 
             @Override
             public void onFailure(QCloudClientException clientException, QCloudServiceException serviceException) {
+                logRequestMetrics(cosXmlRequest);
                 if (clientException != null) {
                     CosXmlClientException xmlClientException = BeaconService.getInstance().reportRequestClientException(cosXmlRequest, clientException);
                     cosXmlResultListener.onFail(cosXmlRequest, xmlClientException,null);
@@ -727,5 +732,16 @@ public class CosXmlBaseService implements BaseCosXml {
             }
         }
         return null;
+    }
+
+    private void logRequestMetrics(CosXmlRequest cosXmlRequest){
+        if(config.isDebuggable()) {
+            if (cosXmlRequest.getMetrics() != null) {
+                QCloudLogger.i(
+                        QCloudHttpClient.HTTP_LOG_TAG,
+                        cosXmlRequest.getMetrics().toString()
+                );
+            }
+        }
     }
 }

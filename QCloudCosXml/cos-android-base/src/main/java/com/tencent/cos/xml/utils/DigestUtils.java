@@ -29,13 +29,13 @@ import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
@@ -172,6 +172,57 @@ public class DigestUtils {
             throw e;
         } catch (NoSuchAlgorithmException e) {
             throw new IOException("unSupport Md5 algorithm", e);
+        }
+    }
+
+    public static COSMd5AndReadData getCOSMd5AndReadData(
+            InputStream inputStream,
+            int size
+    ) throws IOException {
+        try{
+            byte[] readData = new byte[size];
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+            int readLen;
+            if ((readLen = inputStream.read(readData, 0, size))!= -1){
+                if (readLen < size) {
+                    return  new COSMd5AndReadData(
+                            "",
+                            subByte(readData, 0, readLen)
+                    );
+                }
+                messageDigest.update(readData, 0, readLen);
+            }
+            return new COSMd5AndReadData(
+                    "\"" + StringUtils.toHexString(messageDigest.digest()) + "\"",
+                    subByte(readData, 0, readLen)
+            );
+        } catch (IOException e) {
+            throw e;
+        } catch (NoSuchAlgorithmException e) {
+            throw new IOException("unSupport Md5 algorithm", e);
+        }
+    }
+
+    /**
+     * 截取byte数组   不改变原数组
+     * @param b 原数组
+     * @param off 偏差值（索引）
+     * @param length 长度
+     * @return 截取后的数组
+     */
+    private static byte[] subByte(byte[] b,int off,int length){
+        byte[] b1 = new byte[length];
+        System.arraycopy(b, off, b1, 0, length);
+        return b1;
+    }
+
+    public static class COSMd5AndReadData {
+        public String md5;
+        public byte[] readData;
+
+        public COSMd5AndReadData(String md5, byte[] readData) {
+            this.md5 = md5;
+            this.readData = readData;
         }
     }
 
