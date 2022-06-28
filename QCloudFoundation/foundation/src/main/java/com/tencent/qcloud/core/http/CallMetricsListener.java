@@ -22,6 +22,8 @@
 
 package com.tencent.qcloud.core.http;
 
+import androidx.annotation.NonNull;
+
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import java.io.IOException;
@@ -39,24 +41,31 @@ import okhttp3.Response;
 
 public class CallMetricsListener extends EventListener {
 
+    private long dnsStartTimestamp;
     private long dnsStartTime;
     private long dnsLookupTookTime;
 
+    private long connectStartTimestamp;
     private long connectStartTime;
     private long connectTookTime;
 
+    private long secureConnectStartTimestamp;
     private long secureConnectStartTime;
     private long secureConnectTookTime;
 
+    private long writeRequestHeaderStartTimestamp;
     private long writeRequestHeaderStartTime;
     private long writeRequestHeaderTookTime;
 
+    private long writeRequestBodyStartTimestamp;
     private long writeRequestBodyStartTime;
     private long writeRequestBodyTookTime;
 
+    private long readResponseHeaderStartTimestamp;
     private long readResponseHeaderStartTime;
     private long readResponseHeaderTookTime;
 
+    private long readResponseBodyStartTimestamp;
     private long readResponseBodyStartTime;
     private long readResponseBodyTookTime;
 
@@ -76,6 +85,7 @@ public class CallMetricsListener extends EventListener {
     public void dnsStart(Call call, String domainName) {
         super.dnsStart(call, domainName);
         dnsStartTime = System.nanoTime();
+        dnsStartTimestamp = System.currentTimeMillis();
     }
 
     @Override
@@ -97,6 +107,7 @@ public class CallMetricsListener extends EventListener {
     public void connectStart(Call call, InetSocketAddress inetSocketAddress, Proxy proxy) {
         super.connectStart(call, inetSocketAddress, proxy);
         connectStartTime = System.nanoTime();
+        connectStartTimestamp = System.currentTimeMillis();
     }
 
     @Override
@@ -115,6 +126,7 @@ public class CallMetricsListener extends EventListener {
     public void secureConnectStart(Call call) {
         super.secureConnectStart(call);
         secureConnectStartTime = System.nanoTime();
+        secureConnectStartTimestamp = System.currentTimeMillis();
     }
 
     @Override
@@ -127,6 +139,7 @@ public class CallMetricsListener extends EventListener {
     public void requestHeadersStart(Call call) {
         super.requestHeadersStart(call);
         writeRequestHeaderStartTime = System.nanoTime();
+        writeRequestHeaderStartTimestamp = System.currentTimeMillis();
     }
 
     @Override
@@ -139,6 +152,7 @@ public class CallMetricsListener extends EventListener {
     public void requestBodyStart(Call call) {
         super.requestBodyStart(call);
         writeRequestBodyStartTime = System.nanoTime();
+        writeRequestBodyStartTimestamp = System.currentTimeMillis();
     }
 
     @Override
@@ -152,6 +166,7 @@ public class CallMetricsListener extends EventListener {
     public void responseHeadersStart(Call call) {
         super.responseHeadersStart(call);
         readResponseHeaderStartTime = System.nanoTime();
+        readResponseHeaderStartTimestamp = System.currentTimeMillis();
     }
 
     @Override
@@ -164,6 +179,7 @@ public class CallMetricsListener extends EventListener {
     public void responseBodyStart(Call call) {
         super.responseBodyStart(call);
         readResponseBodyStartTime = System.nanoTime();
+        readResponseBodyStartTimestamp = System.currentTimeMillis();
     }
 
     @Override
@@ -175,12 +191,19 @@ public class CallMetricsListener extends EventListener {
 
     public void dumpMetrics(HttpTaskMetrics metrics) {
         metrics.remoteAddress = inetAddressList;
+        metrics.dnsStartTimestamp += dnsStartTimestamp;
         metrics.dnsLookupTookTime += dnsLookupTookTime;
+        metrics.connectStartTimestamp += connectStartTimestamp;
         metrics.connectTookTime += connectTookTime;
+        metrics.secureConnectStartTimestamp += secureConnectStartTimestamp;
         metrics.secureConnectTookTime += secureConnectTookTime;
+        metrics.writeRequestHeaderStartTimestamp += writeRequestHeaderStartTimestamp;
         metrics.writeRequestHeaderTookTime += writeRequestHeaderTookTime;
+        metrics.writeRequestBodyStartTimestamp += writeRequestBodyStartTimestamp;
         metrics.writeRequestBodyTookTime += writeRequestBodyTookTime;
+        metrics.readResponseHeaderStartTimestamp += readResponseHeaderStartTimestamp;
         metrics.readResponseHeaderTookTime += readResponseHeaderTookTime;
+        metrics.readResponseBodyStartTimestamp += readResponseBodyStartTimestamp;
         metrics.readResponseBodyTookTime += readResponseBodyTookTime;
         metrics.requestBodyByteCount = requestBodyByteCount;
         metrics.responseBodyByteCount = responseBodyByteCount;
@@ -188,5 +211,29 @@ public class CallMetricsListener extends EventListener {
 
     public List<InetAddress> dumpDns() {
         return inetAddressList;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "CallMetricsListener{" +
+                "dnsStartTimestamp=" + dnsStartTimestamp +
+                ", dnsLookupTookTime=" + dnsLookupTookTime +
+                ", connectTimestamp=" + connectStartTimestamp +
+                ", connectTookTime=" + connectTookTime +
+                ", secureConnectTimestamp=" + secureConnectStartTimestamp +
+                ", secureConnectTookTime=" + secureConnectTookTime +
+                ", writeRequestHeaderTimestamp=" + writeRequestHeaderStartTimestamp +
+                ", writeRequestHeaderTookTime=" + writeRequestHeaderTookTime +
+                ", writeRequestBodyTimestamp=" + writeRequestBodyStartTimestamp +
+                ", writeRequestBodyTookTime=" + writeRequestBodyTookTime +
+                ", readResponseHeaderTimestamp=" + readResponseHeaderStartTimestamp +
+                ", readResponseHeaderTookTime=" + readResponseHeaderTookTime +
+                ", readResponseBodyTimestamp=" + readResponseBodyStartTimestamp +
+                ", readResponseBodyTookTime=" + readResponseBodyTookTime +
+                ", inetAddressList=" + inetAddressList +
+                ", requestBodyByteCount=" + requestBodyByteCount +
+                ", responseBodyByteCount=" + responseBodyByteCount +
+                '}';
     }
 }
