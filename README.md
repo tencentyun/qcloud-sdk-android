@@ -51,7 +51,7 @@ allprojects {
 ```
 dependencies {
     //增加这行
-    compile 'com.qcloud.cos:cos-android:5.8.+'
+    compile 'com.qcloud.cos:cos-android:5.9.+'
 }
 ```
 
@@ -62,7 +62,7 @@ dependencies {
 ##### COS XML SDK
 
 ```
-compile 'com.qcloud.cos:cos-android:5.8.+'
+compile 'com.qcloud.cos:cos-android:5.9.+'
 ```
 
 ### 手动集成
