@@ -23,15 +23,10 @@
 package com.tencent.qcloud.core.http;
 
 import android.text.TextUtils;
-import android.view.textservice.TextInfo;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.qcloud.core.logger.QCloudLogger;
-
-
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.util.List;
 
 public class HttpTaskMetrics {
@@ -48,18 +43,25 @@ public class HttpTaskMetrics {
     private long signRequestStartTime;
     private long signRequestTookTime;
 
+    long dnsStartTimestamp;
     long dnsLookupTookTime;
 
+    long connectStartTimestamp;
     long connectTookTime;
 
+    long secureConnectStartTimestamp;
     long secureConnectTookTime;
 
+    long writeRequestHeaderStartTimestamp;
     long writeRequestHeaderTookTime;
 
+    long writeRequestBodyStartTimestamp;
     long writeRequestBodyTookTime;
 
+    long readResponseHeaderStartTimestamp;
     long readResponseHeaderTookTime;
 
+    long readResponseBodyStartTimestamp;
     long readResponseBodyTookTime;
 
     long requestBodyByteCount;
@@ -299,12 +301,19 @@ public class HttpTaskMetrics {
                 .append("fullTaskTookTime : ").append(fullTaskTookTime()).append("\n")
                 .append("calculateMD5STookTime : ").append(calculateMD5STookTime()).append("\n")
                 .append("signRequestTookTime : ").append(signRequestTookTime()).append("\n")
+                .append("dnsStartTimestamp : ").append(dnsStartTimestamp).append("\n")
                 .append("dnsLookupTookTime : ").append(dnsLookupTookTime()).append("\n")
+                .append("connectStartTimestamp : ").append(connectStartTimestamp).append("\n")
                 .append("connectTookTime : ").append(connectTookTime()).append("\n")
+                .append("secureConnectStartTimestamp : ").append(secureConnectStartTimestamp).append("\n")
                 .append("secureConnectTookTime : ").append(secureConnectTookTime()).append("\n")
+                .append("writeRequestHeaderStartTimestamp : ").append(writeRequestHeaderStartTimestamp).append("\n")
                 .append("writeRequestHeaderTookTime : ").append(writeRequestHeaderTookTime()).append("\n")
+                .append("writeRequestBodyStartTimestamp : ").append(writeRequestBodyStartTimestamp).append("\n")
                 .append("writeRequestBodyTookTime : ").append(writeRequestBodyTookTime()).append("\n")
+                .append("readResponseHeaderStartTimestamp : ").append(readResponseHeaderStartTimestamp).append("\n")
                 .append("readResponseHeaderTookTime : ").append(readResponseHeaderTookTime()).append("\n")
+                .append("readResponseBodyStartTimestamp : ").append(readResponseBodyStartTimestamp)
                 .append("readResponseBodyTookTime : ").append(readResponseBodyTookTime())
                 .toString();
     }
