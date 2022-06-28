@@ -6,8 +6,8 @@ import android.text.TextUtils;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.crypto.MultipartUploadCryptoContext;
 import com.tencent.cos.xml.crypto.COSDirect;
+import com.tencent.cos.xml.crypto.MultipartUploadCryptoContext;
 import com.tencent.cos.xml.crypto.ObjectMetadata;
 import com.tencent.cos.xml.crypto.ResettableInputStream;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -49,6 +49,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -724,7 +725,7 @@ public class COSUploadTask extends COSTransferTask {
         private CosXmlResult completeMultipartUpload(String uploadId)
                 throws CosXmlClientException, CosXmlServiceException {
 
-            Map<Integer,String> partNumberAndETag = new HashMap<>();
+            LinkedHashMap<Integer,String> partNumberAndETag = new LinkedHashMap<>();
             for (UploadPart uploadPart : uploadParts) {
                 partNumberAndETag.put(uploadPart.number, uploadPart.etag);
             }
