@@ -1,3 +1,6 @@
+## v5.9.0
+1. 修复新高级上传完成接口分片排序问题。
+
 ## v5.8.9
 1. 解决新高级上传cancel ConcurrentModificationException。
 2. 启动日志开关。
