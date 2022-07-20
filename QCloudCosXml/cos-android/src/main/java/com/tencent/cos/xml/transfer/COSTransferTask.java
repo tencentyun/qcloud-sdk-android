@@ -23,6 +23,7 @@
 package com.tencent.cos.xml.transfer;
 
 import static com.tencent.cos.xml.common.ClientErrorCode.INTERNAL_ERROR;
+import static com.tencent.cos.xml.transfer.COSDownloadTask.TASK_UNKNOWN_STATUS;
 
 import android.text.TextUtils;
 
@@ -215,7 +216,10 @@ public abstract class COSTransferTask {
             } catch (CosXmlClientException clientException) {
                 // 手动取消和暂停报错不在这里回调，否则可能会长时间阻塞
                 if (!isManualPaused() && !isManualCanceled()) {
-                    onTransferFailed(cosXmlRequest, clientException, null);
+                    //TASK_UNKNOWN_STATUS状态下不进行处理 task会继续进行
+                    if(!TASK_UNKNOWN_STATUS.equals(clientException.getMessage())){
+                        onTransferFailed(cosXmlRequest, clientException, null);
+                    }
                 }
             } catch (CosXmlServiceException serviceException) {
                 if (!isManualPaused() && !isManualCanceled()) {

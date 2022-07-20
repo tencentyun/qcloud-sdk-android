@@ -468,8 +468,8 @@ public class XmlBuilder extends XmlSlimBuilder {
 
         xmlSerializer.startTag("", "Tagging");
         xmlSerializer.startTag("", "TagSet");
-        if (!tagging.tagSet.tags.isEmpty()) {
-            for (Tagging.Tag tag : tagging.tagSet.tags) {
+        if (!tagging.tagSet.tag.isEmpty()) {
+            for (Tagging.Tag tag : tagging.tagSet.tag) {
                 xmlSerializer.startTag("", "Tag");
                 addElement(xmlSerializer, "Key", tag.key);
                 addElement(xmlSerializer, "Value", tag.value);
