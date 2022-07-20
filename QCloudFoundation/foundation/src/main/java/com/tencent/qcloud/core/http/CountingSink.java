@@ -22,10 +22,7 @@
 
 package com.tencent.qcloud.core.http;
 
-import android.util.Log;
-
 import com.tencent.qcloud.core.common.QCloudProgressListener;
-import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import java.io.IOException;
 
@@ -35,6 +32,8 @@ import okio.Sink;
 
 class CountingSink extends ForwardingSink {
 
+    //上一次已传输的长度（例如：文件路径下载重试时）
+    private long lastTimeBytesWritten = 0;
     private long bytesWritten = 0;
     private long bytesTotal = 0;
     private long recentReportBytes = 0;
@@ -47,6 +46,13 @@ class CountingSink extends ForwardingSink {
         this.progressListener = progressListener;
     }
 
+    public CountingSink(Sink delegate, long bytesTotal, long lastTimeBytesWritten, QCloudProgressListener progressListener) {
+        super(delegate);
+        this.bytesTotal = bytesTotal;
+        this.lastTimeBytesWritten = lastTimeBytesWritten;
+        this.progressListener = progressListener;
+    }
+
     private void reportProgress() {
         if (progressListener == null) {
             return;
@@ -56,7 +62,7 @@ class CountingSink extends ForwardingSink {
 
         if (enoughDelta) {
             recentReportBytes = bytesWritten;
-            progressListener.onProgress(bytesWritten, bytesTotal);
+            progressListener.onProgress(lastTimeBytesWritten + bytesWritten, lastTimeBytesWritten + bytesTotal);
         }
     }
 
@@ -66,7 +72,7 @@ class CountingSink extends ForwardingSink {
     }
 
     long getTotalTransferred() {
-        return bytesWritten;
+        return bytesWritten + lastTimeBytesWritten;
     }
 
     @Override

@@ -22,6 +22,8 @@
 
 package com.tencent.qcloud.core.task;
 
+import static com.tencent.qcloud.core.task.TaskManager.TASK_LOG_TAG;
+
 import androidx.annotation.NonNull;
 
 import com.tencent.qcloud.core.common.QCloudClientException;
@@ -45,8 +47,6 @@ import bolts.CancellationTokenSource;
 import bolts.Continuation;
 import bolts.ExecutorException;
 import bolts.Task;
-
-import static com.tencent.qcloud.core.task.TaskManager.TASK_LOG_TAG;
 
 public abstract class QCloudTask<T> implements Callable<T> {
 
@@ -387,7 +387,11 @@ public abstract class QCloudTask<T> implements Callable<T> {
                 } else if (exception instanceof QCloudServiceException){
                     resultListener.onFailure(null, (QCloudServiceException) exception);
                 } else {
-                    resultListener.onFailure(new QCloudClientException(exception.getCause()), null);
+                    resultListener.onFailure(
+                            new QCloudClientException(
+                                    exception.getCause() == null ? exception : exception.getCause()
+                            ),
+                            null);
                 }
             }
         }
