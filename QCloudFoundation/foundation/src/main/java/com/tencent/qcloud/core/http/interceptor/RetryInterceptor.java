@@ -23,6 +23,7 @@
 package com.tencent.qcloud.core.http.interceptor;
 
 
+import static com.tencent.qcloud.core.http.HttpConstants.Header.RANGE;
 import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
 
 import com.tencent.qcloud.core.common.QCloudClientException;
@@ -56,6 +57,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
+import okhttp3.Headers;
 import okhttp3.Interceptor;
 import okhttp3.Protocol;
 import okhttp3.Request;
@@ -226,6 +228,13 @@ public class RetryInterceptor implements Interceptor {
             if (task.isCanceled()) {
                 throw new IOException("CANCELED");
             } else {
+                //如果是文件路径下载请求 重试时需要更新请求Range 防止重试后之前的下载进度丢失
+                if(task.isResponseFilePathConverter()){
+                    long transferBodySize = task.getTransferBodySize();
+                    if(transferBodySize > 0){
+                        request = buildNewRangeRequest(request, transferBodySize);
+                    }
+                }
                 return processSingleRequest(chain, request);
             }
         } catch (ProtocolException exception) {
@@ -385,5 +394,46 @@ public class RetryInterceptor implements Interceptor {
         // proxy and would manifest as a standard IOException. Unless it is one we know we should not
         // retry, we return true and try a new route.
         return true;
+    }
+
+    /**
+     * 生成新的Range请求
+     * 如果是下载请求 重试时需要更新请求Range 防止重试后之前的下载进度丢失
+     * @param request 原来的请求
+     * @param transferBodySize 已传输的内容长度
+     * @return 新的Range请求
+     */
+    private Request buildNewRangeRequest(Request request, long transferBodySize){
+        long start = -1;
+        long end = -1;
+        String range = request.header(RANGE);
+        if(range != null){
+            range = range.replace("bytes=","");
+            String[] start_end = range.split("-");
+            if(start_end.length > 0){
+                try {
+                    start = Long.parseLong(start_end[0]);
+                } catch (NumberFormatException e){
+                    e.printStackTrace();
+                }
+            }
+            if(start_end.length > 1){
+                try {
+                    end = Long.parseLong(start_end[1]);
+                } catch (NumberFormatException e){
+                    e.printStackTrace();
+                }
+            }
+        }
+        if(start != -1){
+            start += transferBodySize;
+        } else {
+            start = transferBodySize;
+        }
+        Request.Builder requestBuilder = request.newBuilder();
+        Headers.Builder headerBuilder = request.headers().newBuilder();
+        headerBuilder.set(RANGE, String.format("bytes=%s-%s", start, (end == -1 ?"": String.valueOf(end))));
+        requestBuilder.headers(headerBuilder.build());
+        return requestBuilder.build();
     }
 }

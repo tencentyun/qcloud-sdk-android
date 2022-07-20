@@ -32,9 +32,14 @@ import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.util.QCloudHttpUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
 
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.internal.Util;
 import okio.Buffer;
@@ -160,9 +165,12 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
         RandomAccessFile randomAccessFile = null;
         try {
             randomAccessFile = new RandomAccessFile(downloadFilePath, "rws");
-            if(offset > 0) randomAccessFile.seek(offset);
+            //获取上一次已传输的数据长度
+            long lastTimeBytes = getBytesTransferred();
+            //seek值需要加上lastTimeBytes，因为重试后上一次的lastTimeBytes数据已经下载到文件中
+            if(offset + lastTimeBytes > 0) randomAccessFile.seek(offset + lastTimeBytes);
             byte[] buffer = new byte[8192];
-            countingSink = new CountingSink(new Buffer(), contentLength, progressListener);
+            countingSink = new CountingSink(new Buffer(), contentLength, lastTimeBytes, progressListener);
             int len;
             while ((len = inputStream.read(buffer)) != -1) {
                 randomAccessFile.write(buffer, 0, len);
@@ -199,5 +207,13 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
     @Override
     public long getBytesTransferred() {
         return countingSink != null ? countingSink.getTotalTransferred() : 0;
+    }
+
+    /**
+     * 是否是文件路径转换器
+     * @return 是否是文件路径转换器
+     */
+    public boolean isFilePathConverter(){
+        return !TextUtils.isEmpty(filePath);
     }
 }
