@@ -37,7 +37,6 @@ import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.task.TaskExecutors;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -127,6 +126,11 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
 
     public boolean isDownloadTask() {
         return httpRequest.getResponseBodyConverter() instanceof ProgressBody;
+    }
+
+    public boolean isResponseFilePathConverter() {
+        return httpRequest.getResponseBodyConverter() instanceof ResponseFileConverter
+                && ((ResponseFileConverter)httpRequest.getResponseBodyConverter()).isFilePathConverter();
     }
 
     public HttpRequest<T> request() {
