@@ -105,7 +105,7 @@ public class BeaconService {
         synchronized (BeaconService.class) {
             if (instance == null) {
                 instance = new BeaconService(applicationContext, serviceConfig);
-                TrackService.init(applicationContext, APP_KEY, IS_DEBUG);
+                TrackService.init(applicationContext, APP_KEY, IS_DEBUG, serviceConfig.isCloseBeacon());
             }
         }
     }
@@ -565,7 +565,7 @@ public class BeaconService {
     }
 
     private void report(String eventCode, Map<String, String> params) {
-        if(!isIncludeBeacon()) return;
+        if(config.isCloseBeacon() || !TrackService.isIncludeBeacon()) return;
         TrackService.getInstance().track(APP_KEY, eventCode, params);
     }
 
@@ -582,15 +582,6 @@ public class BeaconService {
         params.put("name", e.getClass().getSimpleName());
         params.put("message", e.getMessage());
         report(EVENT_CODE_ERROR, params);
-    }
-
-    private static boolean isIncludeBeacon(){
-        try {
-            Class.forName("com.tencent.beacon.event.open.BeaconReport");
-            return true;
-        } catch (ClassNotFoundException e){
-            return false;
-        }
     }
 
     private Map<String, String> getBaseServiceParams(CosXmlRequest cosXmlRequest, long tookTime, boolean isSuccess) {
@@ -678,7 +669,7 @@ public class BeaconService {
      * @return 公共参数
      */
     private Map<String, String> getCommonParams() {
-        if(!isIncludeBeacon()) return new HashMap<>();
+        if(config.isCloseBeacon() || !TrackService.isIncludeBeacon()) return new HashMap<>();
 
         Map<String, String> params = new HashMap<>();
         BeaconPubParams pubParams = BeaconReport.getInstance().getCommonParams(applicationContext);
