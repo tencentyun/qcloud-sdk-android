@@ -66,14 +66,14 @@ public class Tagging {
          * 标签集合, 最多支持50个标签
          */
         @XmlElement(ignoreListNote = true)
-        public List<Tag> tags;
+        public List<Tag> tag;
 
         public TagSet() {
-            tags = new LinkedList<>();
+            tag = new LinkedList<>();
         }
 
         public void addTag(Tag tag) {
-            tags.add(tag);
+            this.tag.add(tag);
         }
 
         @Override
@@ -84,11 +84,11 @@ public class Tagging {
 
             if (anObject instanceof TagSet) {
                 TagSet anotherTagSet = (TagSet) anObject;
-                int size = tags.size();
-                if (size == anotherTagSet.tags.size()) {
+                int size = tag.size();
+                if (size == anotherTagSet.tag.size()) {
                     int i = 0;
                     while (size-- != 0) {
-                        if (!tags.get(i).equals(anotherTagSet.tags.get(i)))
+                        if (!tag.get(i).equals(anotherTagSet.tag.get(i)))
                             return false;
                         i++;
                     }
