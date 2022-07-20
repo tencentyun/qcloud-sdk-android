@@ -6,8 +6,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.BeaconService;
-import com.tencent.cos.xml.CosXmlSimpleService;
+import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.Range;
 import com.tencent.cos.xml.crypto.COSDirect;
@@ -15,19 +14,14 @@ import com.tencent.cos.xml.crypto.Headers;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
-import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectResult;
 import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.cos.xml.model.object.HeadObjectResult;
-import com.tencent.cos.xml.model.object.PutObjectRequest;
-import com.tencent.cos.xml.model.object.PutObjectResult;
 import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.cos.xml.utils.FileUtils;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
-import com.tencent.qcloud.core.logger.QCloudLogger;
-import com.tencent.qcloud.core.task.TaskExecutors;
 import com.tencent.qcloud.core.util.ContextHolder;
 
 import org.json.JSONArray;
@@ -37,12 +31,10 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -65,6 +57,7 @@ import bolts.TaskCompletionSource;
 public class COSDownloadTask extends COSTransferTask {
 
     private static final String TAG = "QCloudDownload";
+    public static final String TASK_UNKNOWN_STATUS = "task unknown status";
 
     // 最多同时下载两个
     private static final int DOWNLOAD_CONCURRENT = 3;
@@ -74,12 +67,19 @@ public class COSDownloadTask extends COSTransferTask {
             new COSTransferTask.TaskThreadFactory(TAG + "-", 8));
 
     private volatile GetObjectRequest mGetObjectRequest;
+    private volatile long remoteStart = 0; // 包含
+    private volatile long remoteEnd = -1; // 包含
 
     private SimpleDownloadTask simpleDownloadTask;
 
     public COSDownloadTask(COSDirect cosDirect, GetObjectRequest getObjectRequest) {
         super(cosDirect, getObjectRequest);
         this.mGetObjectRequest = getObjectRequest;
+        Range range = getObjectRequest.getRange();
+        if (range != null) {
+            remoteStart = range.getStart();
+            remoteEnd = range.getEnd();
+        }
     }
 
     @Override
@@ -104,7 +104,7 @@ public class COSDownloadTask extends COSTransferTask {
     @Override
     public void cancel() {
         super.cancel();
-        
+
         if (simpleDownloadTask != null) {
             simpleDownloadTask.cancel();
         }
@@ -118,7 +118,7 @@ public class COSDownloadTask extends COSTransferTask {
         super.checking();
     }
 
-   
+
     @Override
     protected CosXmlResult execute() throws Exception {
         return simpleDownload();
@@ -143,12 +143,14 @@ public class COSDownloadTask extends COSTransferTask {
 
         simpleDownloadTask.run();
         Task<GetObjectResult> task = simpleDownloadTask.getTask();
+
         if (task.isFaulted()) {
             throw task.getError();
         } else if (task.isCompleted()) {
             return task.getResult();
         } else {
-            throw new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), "simple download complete without result");
+            loggerInfo(TAG, taskId, TASK_UNKNOWN_STATUS);
+            throw new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), TASK_UNKNOWN_STATUS);
         }
     }
 
@@ -159,7 +161,7 @@ public class COSDownloadTask extends COSTransferTask {
         return null;
     }
 
-    private static class SimpleDownloadTask implements Runnable {
+    private class SimpleDownloadTask implements Runnable {
 
         private bolts.TaskCompletionSource<GetObjectResult> tcs;
         private COSDirect cosDirect;
@@ -174,14 +176,14 @@ public class COSDownloadTask extends COSTransferTask {
         private SharedPreferences sharedPreferences;
 
         private String lastModified, eTag, crc64ecma;
-        private long remoteStart = 0; // 包含
-        private long remoteEnd = -1; // 包含
         private TransferTaskMetrics mTransferMetrics;
 
         public SimpleDownloadTask(COSDirect cosDirect, GetObjectRequest getObjectRequest,
                                 CancellationTokenSource transferTaskCts) {
             this.cosDirect = cosDirect;
             this.getObjectRequest = getObjectRequest;
+            //下载重试时会改变request的range，因此不能让range参与签名
+            this.getObjectRequest.addNoSignHeader(COSRequestHeaderKey.RANGE);
             this.tcs = new TaskCompletionSource<>();
             this.mTransferTaskCts = transferTaskCts;
         }
@@ -250,16 +252,6 @@ public class COSDownloadTask extends COSTransferTask {
         // 2. 拿到 range 参数
         // 3. 拿到 offset 参数
         private void checking() throws CosXmlClientException, CosXmlServiceException {
-
-            Range range = getObjectRequest.getRange();
-            if (range != null) {
-                remoteStart = range.getStart();
-                remoteEnd = range.getEnd();
-            } else {
-                remoteStart = 0;
-                remoteEnd = -1;
-            }
-
             Context context = ContextHolder.getAppContext();
             if (context == null) {
                 throw CosXmlClientException.internalException("context is null");

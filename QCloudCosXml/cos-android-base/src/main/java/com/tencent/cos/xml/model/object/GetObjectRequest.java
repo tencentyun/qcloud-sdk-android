@@ -217,6 +217,7 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
     public void setRange(long start, long end) {
         if(start < 0) start = 0;
         Range range = new Range(start, end);
+        requestHeaders.remove(COSRequestHeaderKey.RANGE);
         addHeader(COSRequestHeaderKey.RANGE,range.getRange());
         this.range = range;
     }

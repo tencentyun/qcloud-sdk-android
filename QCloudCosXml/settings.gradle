@@ -21,7 +21,7 @@
  */
 
 include ':cosxml-ktx-example'
-include ':cos-android', ':cos-android-base', ':logUtils',':foundation', ':quic', ':cos-android-ktx', ':cos-android-tiny',
+include ':cos-android', ':cos-android-base', ':foundation', ':quic', ':cos-android-ktx', ':cos-android-tiny',
         ':xmlAnnoation', ':xmlCore', ':xmlCompiler'
 
 project(':foundation').projectDir = new File(rootDir, '../QCloudFoundation/foundation')

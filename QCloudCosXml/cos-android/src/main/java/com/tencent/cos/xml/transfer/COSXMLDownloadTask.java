@@ -32,7 +32,6 @@ import androidx.annotation.Nullable;
 import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
@@ -44,7 +43,6 @@ import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.cos.xml.utils.COSUtils;
 import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.cos.xml.utils.FileUtils;
-import com.tencent.cos.xml.utils.TimeUtils;
 import com.tencent.qcloud.core.common.QCloudTaskStateListener;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.QCloudTask;
@@ -52,8 +50,6 @@ import com.tencent.qcloud.core.task.QCloudTask;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * 下载传输任务
@@ -72,7 +68,6 @@ public final class COSXMLDownloadTask extends COSXMLTask{
     private String eTag;
     private long hasWriteDataLen = 0L;
     private long startTime = 0L;
-    private long downloadComplete;
     private HeadObjectRequest headObjectRequest;
     private GetObjectRequest getObjectRequest;
     private SharedPreferences sharedPreferences;
@@ -120,7 +115,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         run();
     }
 
-    private void realDownload(long rangeStart, long rangeEnd, final long fileOffset){
+    private void realDownload(final long rangeStart, final long rangeEnd, final long fileOffset){
         getObjectRequest = new GetObjectRequest(bucket, cosPath, localSaveDirPath, localSaveFileName);
         getObjectRequest.setRegion(region);
         getObjectRequest.setFileOffset(fileOffset);
@@ -128,6 +123,8 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         getObjectRequest.setRequestHeaders(headers);
         if(rangeEnd > 0 || rangeStart > 0){
             getObjectRequest.setRange(rangeStart, rangeEnd);
+            //下载重试时会改变request的range，因此不能让range参与签名
+            getObjectRequest.addNoSignHeader(COSRequestHeaderKey.RANGE);
         }
 
         if(onSignatureListener != null){
@@ -139,7 +136,6 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         getObjectRequest.setProgressListener(new CosXmlProgressListener() {
             @Override
             public void onProgress(long complete, long target) {
-                downloadComplete = complete;
                 if(cosXmlProgressListener != null){
                     cosXmlProgressListener.onProgress(hasWriteDataLen + complete, hasWriteDataLen + target);
                 }

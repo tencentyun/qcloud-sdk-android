@@ -78,6 +78,7 @@ public class CosXmlServiceConfig implements Parcelable {
     private String endpointSuffix;
 
     private boolean isDebuggable;
+    private boolean isCloseBeacon;
 
     private RetryStrategy retryStrategy;
     private QCloudHttpRetryHandler qCloudHttpRetryHandler;
@@ -115,6 +116,7 @@ public class CosXmlServiceConfig implements Parcelable {
         this.protocol = builder.protocol;
         this.userAgent = builder.userAgent;
         this.isDebuggable = builder.isDebuggable;
+        this.isCloseBeacon = builder.isCloseBeacon;
 
         this.appid = builder.appid;
         this.region = builder.region;
@@ -284,6 +286,13 @@ public class CosXmlServiceConfig implements Parcelable {
     }
 
     private String getFormatHost(String hostFormat, String region, String bucket) {
+        if(region == null){
+            throw new IllegalArgumentException("please set request or config region !");
+        }
+        if(bucket == null){
+            throw new IllegalArgumentException("please set request bucket !");
+        }
+
         return hostFormat.replace("${bucket}", bucket).replace("${region}", region);
     }
 
@@ -470,6 +479,10 @@ public class CosXmlServiceConfig implements Parcelable {
         return isDebuggable;
     }
 
+    public boolean isCloseBeacon() {
+        return isCloseBeacon;
+    }
+
     public int getSocketTimeout() {
         return socketTimeout;
     }
@@ -505,10 +518,10 @@ public class CosXmlServiceConfig implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-
         dest.writeString(protocol);
         dest.writeString(region);
         dest.writeInt(isDebuggable ? 1 : 0);
+        dest.writeInt(isCloseBeacon ? 1 : 0);
     }
 
     private CosXmlServiceConfig(Parcel in) {
@@ -549,6 +562,7 @@ public class CosXmlServiceConfig implements Parcelable {
         private boolean bucketInPath;
 
         private boolean isDebuggable;
+        private boolean isCloseBeacon;
 
         private RetryStrategy retryStrategy;
         private QCloudHttpRetryHandler qCloudHttpRetryHandler;
@@ -578,6 +592,7 @@ public class CosXmlServiceConfig implements Parcelable {
             protocol = HTTPS_PROTOCOL;
             userAgent = DEFAULT_USER_AGENT;
             isDebuggable = false;
+            isCloseBeacon = false;
             retryStrategy = RetryStrategy.DEFAULT;
             bucketInPath = false;
         }
@@ -595,6 +610,7 @@ public class CosXmlServiceConfig implements Parcelable {
             bucketInPath = config.bucketInPath;
 
             isDebuggable = config.isDebuggable;
+            isCloseBeacon = config.isCloseBeacon;
 
             retryStrategy = config.retryStrategy;
             qCloudHttpRetryHandler = config.qCloudHttpRetryHandler;
@@ -767,6 +783,17 @@ public class CosXmlServiceConfig implements Parcelable {
          */
         public Builder setDebuggable(boolean isDebuggable) {
             this.isDebuggable = isDebuggable;
+            return this;
+        }
+
+        /**
+         * 是否关闭上报灯塔
+         *
+         * @param isCloseBeacon 是否关闭上报灯塔
+         * @return Builder 对象
+         */
+        public Builder setCloseBeacon(boolean isCloseBeacon) {
+            this.isCloseBeacon = isCloseBeacon;
             return this;
         }
 

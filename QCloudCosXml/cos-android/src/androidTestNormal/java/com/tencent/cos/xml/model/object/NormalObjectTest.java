@@ -45,8 +45,8 @@ public class NormalObjectTest {
     };
 
     @Test public void testTagging() {
-
-        new PutObjectTaggingTestAdapter().testAsyncRequest();
+//        new PutObjectTaggingTestAdapter().testAsyncRequest();
+        new GetObjectTaggingTestAdapter().testAsyncRequest();
     }
 
     @Test
