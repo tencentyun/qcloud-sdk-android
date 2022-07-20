@@ -1,3 +1,13 @@
+## v5.9.1
+1. foundation 优化QCloudTask异常抛出逻辑.
+2. sdk AndroidManifest中去掉权限声明。
+3. 增加关闭灯塔上报的方法setCloseBeacon。
+4. 增加region未设置的异常提醒。
+5. 修复put tag问题。
+6. 修复下载时弱网重试进度丢失问题。
+7. 新高级下载range累计bugfix。
+
+
 ## v5.9.0
 1. 修复新高级上传完成接口分片排序问题。
 
