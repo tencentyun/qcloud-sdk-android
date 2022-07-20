@@ -43,6 +43,7 @@ public class TrackService {
     private static final String TAG = "TrackService";
     private static String beaconKey;
     private static boolean debug = false;
+    private static boolean isCloseBeacon = false;
     private Context context;
     private static TrackService instance;
 
@@ -53,13 +54,14 @@ public class TrackService {
     /**
      * 初始化
      */
-    public static void init(Context context, String beaconKey, boolean debug) {
+    public static void init(Context context, String beaconKey, boolean debug, boolean isCloseBeacon) {
         synchronized (TrackService.class) {
             if (instance == null) {
                 instance = new TrackService(context);
                 TrackService.beaconKey = beaconKey;
                 TrackService.debug = debug;
-                if(isIncludeBeacon()) {
+                TrackService.isCloseBeacon = isCloseBeacon;
+                if(!TrackService.isCloseBeacon && isIncludeBeacon()) {
                     BeaconConfig.Builder builder = BeaconConfig.builder()
                             .auditEnable(false)
                             .bidEnable(false)
@@ -110,7 +112,8 @@ public class TrackService {
 
 
     public void track(String beaconKey, String eventCode, Map<String, String> params) {
-        if(!isIncludeBeacon()) return;
+        if(TrackService.isCloseBeacon || !isIncludeBeacon()) return;
+
         String trackBeaconKey = TrackService.beaconKey;
         if (beaconKey != null) {
             trackBeaconKey = beaconKey;
