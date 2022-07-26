@@ -106,13 +106,15 @@ fataar {
 }
 
 dependencies {
-
     compileOnly 'androidx.appcompat:appcompat:1.2.0'
     testCompileOnly 'junit:junit:4.13'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
+
+    androidTestCompileOnly project(path: ':cos-android')
+    androidTestCompileOnly project(path: ':cos-android-base')
 
 //    if (compileQuic() && false) {
 //        api project(path: ':quic')

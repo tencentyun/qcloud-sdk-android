@@ -44,6 +44,17 @@ public class TestConst {
     public static final String AUDIT_BUCKET_DOCUMENT = "03_路由.pdf";
     public static final String AUDIT_WEBPAGE = "https://tech.meituan.com/2021/06/10/react-native-hybrid-practice-dsl-in-meituan.html";
 
+    //声音识别
+    public static final String ASR_BUCKET_REGION = "ap-guangzhou";
+    public static final String ASR_BUCKET = "ci-auditing-sample-1253960454";
+    public static final String ASR_OBJECT_FF_1C = "asr/ff-16b-1c-44100hz.aac";
+    public static final String ASR_OBJECT_FF_2C = "asr/ff-16b-2c-44100hz.aac";
+    public static final String ASR_OBJECT_GS_1C = "asr/gs-16b-1c-8000hz.amr";
+    public static final String ASR_OBJECT_GS_2C = "asr/gs-16b-2c-44100hz.aac";
+    public static final String ASR_OBJECT_LONG = "asr/aaa.m4a";
+    public static final String ASR_OBJECT_OUTPUT = "asr/output.txt";
+    public static final String ASR_QUEUE_ID = "p74b5265ab1df455782b7b355007d0dfc";
+
 
     public static final long PERSIST_BUCKET_SMALL_OBJECT_SIZE = 1024 * 1024;
     public static final long PERSIST_BUCKET_BIG_OBJECT_SIZE = 10 * 1024 * 1024;

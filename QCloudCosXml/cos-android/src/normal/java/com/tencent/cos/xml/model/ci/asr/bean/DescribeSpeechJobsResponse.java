@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,26 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50902
-    cosSdkVersionName = '5.9.2'
+package com.tencent.cos.xml.model.ci.asr.bean;
+
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
+
+import java.util.List;
+
+/**
+ * 拉取符合条件的语音识别任务结果
+ */
+@XmlBean(name = "Response")
+public class DescribeSpeechJobsResponse {
+    /**
+     * 翻页的上下文 Token
+     */
+    public String nextToken;
+
+    /**
+     * 任务的详细信息数组
+     */
+    @XmlElement(flatListNote = true)
+    public List<SpeechJobsDetail> jobsDetail;
 }

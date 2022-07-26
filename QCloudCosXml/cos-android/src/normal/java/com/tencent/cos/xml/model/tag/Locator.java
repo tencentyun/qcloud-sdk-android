@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,27 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50902
-    cosSdkVersionName = '5.9.2'
+package com.tencent.cos.xml.model.tag;
+
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+
+/**
+ * COS资源定位符
+ */
+@XmlBean
+public class Locator {
+    /**
+     * 存储桶的地域
+     */
+    public String region;
+
+    /**
+     * 存储结果的存储桶
+     */
+    public String bucket;
+
+    /**
+     * 结果文件的名称
+     */
+    public String object;
 }

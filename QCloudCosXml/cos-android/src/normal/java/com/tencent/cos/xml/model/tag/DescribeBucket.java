@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,29 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50902
-    cosSdkVersionName = '5.9.2'
+package com.tencent.cos.xml.model.tag;
+
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+
+@XmlBean
+public class DescribeBucket {
+    /**
+     * 存储桶 ID
+     */
+    public String bucketId;
+
+    /**
+     * 存储桶名称，同 BucketId
+     */
+    public String name;
+
+    /**
+     * 所在的地域
+     */
+    public String region;
+
+    /**
+     * 创建时间
+     */
+    public String createTime;
 }

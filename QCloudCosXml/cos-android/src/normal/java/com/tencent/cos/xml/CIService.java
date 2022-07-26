@@ -15,6 +15,16 @@ import com.tencent.cos.xml.model.ci.QRCodeUploadRequest;
 import com.tencent.cos.xml.model.ci.QRCodeUploadResult;
 import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionRequest;
 import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionResult;
+import com.tencent.cos.xml.model.ci.asr.CreateSpeechJobsRequest;
+import com.tencent.cos.xml.model.ci.asr.CreateSpeechJobsResult;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobRequest;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobResult;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobsRequest;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobsResult;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechBucketsRequest;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechBucketsResult;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechQueuesRequest;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechQueuesResult;
 import com.tencent.cos.xml.model.ci.audit.GetAudioAuditRequest;
 import com.tencent.cos.xml.model.ci.audit.GetAudioAuditResult;
 import com.tencent.cos.xml.model.ci.audit.GetDocumentAuditRequest;
@@ -513,5 +523,175 @@ public class CIService extends CosXmlService {
      */
     public void getWebPageAuditAsync(GetWebPageAuditRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetWebPageAuditResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 查询已经开通语音识别功能的存储桶的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46232">https://cloud.tencent.com/document/product/460/46232.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">查询已经开通语音识别功能的存储桶示例</a>
+     *
+     * @param request 查询已经开通语音识别功能的存储桶请求 {@link DescribeSpeechBucketsRequest}
+     * @return 查询已经开通语音识别功能的存储桶返回结果 {@link DescribeSpeechBucketsResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DescribeSpeechBucketsResult describeSpeechBuckets(DescribeSpeechBucketsRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DescribeSpeechBucketsResult());
+    }
+
+    /**
+     * <p>
+     * 查询已经开通语音识别功能的存储桶的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46232">https://cloud.tencent.com/document/product/460/46232.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">查询已经开通语音识别功能的存储桶示例</a>
+     *
+     * @param request 查询已经开通语音识别功能的存储桶请求 {@link DescribeSpeechBucketsRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void describeSpeechBucketsAsync(DescribeSpeechBucketsRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DescribeSpeechBucketsResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 查询语音识别队列的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46234">https://cloud.tencent.com/document/product/460/46234.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">查询语音识别队列示例</a>
+     *
+     * @param request 查询语音识别队列请求 {@link DescribeSpeechQueuesRequest}
+     * @return 查询语音识别队列返回结果 {@link DescribeSpeechQueuesResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DescribeSpeechQueuesResult describeSpeechQueues(DescribeSpeechQueuesRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DescribeSpeechQueuesResult());
+    }
+
+    /**
+     * <p>
+     * 查询语音识别队列的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46234">https://cloud.tencent.com/document/product/460/46234.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">查询语音识别队列示例</a>
+     *
+     * @param request 查询语音识别队列请求 {@link DescribeSpeechQueuesRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void describeSpeechQueuesAsync(DescribeSpeechQueuesRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DescribeSpeechQueuesResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 提交一个语音识别任务的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46228">https://cloud.tencent.com/document/product/460/46228.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">提交一个语音识别任务示例</a>
+     *
+     * @param request 提交一个语音识别任务请求 {@link CreateSpeechJobsRequest}
+     * @return 提交一个语音识别任务返回结果 {@link CreateSpeechJobsResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public CreateSpeechJobsResult createSpeechJobs(CreateSpeechJobsRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new CreateSpeechJobsResult());
+    }
+
+    /**
+     * <p>
+     * 提交一个语音识别任务的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46228">https://cloud.tencent.com/document/product/460/46228.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">提交一个语音识别任务示例</a>
+     *
+     * @param request 提交一个语音识别任务请求 {@link CreateSpeechJobsRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void createSpeechJobsAsync(CreateSpeechJobsRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new CreateSpeechJobsResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 查询指定的语音识别任务的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46229">https://cloud.tencent.com/document/product/460/46229.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">查询指定的语音识别任务示例</a>
+     *
+     * @param request 查询指定的语音识别任务请求 {@link DescribeSpeechJobRequest}
+     * @return 查询指定的语音识别任务返回结果 {@link DescribeSpeechJobResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DescribeSpeechJobResult describeSpeechJob(DescribeSpeechJobRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DescribeSpeechJobResult());
+    }
+
+    /**
+     * <p>
+     * 查询指定的语音识别任务的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46229">https://cloud.tencent.com/document/product/460/46229.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">查询指定的语音识别任务示例</a>
+     *
+     * @param request 查询指定的语音识别任务请求 {@link DescribeSpeechJobRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void describeSpeechJobAsync(DescribeSpeechJobRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DescribeSpeechJobResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 拉取符合条件的语音识别任务的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46230">https://cloud.tencent.com/document/product/460/46230.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">拉取符合条件的语音识别任务示例</a>
+     *
+     * @param request 拉取符合条件的语音识别任务请求 {@link DescribeSpeechJobsRequest}
+     * @return 拉取符合条件的语音识别任务返回结果 {@link DescribeSpeechJobsResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DescribeSpeechJobsResult describeSpeechJobs(DescribeSpeechJobsRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DescribeSpeechJobsResult());
+    }
+
+    /**
+     * <p>
+     * 拉取符合条件的语音识别任务的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46230">https://cloud.tencent.com/document/product/460/46230.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">拉取符合条件的语音识别任务示例</a>
+     *
+     * @param request 拉取符合条件的语音识别任务请求 {@link DescribeSpeechJobsRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void describeSpeechJobsAsync(DescribeSpeechJobsRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DescribeSpeechJobsResult(), cosXmlResultListener);
     }
 }
