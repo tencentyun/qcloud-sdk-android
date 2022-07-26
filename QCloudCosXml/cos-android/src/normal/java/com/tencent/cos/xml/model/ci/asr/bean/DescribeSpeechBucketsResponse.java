@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,42 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50902
-    cosSdkVersionName = '5.9.2'
+package com.tencent.cos.xml.model.ci.asr.bean;
+
+import com.tencent.cos.xml.model.tag.DescribeBucket;
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
+
+import java.util.List;
+
+/**
+ * 已经开通语音识别功能的存储桶查询结果
+ */
+@XmlBean(name = "Response")
+public class DescribeSpeechBucketsResponse {
+    /**
+     * 请求的唯一 ID
+     */
+    public String requestId;
+
+    /**
+     * 语音 Bucket 总数
+     */
+    public int totalCount;
+
+    /**
+     * 当前页数，同请求中的 pageNumber
+     */
+    public int pageNumber;
+
+    /**
+     * 每页个数，同请求中的 pageSize
+     */
+    public int pageSize;
+
+    /**
+     * 语音 Bucket 列表
+     */
+    @XmlElement(flatListNote = true)
+    public List<DescribeBucket> asrBucketList;
 }
