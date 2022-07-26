@@ -27,6 +27,16 @@ import com.tencent.cos.xml.model.ci.QRCodeUploadRequest;
 import com.tencent.cos.xml.model.ci.QRCodeUploadResult;
 import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionRequest;
 import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionResult;
+import com.tencent.cos.xml.model.ci.asr.CreateSpeechJobsRequest;
+import com.tencent.cos.xml.model.ci.asr.CreateSpeechJobsResult;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobRequest;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobResult;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobsRequest;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobsResult;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechBucketsRequest;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechBucketsResult;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechQueuesRequest;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechQueuesResult;
 import com.tencent.cos.xml.model.ci.audit.GetAudioAuditRequest;
 import com.tencent.cos.xml.model.ci.audit.GetAudioAuditResult;
 import com.tencent.cos.xml.model.ci.audit.GetDocumentAuditRequest;
@@ -150,10 +160,8 @@ public class CosXmlCITest {
         request.setPageSize(10);
         try {
             GetDescribeMediaBucketsResult result = ciService.getDescribeMediaBuckets(request);
-            TestUtils.parseBadResponseBody(result);
-            Assert.assertNotNull(result.printResult());
             Assert.assertNotNull(result.describeMediaBucketsResult);
-            Assert.assertTrue(true);
+            TestUtils.printXML(result.describeMediaBucketsResult);
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
@@ -173,10 +181,8 @@ public class CosXmlCITest {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult cosResult) {
                 GetDescribeMediaBucketsResult result = (GetDescribeMediaBucketsResult) cosResult;
-                TestUtils.parseBadResponseBody(result);
-                Assert.assertNotNull(result.printResult());
                 Assert.assertNotNull(result.describeMediaBucketsResult);
-                Assert.assertTrue(true);
+                TestUtils.printXML(result.describeMediaBucketsResult);
                 locker.release();
             }
 
@@ -585,5 +591,217 @@ public class CosXmlCITest {
             }
         });
         testLocker.lock();
+    }
+
+    @Test
+    public void describeSpeechBuckets() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        DescribeSpeechBucketsRequest request = new DescribeSpeechBucketsRequest();
+        request.setPageNumber(1);
+        request.setPageSize(10);
+        request.setRegions("All");
+        try {
+            DescribeSpeechBucketsResult result = ciService.describeSpeechBuckets(request);
+            Assert.assertNotNull(result.describeSpeechBucketsResponse);
+            TestUtils.printXML(result.describeSpeechBucketsResponse);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void describeSpeechBucketsAsync() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        final TestLocker locker = new TestLocker();
+        DescribeSpeechBucketsRequest request = new DescribeSpeechBucketsRequest();
+        request.setPageNumber(1);
+        request.setPageSize(10);
+        request.setRegions("All");
+        ciService.describeSpeechBucketsAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult cosResult) {
+                DescribeSpeechBucketsResult result = (DescribeSpeechBucketsResult) cosResult;
+                Assert.assertNotNull(result.describeSpeechBucketsResponse);
+                TestUtils.printXML(result.describeSpeechBucketsResponse);
+                locker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                locker.release();
+            }
+        });
+        locker.lock();
+    }
+
+    @Test
+    public void describeSpeechQueues() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        DescribeSpeechQueuesRequest request = new DescribeSpeechQueuesRequest(TestConst.ASR_BUCKET);
+        request.setPageNumber(1);
+        request.setPageSize(10);
+        request.setState("Active");
+        try {
+            DescribeSpeechQueuesResult result = ciService.describeSpeechQueues(request);
+            Assert.assertNotNull(result.describeSpeechQueuesResponse);
+            TestUtils.printXML(result.describeSpeechQueuesResponse);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void describeSpeechQueuesAsync() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        final TestLocker locker = new TestLocker();
+        DescribeSpeechQueuesRequest request = new DescribeSpeechQueuesRequest(TestConst.ASR_BUCKET);
+        request.setQueueIds(TestConst.ASR_QUEUE_ID+",ashjdaosdhjiasodj12312"+",ashjdaosdasdashjiasodj12312");
+        ciService.describeSpeechQueuesAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult cosResult) {
+                DescribeSpeechQueuesResult result = (DescribeSpeechQueuesResult) cosResult;
+                Assert.assertNotNull(result.describeSpeechQueuesResponse);
+                TestUtils.printXML(result.describeSpeechQueuesResponse);
+                locker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                locker.release();
+            }
+        });
+        locker.lock();
+    }
+
+    @Test
+    public void createSpeechJobs() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        CreateSpeechJobsRequest request = new CreateSpeechJobsRequest(TestConst.ASR_BUCKET);
+        request.setInputObject(TestConst.ASR_OBJECT_LONG);
+        request.setQueueId(TestConst.ASR_QUEUE_ID);
+        request.setOutput(TestConst.ASR_BUCKET_REGION, TestConst.ASR_BUCKET, TestConst.ASR_OBJECT_OUTPUT);
+        request.setEngineModelType("8k_zh");
+        request.setChannelNum(1);
+        request.setResTextFormat(1);
+        try {
+            CreateSpeechJobsResult result = ciService.createSpeechJobs(request);
+            Assert.assertNotNull(result.createSpeechJobsResponse);
+            TestUtils.printXML(result.createSpeechJobsResponse);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void createSpeechJobsAsync() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        final TestLocker locker = new TestLocker();
+        CreateSpeechJobsRequest request = new CreateSpeechJobsRequest(TestConst.ASR_BUCKET);
+        request.setInputObject(TestConst.ASR_OBJECT_GS_2C);
+        request.setQueueId(TestConst.ASR_QUEUE_ID);
+        request.setOutput(TestConst.ASR_BUCKET_REGION, TestConst.ASR_BUCKET, TestConst.ASR_OBJECT_OUTPUT);
+        request.setEngineModelType("8k_zh");
+        request.setChannelNum(2);
+        request.setResTextFormat(0);
+        ciService.createSpeechJobsAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult cosResult) {
+                CreateSpeechJobsResult result = (CreateSpeechJobsResult) cosResult;
+                Assert.assertNotNull(result.createSpeechJobsResponse);
+                TestUtils.printXML(result.createSpeechJobsResponse);
+                locker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                locker.release();
+            }
+        });
+        locker.lock();
+    }
+
+    @Test
+    public void describeSpeechJob() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        DescribeSpeechJobRequest request = new DescribeSpeechJobRequest(TestConst.ASR_BUCKET, "s987956140cd811edb12f43ad9e15c4e2");
+        try {
+            DescribeSpeechJobResult result = ciService.describeSpeechJob(request);
+            Assert.assertNotNull(result.describeSpeechJobResponse);
+            TestUtils.printXML(result.describeSpeechJobResponse);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void describeSpeechJobAsync() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        final TestLocker locker = new TestLocker();
+        DescribeSpeechJobRequest request = new DescribeSpeechJobRequest(TestConst.ASR_BUCKET, "s3841e6aa0cbd11ed923405b602cab698");
+        ciService.describeSpeechJobAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult cosResult) {
+                DescribeSpeechJobResult result = (DescribeSpeechJobResult) cosResult;
+                Assert.assertNotNull(result.describeSpeechJobResponse);
+                TestUtils.printXML(result.describeSpeechJobResponse);
+                locker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                locker.release();
+            }
+        });
+        locker.lock();
+    }
+
+    @Test
+    public void DescribeSpeechJobs() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        DescribeSpeechJobsRequest request = new DescribeSpeechJobsRequest(TestConst.ASR_BUCKET, TestConst.ASR_QUEUE_ID);
+        try {
+            DescribeSpeechJobsResult result = ciService.describeSpeechJobs(request);
+            Assert.assertNotNull(result.describeSpeechJobsResponse);
+            TestUtils.printXML(result.describeSpeechJobsResponse);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void DescribeSpeechJobsAsync() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        final TestLocker locker = new TestLocker();
+        DescribeSpeechJobsRequest request = new DescribeSpeechJobsRequest(TestConst.ASR_BUCKET, TestConst.ASR_QUEUE_ID);
+        ciService.describeSpeechJobsAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult cosResult) {
+                DescribeSpeechJobsResult result = (DescribeSpeechJobsResult) cosResult;
+                Assert.assertNotNull(result.describeSpeechJobsResponse);
+                TestUtils.printXML(result.describeSpeechJobsResponse);
+                locker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                locker.release();
+            }
+        });
+        locker.lock();
     }
 }
