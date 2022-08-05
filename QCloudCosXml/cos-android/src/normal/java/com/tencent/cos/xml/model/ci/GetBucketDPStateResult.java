@@ -1,5 +1,6 @@
 package com.tencent.cos.xml.model.ci;
 
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
@@ -30,8 +31,10 @@ public class GetBucketDPStateResult extends CosXmlResult {
         try {
             GetBucketDPState getBucketDPS = QCloudXml.fromXml(response.byteStream(), GetBucketDPState.class);
             bucketDocumentPreviewState = getBucketDPS.DocBucketList;
-        } catch (XmlPullParserException | IOException e) {
-            throw new CosXmlServiceException("Parse xml error", e);
+        } catch (IOException e) {
+            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
+        } catch (XmlPullParserException e) {
+            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
         }
     }
 
