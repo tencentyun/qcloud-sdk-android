@@ -29,6 +29,6 @@ public class CreateBucketConfiguration {
     /**
      * 存储桶 AZ 配置，指定为 MAZ 以创建多 AZ 存储桶
      */
-    public String bucketAzConfig = "OAZ"; // MAZ|OAZ
+    public String bucketAzConfig = "MAZ";
 
 }

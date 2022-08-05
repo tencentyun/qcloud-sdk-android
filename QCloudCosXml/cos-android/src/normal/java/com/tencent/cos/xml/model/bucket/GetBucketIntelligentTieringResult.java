@@ -8,6 +8,10 @@ import com.tencent.cos.xml.model.tag.IntelligentTieringConfiguration;
 import com.tencent.qcloud.core.http.HttpResponse;
 import com.tencent.qcloud.qcloudxml.core.QCloudXml;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 /**
  * <p>
  * Created by rickenwang on 2020/11/10.
@@ -27,8 +31,10 @@ public class GetBucketIntelligentTieringResult extends CosXmlResult {
 
         try {
             configuration = QCloudXml.fromXml(response.byteStream(), IntelligentTieringConfiguration.class);
-        } catch (Exception e) {
-            throw new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), "", e.getCause());
+        } catch (XmlPullParserException e) {
+            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
+        } catch (IOException e) {
+            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
         }
     }
 }

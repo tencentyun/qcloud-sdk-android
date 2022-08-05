@@ -32,9 +32,7 @@ import com.tencent.qcloud.qcloudxml.core.QCloudXml;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * 完成整个分块上传的返回的结果.
@@ -52,12 +50,13 @@ final public class CompleteMultiUploadResult extends CosXmlResult {
     public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
         super.parseResponseBody(response);
 
+        completeMultipartUpload = new CompleteMultipartUploadResult();
         try {
             completeMultipartUpload = QCloudXml.fromXml(response.byteStream(), CompleteMultipartUploadResult.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
         } catch (XmlPullParserException e) {
-            e.printStackTrace();
+            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
         }
     }
 

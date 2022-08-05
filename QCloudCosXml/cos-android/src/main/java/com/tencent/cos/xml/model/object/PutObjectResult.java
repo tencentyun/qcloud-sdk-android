@@ -24,6 +24,7 @@ package com.tencent.cos.xml.model.object;
 
 import androidx.annotation.Nullable;
 
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.tag.pic.PicUploadResult;
@@ -47,10 +48,10 @@ final public class PutObjectResult extends BasePutObjectResult {
         super.parseResponseBody(response);
         try {
             picUploadResult = QCloudXml.fromXml(response.byteStream(), PicUploadResult.class);
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (XmlPullParserException e) {
-            e.printStackTrace();
+            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
+        } catch (IOException e) {
+            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
         }
     }
 

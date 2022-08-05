@@ -1,6 +1,7 @@
 package com.tencent.cos.xml.model.ci;
 
 
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
@@ -29,10 +30,10 @@ public class SensitiveContentRecognitionResult extends CosXmlResult {
         super.parseResponseBody(response);
         try {
             recognitionResult = QCloudXml.fromXml(response.byteStream(), RecognitionResult.class);
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (XmlPullParserException e) {
-            e.printStackTrace();
+            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
+        } catch (IOException e) {
+            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
         }
     }
     

@@ -23,6 +23,7 @@
 package com.tencent.cos.xml.model.bucket;
 
 import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
@@ -55,10 +56,10 @@ public class GetBucketObjectVersionsResult extends CosXmlResult {
             XmlParser.parseGetBucketObjectVersionsResult(response.byteStream(), listVersionResult);
         } catch (XmlPullParserException e) {
             BeaconService.getInstance().reportError(TAG, e);
-            e.printStackTrace();
+            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
         } catch (IOException e) {
             BeaconService.getInstance().reportError(TAG, e);
-            e.printStackTrace();
+            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
         }
     }
 }

@@ -37,6 +37,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
+import okhttp3.RequestBody;
+
 /**
  * 创建存储桶（Bucket）的请求.
  * @see com.tencent.cos.xml.CosXml#putBucket(PutBucketRequest)
@@ -44,7 +46,7 @@ import java.io.IOException;
  */
 final public class PutBucketRequest extends BucketRequest {
 
-    private CreateBucketConfiguration createBucketConfiguration = new CreateBucketConfiguration();
+    private CreateBucketConfiguration createBucketConfiguration = null;
 
     public PutBucketRequest(String bucket){
         super(bucket);
@@ -55,7 +57,11 @@ final public class PutBucketRequest extends BucketRequest {
      * @param enable 是否为 多AZ 配置
      */
     public void enableMAZ(boolean enable) {
-        createBucketConfiguration.bucketAzConfig = enable ? "MAZ" : "OAZ";
+        if (enable){
+            createBucketConfiguration = new CreateBucketConfiguration();
+        } else {
+            createBucketConfiguration = null;
+        }
     }
 
     /**
@@ -123,12 +129,16 @@ final public class PutBucketRequest extends BucketRequest {
 
     @Override
     public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        try {
-            return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML, XmlBuilder.buildCreateBucketConfiguration(createBucketConfiguration));
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
+        if(createBucketConfiguration != null){
+            try {
+                return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML, XmlBuilder.buildCreateBucketConfiguration(createBucketConfiguration));
+            } catch (XmlPullParserException e) {
+                throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
+            } catch (IOException e) {
+                throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
+            }
+        } else {
+            return RequestBodySerializer.wrap(RequestBody.create(null, new byte[]{}));
         }
     }
 }

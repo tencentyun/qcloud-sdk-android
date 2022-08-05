@@ -24,6 +24,7 @@ package com.tencent.cos.xml.model.ci;
 
 import android.text.TextUtils;
 
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
@@ -31,6 +32,7 @@ import com.tencent.qcloud.core.http.HttpResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
@@ -57,8 +59,10 @@ public class PreviewDocumentInHtmlLinkResult extends CosXmlResult {
             if(jsonObject.has("PreviewUrl")) {
                 previewUrl = jsonObject.getString("PreviewUrl");
             }
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
+        } catch (JSONException e) {
+            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
+        } catch (IOException e) {
+            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
         }
     }
 

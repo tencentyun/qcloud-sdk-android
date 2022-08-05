@@ -1,5 +1,6 @@
 package com.tencent.cos.xml.model.ci;
 
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.tag.pic.PicObject;
@@ -31,9 +32,9 @@ public class QRCodeUploadResult extends ImageUploadResult {
         try {
             picUploadResult = QCloudXml.fromXml(response.byteStream(), PicUploadResult.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
         } catch (XmlPullParserException e) {
-            e.printStackTrace();
+            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
         }
     }
 

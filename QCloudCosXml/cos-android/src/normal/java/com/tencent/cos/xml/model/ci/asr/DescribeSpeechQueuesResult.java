@@ -37,7 +37,7 @@ import java.io.IOException;
 
 /**
  * 用于查询语音识别队列的返回结果.
- * @see com.tencent.cos.xml.CIService#getDescribeSpeechQueues(DescribeSpeechQueuesRequest)
+ * @see com.tencent.cos.xml.CIService#describeSpeechQueues(DescribeSpeechQueuesRequest)
  * @see DescribeSpeechQueuesRequest
  */
 final public class DescribeSpeechQueuesResult extends CosXmlResult {
