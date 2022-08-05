@@ -960,12 +960,14 @@ public final class COSXMLUploadTask extends COSXMLTask {
             cosxmlUploadTaskResult.httpCode = completeMultiUploadResult.httpCode;
             cosxmlUploadTaskResult.httpMessage = completeMultiUploadResult.httpMessage;
             cosxmlUploadTaskResult.headers = completeMultiUploadResult.headers;
-            cosxmlUploadTaskResult.eTag = completeMultiUploadResult.completeMultipartUpload.eTag;
             cosxmlUploadTaskResult.accessUrl = completeMultiUploadResult.accessUrl;
-            PicUploadResult picUploadResult = new PicUploadResult();
-            picUploadResult.originalInfo = completeMultiUploadResult.completeMultipartUpload.getOriginInfo();
-            picUploadResult.processResults = completeMultiUploadResult.completeMultipartUpload.processResults;
-            cosxmlUploadTaskResult.picUploadResult = picUploadResult;
+            if(completeMultiUploadResult.completeMultipartUpload != null){
+                cosxmlUploadTaskResult.eTag = completeMultiUploadResult.completeMultipartUpload.eTag;
+                PicUploadResult picUploadResult = new PicUploadResult();
+                picUploadResult.originalInfo = completeMultiUploadResult.completeMultipartUpload.getOriginInfo();
+                picUploadResult.processResults = completeMultiUploadResult.completeMultipartUpload.processResults;
+                cosxmlUploadTaskResult.picUploadResult = picUploadResult;
+            }
         }
         return cosxmlUploadTaskResult;
     }
