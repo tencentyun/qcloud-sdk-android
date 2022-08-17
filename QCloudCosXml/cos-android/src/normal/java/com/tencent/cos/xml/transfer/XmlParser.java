@@ -35,7 +35,6 @@ import com.tencent.cos.xml.model.tag.LifecycleConfiguration;
 import com.tencent.cos.xml.model.tag.ListBucket;
 import com.tencent.cos.xml.model.tag.ListBucketVersions;
 import com.tencent.cos.xml.model.tag.ListInventoryConfiguration;
-import com.tencent.cos.xml.model.tag.ListMultipartUploads;
 import com.tencent.cos.xml.model.tag.ListVersionResult;
 import com.tencent.cos.xml.model.tag.LocationConstraint;
 import com.tencent.cos.xml.model.tag.ReplicationConfiguration;
@@ -138,9 +137,9 @@ public class XmlParser extends XmlSlimParser {
                     }else if(tagName.equalsIgnoreCase("IsLatest")){
                         xmlPullParser.next();
                         if (version != null) {
-                            version.isLatest = Boolean.valueOf(xmlPullParser.getText());
+                            version.isLatest = Boolean.parseBoolean(xmlPullParser.getText());
                         } else if (deleteMarker != null) {
-                            deleteMarker.isLatest = Boolean.valueOf(xmlPullParser.getText());
+                            deleteMarker.isLatest = Boolean.parseBoolean(xmlPullParser.getText());
                         }
                     }else if(tagName.equalsIgnoreCase("LastModified")){
                         xmlPullParser.next();
@@ -157,7 +156,7 @@ public class XmlParser extends XmlSlimParser {
                     }else if(tagName.equalsIgnoreCase("Size")){
                         xmlPullParser.next();
                         if (version != null) {
-                            version.size = Long.valueOf(xmlPullParser.getText());
+                            version.size = Long.parseLong(xmlPullParser.getText());
                         }
                     }else if(tagName.equalsIgnoreCase("StorageClass")){
                         xmlPullParser.next();
@@ -235,8 +234,8 @@ public class XmlParser extends XmlSlimParser {
         ListBucket.Contents contents = null;
         ListBucket.CommonPrefixes commonPrefixes = null;
         ListBucket.Owner owner = null;
-        result.contentsList = new ArrayList<ListBucket.Contents>();
-        result.commonPrefixesList = new ArrayList<ListBucket.CommonPrefixes>();
+        result.contentsList = new ArrayList<>();
+        result.commonPrefixesList = new ArrayList<>();
         while (eventType != XmlPullParser.END_DOCUMENT) {
             switch(eventType){
                 case XmlPullParser.START_TAG:
@@ -273,24 +272,36 @@ public class XmlParser extends XmlSlimParser {
                         contents = new ListBucket.Contents();
                     }else if(tagName.equalsIgnoreCase("Key")){
                         xmlPullParser.next();
-                        contents.key = xmlPullParser.getText();
+                        if (contents != null) {
+                            contents.key = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("LastModified")){
                         xmlPullParser.next();
-                        contents.lastModified = xmlPullParser.getText();
+                        if (contents != null) {
+                            contents.lastModified = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("ETag")){
                         xmlPullParser.next();
-                        contents.eTag = xmlPullParser.getText();
+                        if (contents != null) {
+                            contents.eTag = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Size")){
                         xmlPullParser.next();
-                        contents.size = Long.parseLong(xmlPullParser.getText());
+                        if (contents != null) {
+                            contents.size = Long.parseLong(xmlPullParser.getText());
+                        }
                     }else if(tagName.equalsIgnoreCase("StorageClass")){
                         xmlPullParser.next();
-                        contents.storageClass = xmlPullParser.getText();
+                        if (contents != null) {
+                            contents.storageClass = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Owner")){
                        owner = new ListBucket.Owner();
                     }else if(tagName.equalsIgnoreCase("ID")){
                         xmlPullParser.next();
-                        owner.id = xmlPullParser.getText();
+                        if (owner != null) {
+                            owner.id = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("CommonPrefixes")){
                         commonPrefixes = new ListBucket.CommonPrefixes();
                     }
@@ -301,7 +312,9 @@ public class XmlParser extends XmlSlimParser {
                             result.contentsList.add(contents);
                             contents = null;
                         }else if(tagName.equalsIgnoreCase("Owner")){
-                            contents.owner = owner;
+                            if (contents != null) {
+                                contents.owner = owner;
+                            }
                             owner = null;
                         }else if(tagName.equalsIgnoreCase("CommonPrefixes")){
                             result.commonPrefixesList.add(commonPrefixes);
@@ -327,7 +340,7 @@ public class XmlParser extends XmlSlimParser {
         String tagName;
         AccessControlPolicy.Owner owner = null;
         result.accessControlList = new AccessControlPolicy.AccessControlList();
-        result.accessControlList.grants = new ArrayList<AccessControlPolicy.Grant>();
+        result.accessControlList.grants = new ArrayList<>();
         AccessControlPolicy.Grant grant = null;
         AccessControlPolicy.Grantee grantee = null;
         while (eventType != XmlPullParser.END_DOCUMENT){
@@ -356,10 +369,14 @@ public class XmlParser extends XmlSlimParser {
                         grantee = new AccessControlPolicy.Grantee();
                     }else if (tagName.equalsIgnoreCase("URI")){
                         xmlPullParser.next();
-                        grantee.uri = xmlPullParser.getText();
+                        if (grantee != null) {
+                            grantee.uri = xmlPullParser.getText();
+                        }
                     }else if (tagName.equalsIgnoreCase("Permission")){
                         xmlPullParser.next();
-                        grant.permission = xmlPullParser.getText();
+                        if (grant != null) {
+                            grant.permission = xmlPullParser.getText();
+                        }
                     }
                     break;
                 case XmlPullParser.END_TAG:
@@ -371,7 +388,9 @@ public class XmlParser extends XmlSlimParser {
                         result.accessControlList.grants.add(grant);
                         grant = null;
                     }else if(tagName.equalsIgnoreCase("Grantee")){
-                        grant.grantee =grantee;
+                        if (grant != null) {
+                            grant.grantee =grantee;
+                        }
                         grantee = null;
                     }
                     break;
@@ -392,7 +411,7 @@ public class XmlParser extends XmlSlimParser {
         xmlPullParser.setInput(inputStream, "UTF-8");
         int eventType = xmlPullParser.getEventType();
         String tagName;
-        result.corsRules = new ArrayList<CORSConfiguration.CORSRule>();
+        result.corsRules = new ArrayList<>();
         CORSConfiguration.CORSRule corsRule = null;
         while (eventType != XmlPullParser.END_DOCUMENT){
             switch (eventType){
@@ -402,31 +421,43 @@ public class XmlParser extends XmlSlimParser {
                         corsRule = new CORSConfiguration.CORSRule();
                     }else if(tagName.equalsIgnoreCase("ID")){
                         xmlPullParser.next();
-                        corsRule.id = xmlPullParser.getText();
+                        if (corsRule != null) {
+                            corsRule.id = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("AllowedOrigin")){
                         xmlPullParser.next();
-                        corsRule.allowedOrigin = xmlPullParser.getText();
+                        if (corsRule != null) {
+                            corsRule.allowedOrigin = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("AllowedMethod")){
                         xmlPullParser.next();
-                        if(corsRule.allowedMethod == null){
-                            corsRule.allowedMethod = new ArrayList<String>();
+                        if (corsRule != null && corsRule.allowedMethod == null) {
+                            corsRule.allowedMethod = new ArrayList<>();
                         }
-                        corsRule.allowedMethod.add(xmlPullParser.getText());
+                        if (corsRule != null) {
+                            corsRule.allowedMethod.add(xmlPullParser.getText());
+                        }
                     }else if(tagName.equalsIgnoreCase("AllowedHeader")){
                         xmlPullParser.next();
-                        if(corsRule.allowedHeader == null){
-                            corsRule.allowedHeader = new ArrayList<String>();
+                        if (corsRule != null && corsRule.allowedHeader == null) {
+                            corsRule.allowedHeader = new ArrayList<>();
                         }
-                        corsRule.allowedHeader.add(xmlPullParser.getText());
+                        if (corsRule != null) {
+                            corsRule.allowedHeader.add(xmlPullParser.getText());
+                        }
                     }else if(tagName.equalsIgnoreCase("ExposeHeader")){
                         xmlPullParser.next();
-                        if(corsRule.exposeHeader == null){
-                            corsRule.exposeHeader = new ArrayList<String>();
+                        if (corsRule != null && corsRule.exposeHeader == null) {
+                            corsRule.exposeHeader = new ArrayList<>();
                         }
-                        corsRule.exposeHeader.add(xmlPullParser.getText());
+                        if (corsRule != null) {
+                            corsRule.exposeHeader.add(xmlPullParser.getText());
+                        }
                     }else if(tagName.equalsIgnoreCase("MaxAgeSeconds")){
                         xmlPullParser.next();
-                        corsRule.maxAgeSeconds = Integer.parseInt(xmlPullParser.getText());
+                        if (corsRule != null) {
+                            corsRule.maxAgeSeconds = Integer.parseInt(xmlPullParser.getText());
+                        }
                     }
                     break;
                 case XmlPullParser.END_TAG:
@@ -453,7 +484,7 @@ public class XmlParser extends XmlSlimParser {
         xmlPullParser.setInput(inputStream, "UTF-8");
         int eventType = xmlPullParser.getEventType();
         String tagName;
-        result.rules = new ArrayList<ReplicationConfiguration.Rule>();
+        result.rules = new ArrayList<>();
         ReplicationConfiguration.Rule rule = null;
         ReplicationConfiguration.Destination destination = null;
         while (eventType != XmlPullParser.END_DOCUMENT){
@@ -467,21 +498,31 @@ public class XmlParser extends XmlSlimParser {
                         rule = new ReplicationConfiguration.Rule();
                     }else if(tagName.equalsIgnoreCase("Status")){
                         xmlPullParser.next();
-                        rule.status = xmlPullParser.getText();
+                        if (rule != null) {
+                            rule.status = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("ID")){
                         xmlPullParser.next();
-                        rule.id = xmlPullParser.getText();
+                        if (rule != null) {
+                            rule.id = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Prefix")){
                         xmlPullParser.next();
-                        rule.prefix = xmlPullParser.getText();
+                        if (rule != null) {
+                            rule.prefix = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Destination")){
                         destination = new ReplicationConfiguration.Destination();
                     }else if(tagName.equalsIgnoreCase("Bucket")){
                         xmlPullParser.next();
-                        destination.bucket = xmlPullParser.getText();
+                        if (destination != null) {
+                            destination.bucket = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("StorageClass")){
                         xmlPullParser.next();
-                        destination.storageClass = xmlPullParser.getText();
+                        if (destination != null) {
+                            destination.storageClass = xmlPullParser.getText();
+                        }
                     }
                     break;
                     case XmlPullParser.END_TAG:
@@ -490,7 +531,9 @@ public class XmlParser extends XmlSlimParser {
                             result.rules.add(rule);
                             rule = null;
                         }else if(tagName.equalsIgnoreCase("Destination")){
-                            rule.destination = destination;
+                            if (rule != null) {
+                                rule.destination = destination;
+                            }
                             destination = null;
                         }
                         break;
@@ -618,7 +661,7 @@ public class XmlParser extends XmlSlimParser {
         xmlPullParser.setInput(inputStream, "UTF-8");
         int eventType = xmlPullParser.getEventType();
         String tagName;
-        result.rules = new ArrayList<LifecycleConfiguration.Rule>();
+        result.rules = new ArrayList<>();
         LifecycleConfiguration.Rule rule = null;
         LifecycleConfiguration.Filter filter = null;
         LifecycleConfiguration.Transition transition = null;
@@ -634,15 +677,21 @@ public class XmlParser extends XmlSlimParser {
                         rule = new LifecycleConfiguration.Rule();
                     }else if(tagName.equalsIgnoreCase("ID")){
                        xmlPullParser.next();
-                       rule.id = xmlPullParser.getText();
+                        if (rule != null) {
+                            rule.id = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Filter")){
                         filter = new LifecycleConfiguration.Filter();
                     }else if(tagName.equalsIgnoreCase("Prefix")){
                         xmlPullParser.next();
-                        filter.prefix= xmlPullParser.getText();
+                        if (filter != null) {
+                            filter.prefix= xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Status")){
                         xmlPullParser.next();
-                        rule.status = xmlPullParser.getText();
+                        if (rule != null) {
+                            rule.status = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Transition")){
                         transition = new LifecycleConfiguration.Transition();
                     }else if(tagName.equalsIgnoreCase("Expiration")){
@@ -651,8 +700,10 @@ public class XmlParser extends XmlSlimParser {
                         xmlPullParser.next();
                         if(transition != null){
                             transition.days = Integer.parseInt(xmlPullParser.getText());
-                        }else if(rule.expiration != null){
-                            expiration.days = Integer.parseInt(xmlPullParser.getText());
+                        }else if (rule != null && rule.expiration != null) {
+                            if (expiration != null) {
+                                expiration.days = Integer.parseInt(xmlPullParser.getText());
+                            }
                         }
                     }else if(tagName.equalsIgnoreCase("Date")){
                         xmlPullParser.next();
@@ -663,12 +714,16 @@ public class XmlParser extends XmlSlimParser {
                         }
                     }else if(tagName.equalsIgnoreCase("ExpiredObjectDeleteMarker")){
                         xmlPullParser.next();
-                        expiration.expiredObjectDeleteMarker = xmlPullParser.getText();
+                        if (expiration != null) {
+                            expiration.expiredObjectDeleteMarker = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("AbortIncompleteMultipartUpload")){
                         abortIncompleteMultiUpload = new LifecycleConfiguration.AbortIncompleteMultiUpload();
                     }else if(tagName.equalsIgnoreCase("DaysAfterInitiation")){
                         xmlPullParser.next();
-                        abortIncompleteMultiUpload.daysAfterInitiation = Integer.parseInt(xmlPullParser.getText());
+                        if (abortIncompleteMultiUpload != null) {
+                            abortIncompleteMultiUpload.daysAfterInitiation = Integer.parseInt(xmlPullParser.getText());
+                        }
                     }else if(tagName.equalsIgnoreCase("NoncurrentVersionExpiration")){
                         noncurrentVersionExpiration = new LifecycleConfiguration.NoncurrentVersionExpiration();
                     }else if(tagName.equalsIgnoreCase("NoncurrentVersionTransition")){
@@ -695,22 +750,34 @@ public class XmlParser extends XmlSlimParser {
                         result.rules.add(rule);
                         rule = null;
                     }else if (tagName.equalsIgnoreCase("Filter")){
-                        rule.filter = filter;
+                        if (rule != null) {
+                            rule.filter = filter;
+                        }
                         filter = null;
                     }else if (tagName.equalsIgnoreCase("Transition")){
-                        rule.transition = transition;
+                        if (rule != null) {
+                            rule.transition = transition;
+                        }
                         transition = null;
                     }else if (tagName.equalsIgnoreCase("NoncurrentVersionExpiration")){
-                        rule.noncurrentVersionExpiration = noncurrentVersionExpiration;
+                        if (rule != null) {
+                            rule.noncurrentVersionExpiration = noncurrentVersionExpiration;
+                        }
                         noncurrentVersionExpiration = null;
                     }else if (tagName.equalsIgnoreCase("NoncurrentVersionTransition")){
-                        rule.noncurrentVersionTransition = noncurrentVersionTransition;
+                        if (rule != null) {
+                            rule.noncurrentVersionTransition = noncurrentVersionTransition;
+                        }
                         noncurrentVersionTransition = null;
                     }else if (tagName.equalsIgnoreCase("Expiration")){
-                        rule.expiration = expiration;
+                        if (rule != null) {
+                            rule.expiration = expiration;
+                        }
                         expiration = null;
                     }else if (tagName.equalsIgnoreCase("AbortIncompleteMultipartUpload")){
-                        rule.abortIncompleteMultiUpload = abortIncompleteMultiUpload;
+                        if (rule != null) {
+                            rule.abortIncompleteMultiUpload = abortIncompleteMultiUpload;
+                        }
                         abortIncompleteMultiUpload = null;
                     }
                     break;
@@ -758,8 +825,8 @@ public class XmlParser extends XmlSlimParser {
         xmlPullParser.setInput(inputStream, "UTF-8");
         int eventType = xmlPullParser.getEventType();
         String tagName;
-        result.errorList = new ArrayList<DeleteResult.Error>();
-        result.deletedList = new ArrayList<DeleteResult.Deleted>();
+        result.errorList = new ArrayList<>();
+        result.deletedList = new ArrayList<>();
         DeleteResult.Deleted deleted = null;
         DeleteResult.Error error = null;
         while (eventType != XmlPullParser.END_DOCUMENT){
@@ -786,13 +853,19 @@ public class XmlParser extends XmlSlimParser {
                         }
                     }else if(tagName.equalsIgnoreCase("DeleteMarker")){
                         xmlPullParser.next();
-                        deleted.deleteMarker = Boolean.parseBoolean(xmlPullParser.getText());
+                        if (deleted != null) {
+                            deleted.deleteMarker = Boolean.parseBoolean(xmlPullParser.getText());
+                        }
                     }else if(tagName.equalsIgnoreCase("DeleteMarkerVersionId")){
                         xmlPullParser.next();
-                        deleted.deleteMarkerVersionId = xmlPullParser.getText();
+                        if (deleted != null) {
+                            deleted.deleteMarkerVersionId = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Message")){
                         xmlPullParser.next();
-                        error.message = xmlPullParser.getText();
+                        if (error != null) {
+                            error.message = xmlPullParser.getText();
+                        }
                     }
                     break;
                 case XmlPullParser.END_TAG:
@@ -859,36 +932,60 @@ public class XmlParser extends XmlSlimParser {
                         objectVersion = new ListBucketVersions.Version();
                     }else if(tagName.equalsIgnoreCase("Key")){
                         xmlPullParser.next();
-                        objectVersion.key= xmlPullParser.getText();
+                        if (objectVersion != null) {
+                            objectVersion.key= xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("VersionId")){
                         xmlPullParser.next();
-                        objectVersion.versionId= xmlPullParser.getText();
+                        if (objectVersion != null) {
+                            objectVersion.versionId= xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("IsLatest")){
                         xmlPullParser.next();
-                        objectVersion.isLatest= Boolean.parseBoolean(xmlPullParser.getText());
+                        if (objectVersion != null) {
+                            objectVersion.isLatest= Boolean.parseBoolean(xmlPullParser.getText());
+                        }
                     }else if(tagName.equalsIgnoreCase("LastModified")){
                         xmlPullParser.next();
-                        objectVersion.lastModified= xmlPullParser.getText();
+                        if (objectVersion != null) {
+                            objectVersion.lastModified= xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Owner")){
                         owner = new ListBucketVersions.Owner();
                     }else if(tagName.equalsIgnoreCase("UID")){
                         xmlPullParser.next();
-                        owner.uid = xmlPullParser.getText();
+                        if (owner != null) {
+                            owner.uid = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("ETag")){
                         xmlPullParser.next();
-                        ((ListBucketVersions.Version)objectVersion).eTag= xmlPullParser.getText();
+                        if (objectVersion != null) {
+                            if (objectVersion instanceof ListBucketVersions.Version) {
+                                ((ListBucketVersions.Version)objectVersion).eTag= xmlPullParser.getText();
+                            }
+                        }
                     }else if(tagName.equalsIgnoreCase("Size")){
                         xmlPullParser.next();
-                        ((ListBucketVersions.Version)objectVersion).size= Long.parseLong(xmlPullParser.getText());
+                        if (objectVersion != null) {
+                            if (objectVersion instanceof ListBucketVersions.Version) {
+                                ((ListBucketVersions.Version)objectVersion).size= Long.parseLong(xmlPullParser.getText());
+                            }
+                        }
                     }else if(tagName.equalsIgnoreCase("StorageClass")){
                         xmlPullParser.next();
-                        ((ListBucketVersions.Version)objectVersion).storageClass= xmlPullParser.getText();
+                        if (objectVersion != null) {
+                            if (objectVersion instanceof ListBucketVersions.Version) {
+                                ((ListBucketVersions.Version)objectVersion).storageClass= xmlPullParser.getText();
+                            }
+                        }
                     }
                     break;
                 case XmlPullParser.END_TAG:
                     tagName = xmlPullParser.getName();
                     if(tagName.equalsIgnoreCase("Owner")){
-                        objectVersion.owner = owner;
+                        if (objectVersion != null) {
+                            objectVersion.owner = owner;
+                        }
                         owner = null;
                     }else if(tagName.equalsIgnoreCase("DeleteMarker")){
                         result.objectVersionList.add(objectVersion);
@@ -928,12 +1025,16 @@ public class XmlParser extends XmlSlimParser {
                         indexDocument = new WebsiteConfiguration.IndexDocument();
                     }else if(tagName.equalsIgnoreCase("Suffix")){
                         xmlPullParser.next();
-                        indexDocument.suffix = xmlPullParser.getText();
+                        if (indexDocument != null) {
+                            indexDocument.suffix = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("ErrorDocument")){
                         errorDocument = new WebsiteConfiguration.ErrorDocument();
                     }else if(tagName.equalsIgnoreCase("Key")){
                         xmlPullParser.next();
-                        errorDocument.key = xmlPullParser.getText();
+                        if (errorDocument != null) {
+                            errorDocument.key = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("RedirectAllRequestsTo")){
                         redirectAllRequestTo = new WebsiteConfiguration.RedirectAllRequestTo();
                     }else if(tagName.equalsIgnoreCase("Protocol")){
@@ -941,26 +1042,40 @@ public class XmlParser extends XmlSlimParser {
                         if(redirectAllRequestTo != null){
                             redirectAllRequestTo.protocol = xmlPullParser.getText();
                         }else {
-                            routingRule.redirect.protocol = xmlPullParser.getText();
+                            if (routingRule != null) {
+                                routingRule.redirect.protocol = xmlPullParser.getText();
+                            }
                         }
                     }else if(tagName.equalsIgnoreCase("RoutingRule")){
                         routingRule = new WebsiteConfiguration.RoutingRule();
                     }else if(tagName.equalsIgnoreCase("Condition")){
-                        routingRule.contidion = new WebsiteConfiguration.Contidion();
+                        if (routingRule != null) {
+                            routingRule.contidion = new WebsiteConfiguration.Contidion();
+                        }
                     }else if(tagName.equalsIgnoreCase("HttpErrorCodeReturnedEquals")){
                         xmlPullParser.next();
-                        routingRule.contidion.httpErrorCodeReturnedEquals = Integer.parseInt(xmlPullParser.getText());
+                        if (routingRule != null) {
+                            routingRule.contidion.httpErrorCodeReturnedEquals = Integer.parseInt(xmlPullParser.getText());
+                        }
                     }else if(tagName.equalsIgnoreCase("KeyPrefixEquals")){
                         xmlPullParser.next();
-                        routingRule.contidion.keyPrefixEquals = xmlPullParser.getText();
+                        if (routingRule != null) {
+                            routingRule.contidion.keyPrefixEquals = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Redirect")){
-                        routingRule.redirect = new WebsiteConfiguration.Redirect();
+                        if (routingRule != null) {
+                            routingRule.redirect = new WebsiteConfiguration.Redirect();
+                        }
                     }else if(tagName.equalsIgnoreCase("ReplaceKeyPrefixWith")){
                         xmlPullParser.next();
-                        routingRule.redirect.replaceKeyPrefixWith = xmlPullParser.getText();
+                        if (routingRule != null) {
+                            routingRule.redirect.replaceKeyPrefixWith = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("ReplaceKeyWith")){
                         xmlPullParser.next();
-                        routingRule.redirect.replaceKeyWith = xmlPullParser.getText();
+                        if (routingRule != null) {
+                            routingRule.redirect.replaceKeyWith = xmlPullParser.getText();
+                        }
                     }
                     break;
                 case XmlPullParser.END_TAG:
@@ -1008,7 +1123,7 @@ public class XmlParser extends XmlSlimParser {
                     tagName = xmlPullParser.getName();
                     if(tagName.equalsIgnoreCase("IsTruncated")){
                         xmlPullParser.next();
-                        result.isTruncated = Boolean.valueOf(xmlPullParser.getText());
+                        result.isTruncated = Boolean.parseBoolean(xmlPullParser.getText());
                     }else if(tagName.equalsIgnoreCase("ContinuationToken")){
                         xmlPullParser.next();
                         result.continuationToken = xmlPullParser.getText();
@@ -1019,21 +1134,31 @@ public class XmlParser extends XmlSlimParser {
                         inventoryConfiguration = new InventoryConfiguration();
                     }else if(tagName.equalsIgnoreCase("Id")){
                         xmlPullParser.next();
-                        inventoryConfiguration.id = xmlPullParser.getText();
+                        if (inventoryConfiguration != null) {
+                            inventoryConfiguration.id = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("IsEnabled")){
                         xmlPullParser.next();
-                        inventoryConfiguration.isEnabled = Boolean.valueOf(xmlPullParser.getText());
+                        if (inventoryConfiguration != null) {
+                            inventoryConfiguration.isEnabled = Boolean.parseBoolean(xmlPullParser.getText());
+                        }
                     }else if(tagName.equalsIgnoreCase("COSBucketDestination")){
                         cosBucketDestination = new InventoryConfiguration.COSBucketDestination();
                     }else if(tagName.equalsIgnoreCase("Format")){
                         xmlPullParser.next();
-                        cosBucketDestination.format = xmlPullParser.getText();
+                        if (cosBucketDestination != null) {
+                            cosBucketDestination.format = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("AccountId")){
                         xmlPullParser.next();
-                        cosBucketDestination.accountId = xmlPullParser.getText();
+                        if (cosBucketDestination != null) {
+                            cosBucketDestination.accountId = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Bucket")){
                         xmlPullParser.next();
-                        cosBucketDestination.bucket = xmlPullParser.getText();
+                        if (cosBucketDestination != null) {
+                            cosBucketDestination.bucket = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Prefix")){
                         xmlPullParser.next();
                         if(cosBucketDestination != null){
@@ -1043,42 +1168,64 @@ public class XmlParser extends XmlSlimParser {
                         }
                     }else if(tagName.equalsIgnoreCase("Encryption")){
                         xmlPullParser.next();
-                        cosBucketDestination.encryption = new InventoryConfiguration.Encryption();
+                        if (cosBucketDestination != null) {
+                            cosBucketDestination.encryption = new InventoryConfiguration.Encryption();
+                        }
                     }else if(tagName.equalsIgnoreCase("SSE-COS")){
                         xmlPullParser.next();
-                        cosBucketDestination.encryption.sSECOS = xmlPullParser.getText();
+                        if (cosBucketDestination != null) {
+                            cosBucketDestination.encryption.sSECOS = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Schedule")){
                         schedule = new InventoryConfiguration.Schedule();
                     }else if(tagName.equalsIgnoreCase("Frequency")){
                         xmlPullParser.next();
-                        schedule.frequency = xmlPullParser.getText();
+                        if (schedule != null) {
+                            schedule.frequency = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Filter")){
-                        inventoryConfiguration.filter = new InventoryConfiguration.Filter();
+                        if (inventoryConfiguration != null) {
+                            inventoryConfiguration.filter = new InventoryConfiguration.Filter();
+                        }
                     }else if(tagName.equalsIgnoreCase("IncludedObjectVersions")){
                         xmlPullParser.next();
-                        inventoryConfiguration.includedObjectVersions = xmlPullParser.getText();
+                        if (inventoryConfiguration != null) {
+                            inventoryConfiguration.includedObjectVersions = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("OptionalFields")){
                         optionalFields = new InventoryConfiguration.OptionalFields();
                         optionalFields.fields = new HashSet<>(6);
                     }else if(tagName.equalsIgnoreCase("Field")){
                         xmlPullParser.next();
-                        optionalFields.fields.add(xmlPullParser.getText());
+                        if (optionalFields != null) {
+                            optionalFields.fields.add(xmlPullParser.getText());
+                        }
                     }
                     break;
                 case XmlPullParser.END_TAG:
                     tagName = xmlPullParser.getName();
                     if(tagName.equalsIgnoreCase("COSBucketDestination")){
-                        inventoryConfiguration.destination = new InventoryConfiguration.Destination();
-                        inventoryConfiguration.destination.cosBucketDestination = cosBucketDestination;
+                        if (inventoryConfiguration != null) {
+                            inventoryConfiguration.destination = new InventoryConfiguration.Destination();
+                        }
+                        if (inventoryConfiguration != null) {
+                            inventoryConfiguration.destination.cosBucketDestination = cosBucketDestination;
+                        }
                         cosBucketDestination = null;
                     }else if(tagName.equalsIgnoreCase("OptionalFields")){
-                        inventoryConfiguration.optionalFields = optionalFields;
+                        if (inventoryConfiguration != null) {
+                            inventoryConfiguration.optionalFields = optionalFields;
+                        }
                         optionalFields = null;
                     }else if(tagName.equalsIgnoreCase("Filter")){
-                        inventoryConfiguration.filter = filter;
+                        if (inventoryConfiguration != null) {
+                            inventoryConfiguration.filter = filter;
+                        }
                         filter = null;
                     }else if(tagName.equalsIgnoreCase("Schedule")){
-                        inventoryConfiguration.schedule = schedule;
+                        if (inventoryConfiguration != null) {
+                            inventoryConfiguration.schedule = schedule;
+                        }
                         schedule = null;
                     }else if(tagName.equalsIgnoreCase("InventoryConfiguration")){
                         result.inventoryConfigurations.add(inventoryConfiguration);
@@ -1115,18 +1262,24 @@ public class XmlParser extends XmlSlimParser {
                         result.id = xmlPullParser.getText();
                     }else if(tagName.equalsIgnoreCase("IsEnabled")){
                         xmlPullParser.next();
-                        result.isEnabled = Boolean.valueOf(xmlPullParser.getText());
+                        result.isEnabled = Boolean.parseBoolean(xmlPullParser.getText());
                     }else if(tagName.equalsIgnoreCase("COSBucketDestination")){
                         cosBucketDestination = new InventoryConfiguration.COSBucketDestination();
                     }else if(tagName.equalsIgnoreCase("Format")){
                         xmlPullParser.next();
-                        cosBucketDestination.format = xmlPullParser.getText();
+                        if (cosBucketDestination != null) {
+                            cosBucketDestination.format = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("AccountId")){
                         xmlPullParser.next();
-                        cosBucketDestination.accountId = xmlPullParser.getText();
+                        if (cosBucketDestination != null) {
+                            cosBucketDestination.accountId = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Bucket")){
                         xmlPullParser.next();
-                        cosBucketDestination.bucket = xmlPullParser.getText();
+                        if (cosBucketDestination != null) {
+                            cosBucketDestination.bucket = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Prefix")){
                         xmlPullParser.next();
                         if(cosBucketDestination != null){
@@ -1135,15 +1288,21 @@ public class XmlParser extends XmlSlimParser {
                             filter.prefix = xmlPullParser.getText();
                         }
                     }else if(tagName.equalsIgnoreCase("Encryption")){
-                        cosBucketDestination.encryption = new InventoryConfiguration.Encryption();
+                        if (cosBucketDestination != null) {
+                            cosBucketDestination.encryption = new InventoryConfiguration.Encryption();
+                        }
                     }else if(tagName.equalsIgnoreCase("SSE-COS")){
                         xmlPullParser.next();
-                        cosBucketDestination.encryption.sSECOS = xmlPullParser.getText();
+                        if (cosBucketDestination != null) {
+                            cosBucketDestination.encryption.sSECOS = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Schedule")){
                         schedule = new InventoryConfiguration.Schedule();
                     }else if(tagName.equalsIgnoreCase("Frequency")){
                         xmlPullParser.next();
-                        schedule.frequency = xmlPullParser.getText();
+                        if (schedule != null) {
+                            schedule.frequency = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Filter")){
                         filter = new InventoryConfiguration.Filter();
                     }else if(tagName.equalsIgnoreCase("IncludedObjectVersions")){
@@ -1154,7 +1313,9 @@ public class XmlParser extends XmlSlimParser {
                         optionalFields.fields = new HashSet<>(6);
                     }else if(tagName.equalsIgnoreCase("Field")){
                         xmlPullParser.next();
-                        optionalFields.fields.add(xmlPullParser.getText());
+                        if (optionalFields != null) {
+                            optionalFields.fields.add(xmlPullParser.getText());
+                        }
                     }
                     break;
                 case XmlPullParser.END_TAG:
@@ -1200,10 +1361,14 @@ public class XmlParser extends XmlSlimParser {
                         loggingEnabled = new BucketLoggingStatus.LoggingEnabled();
                     }else if(tagName.equalsIgnoreCase("TargetBucket")){
                         xmlPullParser.next();
-                        loggingEnabled.targetBucket = xmlPullParser.getText();
+                        if (loggingEnabled != null) {
+                            loggingEnabled.targetBucket = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("TargetPrefix")){
                         xmlPullParser.next();
-                        loggingEnabled.targetPrefix = xmlPullParser.getText();
+                        if (loggingEnabled != null) {
+                            loggingEnabled.targetPrefix = xmlPullParser.getText();
+                        }
                     }
                     break;
                 case XmlPullParser.END_TAG:
@@ -1241,20 +1406,26 @@ public class XmlParser extends XmlSlimParser {
                         domainRule = new DomainConfiguration.DomainRule();
                     }else if(tagName.equalsIgnoreCase("Status")){
                         xmlPullParser.next();
-                        domainRule.status = xmlPullParser.getText();
+                        if (domainRule != null) {
+                            domainRule.status = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Name")){
                         xmlPullParser.next();
-                        domainRule.name = xmlPullParser.getText();
+                        if (domainRule != null) {
+                            domainRule.name = xmlPullParser.getText();
+                        }
                     }else if(tagName.equalsIgnoreCase("Type")){
                         xmlPullParser.next();
-                        domainRule.type = xmlPullParser.getText();
+                        if (domainRule != null) {
+                            domainRule.type = xmlPullParser.getText();
+                        }
                     }
                     break;
                 case XmlPullParser.END_TAG:
                     tagName = xmlPullParser.getName();
                     if(tagName.equalsIgnoreCase("DomainRule")){
                        result.domainRules.add(domainRule);
-                        domainRule = null;
+                       domainRule = null;
                     }
                     break;
             }

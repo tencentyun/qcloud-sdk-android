@@ -98,9 +98,8 @@ public abstract class NormalRequestTestAdapter<R extends CosXmlRequest, S extend
     protected abstract void exeAsync(R request, CosXmlService cosXmlService, CosXmlResultListener resultListener);
 
     protected void assertResult(S result) {
-        result.printResult();
-        TestUtils.parseBadResponseBody(result);
-        Assert.assertTrue(result != null);
+        TestUtils.print(result.printResult());
+        Assert.assertTrue(result.httpCode >= 200 && result.httpCode < 300);
     }
 
     protected void assertException(@Nullable CosXmlClientException clientException,
