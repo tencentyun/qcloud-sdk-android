@@ -20,29 +20,24 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.model.ci.asr;
+package com.tencent.cos.xml.model.ci.ai.bean;
 
-import com.tencent.cos.xml.CosXmlServiceConfig;
-import com.tencent.cos.xml.listener.CosXmlResultListener;
-import com.tencent.cos.xml.model.ci.BaseDescribeQueuesRequest;
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 
 /**
- * 用于查询语音识别队列的请求.
- * @see com.tencent.cos.xml.CIService#describeSpeechQueues(DescribeSpeechQueuesRequest)
- * @see com.tencent.cos.xml.CIService#describeSpeechQueuesAsync(DescribeSpeechQueuesRequest, CosXmlResultListener)
+ * 指定 分词 参数
  */
-final public class DescribeSpeechQueuesRequest extends BaseDescribeQueuesRequest {
-    public DescribeSpeechQueuesRequest(String bucket) {
-        super(bucket);
-    }
+@XmlBean
+public class WordsGeneralize {
+    /**
+     * ner方式, 默认值DL
+     * 可选值：NerBasic或DL
+     */
+    public String nerMethod;
 
-    public DescribeSpeechQueuesRequest(String bucket, String region) {
-        super(bucket);
-        this.region = region;
-    }
-
-    @Override
-    public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
-        return "/asrqueue";
-    }
+    /**
+     * 分词粒度, 默认值MIX
+     * 可选值：SegBasic或MIX
+     */
+    public String segMethod;
 }
