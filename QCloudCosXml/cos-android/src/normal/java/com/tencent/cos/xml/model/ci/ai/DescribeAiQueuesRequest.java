@@ -20,29 +20,30 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.model.ci.asr;
+package com.tencent.cos.xml.model.ci.ai;
+
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.ci.BaseDescribeQueuesRequest;
 
 /**
- * 用于查询语音识别队列的请求.
- * @see com.tencent.cos.xml.CIService#describeSpeechQueues(DescribeSpeechQueuesRequest)
- * @see com.tencent.cos.xml.CIService#describeSpeechQueuesAsync(DescribeSpeechQueuesRequest, CosXmlResultListener)
+ * 搜索AI内容识别队列的请求.
+ * @see com.tencent.cos.xml.CIService#describeAiQueues(DescribeAiQueuesRequest)
+ * @see com.tencent.cos.xml.CIService#describeAiQueuesAsync(DescribeAiQueuesRequest, CosXmlResultListener)
  */
-final public class DescribeSpeechQueuesRequest extends BaseDescribeQueuesRequest {
-    public DescribeSpeechQueuesRequest(String bucket) {
+final public class DescribeAiQueuesRequest extends BaseDescribeQueuesRequest {
+    public DescribeAiQueuesRequest(String bucket) {
         super(bucket);
     }
 
-    public DescribeSpeechQueuesRequest(String bucket, String region) {
+    public DescribeAiQueuesRequest(String bucket, String region) {
         super(bucket);
         this.region = region;
     }
 
     @Override
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
-        return "/asrqueue";
+        return "/ai_queue";
     }
 }

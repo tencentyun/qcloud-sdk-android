@@ -20,29 +20,24 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.model.ci.asr;
+package com.tencent.cos.xml.model.ci.ai.bean;
 
-import com.tencent.cos.xml.CosXmlServiceConfig;
-import com.tencent.cos.xml.listener.CosXmlResultListener;
-import com.tencent.cos.xml.model.ci.BaseDescribeQueuesRequest;
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 
-/**
- * 用于查询语音识别队列的请求.
- * @see com.tencent.cos.xml.CIService#describeSpeechQueues(DescribeSpeechQueuesRequest)
- * @see com.tencent.cos.xml.CIService#describeSpeechQueuesAsync(DescribeSpeechQueuesRequest, CosXmlResultListener)
- */
-final public class DescribeSpeechQueuesRequest extends BaseDescribeQueuesRequest {
-    public DescribeSpeechQueuesRequest(String bucket) {
-        super(bucket);
-    }
+@XmlBean
+public class WordsGeneralizeJobInput {
+    /**
+     * 存储桶的地域
+     */
+    public String region;
 
-    public DescribeSpeechQueuesRequest(String bucket, String region) {
-        super(bucket);
-        this.region = region;
-    }
+    /**
+     * 存储结果的存储桶
+     */
+    public String bucketId;
 
-    @Override
-    public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
-        return "/asrqueue";
-    }
+    /**
+     * 结果文件的名称
+     */
+    public String object;
 }

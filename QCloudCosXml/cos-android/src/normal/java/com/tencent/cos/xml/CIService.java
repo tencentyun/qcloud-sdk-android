@@ -15,14 +15,22 @@ import com.tencent.cos.xml.model.ci.QRCodeUploadRequest;
 import com.tencent.cos.xml.model.ci.QRCodeUploadResult;
 import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionRequest;
 import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionResult;
+import com.tencent.cos.xml.model.ci.ai.CreateWordsGeneralizeJobRequest;
+import com.tencent.cos.xml.model.ci.ai.CreateWordsGeneralizeJobResult;
+import com.tencent.cos.xml.model.ci.ai.DescribeWordsGeneralizeJobRequest;
+import com.tencent.cos.xml.model.ci.ai.DescribeWordsGeneralizeJobResult;
+import com.tencent.cos.xml.model.ci.ai.DescribeAiQueuesRequest;
+import com.tencent.cos.xml.model.ci.ai.DescribeAiQueuesResult;
+import com.tencent.cos.xml.model.ci.ai.OpenBucketAiRequest;
+import com.tencent.cos.xml.model.ci.ai.OpenBucketAiResult;
 import com.tencent.cos.xml.model.ci.asr.CreateSpeechJobsRequest;
 import com.tencent.cos.xml.model.ci.asr.CreateSpeechJobsResult;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechBucketsRequest;
+import com.tencent.cos.xml.model.ci.asr.DescribeSpeechBucketsResult;
 import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobRequest;
 import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobResult;
 import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobsRequest;
 import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobsResult;
-import com.tencent.cos.xml.model.ci.asr.DescribeSpeechBucketsRequest;
-import com.tencent.cos.xml.model.ci.asr.DescribeSpeechBucketsResult;
 import com.tencent.cos.xml.model.ci.asr.DescribeSpeechQueuesRequest;
 import com.tencent.cos.xml.model.ci.asr.DescribeSpeechQueuesResult;
 import com.tencent.cos.xml.model.ci.audit.GetAudioAuditRequest;
@@ -693,5 +701,141 @@ public class CIService extends CosXmlService {
      */
     public void describeSpeechJobsAsync(DescribeSpeechJobsRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new DescribeSpeechJobsResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 开通AI 内容识别服务并生成队列的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46230">https://cloud.tencent.com/document/product/460/46230.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">开通AI 内容识别服务并生成队列示例</a>
+     *
+     * @param request 开通AI 内容识别服务并生成队列请求 {@link OpenBucketAiRequest}
+     * @return 开通AI 内容识别服务并生成队列返回结果 {@link OpenBucketAiResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public OpenBucketAiResult openBucketAi(OpenBucketAiRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new OpenBucketAiResult());
+    }
+
+    /**
+     * <p>
+     * 开通AI 内容识别服务并生成队列的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46230">https://cloud.tencent.com/document/product/460/46230.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">开通AI 内容识别服务并生成队列示例</a>
+     *
+     * @param request 开通AI 内容识别服务并生成队列请求 {@link OpenBucketAiRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void openBucketAiAsync(OpenBucketAiRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new OpenBucketAiResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 查询Ai识别队列的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46234">https://cloud.tencent.com/document/product/460/46234.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">查询Ai识别队列示例</a>
+     *
+     * @param request 查询Ai识别队列请求 {@link DescribeAiQueuesRequest}
+     * @return 查询Ai识别队列返回结果 {@link DescribeAiQueuesResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DescribeAiQueuesResult describeAiQueues(DescribeAiQueuesRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DescribeAiQueuesResult());
+    }
+
+    /**
+     * <p>
+     * 查询Ai识别队列的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46234">https://cloud.tencent.com/document/product/460/46234.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">查询Ai识别队列示例</a>
+     *
+     * @param request 查询Ai识别队列请求 {@link DescribeAiQueuesRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void describeAiQueuesAsync(DescribeAiQueuesRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DescribeAiQueuesResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 提交一个Ai分词识别任务的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46228">https://cloud.tencent.com/document/product/460/46228.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">提交一个Ai分词识别任务示例</a>
+     *
+     * @param request 提交一个Ai分词识别任务请求 {@link CreateWordsGeneralizeJobRequest}
+     * @return 提交一个Ai分词识别任务返回结果 {@link CreateWordsGeneralizeJobResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public CreateWordsGeneralizeJobResult createWordsGeneralizeJob(CreateWordsGeneralizeJobRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new CreateWordsGeneralizeJobResult());
+    }
+
+    /**
+     * <p>
+     * 提交一个Ai分词识别任务的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46228">https://cloud.tencent.com/document/product/460/46228.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">提交一个Ai分词识别任务示例</a>
+     *
+     * @param request 提交一个Ai分词识别任务请求 {@link CreateWordsGeneralizeJobRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void createWordsGeneralizeJobAsync(CreateWordsGeneralizeJobRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new CreateWordsGeneralizeJobResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 查询指定的Ai分词识别任务的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46229">https://cloud.tencent.com/document/product/460/46229.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">查询指定的Ai分词识别任务示例</a>
+     *
+     * @param request 查询指定的Ai分词识别任务请求 {@link DescribeWordsGeneralizeJobRequest}
+     * @return 查询指定的Ai分词识别任务返回结果 {@link DescribeWordsGeneralizeJobResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DescribeWordsGeneralizeJobResult describeWordsGeneralizeJob(DescribeWordsGeneralizeJobRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DescribeWordsGeneralizeJobResult());
+    }
+
+    /**
+     * <p>
+     * 查询指定的Ai分词识别任务的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46229">https://cloud.tencent.com/document/product/460/46229.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">查询指定的Ai分词识别任务示例</a>
+     *
+     * @param request 查询指定的Ai分词识别任务请求 {@link DescribeWordsGeneralizeJobRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void describeWordsGeneralizeJobAsync(DescribeWordsGeneralizeJobRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DescribeWordsGeneralizeJobResult(), cosXmlResultListener);
     }
 }

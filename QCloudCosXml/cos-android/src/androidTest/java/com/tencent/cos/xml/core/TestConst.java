@@ -55,6 +55,12 @@ public class TestConst {
     public static final String ASR_OBJECT_OUTPUT = "asr/output.txt";
     public static final String ASR_QUEUE_ID = "p74b5265ab1df455782b7b355007d0dfc";
 
+    //分词
+    public static final String WORDS_GENERALIZE_BUCKET_REGION = "ap-chongqing";
+    public static final String WORDS_GENERALIZE_BUCKET = "tinna-media-1253960454";
+    public static final String WORDS_GENERALIZE_QUEUE_ID = "p4c62b2f626f347d982d1166695766d26";
+    public static final String WORDS_GENERALIZE_OBJECT = "test.txt";
+    public static final String WORDS_GENERALIZE_JOB_ID = "af77abe4a239a11eda0c10f20b65ba637";
 
     public static final long PERSIST_BUCKET_SMALL_OBJECT_SIZE = 1024 * 1024;
     public static final long PERSIST_BUCKET_BIG_OBJECT_SIZE = 10 * 1024 * 1024;
