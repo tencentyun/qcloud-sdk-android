@@ -20,29 +20,23 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.model.ci.asr;
+package com.tencent.cos.xml.model.ci.ai.bean;
 
-import com.tencent.cos.xml.CosXmlServiceConfig;
-import com.tencent.cos.xml.listener.CosXmlResultListener;
-import com.tencent.cos.xml.model.ci.BaseDescribeQueuesRequest;
+import com.tencent.cos.xml.model.tag.DescribeBucket;
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 
 /**
- * 用于查询语音识别队列的请求.
- * @see com.tencent.cos.xml.CIService#describeSpeechQueues(DescribeSpeechQueuesRequest)
- * @see com.tencent.cos.xml.CIService#describeSpeechQueuesAsync(DescribeSpeechQueuesRequest, CosXmlResultListener)
+ * 开通AI内容识别服务结果实体
  */
-final public class DescribeSpeechQueuesRequest extends BaseDescribeQueuesRequest {
-    public DescribeSpeechQueuesRequest(String bucket) {
-        super(bucket);
-    }
+@XmlBean(name = "Response")
+public class OpenBucketAiResponse {
+    /**
+     * 请求的唯一 ID
+     */
+    public String requestId;
 
-    public DescribeSpeechQueuesRequest(String bucket, String region) {
-        super(bucket);
-        this.region = region;
-    }
-
-    @Override
-    public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
-        return "/asrqueue";
-    }
+    /**
+     * 已开通Ai服务的 bucket
+     */
+    public DescribeBucket aiBucket;
 }

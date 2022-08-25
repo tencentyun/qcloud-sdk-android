@@ -20,29 +20,46 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.model.ci.asr;
+package com.tencent.cos.xml.model.ci.ai.bean;
 
-import com.tencent.cos.xml.CosXmlServiceConfig;
-import com.tencent.cos.xml.listener.CosXmlResultListener;
-import com.tencent.cos.xml.model.ci.BaseDescribeQueuesRequest;
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 
 /**
- * 用于查询语音识别队列的请求.
- * @see com.tencent.cos.xml.CIService#describeSpeechQueues(DescribeSpeechQueuesRequest)
- * @see com.tencent.cos.xml.CIService#describeSpeechQueuesAsync(DescribeSpeechQueuesRequest, CosXmlResultListener)
+ * 提交一个分词任务请求实体
  */
-final public class DescribeSpeechQueuesRequest extends BaseDescribeQueuesRequest {
-    public DescribeSpeechQueuesRequest(String bucket) {
-        super(bucket);
-    }
+@XmlBean(name = "Request")
+public class CreateWordsGeneralizeJob {
+    /**
+     * 创建任务的 Tag，目前仅支持：WordsGeneralize
+     */
+    public String tag = "WordsGeneralize";
 
-    public DescribeSpeechQueuesRequest(String bucket, String region) {
-        super(bucket);
-        this.region = region;
-    }
+    /**
+     * 待操作的对象信息
+     */
+    public WordsGeneralizeJobInput input;
+    /**
+     * 操作规则
+     */
+    public WordsGeneralizeJobOperation operation;
 
-    @Override
-    public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
-        return "/asrqueue";
+    /**
+     * 任务所在的队列 ID
+     */
+    public String queueId;
+
+    /**
+     * 任务回调地址，优先级高于队列的回调地址。设置为 no 时，表示队列的回调地址不产生回调
+     */
+    public String callBack;
+
+    /**
+     * 任务回调格式，JSON 或 XML，默认 XML，优先级高于队列的回调格式
+     */
+    public String callBackFormat;
+
+    public CreateWordsGeneralizeJob() {
+        this.input = new WordsGeneralizeJobInput();
+        this.operation = new WordsGeneralizeJobOperation();
     }
 }

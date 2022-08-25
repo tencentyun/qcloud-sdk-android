@@ -20,18 +20,15 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.model.ci.asr.bean;
+package com.tencent.cos.xml.model.ci;
 
 import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 
 import java.util.List;
 
-/**
- * 语音识别队列查询结果
- */
 @XmlBean(name = "Response")
-public class DescribeSpeechQueuesResponse {
+public class BaseDescribeQueuesResponse {
     /**
      * 请求的唯一 ID
      */
@@ -102,6 +99,11 @@ public class DescribeSpeechQueuesResponse {
         public String createTime;
 
         /**
+         * 类别
+         */
+        public String category;
+
+        /**
          * 回调配置
          */
         public NotifyConfig notifyConfig;
@@ -128,6 +130,11 @@ public class DescribeSpeechQueuesResponse {
          * 触发回调的事件
          */
         public String event;
+
+        /**
+         * 结果格式
+         */
+        public String resultFormat;
     }
 
     @XmlBean(name = "NonExistPIDs")

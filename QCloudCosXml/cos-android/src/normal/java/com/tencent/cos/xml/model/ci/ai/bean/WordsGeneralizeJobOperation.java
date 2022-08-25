@@ -20,29 +20,31 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.model.ci.asr;
+package com.tencent.cos.xml.model.ci.ai.bean;
 
-import com.tencent.cos.xml.CosXmlServiceConfig;
-import com.tencent.cos.xml.listener.CosXmlResultListener;
-import com.tencent.cos.xml.model.ci.BaseDescribeQueuesRequest;
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 
 /**
- * 用于查询语音识别队列的请求.
- * @see com.tencent.cos.xml.CIService#describeSpeechQueues(DescribeSpeechQueuesRequest)
- * @see com.tencent.cos.xml.CIService#describeSpeechQueuesAsync(DescribeSpeechQueuesRequest, CosXmlResultListener)
+ * 操作规则
  */
-final public class DescribeSpeechQueuesRequest extends BaseDescribeQueuesRequest {
-    public DescribeSpeechQueuesRequest(String bucket) {
-        super(bucket);
+@XmlBean(name = "Operation")
+public class WordsGeneralizeJobOperation {
+    public WordsGeneralizeJobOperation() {
+        this.wordsGeneralize = new WordsGeneralize();
     }
 
-    public DescribeSpeechQueuesRequest(String bucket, String region) {
-        super(bucket);
-        this.region = region;
-    }
+    /**
+     * 指定 分词 参数
+     */
+    public WordsGeneralize wordsGeneralize;
 
-    @Override
-    public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
-        return "/asrqueue";
-    }
+    /**
+     * 透传用户信息, 可打印的 ASCII 码, 长度不超过1024
+     */
+    public String userData;
+
+    /**
+     * 任务优先级，级别限制：0 、1 、2 。级别越大任务优先级越高，默认为0
+     */
+    public int jobLevel;
 }

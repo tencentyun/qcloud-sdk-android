@@ -20,14 +20,13 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.model.ci.asr;
-
+package com.tencent.cos.xml.model.ci.ai;
 
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
-import com.tencent.cos.xml.model.ci.BaseDescribeQueuesResponse;
+import com.tencent.cos.xml.model.ci.ai.bean.DescribeWordsGeneralizeJobResponse;
 import com.tencent.qcloud.core.http.HttpResponse;
 import com.tencent.qcloud.qcloudxml.core.QCloudXml;
 
@@ -36,21 +35,21 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 /**
- * 用于查询语音识别队列的返回结果.
- * @see com.tencent.cos.xml.CIService#describeSpeechQueues(DescribeSpeechQueuesRequest)
- * @see DescribeSpeechQueuesRequest
+ * 查询指定的AI分词识别任务的返回结果.
+ * @see com.tencent.cos.xml.CIService#describeWordsGeneralizeJob(DescribeWordsGeneralizeJobRequest)
+ * @see DescribeWordsGeneralizeJobRequest
  */
-final public class DescribeSpeechQueuesResult extends CosXmlResult {
+final public class DescribeWordsGeneralizeJobResult extends CosXmlResult {
     /**
-     * 查询语音识别队列结果
+     * 查询指定的语音识别任务结果
      */
-    public BaseDescribeQueuesResponse describeSpeechQueuesResponse;
+    public DescribeWordsGeneralizeJobResponse describeWordsGeneralizeJobResponse;
 
     @Override
     public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
         super.parseResponseBody(response);
         try {
-            describeSpeechQueuesResponse = QCloudXml.fromXml(response.byteStream(), BaseDescribeQueuesResponse.class);
+            describeWordsGeneralizeJobResponse = QCloudXml.fromXml(response.byteStream(), DescribeWordsGeneralizeJobResponse.class);
         } catch (XmlPullParserException e) {
             throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
         } catch (IOException e) {
