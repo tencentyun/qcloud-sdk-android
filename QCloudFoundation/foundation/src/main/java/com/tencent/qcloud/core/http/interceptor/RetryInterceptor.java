@@ -31,6 +31,7 @@ import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.HttpConfiguration;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.HttpTask;
+import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.RetryStrategy;
@@ -174,6 +175,12 @@ public class RetryInterceptor implements Interceptor {
             }
             QCloudLogger.i(HTTP_LOG_TAG, "%s start to execute, attempts is %d", request, attempts);
 
+            //记录重试次数
+            HttpTaskMetrics metrics = task.metrics();
+            if (metrics != null) {
+                metrics.setRetryCount(attempts);
+            }
+
             attempts++;
             int statusCode = -1;
             try {
@@ -209,6 +216,10 @@ public class RetryInterceptor implements Interceptor {
             } else if (shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled()) {
                 QCloudLogger.i(HTTP_LOG_TAG, "%s failed for %s, code is %d", request, e, statusCode);
                 retryStrategy.onTaskEnd(false, e);
+                //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
+//                if (response != null) {
+//                    Util.closeQuietly(response.body());
+//                }
             } else {
                 QCloudLogger.i(HTTP_LOG_TAG, "%s ends for %s, code is %d", request, e, statusCode);
                 break;

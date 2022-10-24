@@ -70,6 +70,7 @@ public class HttpTaskMetrics {
     @Nullable String domainName;
     @Nullable List<InetAddress> remoteAddress;
     @Nullable InetAddress connectAddress;
+    private int retryCount;
 
     void onTaskStart() {
         fullTaskStartTime = System.nanoTime();
@@ -235,6 +236,14 @@ public class HttpTaskMetrics {
         this.domainName = domainName;
     }
 
+    public int getRetryCount() {
+        return retryCount;
+    }
+
+    public void setRetryCount(int retryCount) {
+        this.retryCount = retryCount;
+    }
+
     private double toSeconds(long nanotime) {
         return (double)nanotime / 1_000_000_000.0;
     }
@@ -289,6 +298,7 @@ public class HttpTaskMetrics {
         if (taskMetrics.connectAddress != null) {
             connectAddress = taskMetrics.getConnectAddress();
         }
+        retryCount += taskMetrics.retryCount;
         return this;
     }
 
@@ -297,6 +307,7 @@ public class HttpTaskMetrics {
     public String toString() {
         return new StringBuilder().append("Http Metrics: \n")
                 .append("domain : ").append(domainName).append("\n")
+                .append("retryCount : ").append(retryCount).append("\n")
                 .append("dns : ").append(connectAddress != null ? connectAddress.getHostAddress() : "null").append("\n")
                 .append("fullTaskTookTime : ").append(fullTaskTookTime()).append("\n")
                 .append("calculateMD5STookTime : ").append(calculateMD5STookTime()).append("\n")

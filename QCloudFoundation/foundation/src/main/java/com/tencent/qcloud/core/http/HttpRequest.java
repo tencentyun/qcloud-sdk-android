@@ -124,6 +124,18 @@ public class HttpRequest<T> {
         }
     }
 
+    public void addOrReplaceHeader(String name, String value) {
+        List<String> values = headers.get(name);
+        if (values != null && values.size() > 0) {
+            headers.remove(name);
+            requestBuilder.removeHeader(name);
+            removeHeaderNameValue(headers, name);
+        }
+
+        requestBuilder.addHeader(name, value);
+        addHeaderNameValue(headers, name, value);
+    }
+
     public void setUrl(String url){
         requestBuilder.url(url);
     }
@@ -199,6 +211,10 @@ public class HttpRequest<T> {
             headers.put(name, values);
         }
         values.add(value.trim());
+    }
+
+    private static void removeHeaderNameValue(Map<String, List<String>> headers, String name) {
+        headers.remove(name);
     }
 
     public static class Builder<T> {
