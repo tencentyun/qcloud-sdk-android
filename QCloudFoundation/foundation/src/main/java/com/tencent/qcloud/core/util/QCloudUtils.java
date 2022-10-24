@@ -56,38 +56,26 @@ public class QCloudUtils {
     public static long getUriContentLength(Uri uri, ContentResolver contentResolver) {
         String scheme = uri.getScheme();
         if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
+            long length = -1;
             Cursor cursor = contentResolver.query(uri,
                     null, null, null, null);
             if (cursor != null) {
                 try {
                     int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
                     if (cursor.moveToFirst()) {
-                        return cursor.getLong(sizeIndex);
+                        length = cursor.getLong(sizeIndex);
                     }
-                    return -1;
                 } finally {
                     cursor.close();
                 }
             }
-        } else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
-            File file = new File(uri.getPath());
-            return file.length();
-        }
 
-        return -1;
-    }
+            //适配部分 vivo 机型
+            if(length == -1){
+                length = getUriContentLengthByRead(uri, contentResolver);
+            }
 
-    /**
-     * 部分 vivo 机型
-     *
-     * @param uri
-     * @param contentResolver
-     * @return
-     */
-    public static long getUriContentLength2(Uri uri, ContentResolver contentResolver) {
-        String scheme = uri.getScheme();
-        if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
-            return getUriContentLengthByRead(uri, contentResolver);
+            return length;
         } else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
             File file = new File(uri.getPath());
             return file.length();

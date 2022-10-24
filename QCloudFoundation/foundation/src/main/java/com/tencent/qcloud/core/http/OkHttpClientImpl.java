@@ -22,6 +22,7 @@
 
 package com.tencent.qcloud.core.http;
 
+import com.tencent.qcloud.core.BuildConfig;
 import com.tencent.qcloud.core.http.interceptor.HttpMetricsInterceptor;
 import com.tencent.qcloud.core.http.interceptor.RetryInterceptor;
 import com.tencent.qcloud.core.http.interceptor.TrafficControlInterceptor;
@@ -31,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.HostnameVerifier;
 
 import okhttp3.Call;
-import okhttp3.ConnectionPool;
 import okhttp3.Dns;
 import okhttp3.OkHttpClient;
 
@@ -51,7 +51,11 @@ public class OkHttpClientImpl extends NetworkClient {
                      final Dns dns, HttpLogger httpLogger) {
         super.init(b, hostnameVerifier, dns, httpLogger);
         HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(httpLogger);
-        logInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+        if(BuildConfig.DEBUG){
+            logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        } else {
+            logInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+        }
         OkHttpClient.Builder builder = b.mBuilder;
         okHttpClient = builder
                 .followRedirects(true)
