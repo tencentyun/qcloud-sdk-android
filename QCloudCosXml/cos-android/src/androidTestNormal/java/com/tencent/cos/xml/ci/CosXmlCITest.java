@@ -709,6 +709,29 @@ public class CosXmlCITest {
     }
 
     @Test
+    public void createFlashSpeechJobs() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIChongQingService();
+        CreateSpeechJobsRequest request = new CreateSpeechJobsRequest(TestConst.ASR_FLASH_BUCKET);
+        request.setInputObject(TestConst.ASR_FLASH_OBJECT_LONG);
+        request.setQueueId(TestConst.ASR_FLASH_QUEUE_ID);
+        request.setOutput(TestConst.ASR_FLASH_BUCKET_REGION, TestConst.ASR_FLASH_BUCKET, TestConst.ASR_FLASH_OBJECT_OUTPUT);
+        request.setEngineModelType("8k_zh");
+        request.setChannelNum(1);
+        request.setResTextFormat(1);
+        request.setFlashAsr(true);
+        request.setFormat("m4a");
+        try {
+            CreateSpeechJobsResult result = ciService.createSpeechJobs(request);
+            Assert.assertNotNull(result.createSpeechJobsResponse);
+            TestUtils.printXML(result.createSpeechJobsResponse);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
     public void createSpeechJobsAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         final TestLocker locker = new TestLocker();
@@ -741,6 +764,21 @@ public class CosXmlCITest {
     public void describeSpeechJob() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         DescribeSpeechJobRequest request = new DescribeSpeechJobRequest(TestConst.ASR_BUCKET, "s987956140cd811edb12f43ad9e15c4e2");
+        try {
+            DescribeSpeechJobResult result = ciService.describeSpeechJob(request);
+            Assert.assertNotNull(result.describeSpeechJobResponse);
+            TestUtils.printXML(result.describeSpeechJobResponse);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void describeFlashSpeechJob() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIChongQingService();
+        DescribeSpeechJobRequest request = new DescribeSpeechJobRequest(TestConst.ASR_FLASH_BUCKET, "sf4ad7372511e11ed885807dca6b6f2a4");
         try {
             DescribeSpeechJobResult result = ciService.describeSpeechJob(request);
             Assert.assertNotNull(result.describeSpeechJobResponse);
@@ -815,7 +853,7 @@ public class CosXmlCITest {
 
     @Test
     public void openBucketAi() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
         OpenBucketAiRequest request = new OpenBucketAiRequest(TestConst.WORDS_GENERALIZE_BUCKET);
         try {
             OpenBucketAiResult result = ciService.openBucketAi(request);
@@ -830,7 +868,7 @@ public class CosXmlCITest {
 
     @Test
     public void openBucketAiAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
         final TestLocker locker = new TestLocker();
         OpenBucketAiRequest request = new OpenBucketAiRequest(TestConst.WORDS_GENERALIZE_BUCKET);
         ciService.openBucketAiAsync(request, new CosXmlResultListener() {
@@ -853,7 +891,7 @@ public class CosXmlCITest {
 
     @Test
     public void describeAiQueues() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
         DescribeAiQueuesRequest request = new DescribeAiQueuesRequest(TestConst.WORDS_GENERALIZE_BUCKET);
         request.setPageNumber(1);
         request.setPageSize(10);
@@ -871,7 +909,7 @@ public class CosXmlCITest {
 
     @Test
     public void describeAiQueuesAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
         final TestLocker locker = new TestLocker();
         DescribeAiQueuesRequest request = new DescribeAiQueuesRequest(TestConst.WORDS_GENERALIZE_BUCKET);
         request.setQueueIds(TestConst.WORDS_GENERALIZE_QUEUE_ID+",ashjdaosdhjiasodj12312"+",ashjdaosdasdashjiasodj12312");
@@ -895,7 +933,7 @@ public class CosXmlCITest {
 
     @Test
     public void createWordsGeneralizeJobs() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
         CreateWordsGeneralizeJobRequest request = new CreateWordsGeneralizeJobRequest(TestConst.WORDS_GENERALIZE_BUCKET);
         request.setInputObject(TestConst.WORDS_GENERALIZE_OBJECT);
         request.setQueueId(TestConst.WORDS_GENERALIZE_QUEUE_ID);
@@ -918,7 +956,7 @@ public class CosXmlCITest {
 
     @Test
     public void createWordsGeneralizeJobsAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
         final TestLocker locker = new TestLocker();
         CreateWordsGeneralizeJobRequest request = new CreateWordsGeneralizeJobRequest(TestConst.WORDS_GENERALIZE_BUCKET);
         request.setInputObject(TestConst.WORDS_GENERALIZE_OBJECT);
@@ -949,7 +987,7 @@ public class CosXmlCITest {
 
     @Test
     public void describeWordsGeneralizeJob() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
         DescribeWordsGeneralizeJobRequest request = new DescribeWordsGeneralizeJobRequest(
                 TestConst.WORDS_GENERALIZE_BUCKET, TestConst.WORDS_GENERALIZE_JOB_ID);
         try {
@@ -965,7 +1003,7 @@ public class CosXmlCITest {
 
     @Test
     public void describeWordsGeneralizeJobAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
         final TestLocker locker = new TestLocker();
         DescribeWordsGeneralizeJobRequest request = new DescribeWordsGeneralizeJobRequest(
                 TestConst.WORDS_GENERALIZE_BUCKET, TestConst.WORDS_GENERALIZE_JOB_ID);

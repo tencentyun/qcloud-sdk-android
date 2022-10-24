@@ -1,8 +1,9 @@
 package com.tencent.cos.xml.core;
 
+import static com.tencent.cos.xml.core.TestUtils.getContext;
+
 import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
-import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.crypto.KMSEncryptionMaterialsProvider;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.transfer.TransferConfig;
@@ -14,8 +15,6 @@ import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.QCloudHttpRequest;
-
-import static com.tencent.cos.xml.core.TestUtils.getContext;
 
 /**
  * <p>
@@ -38,6 +37,16 @@ public class ServiceFactory {
                 .builder();
 
         return newService(cosXmlServiceConfig);
+    }
+
+    public CosXmlService newDefaultServiceBySessionCredentials() {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .builder();
+
+        return newServiceBySessionCredentials(cosXmlServiceConfig);
     }
 
     public CosXmlService newQuicService() {
@@ -140,6 +149,14 @@ public class ServiceFactory {
         return new TransferManager(newDefaultService(), transferConfig);
     }
 
+    public TransferManager newDefaultTransferManagerBySessionCredentials() {
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .setDivisionForUpload(2 * 1024 * 1024)
+                .setSliceSizeForUpload(1024 * 1024)
+                .build();
+        return new TransferManager(newDefaultServiceBySessionCredentials(), transferConfig);
+    }
+
     public TransferService newDefaultTransferService() {
 
         TransferConfig transferConfig = new TransferConfig.Builder()
@@ -212,6 +229,11 @@ public class ServiceFactory {
 
     public TransferManager newCdnTransferManager() {
         return new TransferManager(newCDNService(), new TransferConfig.Builder().build());
+    }
+
+    private CosXmlService newServiceBySessionCredentials(CosXmlServiceConfig cosXmlServiceConfig) {
+        return new CosXmlService(getContext(), cosXmlServiceConfig,
+                new MySessionCredentialProvider());
     }
 
     private CosXmlService newService(CosXmlServiceConfig cosXmlServiceConfig) {

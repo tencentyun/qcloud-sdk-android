@@ -22,30 +22,25 @@
 
 package com.tencent.cos.xml.common;
 
+import static org.junit.Assert.assertEquals;
+
 import android.os.Environment;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
-import com.tencent.cos.xml.core.TestLocker;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
-import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.listener.CosXmlResultSimpleListener;
-import com.tencent.cos.xml.model.CosXmlRequest;
-import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.PresignedUrlRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
-import com.tencent.cos.xml.transfer.COSDownloadTask;
-import com.tencent.cos.xml.transfer.TransferState;
-import com.tencent.cos.xml.transfer.TransferStateListener;
-import com.tencent.cos.xml.transfer.TransferTaskMetrics;
+import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.utils.DigestUtils;
-import com.tencent.cos.xml.utils.URLEncodeUtils;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
@@ -53,10 +48,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
@@ -66,8 +59,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -194,5 +185,40 @@ public class OtherTest {
             serviceException.printStackTrace();
         }
 
+    }
+
+    @Test public void testSessionCredentialsExpired() {
+        CosXmlService service = ServiceFactory.INSTANCE.newDefaultServiceBySessionCredentials();
+        PutObjectRequest request = new PutObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                TestUtils.smallFilePath());
+//        GetObjectRequest request = new GetObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH, TestUtils.localParentPath(), "test");
+        request.addNoSignHeader("Content-Length");
+        request.addNoSignHeader("User-Agent");
+        request.addNoSignHeader("Host");
+        request.addNoSignHeader("Content-MD5");
+        request.setProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                TestUtils.print("Progress test" + ": " + complete + "/" + target);
+            }
+        });
+        for (int i=0; i<100;i++){
+            try {
+                service.putObject(request);
+//                service.getObject(request);
+            } catch (CosXmlClientException e) {
+                e.printStackTrace();
+                break;
+            } catch (CosXmlServiceException e) {
+                e.printStackTrace();
+                break;
+            }
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        Assert.assertTrue(true);
     }
 }

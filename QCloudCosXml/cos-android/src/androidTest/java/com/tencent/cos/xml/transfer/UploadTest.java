@@ -23,7 +23,6 @@
 package com.tencent.cos.xml.transfer;
 
 import android.net.Uri;
-import android.os.Environment;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -41,20 +40,16 @@ import com.tencent.cos.xml.listener.CosXmlResultSimpleListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
-import com.tencent.cos.xml.model.tag.pic.PicOperationRule;
-import com.tencent.cos.xml.model.tag.pic.PicOperations;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.util.QCloudStringUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.theories.suppliers.TestedOn;
 import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -440,7 +435,8 @@ public class UploadTest {
 
     @Test public void testUploadBigFileByUri() {
 
-        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+//        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManagerBySessionCredentials();
         final COSXMLUploadTask uploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH + 12,
                 Uri.fromFile(new File(TestUtils.bigFilePath())), null);
 

@@ -18,28 +18,13 @@
 
 package com.tencent.cos.xml.crypto;
 
+import static com.tencent.cos.xml.crypto.LengthCheckInputStream.EXCLUDE_SKIPPED_BYTES;
+
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
-
-import static com.tencent.cos.xml.crypto.LengthCheckInputStream.EXCLUDE_SKIPPED_BYTES;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.Range;
@@ -64,6 +49,21 @@ import com.tencentcloudapi.kms.v20190118.models.GenerateDataKeyRequest;
 import com.tencentcloudapi.kms.v20190118.models.GenerateDataKeyResponse;
 
 import org.json.JSONException;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 
 /**
@@ -602,7 +602,7 @@ public abstract class CryptoModuleBase implements CryptoModule {
         } else if (uri != null) {
             Context context = ContextHolder.getAppContext();
             if (context != null) {
-                return QCloudUtils.getUriContentLength2(uri, context.getContentResolver());
+                return QCloudUtils.getUriContentLength(uri, context.getContentResolver());
             }
         }
         return -1;

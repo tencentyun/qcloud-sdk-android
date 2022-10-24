@@ -266,7 +266,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         if (uri != null) {
             Context context = ContextHolder.getAppContext();
             if (context != null) {
-                fileLength = QCloudUtils.getUriContentLength2(uri, context.getContentResolver());
+                fileLength = QCloudUtils.getUriContentLength(uri, context.getContentResolver());
             }
         }
 

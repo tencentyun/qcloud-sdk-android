@@ -22,6 +22,7 @@
 
 package com.tencent.cos.xml.model.ci.asr.bean;
 
+import com.tencent.cos.xml.model.ci.ai.bean.WordsGeneralizeJobDetail;
 import com.tencent.cos.xml.model.tag.Locator;
 import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
@@ -46,6 +47,10 @@ public class SpeechJobsDetail {
      * 任务的创建时间
      */
     public String creationTime;
+    /**
+     * 任务的开始时间
+     */
+    public String startTime;
     /**
      * 任务的结束时间
      */
@@ -91,6 +96,16 @@ public class SpeechJobsDetail {
         public Locator output;
 
         /**
+         * 透传用户信息
+         */
+        public String userData;
+
+        /**
+         * 任务优先级
+         */
+        public int jobLevel;
+
+        /**
          * 任务的模板 ID
          */
         public String templateId;
@@ -129,7 +144,14 @@ public class SpeechJobsDetail {
         /**
          * 识别结果
          */
+        @XmlElement(name = "result")
         public String result;
+
+        /**
+         * 极速语音识别结果
+         */
+        @XmlElement(flatListNote = true)
+        public List<FlashResult> flashResult;
 
         /**
          * 识别结果详情，包含每个句子中的词时间偏移，一般用于生成字幕的场景。(识别请求中ResTextFormat=1时该字段不为空)
@@ -137,6 +159,86 @@ public class SpeechJobsDetail {
          */
         @XmlElement(flatListNote = true)
         public List<SentenceDetail> resultDetail;
+
+        /**
+         * 分词结果
+         */
+        public WordsGeneralizeJobDetail.WordsGeneralizeResult wordsGeneralizeResult;
+    }
+
+    @XmlBean
+    public static class FlashResult {
+        /**
+         * 声道标识，从0开始，对应音频声道数
+         */
+        @XmlElement(name = "channel_id")
+        public int channelId;
+
+        /**
+         * 声道音频完整识别结果
+         */
+        @XmlElement(name = "text")
+        public String text;
+
+        /**
+         * Container 数组
+         */
+        @XmlElement(flatListNote = true, name = "sentence_list")
+        public List<FlashSentence> sentenceList;
+    }
+
+    @XmlBean
+    public static class FlashSentence {
+        /**
+         * 句子/段落级别文本
+         */
+        @XmlElement(name = "text")
+        public String text;
+
+        /**
+         * 开始时间
+         */
+        @XmlElement(name = "start_time")
+        public int startTime;
+
+        /**
+         * 结束时间
+         */
+        @XmlElement(name = "end_time")
+        public int endTime;
+
+        /**
+         * 说话人 Id（请求中如果设置了 speaker_diarization，可以按照 speaker_id 来区分说话人）
+         */
+        @XmlElement(name = "speaker_id")
+        public int speakerId;
+
+        /**
+         * 词级别的识别结果列表
+         */
+        @XmlElement(flatListNote = true, name = "word_list")
+        public List<FlashSentenceWord> wordList;
+    }
+
+    @XmlBean
+    public static class FlashSentenceWord {
+        /**
+         * 词级别文本
+         */
+        @XmlElement(name = "word")
+        public String word;
+
+        /**
+         * 开始时间
+         */
+        @XmlElement(name = "start_time")
+        public int startTime;
+
+        /**
+         * 结束时间
+         */
+        @XmlElement(name = "end_time")
+        public int endTime;
     }
 
     @XmlBean
