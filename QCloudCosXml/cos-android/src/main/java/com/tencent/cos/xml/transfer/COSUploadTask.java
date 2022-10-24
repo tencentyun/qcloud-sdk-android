@@ -223,7 +223,7 @@ public class COSUploadTask extends COSTransferTask {
                 if (!QCloudUtils.doesUriFileExist(uri, context.getContentResolver())) {
                     throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "uri " + uri + " is not exist");
                 }
-                uploadLength = QCloudUtils.getUriContentLength2(uri, context.getContentResolver());
+                uploadLength = QCloudUtils.getUriContentLength(uri, context.getContentResolver());
             }
         } else if (bytes != null) {
             uploadLength = bytes.length;
