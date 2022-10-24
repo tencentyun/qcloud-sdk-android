@@ -55,6 +55,17 @@ public class TestConst {
     public static final String ASR_OBJECT_OUTPUT = "asr/output.txt";
     public static final String ASR_QUEUE_ID = "p74b5265ab1df455782b7b355007d0dfc";
 
+    //声音识别（极速识别）
+    public static final String ASR_FLASH_BUCKET_REGION = "ap-chongqing";
+    public static final String ASR_FLASH_BUCKET = "tinna-media-1253960454";
+    public static final String ASR_FLASH_OBJECT_FF_1C = "asr/ff-16b-1c-44100hz.aac";
+    public static final String ASR_FLASH_OBJECT_FF_2C = "asr/ff-16b-2c-44100hz.aac";
+    public static final String ASR_FLASH_OBJECT_GS_1C = "asr/gs-16b-1c-8000hz.amr";
+    public static final String ASR_FLASH_OBJECT_GS_2C = "asr/gs-16b-2c-44100hz.aac";
+    public static final String ASR_FLASH_OBJECT_LONG = "asr/aaa.m4a";
+    public static final String ASR_FLASH_OBJECT_OUTPUT = "asr/output.txt";
+    public static final String ASR_FLASH_QUEUE_ID = "pf4bb837618c84b5b905a1df5c8a56d20";
+
     //分词
     public static final String WORDS_GENERALIZE_BUCKET_REGION = "ap-chongqing";
     public static final String WORDS_GENERALIZE_BUCKET = "tinna-media-1253960454";

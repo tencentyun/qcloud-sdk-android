@@ -481,6 +481,7 @@ public class BeaconService {
         params.put("http_write_body", String.valueOf(taskMetrics.writeRequestBodyTookTime()));
         params.put("http_full", String.valueOf(taskMetrics.fullTaskTookTime()));
         params.put("size", String.valueOf(taskMetrics.requestBodyByteCount() + taskMetrics.responseBodyByteCount()));
+        params.put("retry_times", String.valueOf(taskMetrics.getRetryCount()));
 
         return params;
     }
@@ -494,6 +495,7 @@ public class BeaconService {
 
         params.put("took_time", String.valueOf(taskMetrics.httpTaskFullTime()));
         params.put("size", String.valueOf(taskMetrics.requestBodyByteCount() + taskMetrics.responseBodyByteCount()));
+        params.put("retry_times", String.valueOf(taskMetrics.getRetryCount()));
         return params;
     }
 
