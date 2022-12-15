@@ -226,6 +226,7 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
             return httpResult;
         } catch (QCloudServiceException serviceException) {
             if (isClockSkewedError(serviceException)) {
+                metrics.setClockSkewedRetry(true);
                 // re sign request
                 if (signer != null) {
                     metrics.onSignRequestStart();

@@ -71,6 +71,7 @@ public class HttpTaskMetrics {
     @Nullable List<InetAddress> remoteAddress;
     @Nullable InetAddress connectAddress;
     private int retryCount;
+    private boolean isClockSkewedRetry;
 
     void onTaskStart() {
         fullTaskStartTime = System.nanoTime();
@@ -244,6 +245,14 @@ public class HttpTaskMetrics {
         this.retryCount = retryCount;
     }
 
+    public boolean isClockSkewedRetry() {
+        return isClockSkewedRetry;
+    }
+
+    public void setClockSkewedRetry(boolean clockSkewedRetry) {
+        isClockSkewedRetry = clockSkewedRetry;
+    }
+
     private double toSeconds(long nanotime) {
         return (double)nanotime / 1_000_000_000.0;
     }
@@ -299,6 +308,9 @@ public class HttpTaskMetrics {
             connectAddress = taskMetrics.getConnectAddress();
         }
         retryCount += taskMetrics.retryCount;
+        if(!isClockSkewedRetry){
+            isClockSkewedRetry = taskMetrics.isClockSkewedRetry;
+        }
         return this;
     }
 
@@ -308,6 +320,7 @@ public class HttpTaskMetrics {
         return new StringBuilder().append("Http Metrics: \n")
                 .append("domain : ").append(domainName).append("\n")
                 .append("retryCount : ").append(retryCount).append("\n")
+                .append("isClockSkewedRetry : ").append(isClockSkewedRetry).append("\n")
                 .append("dns : ").append(connectAddress != null ? connectAddress.getHostAddress() : "null").append("\n")
                 .append("fullTaskTookTime : ").append(fullTaskTookTime()).append("\n")
                 .append("calculateMD5STookTime : ").append(calculateMD5STookTime()).append("\n")
