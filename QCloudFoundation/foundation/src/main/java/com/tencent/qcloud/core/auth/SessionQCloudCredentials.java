@@ -124,7 +124,7 @@ public class SessionQCloudCredentials implements QCloudLifecycleCredentials, QCl
     @Override
     public boolean isValid() {
         long current = HttpConfiguration.getDeviceTimeWithOffset();
-        return current >= startTime && current <= expiredTime - AuthConstants.EXPIRE_TIME_RESERVE_IN_SECONDS;
+        return current <= expiredTime - AuthConstants.EXPIRE_TIME_RESERVE_IN_SECONDS;
     }
 
     public String getToken() {
