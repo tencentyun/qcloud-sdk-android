@@ -69,6 +69,7 @@ public class CosXmlServiceConfig implements Parcelable {
 
     private String protocol;
     private String userAgent;
+    private String userAgentExtended;
 
     private String region;
     private String appid;
@@ -78,7 +79,6 @@ public class CosXmlServiceConfig implements Parcelable {
     private String endpointSuffix;
 
     private boolean isDebuggable;
-    private boolean isCloseBeacon;
 
     private RetryStrategy retryStrategy;
     private QCloudHttpRetryHandler qCloudHttpRetryHandler;
@@ -115,8 +115,8 @@ public class CosXmlServiceConfig implements Parcelable {
     public CosXmlServiceConfig(Builder builder) {
         this.protocol = builder.protocol;
         this.userAgent = builder.userAgent;
+        this.userAgentExtended = builder.userAgentExtended;
         this.isDebuggable = builder.isDebuggable;
-        this.isCloseBeacon = builder.isCloseBeacon;
 
         this.appid = builder.appid;
         this.region = builder.region;
@@ -166,7 +166,11 @@ public class CosXmlServiceConfig implements Parcelable {
      * @return UserAgent
      */
     public String getUserAgent() {
-        return userAgent;
+        if(TextUtils.isEmpty(userAgentExtended)){
+            return userAgent;
+        } else {
+            return userAgent + "-" + userAgentExtended;
+        }
     }
 
     /**
@@ -479,10 +483,6 @@ public class CosXmlServiceConfig implements Parcelable {
         return isDebuggable;
     }
 
-    public boolean isCloseBeacon() {
-        return isCloseBeacon;
-    }
-
     public int getSocketTimeout() {
         return socketTimeout;
     }
@@ -521,7 +521,6 @@ public class CosXmlServiceConfig implements Parcelable {
         dest.writeString(protocol);
         dest.writeString(region);
         dest.writeInt(isDebuggable ? 1 : 0);
-        dest.writeInt(isCloseBeacon ? 1 : 0);
     }
 
     private CosXmlServiceConfig(Parcel in) {
@@ -552,6 +551,7 @@ public class CosXmlServiceConfig implements Parcelable {
 
         private String protocol;
         private String userAgent;
+        private String userAgentExtended;
 
         private String region;
         private String appid;
@@ -562,7 +562,6 @@ public class CosXmlServiceConfig implements Parcelable {
         private boolean bucketInPath;
 
         private boolean isDebuggable;
-        private boolean isCloseBeacon;
 
         private RetryStrategy retryStrategy;
         private QCloudHttpRetryHandler qCloudHttpRetryHandler;
@@ -592,7 +591,6 @@ public class CosXmlServiceConfig implements Parcelable {
             protocol = HTTPS_PROTOCOL;
             userAgent = DEFAULT_USER_AGENT;
             isDebuggable = false;
-            isCloseBeacon = false;
             retryStrategy = RetryStrategy.DEFAULT;
             bucketInPath = false;
         }
@@ -610,7 +608,6 @@ public class CosXmlServiceConfig implements Parcelable {
             bucketInPath = config.bucketInPath;
 
             isDebuggable = config.isDebuggable;
-            isCloseBeacon = config.isCloseBeacon;
 
             retryStrategy = config.retryStrategy;
             qCloudHttpRetryHandler = config.qCloudHttpRetryHandler;
@@ -684,7 +681,7 @@ public class CosXmlServiceConfig implements Parcelable {
          * 和 ap-shanghai，那么最终的请求地址为 bucket-1250000000.ap-shanghai.tencent.com
          *
          * </>
-         * 注意，这个设置不会影响 GetService 请求，GetService 请求 Host 通过 {@link CosXmlService#setServiceDomain(String)} 设置
+         * 注意，这个设置不会影响 GetService 请求，GetService 请求 Host 通过 {@link CosXmlBaseService#setDomain(String)} 设置
          *
          * @param hostFormat host 格式化字符串
          * @return Builder 对象
@@ -787,17 +784,6 @@ public class CosXmlServiceConfig implements Parcelable {
         }
 
         /**
-         * 是否关闭上报灯塔
-         *
-         * @param isCloseBeacon 是否关闭上报灯塔
-         * @return Builder 对象
-         */
-        public Builder setCloseBeacon(boolean isCloseBeacon) {
-            this.isCloseBeacon = isCloseBeacon;
-            return this;
-        }
-
-        /**
          * 是否将签名放在 URL 中，默认放在 Header 中
          *
          * @param signInUrl
@@ -878,6 +864,15 @@ public class CosXmlServiceConfig implements Parcelable {
         public Builder enableQuic(boolean isEnable){
             this.isQuic = isEnable;
             this.userAgent = VersionInfo.getQuicUserAgent();
+            return this;
+        }
+
+        /**
+         * 设置ua拓展参数
+         * @param userAgentExtended ua拓展参数()会拼接在ua后面
+         */
+        public Builder setUserAgentExtended(String userAgentExtended) {
+            this.userAgentExtended = userAgentExtended;
             return this;
         }
 

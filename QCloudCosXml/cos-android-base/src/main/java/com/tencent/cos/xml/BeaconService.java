@@ -29,8 +29,8 @@ import androidx.annotation.Nullable;
 
 import com.tencent.beacon.core.info.BeaconPubParams;
 import com.tencent.beacon.event.open.BeaconReport;
-import com.tencent.cos.xml.base.BuildConfig;
 import com.tencent.cos.xml.common.ClientErrorCode;
+import com.tencent.cos.xml.base.BuildConfig;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlRequest;
@@ -42,6 +42,7 @@ import com.tencent.qcloud.core.common.QCloudAuthenticationException;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.ConnectionRepository;
+import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.HttpRequest;
 import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
@@ -90,22 +91,27 @@ public class BeaconService {
     public static final String EVENT_PARAMS_NODE_GET = "GetObjectRequest";
 
     private Context applicationContext;
-    private CosXmlServiceConfig config;
     private static BeaconService instance;
 
-    private BeaconService(Context applicationContext, CosXmlServiceConfig config) {
+    //是否关闭灯塔上报
+    private boolean isCloseBeacon;
+    //上报桥接来源
+    private String bridge;
+
+    private BeaconService(Context applicationContext) {
         this.applicationContext = applicationContext;
-        this.config = config;
     }
 
     /**
      * 初始化
      */
-    public static void init(Context applicationContext, CosXmlServiceConfig serviceConfig) {
+    public static void init(Context applicationContext, boolean isCloseBeacon, String bridge) {
         synchronized (BeaconService.class) {
             if (instance == null) {
-                instance = new BeaconService(applicationContext, serviceConfig);
-                TrackService.init(applicationContext, APP_KEY, IS_DEBUG, serviceConfig.isCloseBeacon());
+                instance = new BeaconService(applicationContext);
+                instance.isCloseBeacon = isCloseBeacon;
+                instance.bridge = bridge;
+                TrackService.init(applicationContext, APP_KEY, IS_DEBUG, isCloseBeacon);
             }
         }
     }
@@ -482,7 +488,8 @@ public class BeaconService {
         params.put("http_full", String.valueOf(taskMetrics.fullTaskTookTime()));
         params.put("size", String.valueOf(taskMetrics.requestBodyByteCount() + taskMetrics.responseBodyByteCount()));
         params.put("retry_times", String.valueOf(taskMetrics.getRetryCount()));
-
+        //TODO dathub已经不能编辑上报字段 待升级datahub3.0
+//        params.put("is_clock_skewed_retry", String.valueOf(taskMetrics.isClockSkewedRetry()));
         return params;
     }
 
@@ -496,6 +503,8 @@ public class BeaconService {
         params.put("took_time", String.valueOf(taskMetrics.httpTaskFullTime()));
         params.put("size", String.valueOf(taskMetrics.requestBodyByteCount() + taskMetrics.responseBodyByteCount()));
         params.put("retry_times", String.valueOf(taskMetrics.getRetryCount()));
+        //TODO dathub已经不能编辑上报字段 待升级datahub3.0
+//        params.put("is_clock_skewed_retry", String.valueOf(taskMetrics.isClockSkewedRetry()));
         return params;
     }
 
@@ -534,6 +543,14 @@ public class BeaconService {
                 !TextUtils.isEmpty(((ObjectRequest) request).getCosPath())) {
             params.put("request_path", ((ObjectRequest) request).getCosPath());
         }
+        if(request.getHttpTask() != null){
+            if(request.getHttpTask().request() != null){
+                String ua = request.getHttpTask().request().header(HttpConstants.Header.USER_AGENT);
+                if(!TextUtils.isEmpty(ua)) {
+                    params.put("user_agent", ua);
+                }
+            }
+        }
         return params;
     }
 
@@ -567,7 +584,7 @@ public class BeaconService {
     }
 
     private void report(String eventCode, Map<String, String> params) {
-        if(config.isCloseBeacon() || !TrackService.isIncludeBeacon()) return;
+        if(isCloseBeacon || !TrackService.isIncludeBeacon()) return;
         TrackService.getInstance().track(APP_KEY, eventCode, params);
     }
 
@@ -586,44 +603,44 @@ public class BeaconService {
         report(EVENT_CODE_ERROR, params);
     }
 
-    private Map<String, String> getBaseServiceParams(CosXmlRequest cosXmlRequest, long tookTime, boolean isSuccess) {
-        Map<String, String> params = getCommonParams();
-
-        params.put("result", isSuccess ? EVENT_PARAMS_SUCCESS : EVENT_PARAMS_FAILURE);
-        params.put("took_time", String.valueOf(tookTime));
-        params.put("name", cosXmlRequest.getClass().getSimpleName());
-        params.put("region", TextUtils.isEmpty(cosXmlRequest.getRegion()) ? this.config.getRegion() : cosXmlRequest.getRegion());
-        params.put("accelerate", cosXmlRequest.isSupportAccelerate() ? "Y" : "N");
-
-        if (!isSuccess) {
-            HttpTaskMetrics metrics = cosXmlRequest.getMetrics();
-            if (metrics != null) {
-                params.put("http_dns", String.valueOf(metrics.dnsLookupTookTime()));
-                params.put("http_connect", String.valueOf(metrics.connectTookTime()));
-                params.put("http_secure_connect", String.valueOf(metrics.secureConnectTookTime()));
-                params.put("http_md5", String.valueOf(metrics.calculateMD5STookTime()));
-                params.put("http_sign", String.valueOf(metrics.signRequestTookTime()));
-                params.put("http_read_header", String.valueOf(metrics.readResponseHeaderTookTime()));
-                params.put("http_read_body", String.valueOf(metrics.readResponseBodyTookTime()));
-                params.put("http_write_header", String.valueOf(metrics.writeRequestHeaderTookTime()));
-                params.put("http_write_body", String.valueOf(metrics.writeRequestBodyTookTime()));
-                params.put("http_full", String.valueOf(metrics.fullTaskTookTime()));
-            }
-
-            String host = cosXmlRequest.getRequestHost(this.config);
-            if (host != null) {
-                params.put("host", host);
-                try {
-                    List<InetAddress> ips = ConnectionRepository.getInstance().getDnsRecord(host);
-                    params.put("ips", flatInetAddressList(ips));
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return params;
-    }
+//    private Map<String, String> getBaseServiceParams(CosXmlRequest cosXmlRequest, long tookTime, boolean isSuccess) {
+//        Map<String, String> params = getCommonParams();
+//
+//        params.put("result", isSuccess ? EVENT_PARAMS_SUCCESS : EVENT_PARAMS_FAILURE);
+//        params.put("took_time", String.valueOf(tookTime));
+//        params.put("name", cosXmlRequest.getClass().getSimpleName());
+//        params.put("region", TextUtils.isEmpty(cosXmlRequest.getRegion()) ? this.config.getRegion() : cosXmlRequest.getRegion());
+//        params.put("accelerate", cosXmlRequest.isSupportAccelerate() ? "Y" : "N");
+//
+//        if (!isSuccess) {
+//            HttpTaskMetrics metrics = cosXmlRequest.getMetrics();
+//            if (metrics != null) {
+//                params.put("http_dns", String.valueOf(metrics.dnsLookupTookTime()));
+//                params.put("http_connect", String.valueOf(metrics.connectTookTime()));
+//                params.put("http_secure_connect", String.valueOf(metrics.secureConnectTookTime()));
+//                params.put("http_md5", String.valueOf(metrics.calculateMD5STookTime()));
+//                params.put("http_sign", String.valueOf(metrics.signRequestTookTime()));
+//                params.put("http_read_header", String.valueOf(metrics.readResponseHeaderTookTime()));
+//                params.put("http_read_body", String.valueOf(metrics.readResponseBodyTookTime()));
+//                params.put("http_write_header", String.valueOf(metrics.writeRequestHeaderTookTime()));
+//                params.put("http_write_body", String.valueOf(metrics.writeRequestBodyTookTime()));
+//                params.put("http_full", String.valueOf(metrics.fullTaskTookTime()));
+//            }
+//
+//            String host = cosXmlRequest.getRequestHost(this.config);
+//            if (host != null) {
+//                params.put("host", host);
+//                try {
+//                    List<InetAddress> ips = ConnectionRepository.getInstance().getDnsRecord(host);
+//                    params.put("ips", flatInetAddressList(ips));
+//                } catch (UnknownHostException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//
+//        return params;
+//    }
 
     private String flatInetAddressList(@Nullable List<InetAddress> ips) {
         if (ips == null) {
@@ -671,7 +688,7 @@ public class BeaconService {
      * @return 公共参数
      */
     private Map<String, String> getCommonParams() {
-        if(config.isCloseBeacon() || !TrackService.isIncludeBeacon()) return new HashMap<>();
+        if(isCloseBeacon || !TrackService.isIncludeBeacon()) return new HashMap<>();
 
         Map<String, String> params = new HashMap<>();
         BeaconPubParams pubParams = BeaconReport.getInstance().getCommonParams(applicationContext);
@@ -679,6 +696,9 @@ public class BeaconService {
         params.put("network_type", pubParams.getNetworkType());
         params.put("cossdk_version", com.tencent.cos.xml.base.BuildConfig.VERSION_NAME);
         params.put("cossdk_version_code", String.valueOf(com.tencent.cos.xml.base.BuildConfig.VERSION_CODE));
+        if(!TextUtils.isEmpty(bridge)) {
+            params.put("bridge", bridge);
+        }
         return params;
     }
 
