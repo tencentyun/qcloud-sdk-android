@@ -22,6 +22,10 @@
 
 package com.tencent.cos.xml.transfer;
 
+import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_CONSTRAINT;
+import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_INIT;
+import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_MANUAL;
+
 import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.BeaconService;
@@ -40,18 +44,12 @@ import com.tencent.cos.xml.model.object.ListPartsRequest;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
-import com.tencent.qcloud.core.logger.QCloudLogger;
-import com.tencent.qcloud.core.util.QCloudUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_CONSTRAINT;
-import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_INIT;
-import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_MANUAL;
 
 /**
  * 传输任务
@@ -92,9 +90,12 @@ public abstract class COSXMLTask {
     protected CosXmlResultListener cosXmlResultListener;
     /** 状态监听器 */
     protected TransferStateListener transferStateListener;
+    /** 初始化分块上传监听器 */
+    protected InitMultipleUploadListener initMultipleUploadListener;
 
     protected TransferStateListener internalStateListener;
     protected CosXmlProgressListener internalProgressListener;
+    protected InitMultipleUploadListener internalInitMultipleUploadListener;
 
     /** cosxml task state during the whole lifecycle */
     volatile TransferState taskState  = TransferState.WAITING;
@@ -143,6 +144,14 @@ public abstract class COSXMLTask {
     public void setTransferStateListener(TransferStateListener transferStateListener){
         this.transferStateListener = transferStateListener;
         monitor.sendStateMessage(this, taskState, null, null, MESSAGE_TASK_INIT);
+    }
+
+    /**
+     * 设置初始化分块上传监听器
+     * @param initMultipleUploadListener 初始化分块上传监听器
+     */
+    public void setInitMultipleUploadListener(InitMultipleUploadListener initMultipleUploadListener){
+        this.initMultipleUploadListener = initMultipleUploadListener;
     }
 
     public void setOnSignatureListener(OnSignatureListener onSignatureListener){
@@ -435,5 +444,9 @@ public abstract class COSXMLTask {
 
     void setInternalProgressListener(CosXmlProgressListener internalProgressListener) {
         this.internalProgressListener = internalProgressListener;
+    }
+
+    void setInternalInitMultipleUploadListener(InitMultipleUploadListener internalInitMultipleUploadListener) {
+        this.internalInitMultipleUploadListener = internalInitMultipleUploadListener;
     }
 }

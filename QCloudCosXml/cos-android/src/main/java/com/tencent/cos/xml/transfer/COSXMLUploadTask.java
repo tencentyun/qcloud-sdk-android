@@ -51,6 +51,7 @@ import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectResult;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.cos.xml.model.object.UploadPartResult;
+import com.tencent.cos.xml.model.tag.InitiateMultipartUpload;
 import com.tencent.cos.xml.model.tag.ListParts;
 import com.tencent.cos.xml.model.tag.UrlUploadPolicy;
 import com.tencent.cos.xml.model.tag.pic.PicUploadResult;
@@ -305,6 +306,16 @@ public final class COSXMLUploadTask extends COSXMLTask {
         }
     }
 
+    private void dispatchInitMultipleUpload(InitiateMultipartUpload initiateMultipartUpload) {
+        if (initMultipleUploadListener != null) {
+            initMultipleUploadListener.onSuccess(initiateMultipartUpload);
+        }
+
+        if (internalInitMultipleUploadListener != null) {
+            internalInitMultipleUploadListener.onSuccess(initiateMultipartUpload);
+        }
+    }
+
     private void simpleUpload(CosXmlSimpleService cosXmlService){
         if(bytes != null){
             putObjectRequest = new PutObjectRequest(bucket, cosPath, bytes);
@@ -431,8 +442,11 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 // notify -> upload part
                 if(IS_EXIT.get())return;
                 onUpdateInProgress();
-                uploadId = ((InitMultipartUploadResult)result).initMultipartUpload.uploadId;
+
+                InitiateMultipartUpload initMultipartUpload = ((InitMultipartUploadResult)result).initMultipartUpload;
+                uploadId = initMultipartUpload.uploadId;
                 multiUploadsStateListenerHandler.onInit();
+                dispatchInitMultipleUpload(initMultipartUpload);
             }
 
             @Override
@@ -1131,6 +1145,15 @@ public final class COSXMLUploadTask extends COSXMLTask {
         if(fileLength < multiUploadSizeDivision || forceSimpleUpload){
             simpleUpload(cosXmlService);
         }else {
+            //根据size计算分块大小 分块数量不能超过10000
+            long defaultPartSize = sliceSize;
+            double partCount = Math.ceil(fileLength / (double)defaultPartSize);
+            if(partCount > 10000){
+                sliceSize = (long) Math.ceil(fileLength / 10000.0);
+            } else {
+                sliceSize = defaultPartSize;
+            }
+
             isSliceUpload = true;
             UPLOAD_PART_COUNT = new AtomicInteger(0); //用于计算分片数
             ALREADY_SEND_DATA_LEN = new AtomicLong(0); //分片上传进度计数

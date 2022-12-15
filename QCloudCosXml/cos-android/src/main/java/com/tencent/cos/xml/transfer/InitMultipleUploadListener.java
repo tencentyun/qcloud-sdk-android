@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,18 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50907
-    cosSdkVersionName = '5.9.7'
+package com.tencent.cos.xml.transfer;
+
+import com.tencent.cos.xml.model.tag.InitiateMultipartUpload;
+
+/**
+ * 初始化分块上传监听接口
+ */
+
+public interface InitMultipleUploadListener {
+    /**
+     * 初始化分块上传成功
+     * @param initiateMultipartUpload 初始化分块上传结果
+     */
+    void onSuccess(InitiateMultipartUpload initiateMultipartUpload);
 }
