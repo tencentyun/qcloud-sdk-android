@@ -1,3 +1,8 @@
+## v5.9.7
+1. config增加ua设置、关闭灯塔功能移至CosXmlBaseService静态属性
+2. 增加初始化上传完成回调InitMultipleUploadListener(获取uploadid更方便)
+3. PutBucketRequest增加string类型权限设置方法
+
 ## v5.9.6
 1. 语音识别增加极速语音识别。
 2. 优化路径上传大文件长度获取耗时。
