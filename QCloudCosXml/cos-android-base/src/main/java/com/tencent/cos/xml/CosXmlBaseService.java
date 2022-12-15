@@ -96,6 +96,15 @@ import java.util.concurrent.Executor;
 public class CosXmlBaseService implements BaseCosXml {
     private static final String TAG = "CosXmlBaseService";
 
+    /**
+     * 是否关闭灯塔上报
+     */
+    public static boolean IS_CLOSE_BEACON;
+    /**
+     * 桥接来源
+     */
+    public static String BRIDGE;
+
     protected volatile QCloudHttpClient client;
     protected QCloudCredentialProvider credentialProvider;
     protected String tag = "CosXml";
@@ -136,7 +145,7 @@ public class CosXmlBaseService implements BaseCosXml {
             QCloudLogger.addAdapter(logcatAdapter);
         }
 
-        BeaconService.init(context.getApplicationContext(), configuration);
+        BeaconService.init(context.getApplicationContext(), IS_CLOSE_BEACON, BRIDGE);
         appCachePath = context.getApplicationContext().getFilesDir().getPath();
 
         setNetworkClient(configuration);

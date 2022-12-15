@@ -129,9 +129,11 @@ dependencies {
     if(includeBeacon){
         embed('com.tencent.beacon:beacon-android-release:4.2.80.6:official@aar') {
             exclude(group:'com.android.support', module:'support-annotations')
+            exclude(group:'androidx.annotation', module:'annotation')
         }
         embed('com.tencent.qimei:qimei:1.2.13.1') {
             exclude(group:'com.android.support', module:'support-annotations')
+            exclude(group:'androidx.annotation', module:'annotation')
         }
     } else {
         compileOnly 'com.tencent.beacon:beacon-android-release:4.2.80.6:official@aar'
