@@ -363,11 +363,6 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 causeException.printStackTrace();
                 updateState(TransferState.FAILED, causeException, null, false);
                 QCloudLogger.i(TAG, "head " + cosPath + "failed !, exception is " + causeException.getMessage());
-
-                // head 失败后，也会先删除本地文件，然后全部重新下载
-                FileUtils.deleteFileIfExist(downloadPath);
-                hasWriteDataLen = 0L;
-                realDownload(rangeStart, rangeEnd, fileOffset);
             }
         });
     }
