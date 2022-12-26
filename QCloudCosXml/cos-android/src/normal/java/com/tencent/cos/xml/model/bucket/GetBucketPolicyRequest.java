@@ -25,36 +25,34 @@ package com.tencent.cos.xml.model.bucket;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
-import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
 import java.util.Map;
 
 /**
- * 设置存储桶（Bucket） 的权限策略的请求.
- * @see com.tencent.cos.xml.CosXml#putBucketPolicy(PutBucketPolicyRequest)
- * @see com.tencent.cos.xml.CosXml#putBucketPolicyAsync(PutBucketPolicyRequest, CosXmlResultListener)
+ * 查询存储桶权限策略的请求.
+ * @see com.tencent.cos.xml.CosXml#getBucketPolicy(GetBucketPolicyRequest)
+ * @see com.tencent.cos.xml.CosXml#getBucketPolicyAsync(GetBucketPolicyRequest, CosXmlResultListener)
  */
-final public class PutBucketPolicyRequest extends BucketRequest {
-    private final String policy;
-    public PutBucketPolicyRequest(String bucket, String policy){
+public class GetBucketPolicyRequest extends BucketRequest {
+
+    public GetBucketPolicyRequest(String bucket) {
         super(bucket);
-        this.policy = policy;
     }
 
     @Override
     public String getMethod() {
-        return RequestMethod.PUT;
+        return RequestMethod.GET;
+    }
+
+    @Override
+    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+        return null;
     }
 
     @Override
     public Map<String, String> getQueryString() {
         queryParameters.put("policy", null);
         return super.getQueryString();
-    }
-
-    @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(HttpConstants.ContentType.JSON, policy);
     }
 }

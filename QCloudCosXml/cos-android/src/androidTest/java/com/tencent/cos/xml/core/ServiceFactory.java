@@ -157,6 +157,18 @@ public class ServiceFactory {
         return new TransferManager(newDefaultServiceBySessionCredentials(), transferConfig);
     }
 
+    public TransferManager newAnonymousTransferManager() {
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .build();
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .builder();
+        CosXmlService cosXmlService = new CosXmlService(getContext(), cosXmlServiceConfig);
+        return new TransferManager(cosXmlService, transferConfig);
+    }
+
     public TransferService newDefaultTransferService() {
 
         TransferConfig transferConfig = new TransferConfig.Builder()
@@ -164,6 +176,18 @@ public class ServiceFactory {
                 .setSliceSizeForUpload(1024 * 1024)
                 .build();
         return new TransferService(newDefaultService(), transferConfig);
+    }
+
+    public TransferService newAnonymousTransferService() {
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .build();
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .builder();
+        CosXmlService cosXmlService = new CosXmlService(getContext(), cosXmlServiceConfig);
+        return new TransferService(cosXmlService, transferConfig);
     }
 
     public TransferManager newSingerTransferManager(QCloudSigner signer) {

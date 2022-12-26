@@ -32,7 +32,8 @@ public class BucketTest {
 
             new PutBucketInventoryTestAdapter(), new GetBucketInventoryTestAdapter(),
             new ListBucketInventoryTestAdapter(), new DeleteBucketInventoryTestAdapter(),
-            new PutBucketDomainTestAdapter(), new GetBucketDomainTestAdapter(),
+            new PutBucketDomainTestAdapter(), new GetBucketDomainTestAdapter(), new DeleteBucketDomainTestAdapter(),
+            new PutBucketPolicyTestAdapter(), new GetBucketPolicyTestAdapter(), new DeleteBucketPolicyTestAdapter(),
             new PutBucketCORSTestAdapter(), new GetBucketCORSTestAdapter(), new DeleteBucketCORSTestAdapter(),
             new PutBucketAccelerateTestAdapter(), new GetBucketAccelerateTestAdapter(),
             new PutBucketWebsiteTestAdapter(), new GetBucketWebsiteTestAdapter(), new DeleteBucketWebsiteTestAdapter(),

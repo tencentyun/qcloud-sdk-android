@@ -18,6 +18,7 @@ public class PreviewDocumentTestAdapter extends NormalRequestTestAdapter<Preview
         PreviewDocumentRequest request = new PreviewDocumentRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_DOCUMENT_PATH, TestUtils.localParentPath(), "preview_document.jpg", 1);
         request.setSrcType("docx");
+        request.setPassword("qwer1234");
         return request;
     }
 

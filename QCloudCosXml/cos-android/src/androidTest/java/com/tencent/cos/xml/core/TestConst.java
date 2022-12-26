@@ -77,6 +77,7 @@ public class TestConst {
     public static final long PERSIST_BUCKET_BIG_OBJECT_SIZE = 10 * 1024 * 1024;
     public static final String PERSIST_BUCKET_SMALL_OBJECT_PATH = "do_not_remove/small_object";
     public static final String PERSIST_BUCKET_BIG_OBJECT_PATH = "do_not_remove/big_object";
+    public static final String PERSIST_BUCKET_ANONYMOUS_DOWNLOAD_OBJECT_PATH = "do_not_remove/anonymous_download_object";
 
     public static final String PERSIST_BUCKET_CSE_SMALL_OBJECT_PATH = "do_not_remove/cse_small_object";
     public static final String PERSIST_BUCKET_CSE_BIG_OBJECT_PATH = "do_not_remove/cse_big_object";
