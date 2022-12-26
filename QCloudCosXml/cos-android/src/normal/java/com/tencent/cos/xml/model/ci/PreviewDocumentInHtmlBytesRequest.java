@@ -47,6 +47,23 @@ public class PreviewDocumentInHtmlBytesRequest extends ObjectRequest {
     }
 
     /**
+     * 指定目标文件类型，支持的文件类型请见下方
+     * 目前支持的输入文件类型包含如下格式：
+     * 演示文件：pptx、ppt、pot、potx、pps、ppsx、dps、dpt、pptm、potm、ppsm。
+     * 文字文件：doc、dot、wps、wpt、docx、dotx、docm、dotm。
+     * 表格文件：xls、xlt、et、ett、xlsx、xltx、csv、xlsb、xlsm、xltm、ets。
+     * 其他格式文件： pdf、 lrc、 c、 cpp、 h、 asm、 s、 java、 asp、 bat、 bas、 prg、 cmd、 rtf、 txt、 log、 xml、 htm、 html。
+     * 输入文件大小限制在200MB之内。
+     * 输入文件页数限制在5000页之内。
+     *
+     * @param srcType 指定目标文件类型
+     */
+    public PreviewDocumentInHtmlBytesRequest setSrcType(String srcType) {
+        queryParameters.put("srcType", srcType);
+        return this;
+    }
+
+    /**
      * 是否可复制（默认为可复制）
      * 非必选字段
      *
@@ -54,6 +71,17 @@ public class PreviewDocumentInHtmlBytesRequest extends ObjectRequest {
      */
     public PreviewDocumentInHtmlBytesRequest setCopyable(boolean copyable) {
         queryParameters.put("copyable", copyable ? "1" : "0");
+        return this;
+    }
+
+    /**
+     * 自定义配置参数，JSON 结构，需要经过 <a href="https://cloud.tencent.com/document/product/460/32832#.E4.BB.80.E4.B9.88.E6.98.AF-url-.E5.AE.89.E5.85.A8.E7.9A.84-base64-.E7.BC.96.E7.A0.81.EF.BC.9F">URL 安全</a> 的 Base64 编码，默认配置为：{ commonOptions: { isShowTopArea: true, isShowHeader: true } }
+     * 支持的配置参考 <a href="https://cloud.tencent.com/document/product/436/59408#.E8.87.AA.E5.AE.9A.E4.B9.89.E9.85.8D.E7.BD.AE.E9.80.89.E9.A1.B9">自定义配置项说明</a>
+     *
+     * @param htmlParams 自定义配置参数
+     */
+    public PreviewDocumentInHtmlBytesRequest setHtmlParams(String htmlParams) {
+        queryParameters.put("htmlParams", htmlParams);
         return this;
     }
 

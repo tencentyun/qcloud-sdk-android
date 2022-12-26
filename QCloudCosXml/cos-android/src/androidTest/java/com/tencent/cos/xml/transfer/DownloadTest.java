@@ -43,7 +43,6 @@ import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.tag.ListBucket;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
-import com.tencent.qcloud.core.util.QCloudUtils;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -52,7 +51,6 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -393,5 +391,46 @@ public class DownloadTest {
         TestUtils.assertCOSXMLTaskSuccess(continueTask);
     }
 
+    @Test public void testAnonymousDownload() {
+        TransferManager transferManager = ServiceFactory.INSTANCE.newAnonymousTransferManager();
+
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_ANONYMOUS_DOWNLOAD_OBJECT_PATH,
+                TestUtils.localParentPath());
+        COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+                getObjectRequest);
+        downloadTask.setOnGetHttpTaskMetrics(new COSXMLTask.OnGetHttpTaskMetrics() {
+            @Override
+            public void onGetHttpMetrics(String requestName, HttpTaskMetrics httpTaskMetrics) {
+                InetAddress socketAddress = httpTaskMetrics.getConnectAddress();
+                if (socketAddress != null) {
+                    QCloudLogger.i(TestConst.UT_TAG, "connect ip is " + socketAddress.getHostAddress());
+                }
+            }
+        });
+
+        final TestLocker testLocker = new TestLocker();
+        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+        downloadTask.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                QCloudLogger.i("QCloudTest", "transfer state is " + state);
+            }
+        });
+
+        testLocker.lock();
+        TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+    }
 
 }

@@ -22,39 +22,19 @@
 
 package com.tencent.cos.xml.model.bucket;
 
-import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.listener.CosXmlResultListener;
-import com.tencent.qcloud.core.http.HttpConstants;
-import com.tencent.qcloud.core.http.RequestBodySerializer;
-
-import java.util.Map;
+import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.model.CosXmlResult;
+import com.tencent.qcloud.core.http.HttpResponse;
 
 /**
- * 设置存储桶（Bucket） 的权限策略的请求.
+ * 为存储桶设置权限策略的返回结果.
  * @see com.tencent.cos.xml.CosXml#putBucketPolicy(PutBucketPolicyRequest)
- * @see com.tencent.cos.xml.CosXml#putBucketPolicyAsync(PutBucketPolicyRequest, CosXmlResultListener)
+ * @see PutBucketPolicyRequest
  */
-final public class PutBucketPolicyRequest extends BucketRequest {
-    private final String policy;
-    public PutBucketPolicyRequest(String bucket, String policy){
-        super(bucket);
-        this.policy = policy;
-    }
-
+public class PutBucketPolicyResult extends CosXmlResult {
     @Override
-    public String getMethod() {
-        return RequestMethod.PUT;
-    }
-
-    @Override
-    public Map<String, String> getQueryString() {
-        queryParameters.put("policy", null);
-        return super.getQueryString();
-    }
-
-    @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(HttpConstants.ContentType.JSON, policy);
+    public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
+        super.parseResponseBody(response);
     }
 }

@@ -28,10 +28,14 @@ import com.tencent.cos.xml.listener.CosXmlBooleanListener;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.bucket.DeleteBucketCORSRequest;
 import com.tencent.cos.xml.model.bucket.DeleteBucketCORSResult;
+import com.tencent.cos.xml.model.bucket.DeleteBucketDomainRequest;
+import com.tencent.cos.xml.model.bucket.DeleteBucketDomainResult;
 import com.tencent.cos.xml.model.bucket.DeleteBucketInventoryRequest;
 import com.tencent.cos.xml.model.bucket.DeleteBucketInventoryResult;
 import com.tencent.cos.xml.model.bucket.DeleteBucketLifecycleRequest;
 import com.tencent.cos.xml.model.bucket.DeleteBucketLifecycleResult;
+import com.tencent.cos.xml.model.bucket.DeleteBucketPolicyRequest;
+import com.tencent.cos.xml.model.bucket.DeleteBucketPolicyResult;
 import com.tencent.cos.xml.model.bucket.DeleteBucketReplicationRequest;
 import com.tencent.cos.xml.model.bucket.DeleteBucketReplicationResult;
 import com.tencent.cos.xml.model.bucket.DeleteBucketRequest;
@@ -60,6 +64,8 @@ import com.tencent.cos.xml.model.bucket.GetBucketLoggingRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketLoggingResult;
 import com.tencent.cos.xml.model.bucket.GetBucketObjectVersionsRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketObjectVersionsResult;
+import com.tencent.cos.xml.model.bucket.GetBucketPolicyRequest;
+import com.tencent.cos.xml.model.bucket.GetBucketPolicyResult;
 import com.tencent.cos.xml.model.bucket.GetBucketRefererRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketRefererResult;
 import com.tencent.cos.xml.model.bucket.GetBucketReplicationRequest;
@@ -94,6 +100,8 @@ import com.tencent.cos.xml.model.bucket.PutBucketLifecycleRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketLifecycleResult;
 import com.tencent.cos.xml.model.bucket.PutBucketLoggingRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketLoggingResult;
+import com.tencent.cos.xml.model.bucket.PutBucketPolicyRequest;
+import com.tencent.cos.xml.model.bucket.PutBucketPolicyResult;
 import com.tencent.cos.xml.model.bucket.PutBucketRefererRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketRefererResult;
 import com.tencent.cos.xml.model.bucket.PutBucketReplicationRequest;
@@ -2142,12 +2150,12 @@ public interface CosXml extends SimpleCosXml {
      */
     void listBucketInventoryAsync(ListBucketInventoryRequest request, CosXmlResultListener cosXmlResultListener);
 
-
-    //todo jordan 缺少API SDK文档上也没有链接
-    //API 接口：<a href="https://cloud.tencent.com/document/product/436/33706">https://cloud.tencent.com/document/product/436/33706.</a>
     /**
      * <p>
      * 为存储桶配置自定义域名的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/43882">https://cloud.tencent.com/document/product/436/43882.</a>
+     * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E8.AE.BE.E7.BD.AE.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">设置自定义域名示例</a>
      *
@@ -2158,12 +2166,12 @@ public interface CosXml extends SimpleCosXml {
      */
     PutBucketDomainResult putBucketDomain(PutBucketDomainRequest request) throws CosXmlClientException, CosXmlServiceException;
 
-
-    //todo jordan 缺少API SDK文档上也没有链接
-    //API 接口：<a href="https://cloud.tencent.com/document/product/436/33706">https://cloud.tencent.com/document/product/436/33706.</a>
     /**
      * <p>
      * 为存储桶配置自定义域名的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/43882">https://cloud.tencent.com/document/product/436/43882.</a>
+     * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E8.AE.BE.E7.BD.AE.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">设置自定义域名示例</a>
      *
@@ -2172,12 +2180,12 @@ public interface CosXml extends SimpleCosXml {
      */
     void putBucketDomainAsync(PutBucketDomainRequest request, CosXmlResultListener cosXmlResultListener);
 
-
-    //todo jordan 缺少API SDK文档上也没有链接
-    //API 接口：<a href="https://cloud.tencent.com/document/product/436/33706">https://cloud.tencent.com/document/product/436/33706.</a>
     /**
      * <p>
      * 查询存储桶自定义域名信息的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/43883">https://cloud.tencent.com/document/product/436/43883.</a>
+     * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">查询自定义域名示例</a>
      *
@@ -2188,12 +2196,12 @@ public interface CosXml extends SimpleCosXml {
      */
     GetBucketDomainResult getBucketDomain(GetBucketDomainRequest request) throws CosXmlClientException, CosXmlServiceException;
 
-
-    //todo jordan 缺少API SDK文档上也没有链接
-    //API 接口：<a href="https://cloud.tencent.com/document/product/436/33706">https://cloud.tencent.com/document/product/436/33706.</a>
     /**
      * <p>
      * 查询存储桶自定义域名信息的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/43883">https://cloud.tencent.com/document/product/436/43883.</a>
+     * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">查询自定义域名示例</a>
      *
@@ -2204,12 +2212,41 @@ public interface CosXml extends SimpleCosXml {
 
     /**
      * <p>
-     * 获取存储桶防盗链配置的同步方法.&nbsp;
+     * 删除存储桶自定义域名信息的同步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/31929">https://cloud.tencent.com/document/product/436/31929.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/43885">https://cloud.tencent.com/document/product/436/43885.</a>
      * <br>
      * <p>
-     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E6.9F.A5.E8.AF.A2.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99.E9.85.8D.E7.BD.AE">获取存储桶防盗链配置示例</a>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">删除自定义域名示例</a>
+     *
+     * @param request 删除存储桶自定义域名信息的请求 {@link DeleteBucketDomainRequest}
+     * @return 查删除存储桶自定义域名信息的返回结果 {@link DeleteBucketDomainResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    DeleteBucketDomainResult deleteBucketDomain(DeleteBucketDomainRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 删除存储桶自定义域名信息的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/43885">https://cloud.tencent.com/document/product/436/43885.</a>
+     * <br>
+     * <p>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">删除自定义域名示例</a>
+     *
+     * @param request 删除存储桶自定义域名信息的请求 {@link DeleteBucketDomainRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void deleteBucketDomainAsync(DeleteBucketDomainRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 获取存储桶防盗链配置的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/32493">https://cloud.tencent.com/document/product/436/32493.</a>
+     * <br>
+     * <p>
      *
      * @param request 获取存储桶防盗链配置的请求 {@link GetBucketRefererRequest}
      * @return 获取存储桶防盗链配置的返回结果 {@link GetBucketRefererResult}
@@ -2222,26 +2259,22 @@ public interface CosXml extends SimpleCosXml {
      * <p>
      * 获取存储桶防盗链配置的异步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/31929">https://cloud.tencent.com/document/product/436/31929.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/32493">https://cloud.tencent.com/document/product/436/32493.</a>
      * <br>
      * <p>
-     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E6.9F.A5.E8.AF.A2.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99.E9.85.8D.E7.BD.AE">获取存储桶防盗链配置示例</a>
      *
      * @param request 查询与存储桶关联的静态网站配置信息的请求 {@link GetBucketRefererRequest}
      * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
      */
     void getBucketRefererAsync(GetBucketRefererRequest request, CosXmlResultListener cosXmlResultListener);
 
-
     /**
      * <p>
      * 设置存储桶防盗链的同步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/31930">https://cloud.tencent.com/document/product/436/31930.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/32492">https://cloud.tencent.com/document/product/436/32492.</a>
      * <br>
      * <p>
-     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">设置存储桶防盗链示例</a>
-     *
      * @param request 设置存储桶防盗链请求 {@link PutBucketRefererRequest}
      * @return 设置存储桶防盗链返回结果 {@link PutBucketRefererResult}
      * @throws CosXmlClientException 客户端异常
@@ -2253,15 +2286,91 @@ public interface CosXml extends SimpleCosXml {
      * <p>
      * 设置存储桶防盗链的异步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/31930">https://cloud.tencent.com/document/product/436/31930.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/32492">https://cloud.tencent.com/document/product/436/32492.</a>
      * <br>
      * <p>
-     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">设置存储桶防盗链示例</a>
-     *
      * @param request 设置存储桶防盗链请求 {@link PutBucketRefererRequest}
      * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
      */
     void putBucketRefererAsync(PutBucketRefererRequest request,  CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 获取存储桶权限策略配置的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/8276">https://cloud.tencent.com/document/product/436/8276.</a>
+     * <br>
+     * <p>
+     * @param request 获取存储桶权限策略配置的请求 {@link GetBucketPolicyRequest}
+     * @return 获取存储桶权限策略配置的返回结果 {@link GetBucketPolicyResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetBucketPolicyResult getBucketPolicy(GetBucketPolicyRequest request)throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 获取存储桶权限策略配置的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/8276">https://cloud.tencent.com/document/product/436/8276.</a>
+     * <br>
+     * <p>
+     * @param request 获取存储桶权限策略配置的请求 {@link GetBucketPolicyRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void getBucketPolicyAsync(GetBucketPolicyRequest request, CosXmlResultListener cosXmlResultListener);
+    
+    /**
+     * <p>
+     * 设置存储桶权限策略的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/8282">https://cloud.tencent.com/document/product/436/8282.</a>
+     * <br>
+     * <p>
+     * @param request 设置存储桶权限策略请求 {@link PutBucketPolicyRequest}
+     * @return 设置存储桶权限策略返回结果 {@link PutBucketPolicyResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    PutBucketPolicyResult putBucketPolicy(PutBucketPolicyRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 设置存储桶权限策略的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/8282">https://cloud.tencent.com/document/product/436/8282.</a>
+     * <br>
+     * <p>
+     * @param request 设置存储桶权限策略请求 {@link PutBucketPolicyRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void putBucketPolicyAsync(PutBucketPolicyRequest request,  CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 删除存储桶权限策略的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/8285">https://cloud.tencent.com/document/product/436/8285.</a>
+     * <br>
+     * <p>
+     * @param request 删除存储桶权限策略请求 {@link DeleteBucketPolicyRequest}
+     * @return 删除存储桶权限策略返回结果 {@link DeleteBucketPolicyResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    DeleteBucketPolicyResult deleteBucketPolicy(DeleteBucketPolicyRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 删除存储桶权限策略的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/8285">https://cloud.tencent.com/document/product/436/8285.</a>
+     * <br>
+     * <p>
+     * @param request 删除存储桶权限策略请求 {@link DeleteBucketPolicyRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void deleteBucketPolicyAsync(DeleteBucketPolicyRequest request,  CosXmlResultListener cosXmlResultListener);
 
     //todo jordan 缺少示例
     //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">结构化查询对象示例</a>
