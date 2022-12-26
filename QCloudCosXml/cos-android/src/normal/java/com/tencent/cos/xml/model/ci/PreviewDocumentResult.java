@@ -37,6 +37,8 @@ public class PreviewDocumentResult extends GetObjectResult {
     private int totalPage;
     private String contentType;
     private String errNo;
+    private int totalSheet;
+    private String sheetName;
     private String previewFilePath;
 
     public PreviewDocumentResult(String previewFilePath) {
@@ -55,6 +57,13 @@ public class PreviewDocumentResult extends GetObjectResult {
         }
         contentType = response.header("Content-Type");
         errNo = response.header("X-ErrNo\t");
+        String sTotalSheet = response.header("X-Total-Sheet");
+        if (sTotalSheet != null) {
+            try {
+                totalSheet = Integer.parseInt(sTotalSheet);
+            } catch (Error e) {}
+        }
+        sheetName = response.header("X-Sheet-Name");
     }
 
     /**
@@ -79,6 +88,22 @@ public class PreviewDocumentResult extends GetObjectResult {
      */
     public String getErrNo() {
         return errNo;
+    }
+
+    /**
+     * 表格文件返回参数，返回文档中总表数
+     * @return 返回文档中总表数
+     */
+    public int getTotalSheet() {
+        return totalSheet;
+    }
+
+    /**
+     * 表格文件返回参数，返回当前 sheet 名
+     * @return 返回当前 sheet 名
+     */
+    public String getSheetName() {
+        return sheetName;
     }
 
     /**

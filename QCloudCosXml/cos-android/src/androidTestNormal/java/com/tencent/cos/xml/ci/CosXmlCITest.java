@@ -15,8 +15,8 @@ import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.ci.DeleteBucketDPStateRequest;
 import com.tencent.cos.xml.model.ci.DeleteBucketDPStateResult;
-import com.tencent.cos.xml.model.ci.GetBucketDPStateRequest;
-import com.tencent.cos.xml.model.ci.GetBucketDPStateResult;
+import com.tencent.cos.xml.model.ci.DescribeDocProcessBucketsRequest;
+import com.tencent.cos.xml.model.ci.DescribeDocProcessBucketsResult;
 import com.tencent.cos.xml.model.ci.GetDescribeMediaBucketsRequest;
 import com.tencent.cos.xml.model.ci.GetDescribeMediaBucketsResult;
 import com.tencent.cos.xml.model.ci.GetMediaInfoRequest;
@@ -104,12 +104,14 @@ public class CosXmlCITest {
     @Test
     public void getBucketDocumentPreviewState() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        GetBucketDPStateRequest request = new GetBucketDPStateRequest(TestConst.PERSIST_BUCKET);
+        DescribeDocProcessBucketsRequest request = new DescribeDocProcessBucketsRequest();
+        request.setPageNumber(1);
+        request.setPageSize(20);
         try {
-            GetBucketDPStateResult result = ciService.getBucketDocumentPreviewState(request);
+            DescribeDocProcessBucketsResult result = ciService.describeDocProcessBuckets(request);
             TestUtils.parseBadResponseBody(result);
             Assert.assertNotNull(result.printResult());
-            Assert.assertNotNull(result.getDocumentPreviewState());
+            Assert.assertNotNull(result.describeDocProcessBuckets);
             Assert.assertTrue(true);
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));

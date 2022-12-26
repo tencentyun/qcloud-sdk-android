@@ -35,7 +35,6 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
-import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import org.junit.After;
@@ -43,12 +42,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @RunWith(AndroidJUnit4.class)
@@ -76,6 +70,16 @@ public class COSDownloadTaskTest {
         downloadObject(transferService, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
     }
 
+    @Test public void testAnonymousDownload() {
+        TransferService transferService = ServiceFactory.INSTANCE.newAnonymousTransferService();
+        downloadObject(transferService, TestConst.PERSIST_BUCKET_ANONYMOUS_DOWNLOAD_OBJECT_PATH);
+    }
+
+    @Test public void testAnonymousPauseAndResume() {
+        TransferService transferService = ServiceFactory.INSTANCE.newAnonymousTransferService();
+        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_ANONYMOUS_DOWNLOAD_OBJECT_PATH);
+    }
+
     @Test public void testPauseAndResume() {
 
         TransferService transferService = ServiceFactory.INSTANCE.newDefaultTransferService();
@@ -93,7 +97,7 @@ public class COSDownloadTaskTest {
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
                 key,
                 TestUtils.localParentPath());
-        getObjectRequest.addQuery("imageMogr2/thumbnail/!50p|watermark/2/text/5pWw5o2u5LiH6LGh/fill/I0ZGRkZGRg==/fontsize/30/dx/20/dy/20", null);
+//        getObjectRequest.addQuery("imageMogr2/thumbnail/!50p|watermark/2/text/5pWw5o2u5LiH6LGh/fill/I0ZGRkZGRg==/fontsize/30/dx/20/dy/20", null);
         // getObjectRequest.addNoSignHeader("Host");
         // getObjectRequest.addNoSignHeader("Range");
         // getObjectRequest.addNoSignParams("imageMogr2/thumbnail/!50p");

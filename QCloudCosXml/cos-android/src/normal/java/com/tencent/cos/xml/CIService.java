@@ -7,8 +7,8 @@ import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.ci.DeleteBucketDPStateRequest;
 import com.tencent.cos.xml.model.ci.DeleteBucketDPStateResult;
-import com.tencent.cos.xml.model.ci.GetBucketDPStateRequest;
-import com.tencent.cos.xml.model.ci.GetBucketDPStateResult;
+import com.tencent.cos.xml.model.ci.DescribeDocProcessBucketsRequest;
+import com.tencent.cos.xml.model.ci.DescribeDocProcessBucketsResult;
 import com.tencent.cos.xml.model.ci.PutBucketDPStateRequest;
 import com.tencent.cos.xml.model.ci.PutBucketDPStateResult;
 import com.tencent.cos.xml.model.ci.QRCodeUploadRequest;
@@ -79,13 +79,13 @@ public class CIService extends CosXmlService {
         SignerFactory.registerSigner(signerType, new CISigner());
     }
 
-    public GetBucketDPStateResult getBucketDocumentPreviewState(GetBucketDPStateRequest request)
+    public DescribeDocProcessBucketsResult describeDocProcessBuckets(DescribeDocProcessBucketsRequest request)
             throws CosXmlClientException, CosXmlServiceException{
-        return execute(request, new GetBucketDPStateResult());
+        return execute(request, new DescribeDocProcessBucketsResult());
     }
 
-    public void getBucketDocumentPreviewStateAsync(GetBucketDPStateRequest request, CosXmlResultListener listener) {
-        schedule(request, new GetBucketDPStateResult(), listener);
+    public void describeDocProcessBucketsAsync(DescribeDocProcessBucketsRequest request, CosXmlResultListener listener) {
+        schedule(request, new DescribeDocProcessBucketsResult(), listener);
     }
 
     public PutBucketDPStateResult putBucketDocumentPreviewState(PutBucketDPStateRequest request)
