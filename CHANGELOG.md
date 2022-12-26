@@ -1,3 +1,11 @@
+## v5.9.8
+1. 增加查询已经开通文档预览Bucket的功能
+2. 文档预览增加参数 对齐api
+3. 增加存储桶权限策略相关功能
+4. 增加删除存储桶自定义域名功能
+5. 优化下载文件head失败时的逻辑
+6. foundation 修改可签名header、okio升级为1.15.0
+
 ## v5.9.7
 1. config增加ua设置、关闭灯塔功能移至CosXmlBaseService静态属性
 2. 增加初始化上传完成回调InitMultipleUploadListener(获取uploadid更方便)
