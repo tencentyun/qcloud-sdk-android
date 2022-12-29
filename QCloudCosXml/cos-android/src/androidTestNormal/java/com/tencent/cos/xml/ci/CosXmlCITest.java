@@ -288,7 +288,7 @@ public class CosXmlCITest {
         image2.interval = 2;
         image2.maxFrames = 5;
         PostImagesAudit.ImagesAuditInput image3 = new PostImagesAudit.ImagesAuditInput();
-        image3.url = "https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/%205image.jpg?q-sign-algorithm=sha1&q-ak=AKIDjOsDmCNwBUedQ3EouQq7C5RdmqW2eWTL&q-sign-time=1648885158;1648892358&q-key-time=1648885158;1648892358&q-header-list=&q-url-param-list=&q-signature=e2d5e7169d5f1ff5868ae9e74f880e19f0557305";
+        image3.url = "https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/%205image.jpg";
         image3.dataId = "DataIdQJD3";
         image3.interval = 2;
         image3.maxFrames = 5;
@@ -325,7 +325,7 @@ public class CosXmlCITest {
 
         PostVideoAuditRequest postRequest = new PostVideoAuditRequest(TestConst.AUDIT_BUCKET);
         postRequest.setObject(TestConst.AUDIT_BUCKET_VIDEO);
-//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.mp4?q-sign-algorithm=sha1&q-ak=AKIDjOsDmCNwBUedQ3EouQq7C5RdmqW2eWTL&q-sign-time=1648880520;1648887720&q-key-time=1648880520;1648887720&q-header-list=&q-url-param-list=&q-signature=9f808f64f87d60dda39e965f2486d9f0f263f0a7");
+//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.mp4");
         postRequest.setDataId("DataIdQJD");
         postRequest.setCallback("https://github.com/jordanqin");
         postRequest.setCallbackVersion("Detail");
@@ -362,7 +362,7 @@ public class CosXmlCITest {
         final TestLocker testLocker = new TestLocker();
         PostVideoAuditRequest postRequest = new PostVideoAuditRequest(TestConst.AUDIT_BUCKET);
         postRequest.setObject(TestConst.AUDIT_BUCKET_VIDEO);
-//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.mp4?q-sign-algorithm=sha1&q-ak=AKIDjOsDmCNwBUedQ3EouQq7C5RdmqW2eWTL&q-sign-time=1648880520;1648887720&q-key-time=1648880520;1648887720&q-header-list=&q-url-param-list=&q-signature=9f808f64f87d60dda39e965f2486d9f0f263f0a7");
+//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.mp4");
         postRequest.setDataId("DataIdQJD");
         postRequest.setCallback("https://github.com/jordanqin");
         postRequest.setCallbackVersion("Detail");
@@ -421,7 +421,7 @@ public class CosXmlCITest {
 
         PostAudioAuditRequest postRequest = new PostAudioAuditRequest(TestConst.AUDIT_BUCKET);
         postRequest.setObject(TestConst.AUDIT_BUCKET_AUDIO);
-//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/16k_ch_and_en.mp3?q-sign-algorithm=sha1&q-ak=AKIDjOsDmCNwBUedQ3EouQq7C5RdmqW2eWTL&q-sign-time=1648883854;1648891054&q-key-time=1648883854;1648891054&q-header-list=&q-url-param-list=&q-signature=ae787cdd17f67a6c33ae0ff416bf47302be69c17");
+//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/16k_ch_and_en.mp3");
         postRequest.setDataId("DataIdQJD");
         postRequest.setCallback("https://github.com/jordanqin");
         postRequest.setCallbackVersion("Detail");
@@ -455,7 +455,7 @@ public class CosXmlCITest {
 
         PostTextAuditRequest postRequest = new PostTextAuditRequest(TestConst.AUDIT_BUCKET);
         postRequest.setObject(TestConst.AUDIT_BUCKET_TEXT);
-//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.txt?q-sign-algorithm=sha1&q-ak=AKIDjOsDmCNwBUedQ3EouQq7C5RdmqW2eWTL&q-sign-time=1648883822;1648891022&q-key-time=1648883822;1648891022&q-header-list=&q-url-param-list=&q-signature=a783b2cbc4defbc9992215f82f549950e149addd");
+//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.txt");
 //        postRequest.setContent(Base64.encodeToString("测试文本 很黄很暴力".getBytes(Charset.forName("UTF-8")), Base64.NO_WRAP));
         postRequest.setDataId("DataIdQJD");
         postRequest.setCallback("https://github.com/jordanqin");
@@ -490,7 +490,7 @@ public class CosXmlCITest {
 
         PostDocumentAuditRequest postRequest = new PostDocumentAuditRequest(TestConst.AUDIT_BUCKET);
         postRequest.setObject(TestConst.AUDIT_BUCKET_DOCUMENT);
-//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/03_%E8%B7%AF%E7%94%B1.pdf?q-sign-algorithm=sha1&q-ak=AKIDjOsDmCNwBUedQ3EouQq7C5RdmqW2eWTL&q-sign-time=1648884238;1648891438&q-key-time=1648884238;1648891438&q-header-list=&q-url-param-list=&q-signature=1a950c3a6f7a8150c7a91051c13373b202828819");
+//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/03_%E8%B7%AF%E7%94%B1.pdf");
         postRequest.setDataId("DataIdQJD");
         postRequest.setCallback("https://github.com/jordanqin");
         postRequest.setDetectType("Porn,Terrorism");
