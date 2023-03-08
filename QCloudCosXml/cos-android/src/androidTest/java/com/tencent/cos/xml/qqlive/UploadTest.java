@@ -1,5 +1,8 @@
 package com.tencent.cos.xml.qqlive;
 
+import static com.tencent.cos.xml.core.TestConst.PERSIST_BUCKET_BIG_OBJECT_SIZE;
+import static com.tencent.cos.xml.core.TestUtils.getContext;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.CosXmlService;
@@ -19,9 +22,8 @@ import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
-
-import static com.tencent.cos.xml.core.TestUtils.getContext;
 
 /**
  * <p>
@@ -36,6 +38,11 @@ public class UploadTest {
         String bucket = TestConst.PERSIST_BUCKET;
         String cosPath = TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH;
         String localPath = TestUtils.localPath("1642166999131.m4a");
+        try {
+            TestUtils.createFile(localPath, PERSIST_BUCKET_BIG_OBJECT_SIZE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         COSXMLUploadTask uploadTask = transferManager.upload(bucket, cosPath,
                 localPath , null);
 

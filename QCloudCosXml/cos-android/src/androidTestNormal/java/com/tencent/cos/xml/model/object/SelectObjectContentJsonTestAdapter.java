@@ -19,6 +19,7 @@ import com.tencent.cos.xml.model.tag.eventstreaming.SelectObjectContentEvent;
 import org.junit.Assert;
 
 import java.io.File;
+import java.io.IOException;
 
 // Generate by auto
 public class SelectObjectContentJsonTestAdapter extends NormalRequestTestAdapter<SelectObjectContentRequest, SelectObjectContentResult> {
@@ -44,11 +45,16 @@ public class SelectObjectContentJsonTestAdapter extends NormalRequestTestAdapter
 
         SelectObjectContentRequest selectObjectContentRequest = new SelectObjectContentRequest(
                 TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SELECT_JSON_PATH,
-                "select * from cosobject s limit 100", true,
+                "Select s.name from COSObject s", true,
                 inputSerialization, outputSerialization
         );
 
         String localPath = new File(TestUtils.localParentPath(), "select.json").getAbsolutePath();
+        try {
+            TestUtils.createFile(localPath, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         selectObjectContentRequest.setSelectResponseFilePath(localPath);
         selectObjectContentRequest.setSelectObjectContentProgressListener(new SelectObjectContentListener() {
             @Override
