@@ -1,3 +1,6 @@
+## v5.9.9
+1. 解决弱网重试 偶现okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
+
 ## v5.9.8
 1. 增加查询已经开通文档预览Bucket的功能
 2. 文档预览增加参数 对齐api
