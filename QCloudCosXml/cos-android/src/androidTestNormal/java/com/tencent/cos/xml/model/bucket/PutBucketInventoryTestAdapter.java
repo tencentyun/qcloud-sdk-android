@@ -1,6 +1,8 @@
  
 package com.tencent.cos.xml.model.bucket;
 
+import static com.tencent.cos.xml.core.TestConst.OWNER_UIN;
+
 import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -24,7 +26,7 @@ public class PutBucketInventoryTestAdapter extends NormalRequestTestAdapter<PutB
         putBucketInventoryRequest.setScheduleFrequency(InventoryConfiguration.SCHEDULE_FREQUENCY_DAILY);
         putBucketInventoryRequest.setOptionalFields(InventoryConfiguration.Field.StroageClass);
         Assert.assertNotNull(InventoryConfiguration.Frequency.DAILY.getValue());
-        putBucketInventoryRequest.setDestination("CSV", "1278687956", TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, "objectPrefix");
+        putBucketInventoryRequest.setDestination("CSV", OWNER_UIN, TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, "objectPrefix");
         return putBucketInventoryRequest;
     }
 

@@ -135,7 +135,7 @@ public class PutObjectTestAdapter{
         protected PutObjectRequest newRequestInstance() {
             URL url = null;
             try {
-                url = new URL("https://android-ut-persist-bucket-1253653367.cos.ap-guangzhou.myqcloud.com/do_not_remove/select.json");
+                url = new URL("https://qcloudimg.tencent-cloud.cn/raw/a2685874ce596a0630c0d012676d5cfd.png");
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }

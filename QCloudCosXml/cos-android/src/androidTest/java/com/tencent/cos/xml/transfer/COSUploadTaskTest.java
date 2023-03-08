@@ -22,11 +22,10 @@
 
 package com.tencent.cos.xml.transfer;
 
-import android.net.Uri;
+import static com.tencent.cos.xml.crypto.Headers.COS_HASH_CRC64_ECMA;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestLocker;
@@ -41,15 +40,12 @@ import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.tag.pic.PicOperationRule;
 import com.tencent.cos.xml.model.tag.pic.PicOperations;
 import com.tencent.qcloud.core.logger.QCloudLogger;
-//import com.tencent.qcloud.quic.QuicConfig;
-//import com.tencent.qcloud.quic.QuicProxy;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import java.util.LinkedList;
 
-import static com.tencent.cos.xml.crypto.Headers.COS_HASH_CRC64_ECMA;
+import java.util.LinkedList;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -69,13 +65,13 @@ public class COSUploadTaskTest {
     // 测试分块上传
     @Test public void testMultipartUpload() {
         testUploadFile(ServiceFactory.INSTANCE.newDefaultTransferService(), TestConst.PERSIST_BUCKET,
-                TestUtils.localPath("shanshui.png"), TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+                TestUtils.bigFilePath(), TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
     }
 
     // 测试简单上传
     @Test public void testSimpleUpload() {
         testUploadFile(ServiceFactory.INSTANCE.newDefaultTransferService(), TestConst.PERSIST_BUCKET,
-                TestUtils.localPath("shanshui.jpg"), TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+                TestUtils.smallFilePath(), TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
     }
 
     // 测试暂停和恢复
@@ -97,7 +93,7 @@ public class COSUploadTaskTest {
     }
 
 
-    @Test public void testCsePauseAndResume() {
+    @Test public void testCesPauseAndResume() {
         testPauseAndResume(ServiceFactory.INSTANCE.newCesTransferService(), TestConst.PERSIST_BUCKET,
                 TestUtils.bigFilePath(), TestConst.PERSIST_BUCKET_CSE_BIG_OBJECT_PATH);
     }

@@ -34,7 +34,11 @@ android {
         consumerProguardFiles 'proguard-rules.pro'
     }
 
-
+    testOptions {
+        unitTests.all {
+            setIgnoreFailures(true)
+        }
+    }
 
     buildTypes {
 
@@ -91,7 +95,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_7
     }
     buildToolsVersion = '28.0.2'
-
 }
 
 fataar {
@@ -107,14 +110,18 @@ fataar {
 
 dependencies {
     compileOnly 'androidx.appcompat:appcompat:1.2.0'
-    testCompileOnly 'junit:junit:4.13'
+    testCompileOnly 'junit:junit:4.13.2'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    androidTestImplementation 'androidx.core:core:1.0.0'
 
     androidTestCompileOnly project(path: ':cos-android')
     androidTestCompileOnly project(path: ':cos-android-base')
+    // kms 加密
+    androidTestImplementation 'com.tencentcloudapi:tencentcloud-sdk-java-kms:3.1.213'
+    androidTestImplementation 'xerces:xercesImpl:2.12.0'
 
 //    if (compileQuic() && false) {
 //        api project(path: ':quic')

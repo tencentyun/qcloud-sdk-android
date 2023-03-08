@@ -1,5 +1,7 @@
 package com.tencent.cos.xml.model.bucket;
 
+import static com.tencent.cos.xml.core.TestConst.TEMP_BUCKET_REGION;
+
 import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -13,6 +15,7 @@ public class PutBucketIntelligentTieringTestAdapter extends NormalRequestTestAda
     @Override
     protected PutBucketIntelligentTieringRequest newRequestInstance() {
         PutBucketIntelligentTieringRequest request = new PutBucketIntelligentTieringRequest(TestConst.TEMP_BUCKET);
+        request.setRegion(TEMP_BUCKET_REGION);
         request.setConfiguration(new IntelligentTieringConfiguration(PutBucketIntelligentTieringRequest.STATUS_ENABLED,
                 30));
         return request;
