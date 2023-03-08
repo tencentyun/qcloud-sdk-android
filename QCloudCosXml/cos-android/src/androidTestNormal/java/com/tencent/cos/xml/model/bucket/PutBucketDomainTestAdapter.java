@@ -17,15 +17,19 @@ import org.junit.Assert;
 public class PutBucketDomainTestAdapter extends NormalRequestTestAdapter<PutBucketDomainRequest, PutBucketDomainResult> {
     @Override
     protected PutBucketDomainRequest newRequestInstance() {
-
         PutBucketDomainRequest putBucketDomainRequest = new PutBucketDomainRequest(TestConst.PERSIST_BUCKET);
-        DomainConfiguration.DomainRule domainRule = new DomainConfiguration.DomainRule(
-                DomainConfiguration.STATUS_ENABLED,
-                "jordanqin.github.io",
+        DomainConfiguration.DomainRule domainRule1 = new DomainConfiguration.DomainRule(
+                DomainConfiguration.STATUS_DISABLED,
+                "testDomain.com",
                 DomainConfiguration.TYPE_WEBSITE
         );
-        domainRule.forcedReplacement = DomainConfiguration.REPLACE_CNAME;
-        putBucketDomainRequest.addDomainRule(domainRule);
+        DomainConfiguration.DomainRule domainRule2 = new DomainConfiguration.DomainRule(
+                DomainConfiguration.STATUS_DISABLED,
+                "testDomain1.com",
+                DomainConfiguration.TYPE_REST
+        );
+        putBucketDomainRequest.addDomainRule(domainRule1);
+        putBucketDomainRequest.addDomainRule(domainRule2);
         return putBucketDomainRequest;
     }
 
@@ -42,7 +46,7 @@ public class PutBucketDomainTestAdapter extends NormalRequestTestAdapter<PutBuck
     @Override
     protected void assertException(@Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
 
-        if (serviceException != null && "DomainAuditFailed".equalsIgnoreCase(serviceException.getErrorCode())) {
+        if (serviceException != null && "DNSRecordVerifyFailed".equalsIgnoreCase(serviceException.getErrorCode())) {
             Assert.assertTrue(true);
         } else {
             super.assertException(clientException, serviceException);

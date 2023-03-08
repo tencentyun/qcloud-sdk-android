@@ -1,14 +1,18 @@
  
 package com.tencent.cos.xml.model.bucket;
 
+import static com.tencent.cos.xml.core.TestConst.TEMP_BUCKET_REGION;
+
 import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.CosXmlService;
+import com.tencent.cos.xml.common.COSACL;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.NormalRequestTestAdapter;
+import com.tencent.cos.xml.model.tag.ACLAccount;
 
 import org.junit.Assert;
 
@@ -18,13 +22,14 @@ public class PutBucketTestAdapter extends NormalRequestTestAdapter<PutBucketRequ
     protected PutBucketRequest newRequestInstance() {
         PutBucketRequest request = new PutBucketRequest(TestConst.TEMP_BUCKET);
         request.enableMAZ(true);
-//        request.setXCOSACL(COSACL.DEFAULT);
-//        ACLAccount aclAccount = new ACLAccount();
-//        aclAccount.addAccount(TestConst.OWNER_UIN);
-//        aclAccount.addAccount(TestConst.OWNER_UIN, TestConst.OWNER_UIN);
-//        request.setXCOSGrantRead(aclAccount);
-//        request.setXCOSGrantWrite(aclAccount);
-//        request.setXCOSReadWrite(aclAccount);
+        request.setRegion(TEMP_BUCKET_REGION);
+        request.setXCOSACL(COSACL.DEFAULT);
+        ACLAccount aclAccount = new ACLAccount();
+        aclAccount.addAccount(TestConst.OWNER_UIN);
+        aclAccount.addAccount(TestConst.OWNER_UIN, TestConst.OWNER_UIN);
+        request.setXCOSGrantRead(aclAccount);
+        request.setXCOSGrantWrite(aclAccount);
+        request.setXCOSReadWrite(aclAccount);
         return request;
     }
 

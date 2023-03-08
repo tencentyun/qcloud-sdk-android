@@ -2062,7 +2062,7 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
     public byte[] previewDocumentInHtmlBytes(String bucketName, String objectName) throws CosXmlClientException, CosXmlServiceException {
         PreviewDocumentInHtmlBytesRequest previewDocumentInHtmlBytesRequest = new PreviewDocumentInHtmlBytesRequest(bucketName, objectName);
         PreviewDocumentInHtmlBytesResult previewDocumentInHtmlBytesResult = execute(previewDocumentInHtmlBytesRequest, new PreviewDocumentInHtmlBytesResult());
-        return previewDocumentInHtmlBytesResult != null ? previewDocumentInHtmlBytesResult.data : new byte[0];
+        return previewDocumentInHtmlBytesResult != null ? previewDocumentInHtmlBytesResult.getData() : new byte[0];
     }
 
     public void formatConversionAsync(FormatConversionRequest request, CosXmlResultListener cosXmlResultListener) {

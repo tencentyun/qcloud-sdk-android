@@ -1,1 +1,0 @@
-[{"outputType":{"type":"MERGED_MANIFESTS"},"apkData":{"type":"MAIN","splits":[],"versionCode":50432,"versionName":"5.6.2","enabled":true,"outputFile":"cosxml-ext-normal-release.aar","fullName":"normalRelease","baseName":"normal-release"},"path":"../../library_manifest/normalRelease/AndroidManifest.xml","properties":{"packageId":"com.tencent.cos.xml","split":""}}]

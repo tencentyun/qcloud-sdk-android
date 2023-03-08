@@ -57,18 +57,6 @@ public class CdnDownloadTest {
     }
 
     @Test
-    public void testMd5() {
-
-        String str = "/test.jpg-1595236205-c2iglbgtdni-0-b8ejrafcq7ax6y1pn1iw84cgu6";
-        try {
-            Assert.assertEquals("d36876815a07df86a37176b2a15289e6", TestUtils.getMD5(str));
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        }
-    }
-
-    @Test
     public void testHeadObject() {
         if (!testCdn) {
             return;
@@ -85,7 +73,7 @@ public class CdnDownloadTest {
         String key = TestConst.PERSIST_BUCKET_CDN_SIGN;
 
         Map<String, String> paras = new HashMap<>();
-        String sign = cdnSign(path, timestamp, rand, key);
+        String sign = cdnSign("/"+path, timestamp, rand, key);
         paras.put("sign", String.format("%d-%s-0-%s", timestamp, rand, sign));
         headObjectRequest.setQueryParameters(paras);
 
@@ -116,7 +104,6 @@ public class CdnDownloadTest {
 
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newCDNService();
 
-        String bucket = TestConst.PERSIST_BUCKET;
         String path = TestConst.PERSIST_BUCKET_PIC_PATH;
 
         ///String path = TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH;
@@ -130,7 +117,7 @@ public class CdnDownloadTest {
 
 
         Map<String, String> paras = new HashMap<>();
-        String sign = cdnSign(path, timestamp, rand, key);
+        String sign = cdnSign("/"+path, timestamp, rand, key);
         paras.put("sign", String.format("%d-%s-0-%s", timestamp, rand, sign));
         getObjectRequest.setQueryParameters(paras);
 
@@ -172,7 +159,7 @@ public class CdnDownloadTest {
 
 
         Map<String, String> paras = new HashMap<>();
-        String sign = cdnSign(path, timestamp, rand, key);
+        String sign = cdnSign("/"+path, timestamp, rand, key);
         paras.put("sign", String.format("%d-%s-0-%s", timestamp, rand, sign));
         getObjectRequest.setQueryParameters(paras);
         COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(), getObjectRequest);

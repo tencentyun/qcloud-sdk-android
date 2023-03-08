@@ -1,6 +1,8 @@
  
 package com.tencent.cos.xml.model.bucket;
 
+import static com.tencent.cos.xml.core.TestConst.TEMP_BUCKET_REGION;
+
 import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -12,7 +14,9 @@ import com.tencent.cos.xml.model.NormalRequestTestAdapter;
 public class DeleteBucketTestAdapter extends NormalRequestTestAdapter<DeleteBucketRequest, DeleteBucketResult> {
     @Override
     protected DeleteBucketRequest newRequestInstance() {
-        return new DeleteBucketRequest(TestConst.TEMP_BUCKET);
+        DeleteBucketRequest request = new DeleteBucketRequest(TestConst.TEMP_BUCKET);
+        request.setRegion(TEMP_BUCKET_REGION);
+        return request;
     }
 
     @Override
