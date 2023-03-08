@@ -184,6 +184,10 @@ public class RetryInterceptor implements Interceptor {
             attempts++;
             int statusCode = -1;
             try {
+                //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
+                if (response != null && response.body() != null) {
+                    response.close();
+                }
                 response = executeTaskOnce(chain, request, task);
                 statusCode = response.code();
                 e = null;
@@ -216,10 +220,6 @@ public class RetryInterceptor implements Interceptor {
             } else if (shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled()) {
                 QCloudLogger.i(HTTP_LOG_TAG, "%s failed for %s, code is %d", request, e, statusCode);
                 retryStrategy.onTaskEnd(false, e);
-                //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
-//                if (response != null) {
-//                    Util.closeQuietly(response.body());
-//                }
             } else {
                 QCloudLogger.i(HTTP_LOG_TAG, "%s ends for %s, code is %d", request, e, statusCode);
                 break;
