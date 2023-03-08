@@ -7,8 +7,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 10551
-        versionName "1.5.51"
+        versionCode 10552
+        versionName "1.5.52"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -42,7 +42,7 @@ dependencies {
     androidTestImplementation 'androidx.annotation:annotation:1.0.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
 
-    testCompileOnly 'junit:junit:4.12'
+    testCompileOnly 'junit:junit:4.13.2'
     testCompileOnly 'org.mockito:mockito-core:1.10.19'
 
     compileOnly 'androidx.appcompat:appcompat:1.0.0'
