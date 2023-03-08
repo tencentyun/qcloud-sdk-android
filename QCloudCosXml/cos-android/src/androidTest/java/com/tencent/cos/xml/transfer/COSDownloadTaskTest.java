@@ -63,6 +63,11 @@ public class COSDownloadTaskTest {
         downloadObject(transferService, TestConst.PERSIST_BUCKET_CSE_BIG_OBJECT_PATH);
     }
 
+    @Test public void testCesPauseAndResume() {
+        TransferService transferService = ServiceFactory.INSTANCE.newCesTransferService();
+        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_CSE_BIG_OBJECT_PATH);
+    }
+
     // 简单下载小文件
     @Test public void testSmallDownload() {
 
@@ -84,12 +89,6 @@ public class COSDownloadTaskTest {
 
         TransferService transferService = ServiceFactory.INSTANCE.newDefaultTransferService();
         testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
-    }
-
-    @Test public void testCsePauseAndResume() {
-
-        TransferService transferService = ServiceFactory.INSTANCE.newCesTransferService();
-        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_CSE_BIG_OBJECT_PATH);
     }
 
     private void downloadObject(TransferService transferService, String key) {

@@ -23,6 +23,10 @@
 
 package com.tencent.cos.xml.model;
 
+import static com.tencent.cos.xml.core.TestConst.PERSIST_BUCKET_DOCUMENT_XLSX_PATH;
+import static com.tencent.cos.xml.core.TestConst.PERSIST_BUCKET_PIC_PATH;
+
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.CosXmlService;
@@ -32,9 +36,12 @@ import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlBooleanListener;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
+import com.tencent.cos.xml.model.ci.FormatConversionRequest;
 import com.tencent.cos.xml.model.object.GetSnapshotTestAdapter;
 import com.tencent.cos.xml.model.object.NormalPutObjectTestAdapter;
 import com.tencent.cos.xml.model.tag.COSMetaData;
+import com.tencent.cos.xml.model.tag.pic.PicOperations;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -206,7 +213,41 @@ public class OtherObjectTest {
     }
 
     @Test public void testGetSnapshot() {
-
         new GetSnapshotTestAdapter().testSyncRequest();
     }
+
+    @Test
+    public void testPreviewDocumentInHtmlBytes() {
+        CosXmlService cosXmlService = NormalServiceFactory.INSTANCE.newDefaultService();
+        try {
+            byte[] bytes = cosXmlService.previewDocumentInHtmlBytes(TestConst.PERSIST_BUCKET, PERSIST_BUCKET_DOCUMENT_XLSX_PATH);
+            Assert.assertNotNull(bytes);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void testFormatConversion() {
+        CosXmlService cosXmlService = NormalServiceFactory.INSTANCE.newDefaultService();
+        FormatConversionRequest request = new FormatConversionRequest(TestConst.PERSIST_BUCKET, PERSIST_BUCKET_PIC_PATH, "jpg");
+        request.saveBucket = TestConst.PERSIST_BUCKET;
+        request.fileId = "/formatConversion";
+        PicOperations picOperations = request.getPicOperations();
+        Assert.assertNotNull(picOperations);
+        cosXmlService.formatConversionAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                Assert.assertNotNull(result);
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+            }
+        });
+    }
+
 }  

@@ -1,5 +1,7 @@
 package com.tencent.cos.xml.model.bucket;
 
+import static com.tencent.cos.xml.core.TestConst.TEMP_BUCKET_REGION;
+
 import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -11,7 +13,9 @@ import com.tencent.cos.xml.model.NormalRequestTestAdapter;
 public class GetBucketIntelligentTieringTestAdapter extends NormalRequestTestAdapter<GetBucketIntelligentTieringRequest, GetBucketIntelligentTieringResult> {
     @Override
     protected GetBucketIntelligentTieringRequest newRequestInstance() {
-        return new GetBucketIntelligentTieringRequest(TestConst.TEMP_BUCKET);
+        GetBucketIntelligentTieringRequest request =  new GetBucketIntelligentTieringRequest(TestConst.TEMP_BUCKET);
+        request.setRegion(TEMP_BUCKET_REGION);
+        return request;
     }
 
     @Override

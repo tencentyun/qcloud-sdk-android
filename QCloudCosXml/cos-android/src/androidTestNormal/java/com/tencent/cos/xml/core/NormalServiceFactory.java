@@ -24,7 +24,7 @@ public class NormalServiceFactory {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setDebuggable(true)
-                // .setAppidAndRegion(TestConst.COS_APPID, TestConst.PERSIST_BUCKET_REGION)
+                .setAppidAndRegion(TestConst.COS_APPID, TestConst.PERSIST_BUCKET_REGION)
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
 
@@ -61,17 +61,6 @@ public class NormalServiceFactory {
                 .setDebuggable(true)
                 .setAppidAndRegion(TestConst.COS_APPID, TestConst.PERSIST_BUCKET_REGION)
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
-                .builder();
-
-        return new CIService(getContext(), cosXmlServiceConfig,
-                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
-    }
-
-    public CIService newCIChongQingService() {
-        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
-                .isHttps(true)
-                .setDebuggable(true)
-                .setRegion(TestConst.WORDS_GENERALIZE_BUCKET_REGION)
                 .builder();
 
         return new CIService(getContext(), cosXmlServiceConfig,

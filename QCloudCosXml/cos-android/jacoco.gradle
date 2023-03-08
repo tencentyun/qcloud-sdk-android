@@ -28,6 +28,7 @@ jacoco {
 }
 
 task jacocoCreateNormalDebugCoverageReport(type: JacocoReport, dependsOn: 'connectedNormalDebugAndroidTest') {
+//跑过单测后 可以直接执行，不依赖connectedNormalDebugAndroidTest 否则会又跑一次
 //task jacocoCreateNormalDebugCoverageReport(type: JacocoReport) {
     group = "verification"
     reports {
@@ -36,15 +37,23 @@ task jacocoCreateNormalDebugCoverageReport(type: JacocoReport, dependsOn: 'conne
     }
 
     def classTree = fileTree(dir: "${buildDir}/intermediates/javac/normalDebug/compileNormalDebugJavaWithJavac/classes",
-            excludes: ['com/tencent/cos/xml/transfer/UploadService*',
-                       'com/tencent/cos/xml/transfer/Downloader*',
-                       'com/tencent/cos/xml/transfer/CopyObjectService*',
-                       'com/tencent/cos/xml/BeaconService.class',
-                       'com/tencent/cos/xml/model/tag/eventstreaming/**',
-                       'com/tencent/cos/xml/s3',
-                       'com/tencent/cos/xml/utils',
-                       '**/*$$XmlAdapter.class',
-                        "**/*ChildElementBinder*"])
+            excludes: [
+                    'com/tencent/qmsp/**',
+                    'com/tencent/qimei/**',
+                    'com/tencent/beacon/**',
+//                    'com/tencent/cos/xml/crypto/**',
+                    'com/tencent/cos/xml/transfer/UploadService*',
+                    'com/tencent/cos/xml/transfer/Downloader*',
+                    'com/tencent/cos/xml/transfer/CopyObjectService*',
+//                    'com/tencent/cos/xml/BeaconService.class',
+//                    'com/tencent/cos/xml/model/tag/eventstreaming/**',
+//                    'com/tencent/cos/xml/s3',
+//                    'com/tencent/cos/xml/utils',
+                    '**/*BuildConfig.class',
+//                    '**/*$$XmlAdapter.*',
+//                    '**/*$$XmlAdapter$*.*',
+//                    "**/*ChildElementBinder*"
+            ])
     classDirectories.setFrom(files([classTree]))
 
     def executionTree = fileTree(dir: "${buildDir}/outputs/code_coverage/normalDebugAndroidTest/connected/")

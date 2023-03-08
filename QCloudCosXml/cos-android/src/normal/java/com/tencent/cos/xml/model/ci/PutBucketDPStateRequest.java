@@ -15,9 +15,6 @@ import com.tencent.qcloud.core.http.RequestBodySerializer;
  */
 
 public class PutBucketDPStateRequest extends BucketRequest {
-
-    private boolean enable = false;
-
     public PutBucketDPStateRequest(String bucket) {
         this(bucket, null);
     }

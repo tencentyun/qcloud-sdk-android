@@ -37,7 +37,7 @@ import java.io.IOException;
  * @see PreviewDocumentInHtmlBytesRequest
  */
 public class PreviewDocumentInHtmlBytesResult extends CosXmlResult {
-    public byte[] data;
+    private byte[] data;
 
     @Override
     public void parseResponseBody(HttpResponse response) throws CosXmlClientException, CosXmlServiceException {

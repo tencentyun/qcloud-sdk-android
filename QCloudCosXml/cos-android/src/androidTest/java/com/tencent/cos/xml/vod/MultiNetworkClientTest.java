@@ -1,9 +1,9 @@
 package com.tencent.cos.xml.vod;
 
+import static com.tencent.cos.xml.core.TestConst.PERSIST_BUCKET_BIG_OBJECT_SIZE;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.CosXmlService;
-import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
@@ -13,16 +13,13 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.transfer.COSXMLUploadTask;
-import com.tencent.cos.xml.transfer.TransferConfig;
 import com.tencent.cos.xml.transfer.TransferManager;
-import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
-
-import static com.tencent.cos.xml.core.TestUtils.getContext;
 
 /**
  * <p>
@@ -34,15 +31,20 @@ public class MultiNetworkClientTest {
 
     @Test public void testSimpleUpload() {
         TransferManager defaultTransferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
-        TransferManager cdnTransferManager = ServiceFactory.INSTANCE.newCdnTransferManager();
+        TransferManager accelerateTransferManager = ServiceFactory.INSTANCE.newAccelerateTransferManager();
 
         String bucket = TestConst.PERSIST_BUCKET;
         String cosPath = TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH;
         String localPath = TestUtils.localPath("1642166999131.m4a");
+        try {
+            TestUtils.createFile(localPath, PERSIST_BUCKET_BIG_OBJECT_SIZE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         COSXMLUploadTask defaultUploadTask = defaultTransferManager.upload(bucket, cosPath,
                 localPath , null);
 
-        COSXMLUploadTask cdnUploadTask = cdnTransferManager.upload(bucket, cosPath,
+        COSXMLUploadTask accelerateUploadTask = accelerateTransferManager.upload(bucket, cosPath,
                 localPath , null);
 
         final CountDownLatch locker = new CountDownLatch(2);
@@ -61,7 +63,7 @@ public class MultiNetworkClientTest {
             }
         });
 
-        cdnUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+        accelerateUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 TestUtils.printError("upload success");
@@ -81,7 +83,7 @@ public class MultiNetworkClientTest {
             e.printStackTrace();
         }
 
-        TestUtils.assertCOSXMLTaskSuccess(cdnUploadTask);
+        TestUtils.assertCOSXMLTaskSuccess(accelerateUploadTask);
         TestUtils.assertCOSXMLTaskSuccess(defaultUploadTask);
     }
 }
