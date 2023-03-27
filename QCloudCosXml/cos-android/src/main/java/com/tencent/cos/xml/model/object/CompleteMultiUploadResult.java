@@ -22,17 +22,12 @@
 
 package com.tencent.cos.xml.model.object;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.CompleteMultipartUploadResult;
+import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpResponse;
-import com.tencent.qcloud.qcloudxml.core.QCloudXml;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 /**
  * 完成整个分块上传的返回的结果.
@@ -49,15 +44,8 @@ final public class CompleteMultiUploadResult extends CosXmlResult {
     @Override
     public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
         super.parseResponseBody(response);
-
         completeMultipartUpload = new CompleteMultipartUploadResult();
-        try {
-            completeMultipartUpload = QCloudXml.fromXml(response.byteStream(), CompleteMultipartUploadResult.class);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        }
+        completeMultipartUpload = QCloudXmlUtils.fromXml(response.byteStream(), CompleteMultipartUploadResult.class);
     }
 
     @Override

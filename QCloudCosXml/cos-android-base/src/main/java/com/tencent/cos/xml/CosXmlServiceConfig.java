@@ -60,6 +60,7 @@ public class CosXmlServiceConfig implements Parcelable {
     public static final String PATH_STYLE_HOST_FORMAT = "cos.${region}.myqcloud.com";
 
     public static final String CI_HOST_FORMAT = "${bucket}.ci.${region}.myqcloud.com";
+    public static final String CI_REGION_HOST_FORMAT = "ci.${region}.myqcloud.com";
     public static final String PIC_HOST_FORMAT = "${bucket}.pic.${region}.myqcloud.com";
 
     /**
@@ -69,6 +70,7 @@ public class CosXmlServiceConfig implements Parcelable {
 
     private String protocol;
     private String userAgent;
+    private String userAgentExtended;
 
     private String region;
     private String appid;
@@ -78,7 +80,6 @@ public class CosXmlServiceConfig implements Parcelable {
     private String endpointSuffix;
 
     private boolean isDebuggable;
-    private boolean isCloseBeacon;
 
     private RetryStrategy retryStrategy;
     private QCloudHttpRetryHandler qCloudHttpRetryHandler;
@@ -115,8 +116,8 @@ public class CosXmlServiceConfig implements Parcelable {
     public CosXmlServiceConfig(Builder builder) {
         this.protocol = builder.protocol;
         this.userAgent = builder.userAgent;
+        this.userAgentExtended = builder.userAgentExtended;
         this.isDebuggable = builder.isDebuggable;
-        this.isCloseBeacon = builder.isCloseBeacon;
 
         this.appid = builder.appid;
         this.region = builder.region;
@@ -166,7 +167,11 @@ public class CosXmlServiceConfig implements Parcelable {
      * @return UserAgent
      */
     public String getUserAgent() {
-        return userAgent;
+        if(TextUtils.isEmpty(userAgentExtended)){
+            return userAgent;
+        } else {
+            return userAgent + "-" + userAgentExtended;
+        }
     }
 
     /**
@@ -256,6 +261,20 @@ public class CosXmlServiceConfig implements Parcelable {
         return getFormatHost(hostFormat, region, bucket);
     }
 
+    /**
+     * 获取请求host
+     * @param region 区域
+     * @param hostFormat HOST 格式，支持通配符
+     * @return 请求host
+     */
+    public String getRequestHost(String region, String hostFormat) {
+        if (!TextUtils.isEmpty(host)) {
+            return host;
+        }
+        region = TextUtils.isEmpty(region) ? this.region : region; // 优先 request 中的 region
+        return getFormatHost(hostFormat, region);
+    }
+
     public String getHeaderHost(String region, String bucket) {
 
         if (hostHeaderFormat != null) {
@@ -294,6 +313,13 @@ public class CosXmlServiceConfig implements Parcelable {
         }
 
         return hostFormat.replace("${bucket}", bucket).replace("${region}", region);
+    }
+
+    private String getFormatHost(String hostFormat, String region) {
+        if(region == null){
+            throw new IllegalArgumentException("please set request or config region !");
+        }
+        return hostFormat.replace("${region}", region);
     }
 
     private String getHostFormat(boolean accelerate, boolean pathStyle) {
@@ -479,10 +505,6 @@ public class CosXmlServiceConfig implements Parcelable {
         return isDebuggable;
     }
 
-    public boolean isCloseBeacon() {
-        return isCloseBeacon;
-    }
-
     public int getSocketTimeout() {
         return socketTimeout;
     }
@@ -521,7 +543,6 @@ public class CosXmlServiceConfig implements Parcelable {
         dest.writeString(protocol);
         dest.writeString(region);
         dest.writeInt(isDebuggable ? 1 : 0);
-        dest.writeInt(isCloseBeacon ? 1 : 0);
     }
 
     private CosXmlServiceConfig(Parcel in) {
@@ -552,6 +573,7 @@ public class CosXmlServiceConfig implements Parcelable {
 
         private String protocol;
         private String userAgent;
+        private String userAgentExtended;
 
         private String region;
         private String appid;
@@ -562,7 +584,6 @@ public class CosXmlServiceConfig implements Parcelable {
         private boolean bucketInPath;
 
         private boolean isDebuggable;
-        private boolean isCloseBeacon;
 
         private RetryStrategy retryStrategy;
         private QCloudHttpRetryHandler qCloudHttpRetryHandler;
@@ -592,7 +613,6 @@ public class CosXmlServiceConfig implements Parcelable {
             protocol = HTTPS_PROTOCOL;
             userAgent = DEFAULT_USER_AGENT;
             isDebuggable = false;
-            isCloseBeacon = false;
             retryStrategy = RetryStrategy.DEFAULT;
             bucketInPath = false;
         }
@@ -610,7 +630,6 @@ public class CosXmlServiceConfig implements Parcelable {
             bucketInPath = config.bucketInPath;
 
             isDebuggable = config.isDebuggable;
-            isCloseBeacon = config.isCloseBeacon;
 
             retryStrategy = config.retryStrategy;
             qCloudHttpRetryHandler = config.qCloudHttpRetryHandler;
@@ -684,7 +703,7 @@ public class CosXmlServiceConfig implements Parcelable {
          * 和 ap-shanghai，那么最终的请求地址为 bucket-1250000000.ap-shanghai.tencent.com
          *
          * </>
-         * 注意，这个设置不会影响 GetService 请求，GetService 请求 Host 通过 {@link CosXmlService#setServiceDomain(String)} 设置
+         * 注意，这个设置不会影响 GetService 请求，GetService 请求 Host 通过 {@link CosXmlBaseService#setDomain(String)} 设置
          *
          * @param hostFormat host 格式化字符串
          * @return Builder 对象
@@ -787,17 +806,6 @@ public class CosXmlServiceConfig implements Parcelable {
         }
 
         /**
-         * 是否关闭上报灯塔
-         *
-         * @param isCloseBeacon 是否关闭上报灯塔
-         * @return Builder 对象
-         */
-        public Builder setCloseBeacon(boolean isCloseBeacon) {
-            this.isCloseBeacon = isCloseBeacon;
-            return this;
-        }
-
-        /**
          * 是否将签名放在 URL 中，默认放在 Header 中
          *
          * @param signInUrl
@@ -878,6 +886,15 @@ public class CosXmlServiceConfig implements Parcelable {
         public Builder enableQuic(boolean isEnable){
             this.isQuic = isEnable;
             this.userAgent = VersionInfo.getQuicUserAgent();
+            return this;
+        }
+
+        /**
+         * 设置ua拓展参数
+         * @param userAgentExtended ua拓展参数()会拼接在ua后面
+         */
+        public Builder setUserAgentExtended(String userAgentExtended) {
+            this.userAgentExtended = userAgentExtended;
             return this;
         }
 

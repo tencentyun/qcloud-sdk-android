@@ -21,7 +21,6 @@ import com.tencent.cos.xml.model.bucket.ListMultiUploadsResult;
 import com.tencent.cos.xml.model.object.AbortMultiUploadRequest;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadRequest;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadResult;
-import com.tencent.cos.xml.model.object.DeleteObjectRequest;
 import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.cos.xml.model.object.InitMultipartUploadRequest;
 import com.tencent.cos.xml.model.object.InitMultipartUploadResult;
@@ -838,17 +837,17 @@ public class COSUploadTask extends COSTransferTask {
             }
         }
 
-        private void delete() {
-
-            DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, key);
-            deleteObjectRequest.setRegion(region);
-            try {
-                cosService.deleteObject(deleteObjectRequest);
-            } catch (CosXmlClientException e) {
-                e.printStackTrace();
-            } catch (CosXmlServiceException e) {
-                e.printStackTrace();
-            }
-        }
+//        private void delete() {
+//
+//            DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, key);
+//            deleteObjectRequest.setRegion(region);
+//            try {
+//                cosService.deleteObject(deleteObjectRequest);
+//            } catch (CosXmlClientException e) {
+//                e.printStackTrace();
+//            } catch (CosXmlServiceException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 }

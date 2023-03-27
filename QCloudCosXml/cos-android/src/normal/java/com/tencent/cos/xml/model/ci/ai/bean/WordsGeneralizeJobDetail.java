@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * AI分词识别任务结果的详细信息
  */
-@XmlBean(name = "JobsDetail")
+@XmlBean(name = "JobsDetail", method = XmlBean.GenerateMethod.FROM)
 public class WordsGeneralizeJobDetail {
     /**
      * 任务的 ID
@@ -81,7 +81,7 @@ public class WordsGeneralizeJobDetail {
     /**
      * 操作规则
      */
-    @XmlBean(name = "Operation")
+    @XmlBean(name = "Operation", method = XmlBean.GenerateMethod.FROM)
     public static class WordsGeneralizeJobDetailOperation extends WordsGeneralizeJobOperation {
         /**
          * 分词结果, 任务执行成功时返回
@@ -89,7 +89,7 @@ public class WordsGeneralizeJobDetail {
         public WordsGeneralizeResult wordsGeneralizeResult;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class WordsGeneralizeResult {
         /**
          * 智能分类结果
@@ -104,7 +104,7 @@ public class WordsGeneralizeJobDetail {
         public List<WordsGeneralizeToken> wordsGeneralizeToken;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class WordsGeneralizeLable {
         /**
          * 类别
@@ -116,7 +116,7 @@ public class WordsGeneralizeJobDetail {
         public String word;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class WordsGeneralizeToken {
         /**
          * 词汇

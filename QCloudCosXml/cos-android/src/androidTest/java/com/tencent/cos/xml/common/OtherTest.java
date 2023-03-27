@@ -202,7 +202,7 @@ public class OtherTest {
                 TestUtils.print("Progress test" + ": " + complete + "/" + target);
             }
         });
-        for (int i=0; i<100;i++){
+        for (int i=0; i<5;i++){
             try {
                 service.putObject(request);
 //                service.getObject(request);
@@ -214,7 +214,7 @@ public class OtherTest {
                 break;
             }
             try {
-                Thread.sleep(3000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

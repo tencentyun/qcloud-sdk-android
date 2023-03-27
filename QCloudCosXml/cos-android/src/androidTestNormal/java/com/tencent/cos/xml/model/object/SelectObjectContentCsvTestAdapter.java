@@ -21,6 +21,7 @@ import com.tencent.cos.xml.model.tag.eventstreaming.SelectObjectContentEvent;
 import org.junit.Assert;
 
 import java.io.File;
+import java.io.IOException;
 
 public class SelectObjectContentCsvTestAdapter extends NormalRequestTestAdapter<SelectObjectContentRequest, SelectObjectContentResult> {
     @Override
@@ -49,11 +50,16 @@ public class SelectObjectContentCsvTestAdapter extends NormalRequestTestAdapter<
 
         SelectObjectContentRequest selectObjectContentRequest = new SelectObjectContentRequest(
                 TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SELECT_CSV_PATH,
-                "select * from cosobject s limit 100", true,
+                "select * from cosobject s limit 10", true,
                 inputSerialization, outputSerialization
         );
 
         String localPath = new File(TestUtils.localParentPath(), "select.csv").getAbsolutePath();
+        try {
+            TestUtils.createFile(localPath, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         selectObjectContentRequest.setSelectResponseFilePath(localPath);
         selectObjectContentRequest.setSelectObjectContentProgressListener(new SelectObjectContentListener() {
             @Override

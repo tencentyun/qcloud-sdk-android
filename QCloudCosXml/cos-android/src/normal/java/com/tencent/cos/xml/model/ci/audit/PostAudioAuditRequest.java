@@ -32,12 +32,8 @@ import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.audit.post.PostAudioAudit;
+import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
-import com.tencent.qcloud.qcloudxml.core.QCloudXml;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 /**
  * 提交音频审核任务的请求.
@@ -91,14 +87,8 @@ public class PostAudioAuditRequest extends BasePostAuditRequest {
 
     @Override
     public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        try {
-            return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                    QCloudXml.toXml(postAudioAudit));
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-        }
+        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
+                QCloudXmlUtils.toXml(postAudioAudit));
     }
 
     @Override

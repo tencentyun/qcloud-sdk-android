@@ -16,10 +16,11 @@ public class GetSnapshotTestAdapter extends NormalRequestTestAdapter<GetSnapshot
     protected GetSnapshotRequest newRequestInstance() {
         GetSnapshotRequest getSnapshotRequest = new GetSnapshotRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_VIDEO_PATH, TestUtils.localParentPath(), "1.jpg", 1);
-
         getSnapshotRequest.setHeight(100);
         getSnapshotRequest.setWidth(100);
-
+        getSnapshotRequest.setFormat("jpg");
+        getSnapshotRequest.setRotate("off");
+        getSnapshotRequest.setMode("keyframe");
         return getSnapshotRequest;
     }
 

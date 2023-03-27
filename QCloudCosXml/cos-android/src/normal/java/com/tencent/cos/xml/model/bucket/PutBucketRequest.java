@@ -101,6 +101,19 @@ final public class PutBucketRequest extends BucketRequest {
 
     /**
      * <p>
+     * 赋予被授权者读取存储桶的权限
+     * </p>
+     *
+     * @param aclAccount 读权限用户列表
+     */
+    public void setXCOSGrantRead(String aclAccount){
+        if (aclAccount != null) {
+            addHeader(COSRequestHeaderKey.X_COS_GRANT_READ, aclAccount);
+        }
+    }
+
+    /**
+     * <p>
      * 赋予被授权者写入存储桶的权限
      * </p>
      *
@@ -113,12 +126,35 @@ final public class PutBucketRequest extends BucketRequest {
     }
 
     /**
+     * <p>
+     * 赋予被授权者写入存储桶的权限
+     * </p>
+     *
+     * @param aclAccount 写权限用户列表
+     */
+    public void setXCOSGrantWrite(String aclAccount){
+        if (aclAccount != null) {
+            addHeader(COSRequestHeaderKey.X_COS_GRANT_WRITE, aclAccount);
+        }
+    }
+
+    /**
      * 赋予被授权者操作存储桶的所有权限
      * @param aclAccount 用户权限列表
      */
     public void setXCOSReadWrite(ACLAccount aclAccount){
         if (aclAccount != null) {
             addHeader(COSRequestHeaderKey.X_COS_GRANT_FULL_CONTROL, aclAccount.getAccount());
+        }
+    }
+
+    /**
+     * 赋予被授权者操作存储桶的所有权限
+     * @param aclAccount 用户权限列表
+     */
+    public void setXCOSReadWrite(String aclAccount){
+        if (aclAccount != null) {
+            addHeader(COSRequestHeaderKey.X_COS_GRANT_FULL_CONTROL, aclAccount);
         }
     }
 

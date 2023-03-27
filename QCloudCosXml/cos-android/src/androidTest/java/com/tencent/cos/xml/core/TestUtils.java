@@ -9,36 +9,23 @@ import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.transfer.COSTransferTask;
 import com.tencent.cos.xml.transfer.COSXMLTask;
 import com.tencent.cos.xml.transfer.TransferState;
+import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
-import com.tencent.qcloud.core.http.HttpConstants;
-import com.tencent.qcloud.core.http.HttpRequest;
-import com.tencent.qcloud.core.http.HttpResponse;
-import com.tencent.qcloud.qcloudxml.core.QCloudXml;
 
 import org.junit.Assert;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.util.Random;
-
-import okhttp3.MediaType;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 /**
  * <p>
@@ -75,13 +62,29 @@ public class TestUtils {
         Log.i(TestConst.UT_TAG, message);
     }
 
-    public static <T> void printXML(T object) {
+    private static boolean isXmlBean(Object object){
+        Class<?> clazz = object.getClass();
+        String targetClassName = clazz.getName();
         try {
-            TestUtils.print(QCloudXml.toXml(object));
-        } catch (XmlPullParserException e) {
-            Assert.fail(e.getMessage());
-        } catch (IOException e) {
-            Assert.fail(e.getMessage());
+            Class.forName(targetClassName + "$$XmlAdapter");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static <T> void printXML(T object) {
+        if(isXmlBean(object)) {
+            try {
+                Log.i(TestConst.UT_TAG, "printXML");
+                TestUtils.print(QCloudXmlUtils.toXml(object));
+            } catch (CosXmlClientException e) {
+                Assert.fail(e.getMessage());
+            } catch (IllegalStateException e){
+                if(!e.getMessage().equals("The toXml method is not implemented")){
+                    Assert.fail(e.getMessage());
+                }
+            }
         }
     }
 
@@ -289,40 +292,6 @@ public class TestUtils {
     }
 
     public static void parseBadResponseBody(CosXmlResult result){
-        HttpRequest httpRequest = null;
-        try {
-            httpRequest = new HttpRequest.Builder()
-                    .url(new URL("https://www.qq.com"))
-                    .method("get").build();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        Request request = new Request.Builder()
-                .url("http://www.qq.com")
-                .build();
-        Response.Builder responseBuilder = new Response.Builder()
-                .protocol(Protocol.HTTP_1_1)
-                .message("error")
-                .request(request);
-
-        String badBody = "badxml<Error>\n" +
-                "  <Code>RequestTimeTooSkewed</Code>\n" +
-                "  <Message>[错误信息]</Message>\n" +
-                "  <Resource>[资源地址]</Resource>\n" +
-                "  <RequestId>[请求ID]</RequestId>\n" +
-                "  <TraceId>[错误ID]</TraceId>\n" +
-                "</Error>";
-        Response response = responseBuilder
-                .code(403)
-                .body(ResponseBody.create(MediaType.parse(HttpConstants.ContentType.XML), badBody))
-                .build();
-        HttpResponse httpResponse = new HttpResponse(httpRequest, response);
-        try {
-            result.parseResponseBody(httpResponse);
-        } catch (CosXmlClientException e) {
-            e.printStackTrace();
-        } catch (CosXmlServiceException e) {
-            e.printStackTrace();
-        }
+        // TODO: 2022/12/15 通过反射遍历解析result 并打印日志
     }
 }

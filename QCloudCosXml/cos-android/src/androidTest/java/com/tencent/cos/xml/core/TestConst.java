@@ -26,6 +26,8 @@ public class TestConst {
     public static final String PERSIST_BUCKET_SELECT_JSON_PATH = "do_not_remove/select.json";
     public static final String PERSIST_BUCKET_SELECT_CSV_PATH = "do_not_remove/select.csv";
     public static final String PERSIST_BUCKET_DOCUMENT_PATH = "do_not_remove/document.docx";
+    public static final String PERSIST_BUCKET_DOCUMENT_XLSX_PATH = "do_not_remove/document.xlsx";
+    public static final String PERSIST_BUCKET_DOCUMENT_TXT_PATH = "do_not_remove/document.txt";
     public static final String PERSIST_BUCKET_POST_OBJECT_PATH = "do_not_remove/post_object";
     public static final String PERSIST_BUCKET_APPEND_OBJECT_PATH = "do_not_remove/append_object";
     public static final String PERSIST_BUCKET_COPY_OBJECT_DST_PATH = "do_not_remove/copy_dst_object";
@@ -36,6 +38,7 @@ public class TestConst {
     //审核
     public static final String AUDIT_BUCKET_REGION = "ap-chengdu";
     public static final String AUDIT_BUCKET = "00000000000000-1253960454";
+    public static final String AUDIT_BUCKET_PORN_IMAGE = "porn/IMG_6507.JPG";
     public static final String AUDIT_BUCKET_IMAGE = " %dimage.jpg";
     public static final String AUDIT_BUCKET_IMAGE_GIF = "image_gif_%d.gif";
     public static final String AUDIT_BUCKET_VIDEO = "test.mp4";
@@ -53,31 +56,16 @@ public class TestConst {
     public static final String ASR_OBJECT_GS_2C = "asr/gs-16b-2c-44100hz.aac";
     public static final String ASR_OBJECT_LONG = "asr/aaa.m4a";
     public static final String ASR_OBJECT_OUTPUT = "asr/output.txt";
-    public static final String ASR_QUEUE_ID = "p74b5265ab1df455782b7b355007d0dfc";
-
-    //声音识别（极速识别）
-    public static final String ASR_FLASH_BUCKET_REGION = "ap-chongqing";
-    public static final String ASR_FLASH_BUCKET = "tinna-media-1253960454";
-    public static final String ASR_FLASH_OBJECT_FF_1C = "asr/ff-16b-1c-44100hz.aac";
-    public static final String ASR_FLASH_OBJECT_FF_2C = "asr/ff-16b-2c-44100hz.aac";
-    public static final String ASR_FLASH_OBJECT_GS_1C = "asr/gs-16b-1c-8000hz.amr";
-    public static final String ASR_FLASH_OBJECT_GS_2C = "asr/gs-16b-2c-44100hz.aac";
-    public static final String ASR_FLASH_OBJECT_LONG = "asr/aaa.m4a";
-    public static final String ASR_FLASH_OBJECT_OUTPUT = "asr/output.txt";
-    public static final String ASR_FLASH_QUEUE_ID = "pf4bb837618c84b5b905a1df5c8a56d20";
 
     //分词
     public static final String WORDS_GENERALIZE_BUCKET_REGION = "ap-chongqing";
     public static final String WORDS_GENERALIZE_BUCKET = "tinna-media-1253960454";
-    public static final String WORDS_GENERALIZE_QUEUE_ID = "p4c62b2f626f347d982d1166695766d26";
     public static final String WORDS_GENERALIZE_OBJECT = "test.txt";
-    public static final String WORDS_GENERALIZE_JOB_ID = "af77abe4a239a11eda0c10f20b65ba637";
 
     public static final long PERSIST_BUCKET_SMALL_OBJECT_SIZE = 1024 * 1024;
     public static final long PERSIST_BUCKET_BIG_OBJECT_SIZE = 10 * 1024 * 1024;
     public static final String PERSIST_BUCKET_SMALL_OBJECT_PATH = "do_not_remove/small_object";
     public static final String PERSIST_BUCKET_BIG_OBJECT_PATH = "do_not_remove/big_object";
-
     public static final String PERSIST_BUCKET_CSE_SMALL_OBJECT_PATH = "do_not_remove/cse_small_object";
     public static final String PERSIST_BUCKET_CSE_BIG_OBJECT_PATH = "do_not_remove/cse_big_object";
 
@@ -91,4 +79,8 @@ public class TestConst {
     public static final String QUIC_BUCKET = BuildConfig.QUIC_BUCKET;
     public static final String QUIC_TEST_IP = BuildConfig.QUIC_TEST_IP;
 
+    public static final String PERSIST_BUCKET_CDN_SMALL_OBJECT_PATH = "do_not_remove/cdn/small_object";
+    public static final String PERSIST_BUCKET_CDN_BIG_OBJECT_PATH = "do_not_remove/cdn/big_object";
+    public static final String PERSIST_BUCKET_CDN_PIC_PATH = "do_not_remove/cdn/image.png";
+    public static final String PERSIST_BUCKET_CDN_SMALL_OBJECT_URL = "https://mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com/do_not_remove/cdn/small_object";
 }

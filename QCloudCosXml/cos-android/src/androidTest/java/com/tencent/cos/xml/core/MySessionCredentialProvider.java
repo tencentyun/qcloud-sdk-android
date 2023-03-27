@@ -76,10 +76,10 @@ public class MySessionCredentialProvider
             JSONTokener jsonParser = new JSONTokener(jsonStr);
             JSONObject data = (JSONObject) jsonParser.nextValue();
             JSONObject credentials = data.getJSONObject("credentials");
-//            return new SessionQCloudCredentials(credentials.getString("tmpSecretId"), credentials.getString("tmpSecretKey"),
-//                    credentials.getString("sessionToken"), data.getLong("startTime"), data.getLong("expiredTime"));
             return new SessionQCloudCredentials(credentials.getString("tmpSecretId"), credentials.getString("tmpSecretKey"),
-                    credentials.getString("sessionToken"), data.getLong("expiredTime"));
+                    credentials.getString("sessionToken"), data.getLong("startTime"), data.getLong("expiredTime"));
+//            return new SessionQCloudCredentials(credentials.getString("tmpSecretId"), credentials.getString("tmpSecretKey"),
+//                    credentials.getString("sessionToken"), data.getLong("expiredTime"));
         } catch (JSONException ex) {
             throw new QCloudClientException(ex);
         }

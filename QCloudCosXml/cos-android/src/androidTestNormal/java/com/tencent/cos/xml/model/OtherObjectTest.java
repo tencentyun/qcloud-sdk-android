@@ -23,6 +23,10 @@
 
 package com.tencent.cos.xml.model;
 
+import static com.tencent.cos.xml.core.TestConst.PERSIST_BUCKET_DOCUMENT_XLSX_PATH;
+import static com.tencent.cos.xml.core.TestConst.PERSIST_BUCKET_PIC_PATH;
+
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.CosXmlService;
@@ -32,13 +36,28 @@ import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlBooleanListener;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
+import com.tencent.cos.xml.listener.SelectObjectContentListener;
+import com.tencent.cos.xml.model.ci.FormatConversionRequest;
 import com.tencent.cos.xml.model.object.GetSnapshotTestAdapter;
 import com.tencent.cos.xml.model.object.NormalPutObjectTestAdapter;
+import com.tencent.cos.xml.model.object.SelectObjectContentRequest;
 import com.tencent.cos.xml.model.tag.COSMetaData;
+import com.tencent.cos.xml.model.tag.eventstreaming.CompressionType;
+import com.tencent.cos.xml.model.tag.eventstreaming.InputSerialization;
+import com.tencent.cos.xml.model.tag.eventstreaming.JSONInput;
+import com.tencent.cos.xml.model.tag.eventstreaming.JSONOutput;
+import com.tencent.cos.xml.model.tag.eventstreaming.JSONType;
+import com.tencent.cos.xml.model.tag.eventstreaming.OutputSerialization;
+import com.tencent.cos.xml.model.tag.eventstreaming.SelectObjectContentEvent;
+import com.tencent.cos.xml.model.tag.pic.PicOperations;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.io.IOException;
 
 @RunWith(AndroidJUnit4.class)
 public class OtherObjectTest {
@@ -206,7 +225,90 @@ public class OtherObjectTest {
     }
 
     @Test public void testGetSnapshot() {
-
         new GetSnapshotTestAdapter().testSyncRequest();
+    }
+
+    @Test
+    public void testPreviewDocumentInHtmlBytes() {
+        CosXmlService cosXmlService = NormalServiceFactory.INSTANCE.newDefaultService();
+        try {
+            byte[] bytes = cosXmlService.previewDocumentInHtmlBytes(TestConst.PERSIST_BUCKET, PERSIST_BUCKET_DOCUMENT_XLSX_PATH);
+            Assert.assertNotNull(bytes);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void testFormatConversion() {
+        CosXmlService cosXmlService = NormalServiceFactory.INSTANCE.newDefaultService();
+        FormatConversionRequest request = new FormatConversionRequest(TestConst.PERSIST_BUCKET, PERSIST_BUCKET_PIC_PATH, "jpg");
+        request.saveBucket = TestConst.PERSIST_BUCKET;
+        request.fileId = "/formatConversion";
+        PicOperations picOperations = request.getPicOperations();
+        Assert.assertNotNull(picOperations);
+        cosXmlService.formatConversionAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                Assert.assertNotNull(result);
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+            }
+        });
+    }
+
+    @Test
+    public void testSelectObjectContentJson404() {
+        JSONInput jsonInput = new JSONInput(JSONType.DOCUMENT);
+        jsonInput.withType(JSONType.DOCUMENT).withType(JSONType.DOCUMENT.toString()).setType(JSONType.DOCUMENT);
+        jsonInput = new JSONInput(JSONType.DOCUMENT.toString());
+        Assert.assertEquals(jsonInput.getType(), JSONType.DOCUMENT.toString());
+
+        JSONOutput jsonOutput = new JSONOutput();
+        jsonOutput.withRecordDelimiter("\n").withRecordDelimiter('\n').setRecordDelimiter("\n");
+        jsonOutput.setRecordDelimiter('\n');
+        jsonOutput = new JSONOutput("\n");
+        Assert.assertEquals(jsonOutput.getRecordDelimiter().toString(), "\n");
+
+        InputSerialization inputSerialization = new InputSerialization(CompressionType.NONE, jsonInput);
+        inputSerialization.withJson(jsonInput).setJson(jsonInput);
+        inputSerialization = new InputSerialization(CompressionType.NONE.toString(), jsonInput);
+
+        OutputSerialization outputSerialization = new OutputSerialization(jsonOutput);
+        outputSerialization.withJson(jsonOutput).setJson(jsonOutput);
+
+        SelectObjectContentRequest selectObjectContentRequest = new SelectObjectContentRequest(
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SELECT_JSON_PATH+"-404",
+                "Select s.name from COSObject s", true,
+                inputSerialization, outputSerialization
+        );
+
+        String localPath = new File(TestUtils.localParentPath(), "select.json").getAbsolutePath();
+        try {
+            TestUtils.createFile(localPath, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        selectObjectContentRequest.setSelectResponseFilePath(localPath);
+        selectObjectContentRequest.setSelectObjectContentProgressListener(new SelectObjectContentListener() {
+            @Override
+            public void onProcess(SelectObjectContentEvent event) {
+                System.out.println("SelectObjectContentEvent type " + event.getClass().getSimpleName());
+            }
+        });
+
+        CosXmlService cosXmlService = NormalServiceFactory.INSTANCE.newDefaultService();
+        try {
+            cosXmlService.selectObjectContent(selectObjectContentRequest);
+        } catch (CosXmlClientException e) {
+            Assert.fail();
+        } catch (CosXmlServiceException e) {
+            Assert.assertEquals("NoSuchKey", e.getErrorCode());
+        }
     }
 }  

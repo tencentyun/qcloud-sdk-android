@@ -29,7 +29,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 文档审核的具体配置项
  */
-@XmlBean(name = "Request")
+@XmlBean(name = "Request", method = XmlBean.GenerateMethod.TO)
 public class PostDocumentAudit {
     /**
      * 文档需要审核的内容
@@ -48,7 +48,7 @@ public class PostDocumentAudit {
     /**
      * 文档需要审核的内容
      */
-    @XmlBean(name = "Input")
+    @XmlBean(name = "Input", method = XmlBean.GenerateMethod.TO)
     public static class DocumentAuditInput extends AuditInput {
         /**
          * 指定文档文件的类型，如未指定则默认以文件的后缀为类型。

@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 
 import java.util.List;
 
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class BaseDescribeQueuesResponse {
     /**
      * 请求的唯一 ID
@@ -61,7 +61,7 @@ public class BaseDescribeQueuesResponse {
     @XmlElement(flatListNote = true)
     public List<QueueID> nonExistPIDs;
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Queue{
         /**
          * 队列 ID
@@ -109,7 +109,7 @@ public class BaseDescribeQueuesResponse {
         public NotifyConfig notifyConfig;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class NotifyConfig{
         /**
          * 回调地址
@@ -137,7 +137,7 @@ public class BaseDescribeQueuesResponse {
         public String resultFormat;
     }
 
-    @XmlBean(name = "NonExistPIDs")
+    @XmlBean(name = "NonExistPIDs", method = XmlBean.GenerateMethod.FROM)
     public static class QueueID {
         @XmlElement(ignoreName = true, name = "NonExistPIDs")
         public String queueID;

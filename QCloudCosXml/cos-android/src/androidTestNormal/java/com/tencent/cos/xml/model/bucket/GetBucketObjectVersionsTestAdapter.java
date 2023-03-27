@@ -14,8 +14,8 @@ public class GetBucketObjectVersionsTestAdapter extends NormalRequestTestAdapter
     @Override
     protected GetBucketObjectVersionsRequest newRequestInstance() {
         GetBucketObjectVersionsRequest request = new GetBucketObjectVersionsRequest(TestConst.PERSIST_BUCKET);
-        request.setPrefix("do_not_remove_test/");
-        request = new GetBucketObjectVersionsRequest(TestConst.PERSIST_BUCKET, "do_not_remove_test/", "/", null, null);
+        request.setPrefix("do_not_remove/");
+        request = new GetBucketObjectVersionsRequest(TestConst.PERSIST_BUCKET, "do_not_remove/", "/", null, null);
         request.setKeyMarker(null);
         request = new GetBucketObjectVersionsRequest(TestConst.PERSIST_BUCKET, "/", null, null);
         request.setVersionIdMarker(null);

@@ -38,8 +38,8 @@ public class ListMultiUploadsTestAdapter extends NormalRequestTestAdapter<ListMu
         ListMultiUploadsRequest request = new ListMultiUploadsRequest(TestConst.PERSIST_BUCKET);
         request.setDelimiter("/");
         Assert.assertEquals("/", request.getDelimiter());
-        request.setPrefix("do_not_remove_test/");
-        Assert.assertEquals("do_not_remove_test/", request.getPrefix());
+        request.setPrefix("do_not_remove/");
+        Assert.assertEquals("do_not_remove/", request.getPrefix());
         request.setEncodingType("url");
         Assert.assertEquals("url", request.getEncodingType());
         request.setKeyMarker(null);

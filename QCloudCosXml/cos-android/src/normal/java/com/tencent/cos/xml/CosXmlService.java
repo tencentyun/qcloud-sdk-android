@@ -35,10 +35,14 @@ import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.bucket.DeleteBucketCORSRequest;
 import com.tencent.cos.xml.model.bucket.DeleteBucketCORSResult;
+import com.tencent.cos.xml.model.bucket.DeleteBucketDomainRequest;
+import com.tencent.cos.xml.model.bucket.DeleteBucketDomainResult;
 import com.tencent.cos.xml.model.bucket.DeleteBucketInventoryRequest;
 import com.tencent.cos.xml.model.bucket.DeleteBucketInventoryResult;
 import com.tencent.cos.xml.model.bucket.DeleteBucketLifecycleRequest;
 import com.tencent.cos.xml.model.bucket.DeleteBucketLifecycleResult;
+import com.tencent.cos.xml.model.bucket.DeleteBucketPolicyRequest;
+import com.tencent.cos.xml.model.bucket.DeleteBucketPolicyResult;
 import com.tencent.cos.xml.model.bucket.DeleteBucketReplicationRequest;
 import com.tencent.cos.xml.model.bucket.DeleteBucketReplicationResult;
 import com.tencent.cos.xml.model.bucket.DeleteBucketRequest;
@@ -67,6 +71,8 @@ import com.tencent.cos.xml.model.bucket.GetBucketLoggingRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketLoggingResult;
 import com.tencent.cos.xml.model.bucket.GetBucketObjectVersionsRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketObjectVersionsResult;
+import com.tencent.cos.xml.model.bucket.GetBucketPolicyRequest;
+import com.tencent.cos.xml.model.bucket.GetBucketPolicyResult;
 import com.tencent.cos.xml.model.bucket.GetBucketRefererRequest;
 import com.tencent.cos.xml.model.bucket.GetBucketRefererResult;
 import com.tencent.cos.xml.model.bucket.GetBucketReplicationRequest;
@@ -101,6 +107,8 @@ import com.tencent.cos.xml.model.bucket.PutBucketLifecycleRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketLifecycleResult;
 import com.tencent.cos.xml.model.bucket.PutBucketLoggingRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketLoggingResult;
+import com.tencent.cos.xml.model.bucket.PutBucketPolicyRequest;
+import com.tencent.cos.xml.model.bucket.PutBucketPolicyResult;
 import com.tencent.cos.xml.model.bucket.PutBucketRefererRequest;
 import com.tencent.cos.xml.model.bucket.PutBucketRefererResult;
 import com.tencent.cos.xml.model.bucket.PutBucketReplicationRequest;
@@ -1667,22 +1675,79 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
         schedule(request, new ListBucketInventoryResult(), cosXmlResultListener);
     }
 
-
+    /**
+     * <p>
+     * 查询存储桶自定义域名的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketDomain(GetBucketDomainRequest)}
+     * </p>
+     */
     @Override
     public GetBucketDomainResult getBucketDomain(GetBucketDomainRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new GetBucketDomainResult());
     }
 
+    /**
+     * <p>
+     * 查询存储桶自定义域名的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketDomainAsync(GetBucketDomainRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void getBucketDomainAsync(GetBucketDomainRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetBucketDomainResult(), cosXmlResultListener);
     }
 
+    /**
+     * <p>
+     * 删除存储桶自定义域名的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteBucketDomain(DeleteBucketDomainRequest)}
+     * </p>
+     */
+    @Override
+    public DeleteBucketDomainResult deleteBucketDomain(DeleteBucketDomainRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DeleteBucketDomainResult());
+    }
+
+    /**
+     * <p>
+     * 删除存储桶自定义域名的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteBucketDomainAsync(DeleteBucketDomainRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void deleteBucketDomainAsync(DeleteBucketDomainRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DeleteBucketDomainResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 查询存储桶清单的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#listBucketInventoryAsync(ListBucketInventoryRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public PutBucketDomainResult putBucketDomain(PutBucketDomainRequest request) throws CosXmlClientException, CosXmlServiceException {
         return execute(request, new PutBucketDomainResult());
     }
 
+    /**
+     * <p>
+     * 查询存储桶清单的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#listBucketInventoryAsync(ListBucketInventoryRequest, CosXmlResultListener)}
+     * </p>
+     */
     @Override
     public void putBucketDomainAsync(PutBucketDomainRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new PutBucketDomainResult(), cosXmlResultListener);
@@ -1712,6 +1777,84 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
     @Override
     public void putBucketRefererAsync(PutBucketRefererRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new PutBucketRefererResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 获取存储桶权限策略的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketPolicy(GetBucketPolicyRequest)}
+     * </p>
+     */
+    @Override
+    public GetBucketPolicyResult getBucketPolicy(GetBucketPolicyRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetBucketPolicyResult());
+    }
+
+    /**
+     * <p>
+     * 获取存储桶权限策略的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#getBucketPolicyAsync(GetBucketPolicyRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void getBucketPolicyAsync(GetBucketPolicyRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new GetBucketPolicyResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 设置存储桶权限策略的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#putBucketPolicy(PutBucketPolicyRequest)}
+     * </p>
+     */
+    @Override
+    public PutBucketPolicyResult putBucketPolicy(PutBucketPolicyRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PutBucketPolicyResult());
+    }
+
+    /**
+     * <p>
+     * 设置存储桶权限策略的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#putBucketPolicyAsync(PutBucketPolicyRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void putBucketPolicyAsync(PutBucketPolicyRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PutBucketPolicyResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 删除存储桶权限策略的同步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteBucketPolicy(DeleteBucketPolicyRequest)}
+     * </p>
+     */
+    @Override
+    public DeleteBucketPolicyResult deleteBucketPolicy(DeleteBucketPolicyRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DeleteBucketPolicyResult());
+    }
+
+    /**
+     * <p>
+     * 删除存储桶权限策略的异步方法。
+     * </p>
+     *
+     * 详细介绍，请查看: {@link CosXml#deleteBucketPolicyAsync(DeleteBucketPolicyRequest, CosXmlResultListener)}
+     * </p>
+     */
+    @Override
+    public void deleteBucketPolicyAsync(DeleteBucketPolicyRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DeleteBucketPolicyResult(), cosXmlResultListener);
     }
 
     /**
@@ -1919,7 +2062,7 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
     public byte[] previewDocumentInHtmlBytes(String bucketName, String objectName) throws CosXmlClientException, CosXmlServiceException {
         PreviewDocumentInHtmlBytesRequest previewDocumentInHtmlBytesRequest = new PreviewDocumentInHtmlBytesRequest(bucketName, objectName);
         PreviewDocumentInHtmlBytesResult previewDocumentInHtmlBytesResult = execute(previewDocumentInHtmlBytesRequest, new PreviewDocumentInHtmlBytesResult());
-        return previewDocumentInHtmlBytesResult != null ? previewDocumentInHtmlBytesResult.data : new byte[0];
+        return previewDocumentInHtmlBytesResult != null ? previewDocumentInHtmlBytesResult.getData() : new byte[0];
     }
 
     public void formatConversionAsync(FormatConversionRequest request, CosXmlResultListener cosXmlResultListener) {

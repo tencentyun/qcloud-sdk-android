@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * 完成分块上传结果
  */
-@XmlBean(name = "CompleteMultipartUploadResult")
+@XmlBean(name = "CompleteMultipartUploadResult", method = XmlBean.GenerateMethod.FROM)
 public class CompleteMultipartUploadResult {
 
     /**

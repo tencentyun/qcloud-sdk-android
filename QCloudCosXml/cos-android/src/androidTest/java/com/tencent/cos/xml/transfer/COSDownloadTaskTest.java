@@ -35,7 +35,6 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
-import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import org.junit.After;
@@ -43,12 +42,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @RunWith(AndroidJUnit4.class)
@@ -69,11 +63,26 @@ public class COSDownloadTaskTest {
         downloadObject(transferService, TestConst.PERSIST_BUCKET_CSE_BIG_OBJECT_PATH);
     }
 
+    @Test public void testCesPauseAndResume() {
+        TransferService transferService = ServiceFactory.INSTANCE.newCesTransferService();
+        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_CSE_BIG_OBJECT_PATH);
+    }
+
     // 简单下载小文件
     @Test public void testSmallDownload() {
 
         TransferService transferService = ServiceFactory.INSTANCE.newDefaultTransferService();
         downloadObject(transferService, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+    }
+
+    @Test public void testAnonymousDownload() {
+        TransferService transferService = ServiceFactory.INSTANCE.newAnonymousTransferService();
+        downloadObject(transferService, TestConst.PERSIST_BUCKET_CDN_BIG_OBJECT_PATH);
+    }
+
+    @Test public void testAnonymousPauseAndResume() {
+        TransferService transferService = ServiceFactory.INSTANCE.newAnonymousTransferService();
+        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_CDN_BIG_OBJECT_PATH);
     }
 
     @Test public void testPauseAndResume() {
@@ -82,18 +91,12 @@ public class COSDownloadTaskTest {
         testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
     }
 
-    @Test public void testCsePauseAndResume() {
-
-        TransferService transferService = ServiceFactory.INSTANCE.newCesTransferService();
-        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_CSE_BIG_OBJECT_PATH);
-    }
-
     private void downloadObject(TransferService transferService, String key) {
 
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
                 key,
                 TestUtils.localParentPath());
-        getObjectRequest.addQuery("imageMogr2/thumbnail/!50p|watermark/2/text/5pWw5o2u5LiH6LGh/fill/I0ZGRkZGRg==/fontsize/30/dx/20/dy/20", null);
+//        getObjectRequest.addQuery("imageMogr2/thumbnail/!50p|watermark/2/text/5pWw5o2u5LiH6LGh/fill/I0ZGRkZGRg==/fontsize/30/dx/20/dy/20", null);
         // getObjectRequest.addNoSignHeader("Host");
         // getObjectRequest.addNoSignHeader("Range");
         // getObjectRequest.addNoSignParams("imageMogr2/thumbnail/!50p");

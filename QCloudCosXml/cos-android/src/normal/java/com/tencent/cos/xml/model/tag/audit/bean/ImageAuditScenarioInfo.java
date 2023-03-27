@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * 图片审核的审核结果信息
  */
-@XmlBean
+@XmlBean(method = XmlBean.GenerateMethod.FROM)
 public class ImageAuditScenarioInfo {
     /**
      * 否命中该审核分类，0表示未命中，1表示命中，2表示疑似
@@ -60,7 +60,7 @@ public class ImageAuditScenarioInfo {
     /**
      * 该字段表示审核到的一些具体结果，例如政治人物名称。注意：该字段仅在 PoliticsInfo 中返回。
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class ObjectResults{
         /**
          * 该标签用于返回所识别出的实体名称，例如人名。

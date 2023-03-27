@@ -28,7 +28,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 /**
  * 盲水印图片处理结果
  */
-@XmlBean(name = "Object")
+@XmlBean(name = "Object", method = XmlBean.GenerateMethod.FROM)
 public class PicObject {
 
     /** 文件名 */

@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 基础审核任务结果的详细信息
  */
-@XmlBean(name = "JobsDetail")
+@XmlBean(name = "JobsDetail", method = XmlBean.GenerateMethod.FROM)
 public class BaseAuditJobsDetail {
     /**
      * 本次视频审核任务的 ID

@@ -135,7 +135,12 @@ public class TransferConfig {
             return this;
         }
 
-        private Builder setVerifyCRC64(boolean verifyCRC64) {
+        /**
+         * 分片上传时是否整体校验 crc64
+         *
+         * @param verifyCRC64 是否校验 crc64
+         */
+        public Builder setVerifyCRC64(boolean verifyCRC64) {
             this.verifyCRC64 = verifyCRC64;
             return this;
         }

@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * 已经开通媒体处理功能的存储桶查询结果
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class DescribeMediaBucketsResult {
     /**
      * 请求的唯一 ID
@@ -58,7 +58,7 @@ public class DescribeMediaBucketsResult {
     @XmlElement(flatListNote = true)
     public List<MediaBucketList> mediaBucketList;
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class MediaBucketList{
         /**
          * 存储桶 ID
