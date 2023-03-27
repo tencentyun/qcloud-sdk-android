@@ -102,7 +102,7 @@ project.extensions.add('packageType', 'aar')
 project.extensions.add('artifactDesc', 'the tencent cloud cosxml android sdk')
 project.extensions.add('archiveFilePath', 'outputs/aar/cos-android-tiny-release.aar')
 
-apply from: '../../publishMavenCentral.gradle'
+//apply from: '../../publishMavenCentral.gradle'
 
 
 // 发布到内部仓库
