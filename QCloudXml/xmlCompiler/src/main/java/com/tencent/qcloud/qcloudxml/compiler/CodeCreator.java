@@ -9,6 +9,7 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 import com.tencent.qcloud.qcloudxml.compiler.utils.ElementUtil;
 import com.tencent.qcloud.qcloudxml.compiler.utils.Util;
 
@@ -39,12 +40,22 @@ public class CodeCreator {
                 ParameterizedTypeName.get(ClassName.get("com.tencent.qcloud.qcloudxml.core", "IXmlAdapter"), ClassName.get(classElement));
 
         TypeSpec.Builder builder = TypeSpec.classBuilder(Util.getElementFullName(classElement) + "$$XmlAdapter")
-                .addSuperinterface(genericParamXmlAdapter)
-                .addField(generateFields(classElement))
-                .addModifiers(PUBLIC)
-                .addMethod(generateConstructor(classElement))
-                .addMethod(generateFromXmlCode(classElement))
-                .addMethod(generateToXmlCode(classElement));
+                .superclass(genericParamXmlAdapter)
+                .addModifiers(PUBLIC);
+
+        XmlBean.GenerateMethod generateMethod = Util.getTypeElementGenerateMethod(classElement);
+        if(generateMethod == XmlBean.GenerateMethod.TO){
+            builder.addMethod(generateToXmlCode(classElement));
+        } else if(generateMethod == XmlBean.GenerateMethod.FROM){
+            builder.addField(generateFields(classElement))
+                    .addMethod(generateConstructor(classElement))
+                    .addMethod(generateFromXmlCode(classElement));
+        } else {
+            builder.addField(generateFields(classElement))
+                    .addMethod(generateConstructor(classElement))
+                    .addMethod(generateFromXmlCode(classElement))
+                    .addMethod(generateToXmlCode(classElement));
+        }
         return builder.build();
     }
 
@@ -96,7 +107,7 @@ public class CodeCreator {
     /**
      * 生成ToXml方法
      */
-    public static MethodSpec generateToXmlCode(TypeElement classElement) {
+    public static MethodSpec generateToXmlCode(TypeElement classElement) throws ProcessingException {
         MethodSpec.Builder methodSpec = MethodSpec.methodBuilder("toXml")
                 .addModifiers(PUBLIC)
                 .addAnnotation(Override.class)
@@ -119,7 +130,7 @@ public class CodeCreator {
     /**
      * 生成classElement各成员toxml操作
      */
-    private static CodeBlock generateToXmlCodeBlock(TypeElement classElement) {
+    private static CodeBlock generateToXmlCodeBlock(TypeElement classElement) throws ProcessingException {
         CodeBlock.Builder codeBlock = CodeBlock.builder();
         List<VariableElement> elementList = ElementUtil.getAllFields(classElement);
         if (elementList.size() == 0) return codeBlock.build();
@@ -150,12 +161,18 @@ public class CodeCreator {
                     if(!Util.ignoreListNote(element)){
                         codeBlock.addStatement(String.format("xmlSerializer.startTag(\"\", \"%s\")", Util.getElementName(element)));
                     }
+                    TypeMirror genericListType = Util.getGenericTypeFromList(element);
+                    TypeElement genericListElement = ElementUtil.typeMirrorToTypeElement(genericListType);
+
                     codeBlock.beginControlFlow(String.format("if (value.%s != null)", element.getSimpleName()))
                             .beginControlFlow(String.format("for (int i =0; i<value.%s.size(); i++)", element.getSimpleName()))
-                            .addStatement(String.format("%s.toXml(xmlSerializer, value.%s.get(i), \"%s\")",
+                            .addStatement(String.format("%s.toXml(xmlSerializer, value.%s.get(i), %s)",
                                     ClassName.bestGuess("com.tencent.qcloud.qcloudxml.core.QCloudXml"),
                                     element.getSimpleName(),
-                                    Util.initialsUpperCase(Util.getElementName(element))))
+                                    genericListElement != null
+                                            ? String.format("\"%s\"", Util.initialsUpperCase(Util.getTypeElementName(genericListElement)))
+                                            : null
+                            ))
                             .endControlFlow()
                             .endControlFlow();
                     if(!Util.ignoreListNote(element)){
