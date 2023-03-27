@@ -82,4 +82,4 @@ project.extensions.add('artifactDesc', 'the cos quic for tencent cloud sdk')
 project.extensions.add('archiveFilePath', 'outputs/aar/quic-release.aar')
 
 // 
-apply from: '../../publishMavenCentral.gradle'
+//apply from: '../../publishMavenCentral.gradle'
