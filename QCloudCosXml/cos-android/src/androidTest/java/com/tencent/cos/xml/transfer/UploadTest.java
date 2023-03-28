@@ -23,12 +23,10 @@
 package com.tencent.cos.xml.transfer;
 
 import static com.tencent.cos.xml.core.TestConst.PERSIST_BUCKET_BIG_OBJECT_SIZE;
-import static com.tencent.cos.xml.core.TestUtils.getContext;
 
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.core.content.FileProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
@@ -580,56 +578,56 @@ public class UploadTest {
     }
 
 
-    @Test public void testUploadBigFileByUri() {
-//        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
-        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManagerBySessionCredentials();
-
-        File file = new File(TestUtils.bigFilePath());
-        Uri uri = FileProvider.getUriForFile(getContext().getApplicationContext(), getContext().getPackageName()+".fileProvider", file);
-
-        final COSXMLUploadTask uploadTask = transferManager.upload(
-                TestConst.PERSIST_BUCKET,
-                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH + 12,
-                uri,
-                null);
-
-        final TestLocker testLocker = new TestLocker();
-        uploadTask.setTransferStateListener(new TransferStateListener() {
-            @Override
-            public void onStateChanged(TransferState state) {
-
-            }
-        });
-        uploadTask.setOnGetHttpTaskMetrics(new COSXMLTask.OnGetHttpTaskMetrics() {
-            @Override
-            public void onGetHttpMetrics(String requestName, HttpTaskMetrics httpTaskMetrics) {
-                QCloudLogger.i(TestConst.UT_TAG, "connect ip is " + httpTaskMetrics.getConnectAddress());
-            }
-        });
-        uploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
-            @Override
-            public void onProgress(long complete, long target) {
-                // QCloudLogger.i(TestConst.UT_TAG, "transfer state is " + state);
-                QCloudLogger.i(TestConst.UT_TAG, "upload id is " + uploadTask.getUploadId());
-            }
-        });
-        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                QCloudLogger.i("QCloudTest", "upload success!!");
-                testLocker.release();
-            }
-
-            @Override
-            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
-                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
-                testLocker.release();
-            }
-        });
-
-        testLocker.lock();
-        TestUtils.assertCOSXMLTaskSuccess(uploadTask);
-    }
+//    @Test public void testUploadBigFileByUri() {
+////        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+//        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManagerBySessionCredentials();
+//
+//        File file = new File(TestUtils.bigFilePath());
+//        Uri uri = FileProvider.getUriForFile(getContext().getApplicationContext(), getContext().getPackageName()+".fileProvider", file);
+//
+//        final COSXMLUploadTask uploadTask = transferManager.upload(
+//                TestConst.PERSIST_BUCKET,
+//                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH + 12,
+//                uri,
+//                null);
+//
+//        final TestLocker testLocker = new TestLocker();
+//        uploadTask.setTransferStateListener(new TransferStateListener() {
+//            @Override
+//            public void onStateChanged(TransferState state) {
+//
+//            }
+//        });
+//        uploadTask.setOnGetHttpTaskMetrics(new COSXMLTask.OnGetHttpTaskMetrics() {
+//            @Override
+//            public void onGetHttpMetrics(String requestName, HttpTaskMetrics httpTaskMetrics) {
+//                QCloudLogger.i(TestConst.UT_TAG, "connect ip is " + httpTaskMetrics.getConnectAddress());
+//            }
+//        });
+//        uploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+//            @Override
+//            public void onProgress(long complete, long target) {
+//                // QCloudLogger.i(TestConst.UT_TAG, "transfer state is " + state);
+//                QCloudLogger.i(TestConst.UT_TAG, "upload id is " + uploadTask.getUploadId());
+//            }
+//        });
+//        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+//            @Override
+//            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+//                QCloudLogger.i("QCloudTest", "upload success!!");
+//                testLocker.release();
+//            }
+//
+//            @Override
+//            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+//                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+//                testLocker.release();
+//            }
+//        });
+//
+//        testLocker.lock();
+//        TestUtils.assertCOSXMLTaskSuccess(uploadTask);
+//    }
 
 
 

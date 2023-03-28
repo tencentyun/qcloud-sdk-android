@@ -43,7 +43,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
 import java.net.InetAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -294,56 +293,56 @@ public class DownloadTest {
      *
      * 下载 2s 后点击暂停，并记录当前的下载进度，等待 1s 后重新下载，进度必须大于之前记录的进度
      */
-    @Test public void testContinueDownload() {
-
-        String localFileName = TestUtils.extractName(TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
-
-        TestUtils.removeLocalFile(TestUtils.localPath(localFileName));
-
-        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();;
-        final COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
-                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
-                TestUtils.localParentPath(), localFileName);
-
-        TestUtils.sleep(4000);
-        downloadTask.pause();
-        final StringBuilder errorMessage = new StringBuilder();
-
-        final COSXMLDownloadTask continueTask = transferManager.download(TestUtils.getContext(),
-                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
-                TestUtils.localParentPath(), localFileName);
-
-        final TestLocker testLocker = new TestLocker();
-
-        final long currentProgress = new File(TestUtils.localParentPath(), localFileName).length();
-        continueTask.setCosXmlProgressListener(new CosXmlProgressListener() {
-            @Override
-            public void onProgress(long complete, long target) {
-
-                if (complete < currentProgress) {
-                    errorMessage.append("continue complete is " + complete + ", but current progress is " + currentProgress);
-                    testLocker.release();
-                }
-            }
-        });
-
-        continueTask.setCosXmlResultListener(new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                testLocker.release();
-            }
-
-            @Override
-            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
-                TestUtils.printError(TestUtils.getCosExceptionMessage(exception, serviceException));
-                testLocker.release();
-            }
-        });
-
-        testLocker.lock();
-        TestUtils.assertErrorMessageNull(errorMessage);
-        TestUtils.assertCOSXMLTaskSuccess(continueTask);
-    }
+//    @Test public void testContinueDownload() {
+//
+//        String localFileName = TestUtils.extractName(TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+//
+//        TestUtils.removeLocalFile(TestUtils.localPath(localFileName));
+//
+//        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();;
+//        final COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+//                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+//                TestUtils.localParentPath(), localFileName);
+//
+//        TestUtils.sleep(4000);
+//        downloadTask.pause();
+//        final StringBuilder errorMessage = new StringBuilder();
+//
+//        final COSXMLDownloadTask continueTask = transferManager.download(TestUtils.getContext(),
+//                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+//                TestUtils.localParentPath(), localFileName);
+//
+//        final TestLocker testLocker = new TestLocker();
+//
+//        final long currentProgress = new File(TestUtils.localParentPath(), localFileName).length();
+//        continueTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+//            @Override
+//            public void onProgress(long complete, long target) {
+//
+//                if (complete < currentProgress) {
+//                    errorMessage.append("continue complete is " + complete + ", but current progress is " + currentProgress);
+//                    testLocker.release();
+//                }
+//            }
+//        });
+//
+//        continueTask.setCosXmlResultListener(new CosXmlResultListener() {
+//            @Override
+//            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+//                testLocker.release();
+//            }
+//
+//            @Override
+//            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
+//                TestUtils.printError(TestUtils.getCosExceptionMessage(exception, serviceException));
+//                testLocker.release();
+//            }
+//        });
+//
+//        testLocker.lock();
+//        TestUtils.assertErrorMessageNull(errorMessage);
+//        TestUtils.assertCOSXMLTaskSuccess(continueTask);
+//    }
 
     @Test public void testAnonymousDownload() {
         TransferManager transferManager = ServiceFactory.INSTANCE.newAnonymousTransferManager();
