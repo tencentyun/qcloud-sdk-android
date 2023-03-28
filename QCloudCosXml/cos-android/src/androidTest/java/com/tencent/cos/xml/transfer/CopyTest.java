@@ -2,7 +2,6 @@ package com.tencent.cos.xml.transfer;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
@@ -123,9 +122,10 @@ public class CopyTest {
         cosxmlCopyTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                CosXmlService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
+                CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
                 try {
-                    cosXmlService.deleteObject(TestConst.PERSIST_BUCKET, cosPath);
+                    DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(TestConst.PERSIST_BUCKET, cosPath);
+                    cosXmlService.deleteObject(deleteObjectRequest);
                 } catch (CosXmlClientException e) {
                     Assert.fail(TestUtils.getCosExceptionMessage(e));
                 } catch (CosXmlServiceException e) {

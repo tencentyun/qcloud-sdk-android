@@ -22,11 +22,8 @@
 
 package com.tencent.cos.xml.transfer;
 
-import android.content.Context;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestLocker;
@@ -37,10 +34,7 @@ import com.tencent.cos.xml.listener.CosXmlProgressListener;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
-import com.tencent.cos.xml.model.bucket.GetBucketRequest;
-import com.tencent.cos.xml.model.bucket.GetBucketResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
-import com.tencent.cos.xml.model.tag.ListBucket;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
@@ -60,46 +54,6 @@ public class DownloadTest {
 
     @After public void clearDownloadFiles() {
         //TestUtils.clearDir(new File(TestUtils.localParentPath()));
-    }
-
-    @Test public void testListDirectory() {
-
-        String region = TestConst.PERSIST_BUCKET_REGION;
-        String bucket = TestConst.PERSIST_BUCKET;
-        String cosPath = "do_not_remove/";
-        Context context = TestUtils.getContext();
-        String localDir = context.getExternalCacheDir().getAbsolutePath();
-
-
-        CosXmlService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
-        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
-
-        boolean isTruncated = true;
-        String marker = null;
-        try {
-            while (isTruncated) {
-                GetBucketRequest getBucketRequest = new GetBucketRequest(region, bucket, cosPath);
-                // 设置分页信息
-                getBucketRequest.setMarker(marker);
-                // 设置不查询子目录
-                getBucketRequest.setDelimiter("/");
-                getBucketRequest.setMaxKeys(2);
-                GetBucketResult getBucketResult = cosXmlService.getBucket(getBucketRequest);
-                // 批量下载
-                for (ListBucket.Contents content : getBucketResult.listBucket.contentsList) {
-                    GetObjectRequest getObjectRequest = new GetObjectRequest(bucket, content.key, localDir);
-                    transferManager.download(context,getObjectRequest);
-                }
-                isTruncated = getBucketResult.listBucket.isTruncated;
-                marker = getBucketResult.listBucket.nextMarker;
-            }
-        } catch (CosXmlServiceException serviceException) {
-            serviceException.printStackTrace();
-        } catch (CosXmlClientException clientException) {
-            clientException.printStackTrace();
-        }
-
-
     }
 
     @Test public void testSmallDownload() {

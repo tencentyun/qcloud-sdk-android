@@ -28,7 +28,6 @@ import android.os.Environment;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
@@ -188,7 +187,7 @@ public class OtherTest {
     }
 
     @Test public void testSessionCredentialsExpired() {
-        CosXmlService service = ServiceFactory.INSTANCE.newDefaultServiceBySessionCredentials();
+        CosXmlSimpleService service = ServiceFactory.INSTANCE.newDefaultServiceBySessionCredentials();
         PutObjectRequest request = new PutObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
                 TestUtils.smallFilePath());
 //        GetObjectRequest request = new GetObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH, TestUtils.localParentPath(), "test");

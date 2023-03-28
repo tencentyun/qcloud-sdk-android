@@ -34,16 +34,9 @@ android {
         consumerProguardFiles 'proguard-rules.pro'
     }
 
-    testOptions {
-        unitTests.all {
-            setIgnoreFailures(true)
-        }
-    }
-
     buildTypes {
 
         debug {
-            testCoverageEnabled = true
 //            it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
 //            it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
             it.buildConfigField 'String', 'OWNER_UIN', quotWrapper(System.getenv("OWNER_UIN"))
@@ -95,6 +88,19 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_7
     }
     buildToolsVersion = '28.0.2'
+
+    // 单测失败也继续统计覆盖率
+    project.gradle.taskGraph.whenReady {
+        android.productFlavors.all { flavor ->
+            // Capitalize (as Gralde is case-sensitive).
+            def flavorName = flavor.name.substring(0, 1).toUpperCase() + flavor.name.substring(1)
+
+            // At last, configure.
+            "connected${flavorName}DebugAndroidTest" {
+                ignoreFailures = true
+            }
+        }
+    }
 }
 
 fataar {

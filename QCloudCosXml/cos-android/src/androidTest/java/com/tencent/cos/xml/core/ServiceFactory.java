@@ -2,8 +2,8 @@ package com.tencent.cos.xml.core;
 
 import static com.tencent.cos.xml.core.TestUtils.getContext;
 
-import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.crypto.KMSEncryptionMaterialsProvider;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.transfer.TransferConfig;
@@ -25,7 +25,7 @@ public class ServiceFactory {
 
     public static ServiceFactory INSTANCE = new ServiceFactory();
 
-    public CosXmlService newDefaultService() {
+    public CosXmlSimpleService newDefaultService() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
@@ -39,7 +39,7 @@ public class ServiceFactory {
         return newService(cosXmlServiceConfig);
     }
 
-    public CosXmlService newDefaultServiceBySessionCredentials() {
+    public CosXmlSimpleService newDefaultServiceBySessionCredentials() {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setDebuggable(true)
@@ -49,7 +49,7 @@ public class ServiceFactory {
         return newServiceBySessionCredentials(cosXmlServiceConfig);
     }
 
-    public CosXmlService newQuicService() {
+    public CosXmlSimpleService newQuicService() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
@@ -58,7 +58,7 @@ public class ServiceFactory {
                 .setRegion(TestConst.QUIC_BUCKET_REGION)
                 .builder();
 
-        CosXmlService cosXmlSimpleService = newService(cosXmlServiceConfig);
+        CosXmlSimpleService cosXmlSimpleService = newService(cosXmlServiceConfig);
         try {
             cosXmlSimpleService.addCustomerDNS("{bucket}.cos.{region}.myqcloud.com"
                     .replace("{bucket}", "mobile-ut-1253960454")
@@ -71,7 +71,7 @@ public class ServiceFactory {
     }
 
 
-    public CosXmlService newSelfService() {
+    public CosXmlSimpleService newSelfService() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
@@ -81,7 +81,7 @@ public class ServiceFactory {
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
 
-        return new CosXmlService(getContext(), cosXmlServiceConfig,
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
                 new QCloudSelfSigner() {
 
                     /**
@@ -102,7 +102,7 @@ public class ServiceFactory {
                 });
     }
 
-    public CosXmlService newSignInUrlService() {
+    public CosXmlSimpleService newSignInUrlService() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
@@ -114,7 +114,7 @@ public class ServiceFactory {
         return newService(cosXmlServiceConfig);
     }
 
-    public CosXmlService newSignerService(QCloudSigner signer) {
+    public CosXmlSimpleService newSignerService(QCloudSigner signer) {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
@@ -127,7 +127,7 @@ public class ServiceFactory {
         return newSignerService(cosXmlServiceConfig, signer);
     }
 
-    public CosXmlService newCDNService() {
+    public CosXmlSimpleService newCDNService() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
@@ -136,7 +136,7 @@ public class ServiceFactory {
                 .setHostFormat("${bucket}.file.myqcloud.com")
                 .builder();
 
-        return new CosXmlService(getContext(), cosXmlServiceConfig);
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig);
     }
 
     public TransferManager newDefaultTransferManager() {
@@ -165,7 +165,7 @@ public class ServiceFactory {
                 .setDebuggable(true)
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
-        CosXmlService cosXmlService = new CosXmlService(getContext(), cosXmlServiceConfig);
+        CosXmlSimpleService cosXmlService = new CosXmlSimpleService(getContext(), cosXmlServiceConfig);
         return new TransferManager(cosXmlService, transferConfig);
     }
 
@@ -186,7 +186,7 @@ public class ServiceFactory {
                 .setDebuggable(true)
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
-        CosXmlService cosXmlService = new CosXmlService(getContext(), cosXmlServiceConfig);
+        CosXmlSimpleService cosXmlService = new CosXmlSimpleService(getContext(), cosXmlServiceConfig);
         return new TransferService(cosXmlService, transferConfig);
     }
 
@@ -226,7 +226,7 @@ public class ServiceFactory {
                 .builder();
 
         TransferConfig transferConfig = new TransferConfig.Builder().build();
-        CosXmlService cosXmlService = newService(cosXmlServiceConfig);
+        CosXmlSimpleService cosXmlService = newService(cosXmlServiceConfig);
         String host = TestConst.QUIC_BUCKET + ".cos." + TestConst.QUIC_BUCKET_REGION + ".myqcloud.com";
         try {
             cosXmlService.addCustomerDNS(host, new String[] {TestConst.QUIC_TEST_IP});
@@ -255,19 +255,19 @@ public class ServiceFactory {
         return new TransferManager(newCDNService(), new TransferConfig.Builder().build());
     }
 
-    private CosXmlService newServiceBySessionCredentials(CosXmlServiceConfig cosXmlServiceConfig) {
-        return new CosXmlService(getContext(), cosXmlServiceConfig,
+    private CosXmlSimpleService newServiceBySessionCredentials(CosXmlServiceConfig cosXmlServiceConfig) {
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
                 new MySessionCredentialProvider());
     }
 
-    private CosXmlService newService(CosXmlServiceConfig cosXmlServiceConfig) {
-        return new CosXmlService(getContext(), cosXmlServiceConfig,
+    private CosXmlSimpleService newService(CosXmlServiceConfig cosXmlServiceConfig) {
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
 
     }
 
-    private CosXmlService newSignerService(CosXmlServiceConfig cosXmlServiceConfig, QCloudSigner signer) {
-        return new CosXmlService(getContext(), cosXmlServiceConfig, signer);
+    private CosXmlSimpleService newSignerService(CosXmlServiceConfig cosXmlServiceConfig, QCloudSigner signer) {
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig, signer);
 
     }
 }
