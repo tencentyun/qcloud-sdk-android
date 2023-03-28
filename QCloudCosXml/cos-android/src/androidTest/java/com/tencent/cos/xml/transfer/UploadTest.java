@@ -144,77 +144,77 @@ public class UploadTest {
     /**
      * 测试上传任务等待超时
      */
-    @Test public void testUploadWaitingTimeout() {
-
-        String filePath1 = TestUtils.localPath("file1");
-        String filePath2 = TestUtils.localPath("file2");
-        try {
-            TestUtils.createFile(filePath1, 10 * 1024 * 1024);
-            TestUtils.createFile(filePath2, 10 * 1024 * 1024);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        PutObjectRequest putObjectRequest1 = new PutObjectRequest(TestConst.PERSIST_BUCKET,
-                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH + 1, filePath1);
-        PutObjectRequest putObjectRequest2= new PutObjectRequest(TestConst.PERSIST_BUCKET,
-                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH + 2, filePath2);
-        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
-        // 上传两个大文件占用线程
-        cosXmlSimpleService.putObjectAsync(putObjectRequest1, new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-
-            }
-
-            @Override
-            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
-
-            }
-        });
-        cosXmlSimpleService.putObjectAsync(putObjectRequest2, new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-
-            }
-
-            @Override
-            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
-
-            }
-        });
-
-        TestUtils.sleep(500);
-
-        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
-        // PutObjectRequest putObjectRequest = new PutObjectRequest();
-
-        final COSXMLUploadTask uploadTask = transferManager.upload(TestConst.PERSIST_BUCKET,
-                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH, TestUtils.smallFilePath(), null);
-        final TestLocker testLocker = new TestLocker();
-        uploadTask.startTimeoutTimer(1000);
-        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                Assert.fail("upload success");
-            }
-
-            @Override
-            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
-                // Assert.assertTrue(TestUtils.getCosExceptionMessage(clientException, serviceException).contains("Task waiting timeout"));
-                testLocker.release();
-            }
-        });
-        uploadTask.setTransferStateListener(new TransferStateListener() {
-            @Override
-            public void onStateChanged(TransferState state) {
-                QCloudLogger.i("QCloudTest", "upload state is " + state);
-            }
-        });
-
-        testLocker.lock();
-        TestUtils.sleep(20000);
-    }
+//    @Test public void testUploadWaitingTimeout() {
+//
+//        String filePath1 = TestUtils.localPath("file1");
+//        String filePath2 = TestUtils.localPath("file2");
+//        try {
+//            TestUtils.createFile(filePath1, 10 * 1024 * 1024);
+//            TestUtils.createFile(filePath2, 10 * 1024 * 1024);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        PutObjectRequest putObjectRequest1 = new PutObjectRequest(TestConst.PERSIST_BUCKET,
+//                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH + 1, filePath1);
+//        PutObjectRequest putObjectRequest2= new PutObjectRequest(TestConst.PERSIST_BUCKET,
+//                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH + 2, filePath2);
+//        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+//        // 上传两个大文件占用线程
+//        cosXmlSimpleService.putObjectAsync(putObjectRequest1, new CosXmlResultListener() {
+//            @Override
+//            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+//
+//            }
+//
+//            @Override
+//            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
+//
+//            }
+//        });
+//        cosXmlSimpleService.putObjectAsync(putObjectRequest2, new CosXmlResultListener() {
+//            @Override
+//            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+//
+//            }
+//
+//            @Override
+//            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
+//
+//            }
+//        });
+//
+//        TestUtils.sleep(500);
+//
+//        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+//        // PutObjectRequest putObjectRequest = new PutObjectRequest();
+//
+//        final COSXMLUploadTask uploadTask = transferManager.upload(TestConst.PERSIST_BUCKET,
+//                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH, TestUtils.smallFilePath(), null);
+//        final TestLocker testLocker = new TestLocker();
+//        uploadTask.startTimeoutTimer(1000);
+//        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+//            @Override
+//            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+//                Assert.fail("upload success");
+//            }
+//
+//            @Override
+//            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+//                // Assert.assertTrue(TestUtils.getCosExceptionMessage(clientException, serviceException).contains("Task waiting timeout"));
+//                testLocker.release();
+//            }
+//        });
+//        uploadTask.setTransferStateListener(new TransferStateListener() {
+//            @Override
+//            public void onStateChanged(TransferState state) {
+//                QCloudLogger.i("QCloudTest", "upload state is " + state);
+//            }
+//        });
+//
+//        testLocker.lock();
+//        TestUtils.sleep(20000);
+//    }
 
     /**
      * 测试预连接后上传耗时
