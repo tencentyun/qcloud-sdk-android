@@ -227,7 +227,7 @@ public class DownloadTest {
 
 
     /**
-     * 下载 2s 后点击暂停，并等待 2s 后恢复上传
+     * 下载 1s 后点击暂停，并等待 1s 后恢复上传
      */
     @Test public void testPauseAndResume() {
 
@@ -269,17 +269,18 @@ public class DownloadTest {
         });
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         if (downloadTask.getTaskState() == TransferState.COMPLETED) {
+            TestUtils.assertCOSXMLTaskSuccess(downloadTask);
             return;
         }
 
         downloadTask.pause();
-        TestUtils.sleep(2000);
+        TestUtils.sleep(1000);
         checkNotZero.set(true);
         downloadTask.resume();
 
