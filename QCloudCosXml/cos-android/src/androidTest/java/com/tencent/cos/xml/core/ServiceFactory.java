@@ -2,6 +2,8 @@ package com.tencent.cos.xml.core;
 
 import static com.tencent.cos.xml.core.TestUtils.getContext;
 
+import android.util.Log;
+
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.crypto.KMSEncryptionMaterialsProvider;
@@ -144,8 +146,11 @@ public class ServiceFactory {
         TransferConfig transferConfig = new TransferConfig.Builder()
                 .setDivisionForUpload(2 * 1024 * 1024)
                 .setSliceSizeForUpload(1024 * 1024)
-
+                .setVerifyCRC64(true)
+                .setSliceSizeForCopy(5242880)
+                .setDividsionForCopy(5242880)
                 .build();
+        Log.d(TestConst.UT_TAG, String.valueOf(transferConfig.getDivisionForCopy()));
         return new TransferManager(newDefaultService(), transferConfig);
     }
 

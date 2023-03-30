@@ -1,12 +1,15 @@
 package com.tencent.cos.xml.model.object;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
+import com.tencent.cos.xml.common.COSACL;
+import com.tencent.cos.xml.common.COSStorageClass;
 import com.tencent.cos.xml.common.MetaDataDirective;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.RequestTestAdapter;
+import com.tencent.cos.xml.model.tag.ACLAccount;
 
 // Generate by auto
 public class CopyObjectTestAdapter extends RequestTestAdapter<CopyObjectRequest, CopyObjectResult> {
@@ -25,6 +28,17 @@ public class CopyObjectTestAdapter extends RequestTestAdapter<CopyObjectRequest,
         } catch (CosXmlClientException e) {
             e.printStackTrace();
         }
+        copyObjectRequest.setCosStorageClass(COSStorageClass.STANDARD);
+        copyObjectRequest.setXCOSACL("default");
+        copyObjectRequest.setXCOSACL(COSACL.DEFAULT);
+        ACLAccount aclAccount = new ACLAccount();
+        aclAccount.addAccount(TestConst.OWNER_UIN);
+        aclAccount.addAccount(TestConst.OWNER_UIN, TestConst.OWNER_UIN);
+        copyObjectRequest.setXCOSGrantRead(aclAccount);
+        copyObjectRequest.setXCOSGrantWrite(aclAccount);
+        copyObjectRequest.setXCOSReadWrite(aclAccount);
+        copyObjectRequest.setCopyIfNoneMatch("test etag");
+        copyObjectRequest.setCopyIfUnmodifiedSince("Wed, 21 Oct 2052 07:28:00 GMT");
         return copyObjectRequest;
     }
 

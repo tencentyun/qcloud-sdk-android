@@ -156,6 +156,7 @@ public class OtherTest {
 
     @Test public void testPresignedDownload() {
         PresignedUrlRequest presignedUrlRequest = new PresignedUrlRequest(TestConst.PERSIST_BUCKET, "wechat.png");
+        presignedUrlRequest.setCosPath("wechat.png");
         presignedUrlRequest.setRequestMethod("GET");
         presignedUrlRequest.setSignKeyTime(3600);
         presignedUrlRequest.addQuery(URLEncoder.encode("imageMogr2/rotate/90"), null);
@@ -169,6 +170,29 @@ public class OtherTest {
             clientException.printStackTrace();
         }
     }
+
+    @Test public void testPresignedDownloadFail1() {
+        PresignedUrlRequest presignedUrlRequest = new PresignedUrlRequest("", "wechat.png");
+        CosXmlSimpleService defaultService = ServiceFactory.INSTANCE.newDefaultService();
+        try {
+            String signUrl = defaultService.getPresignedURL(presignedUrlRequest);
+            QCloudLogger.i("QCloudTest", signUrl);
+        } catch (CosXmlClientException clientException) {
+            Assert.assertTrue(clientException.getMessage().contains("bucket must not be null"));
+        }
+    }
+
+    @Test public void testPresignedDownloadFail2() {
+        PresignedUrlRequest presignedUrlRequest = new PresignedUrlRequest(TestConst.PERSIST_BUCKET, "");
+        CosXmlSimpleService defaultService = ServiceFactory.INSTANCE.newDefaultService();
+        try {
+            String signUrl = defaultService.getPresignedURL(presignedUrlRequest);
+            QCloudLogger.i("QCloudTest", signUrl);
+        } catch (CosXmlClientException clientException) {
+            Assert.assertTrue(clientException.getMessage().contains("cosPath must not be null"));
+        }
+    }
+
 
     @Test public void testDownload() {
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,

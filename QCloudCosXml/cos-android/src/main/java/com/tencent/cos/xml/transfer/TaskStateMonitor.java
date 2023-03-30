@@ -30,8 +30,6 @@ import android.os.MessageQueue;
 
 import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.model.CosXmlResult;
-import com.tencent.qcloud.core.http.HttpLoggingInterceptor;
-import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -116,11 +114,9 @@ final class TaskStateMonitor implements Runnable{
         taskHandler = new Handler(getLooper()){
             @Override
             public void handleMessage(Message msg) {
-
-
-
                 switch (msg.what){
                     case MESSAGE_TASK_RESULT:
+                    case MESSAGE_TASK_CONSTRAINT:
                         StructMsg structMsg = (StructMsg) msg.obj;
                         stateTransform(structMsg.cosxmlTask, structMsg.transferState, structMsg.exception, structMsg.result, false);
                         break;
@@ -131,10 +127,6 @@ final class TaskStateMonitor implements Runnable{
                     case MESSAGE_TASK_INIT:
                         StructMsg initMsg = (StructMsg) msg.obj;
                         stateTransform(initMsg.cosxmlTask,initMsg.transferState, initMsg.exception, initMsg.result, true);
-                        break;
-                    case MESSAGE_TASK_CONSTRAINT:
-                        StructMsg constraintMsg = (StructMsg) msg.obj;
-                        stateTransform(constraintMsg.cosxmlTask, constraintMsg.transferState, constraintMsg.exception, constraintMsg.result,false);
                         break;
                     case MESSAGE_RELEASE_LOOP:
                         releaseLooper();

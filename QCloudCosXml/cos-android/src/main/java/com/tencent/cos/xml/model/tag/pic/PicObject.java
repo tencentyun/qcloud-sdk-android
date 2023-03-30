@@ -63,26 +63,5 @@ public class PicObject {
     @XmlElement(name = "ETag")
     public String etag;
     
-    
-    /**
-     * 构造盲水印图片处理结果
-     * @param key 文件名
-     * @param location 图片路径
-     * @param format 图片格式
-     * @param width 图片宽度
-     * @param height 图片高度
-     * @param size 图片大小
-     * @param quality 图片质量
-     */
-    public PicObject(String key, String location, String format, int width, int height, int size, int quality) {
-        this.key = key;
-        this.location = location;
-        this.format = format;
-        this.width = width;
-        this.height = height;
-        this.size = size;
-        this.quality = quality;
-    }
-
     public PicObject() {}
 }

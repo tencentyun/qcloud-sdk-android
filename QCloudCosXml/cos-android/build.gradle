@@ -92,14 +92,6 @@ android {
     }
     buildToolsVersion = '28.0.2'
 
-//    testOptions {
-//        unitTests.all {
-//            jacoco {
-//                includeNoLocationClasses = true
-//            }
-//        }
-//    }
-
     // 单测失败也继续统计覆盖率
     project.gradle.taskGraph.whenReady {
         android.productFlavors.all { flavor ->
@@ -129,12 +121,6 @@ dependencies {
     compileOnly 'androidx.appcompat:appcompat:1.6.1'
 
     testImplementation 'junit:junit:4.13.2'
-//    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-//    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-//    androidTestImplementation "androidx.test:rules:1.2.0"
-//    androidTestImplementation 'androidx.core:core:1.0.0'
-//    androidTestImplementation "androidx.test:runner:1.2.0"
-
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation "androidx.test:rules:1.5.0"

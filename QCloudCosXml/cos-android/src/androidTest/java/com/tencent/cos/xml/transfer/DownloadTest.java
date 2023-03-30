@@ -24,6 +24,7 @@ package com.tencent.cos.xml.transfer;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.tencent.cos.xml.core.MyOnSignatureListener;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestLocker;
@@ -183,7 +184,7 @@ public class DownloadTest {
     /**
      * 批量文件下载
      */
-    @Test public void testBatchSmallUpload() {
+    @Test public void testBatchSmallDownload() {
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();;
         int count = 10;
@@ -294,6 +295,7 @@ public class DownloadTest {
      *
      * 下载 2s 后点击暂停，并记录当前的下载进度，等待 1s 后重新下载，进度必须大于之前记录的进度
      */
+    // TODO: 2023/3/29 真机会失败
 //    @Test public void testContinueDownload() {
 //
 //        String localFileName = TestUtils.extractName(TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
@@ -387,4 +389,69 @@ public class DownloadTest {
         TestUtils.assertCOSXMLTaskSuccess(downloadTask);
     }
 
+    @Test public void testSmallDownloadSignature() {
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+        COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+                TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                TestUtils.localParentPath(), "test", new MyOnSignatureListener());
+
+        final TestLocker testLocker = new TestLocker();
+        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+        TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+    }
+
+    @Test public void testSmallDownloadRange() {
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                TestUtils.localParentPath());
+         getObjectRequest.setRange(100, 200);
+        getObjectRequest.addNoSignHeader("Range");
+        COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+                getObjectRequest);
+
+        final TestLocker testLocker = new TestLocker();
+        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+        TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+    }
+
+    @Test
+    public void testCancelTask() {
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+                TestUtils.localParentPath());
+        COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+                getObjectRequest);
+        TestUtils.sleep(200);
+        downloadTask.cancel();
+        TestUtils.sleep(200);
+        Assert.assertTrue(downloadTask.getTaskState() == TransferState.CANCELED);
+    }
 }

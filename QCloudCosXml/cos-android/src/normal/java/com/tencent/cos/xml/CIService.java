@@ -102,8 +102,7 @@ public class CIService extends CosXmlService {
         return execute(request, new DeleteBucketDPStateResult());
     }
 
-    public void deleteBucketDocumentPreviewStateAsync(DeleteBucketDPStateRequest request, CosXmlResultListener listener)
-            throws CosXmlClientException, CosXmlServiceException {
+    public void deleteBucketDocumentPreviewStateAsync(DeleteBucketDPStateRequest request, CosXmlResultListener listener) {
         schedule(request, new DeleteBucketDPStateResult(), listener);
     }
 
