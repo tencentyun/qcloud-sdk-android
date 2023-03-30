@@ -15,7 +15,6 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
-import com.tencent.cos.xml.model.object.CopyObjectResult;
 import com.tencent.cos.xml.model.object.DeleteObjectRequest;
 
 import org.junit.Assert;
@@ -35,7 +34,7 @@ public class CopyTest {
         final TestLocker testLocker = new TestLocker();
         final String cosPath = "copy_object_" + System.currentTimeMillis();
         CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
-                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH);
         final TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
         COSXMLCopyTask cosxmlCopyTask = transferManager.copy(TestConst.PERSIST_BUCKET, cosPath, copySourceStruct);
 
@@ -51,7 +50,7 @@ public class CopyTest {
                 } catch (CosXmlServiceException e) {
                     Assert.fail(TestUtils.getCosExceptionMessage(e));
                 }
-                CopyObjectResult copyObjectResult = (CopyObjectResult)result;
+                COSXMLCopyTask.COSXMLCopyTaskResult copyObjectResult = (COSXMLCopyTask.COSXMLCopyTaskResult)result;
                 TestUtils.print(copyObjectResult.printResult());
                 testLocker.release();
             }

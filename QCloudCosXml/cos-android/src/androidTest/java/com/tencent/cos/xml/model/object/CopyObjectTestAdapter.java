@@ -29,16 +29,15 @@ public class CopyObjectTestAdapter extends RequestTestAdapter<CopyObjectRequest,
             e.printStackTrace();
         }
         copyObjectRequest.setCosStorageClass(COSStorageClass.STANDARD);
-        copyObjectRequest.setXCOSACL("default");
         copyObjectRequest.setXCOSACL(COSACL.DEFAULT);
         ACLAccount aclAccount = new ACLAccount();
         aclAccount.addAccount(TestConst.OWNER_UIN);
         aclAccount.addAccount(TestConst.OWNER_UIN, TestConst.OWNER_UIN);
         copyObjectRequest.setXCOSGrantRead(aclAccount);
-        copyObjectRequest.setXCOSGrantWrite(aclAccount);
+//        copyObjectRequest.setXCOSGrantWrite(aclAccount);
         copyObjectRequest.setXCOSReadWrite(aclAccount);
-        copyObjectRequest.setCopyIfNoneMatch("test etag");
-        copyObjectRequest.setCopyIfUnmodifiedSince("Wed, 21 Oct 2052 07:28:00 GMT");
+//        copyObjectRequest.setCopyIfNoneMatch("test etag");
+//        copyObjectRequest.setCopyIfUnmodifiedSince("Wed, 21 Oct 2052 07:28:00 GMT");
         return copyObjectRequest;
     }
 

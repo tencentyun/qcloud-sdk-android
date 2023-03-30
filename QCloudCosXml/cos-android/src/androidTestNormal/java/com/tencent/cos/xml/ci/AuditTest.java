@@ -2,6 +2,8 @@ package com.tencent.cos.xml.ci;
 
 import static com.tencent.cos.xml.core.TestConst.AUDIT_BUCKET_PORN_IMAGE;
 
+import android.util.Base64;
+
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -42,6 +44,8 @@ import com.tencent.cos.xml.model.tag.audit.post.PostImagesAudit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.nio.charset.Charset;
 
 /**
  * <p>
@@ -278,8 +282,8 @@ public class AuditTest {
         final CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
         final TestLocker testLocker = new TestLocker();
         PostVideoAuditRequest postRequest = new PostVideoAuditRequest(TestConst.AUDIT_BUCKET);
-        postRequest.setObject(TestConst.AUDIT_BUCKET_VIDEO);
-//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.mp4");
+//        postRequest.setObject(TestConst.AUDIT_BUCKET_VIDEO);
+        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.mp4");
         postRequest.setDataId("DataIdQJD");
         postRequest.setCallback("https://github.com/jordanqin");
         postRequest.setCallbackVersion("Detail");
@@ -287,6 +291,8 @@ public class AuditTest {
         postRequest.setTimeInterval(10);
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
         postRequest.setDetectContent(1);
+        postRequest.setBizType(null);
+        postRequest.setMode("Interval");
         ciService.postVideoAuditAsync(postRequest, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
@@ -371,12 +377,13 @@ public class AuditTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
 
         PostAudioAuditRequest postRequest = new PostAudioAuditRequest(TestConst.AUDIT_BUCKET);
-        postRequest.setObject(TestConst.AUDIT_BUCKET_AUDIO);
-//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/16k_ch_and_en.mp3");
+//        postRequest.setObject(TestConst.AUDIT_BUCKET_AUDIO);
+        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/16k_ch_and_en.mp3");
         postRequest.setDataId("DataIdQJD");
         postRequest.setCallback("https://github.com/jordanqin");
         postRequest.setCallbackVersion("Detail");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
+        postRequest.setBizType(null);
 
         final TestLocker testLocker = new TestLocker();
         ciService.postAudioAuditAsync(postRequest, new CosXmlResultListener() {
@@ -454,13 +461,14 @@ public class AuditTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
 
         PostTextAuditRequest postRequest = new PostTextAuditRequest(TestConst.AUDIT_BUCKET);
-        postRequest.setObject(TestConst.AUDIT_BUCKET_TEXT);
+//        postRequest.setObject(TestConst.AUDIT_BUCKET_TEXT);
 //        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.txt");
-//        postRequest.setContent(Base64.encodeToString("测试文本 很黄很暴力".getBytes(Charset.forName("UTF-8")), Base64.NO_WRAP));
+        postRequest.setContent(Base64.encodeToString("测试文本 很黄很暴力".getBytes(Charset.forName("UTF-8")), Base64.NO_WRAP));
         postRequest.setDataId("DataIdQJD");
         postRequest.setCallback("https://github.com/jordanqin");
         postRequest.setCallbackVersion("Detail");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
+        postRequest.setBizType(null);
         final TestLocker testLocker = new TestLocker();
         ciService.postTextAuditAsync(postRequest, new CosXmlResultListener() {
             @Override
@@ -535,11 +543,13 @@ public class AuditTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
 
         PostDocumentAuditRequest postRequest = new PostDocumentAuditRequest(TestConst.AUDIT_BUCKET);
-        postRequest.setObject(TestConst.AUDIT_BUCKET_DOCUMENT);
-//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/03_%E8%B7%AF%E7%94%B1.pdf");
+//        postRequest.setObject(TestConst.AUDIT_BUCKET_DOCUMENT);
+        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/03_%E8%B7%AF%E7%94%B1.pdf");
         postRequest.setDataId("DataIdQJD");
         postRequest.setCallback("https://github.com/jordanqin");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
+        postRequest.setBizType(null);
+        postRequest.setType("pdf");
         final TestLocker testLocker = new TestLocker();
         ciService.postDocumentAuditAsync(postRequest, new CosXmlResultListener() {
             @Override
