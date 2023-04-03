@@ -1,18 +1,11 @@
 package com.tencent.cos.xml.model.bucket;
 
-import android.util.Xml;
-
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.model.tag.IntelligentTieringConfiguration;
+import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
-import com.tencent.qcloud.qcloudxml.core.QCloudXml;
 
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlSerializer;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -56,13 +49,8 @@ public class PutBucketIntelligentTieringRequest extends BucketRequest {
 
     @Override
     public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        try {
-            String body = QCloudXml.toXml(configuration);
-            return RequestBodySerializer.bytes("text/plain", body.getBytes(),
-                    0, body.length());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new CosXmlClientException(ClientErrorCode.INTERNAL_ERROR.getCode(), "", e.getCause());
-        }
+        String body = QCloudXmlUtils.toXml(configuration);
+        return RequestBodySerializer.bytes("text/plain", body.getBytes(),
+                0, body.length());
     }
 }

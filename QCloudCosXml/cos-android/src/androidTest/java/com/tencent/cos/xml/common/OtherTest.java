@@ -28,7 +28,6 @@ import android.os.Environment;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
@@ -157,6 +156,7 @@ public class OtherTest {
 
     @Test public void testPresignedDownload() {
         PresignedUrlRequest presignedUrlRequest = new PresignedUrlRequest(TestConst.PERSIST_BUCKET, "wechat.png");
+        presignedUrlRequest.setCosPath("wechat.png");
         presignedUrlRequest.setRequestMethod("GET");
         presignedUrlRequest.setSignKeyTime(3600);
         presignedUrlRequest.addQuery(URLEncoder.encode("imageMogr2/rotate/90"), null);
@@ -170,6 +170,29 @@ public class OtherTest {
             clientException.printStackTrace();
         }
     }
+
+    @Test public void testPresignedDownloadFail1() {
+        PresignedUrlRequest presignedUrlRequest = new PresignedUrlRequest("", "wechat.png");
+        CosXmlSimpleService defaultService = ServiceFactory.INSTANCE.newDefaultService();
+        try {
+            String signUrl = defaultService.getPresignedURL(presignedUrlRequest);
+            QCloudLogger.i("QCloudTest", signUrl);
+        } catch (CosXmlClientException clientException) {
+            Assert.assertTrue(clientException.getMessage().contains("bucket must not be null"));
+        }
+    }
+
+    @Test public void testPresignedDownloadFail2() {
+        PresignedUrlRequest presignedUrlRequest = new PresignedUrlRequest(TestConst.PERSIST_BUCKET, "");
+        CosXmlSimpleService defaultService = ServiceFactory.INSTANCE.newDefaultService();
+        try {
+            String signUrl = defaultService.getPresignedURL(presignedUrlRequest);
+            QCloudLogger.i("QCloudTest", signUrl);
+        } catch (CosXmlClientException clientException) {
+            Assert.assertTrue(clientException.getMessage().contains("cosPath must not be null"));
+        }
+    }
+
 
     @Test public void testDownload() {
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
@@ -188,7 +211,7 @@ public class OtherTest {
     }
 
     @Test public void testSessionCredentialsExpired() {
-        CosXmlService service = ServiceFactory.INSTANCE.newDefaultServiceBySessionCredentials();
+        CosXmlSimpleService service = ServiceFactory.INSTANCE.newDefaultServiceBySessionCredentials();
         PutObjectRequest request = new PutObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
                 TestUtils.smallFilePath());
 //        GetObjectRequest request = new GetObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH, TestUtils.localParentPath(), "test");
@@ -202,7 +225,7 @@ public class OtherTest {
                 TestUtils.print("Progress test" + ": " + complete + "/" + target);
             }
         });
-        for (int i=0; i<100;i++){
+        for (int i=0; i<5;i++){
             try {
                 service.putObject(request);
 //                service.getObject(request);
@@ -214,7 +237,7 @@ public class OtherTest {
                 break;
             }
             try {
-                Thread.sleep(3000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -12,7 +12,7 @@ import java.util.List;
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
 
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class DescribeDocProcessBuckets {
     /**
      * 请求的唯一 ID

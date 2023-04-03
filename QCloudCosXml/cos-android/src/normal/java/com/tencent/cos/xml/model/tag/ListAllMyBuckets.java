@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * GET Service 结果的所有信息
  */
-@XmlBean(name = "ListAllMyBucketsResult")
+@XmlBean(name = "ListAllMyBucketsResult", method = XmlBean.GenerateMethod.FROM)
 public class ListAllMyBuckets {
     /**
      * 存储桶持有者信息
@@ -58,7 +58,7 @@ public class ListAllMyBuckets {
     /**
      * 存储桶持有者
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Owner{
         /**
          * 存储桶持有者的完整 ID
@@ -84,7 +84,7 @@ public class ListAllMyBuckets {
     /**
      * 存储桶
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Bucket{
         /**
          * 存储桶的名称

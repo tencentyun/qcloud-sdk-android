@@ -98,6 +98,37 @@ public class COSUploadTaskTest {
                 TestUtils.bigFilePath(), TestConst.PERSIST_BUCKET_CSE_BIG_OBJECT_PATH);
     }
 
+    @Test public void testCancel() {
+        TransferService transferService = ServiceFactory.INSTANCE.newDefaultTransferService();
+        String bucket = TestConst.PERSIST_BUCKET;
+        String filePath = TestUtils.bigFilePath();
+        String cosKey = TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH;
+
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket,
+                cosKey, filePath);
+
+        final COSUploadTask uploadTask = transferService.upload(putObjectRequest);
+        final TestLocker testLocker = new TestLocker();
+        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+                TestUtils.assertCOSXMLTaskSuccess(uploadTask);
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                testLocker.release();
+                Assert.assertEquals("UserCancelled", clientException.getMessage());
+            }
+        });
+        TestUtils.sleep(1000);
+        uploadTask.cancel();
+        TestUtils.sleep(200);
+
+        testLocker.lock();
+    }
+
     private void testUploadFile(TransferService transferService, String bucket, String filePath, String cosKey) {
 
         QCloudLogger.i("QCloudTest", "upload path is " + filePath);
@@ -201,7 +232,7 @@ public class COSUploadTaskTest {
         });
 
         // 暂停
-        TestUtils.sleep(3000);
+        TestUtils.sleep(1000);
         uploadTask.pause();
 
         // 恢复
@@ -212,5 +243,51 @@ public class COSUploadTaskTest {
         TestUtils.assertCOSXMLTaskSuccess(uploadTask);
     }
 
+    @Test public void testMultipartUploadFailed() {
+        testUploadFileFailed(ServiceFactory.INSTANCE.newDefaultTransferService(), TestConst.PERSIST_BUCKET+"aaa",
+                TestUtils.bigFilePath(), TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+    }
 
+    // 测试简单上传
+    @Test public void testSimpleUploadFailed() {
+        testUploadFileFailed(ServiceFactory.INSTANCE.newDefaultTransferService(), TestConst.PERSIST_BUCKET+"aaa",
+                TestUtils.smallFilePath(), TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+    }
+
+    @Test public void testMultipartUploadFailed2() {
+        testUploadFileFailed(ServiceFactory.INSTANCE.newDefaultTransferService(), TestConst.PERSIST_BUCKET,
+                TestUtils.bigFilePath()+"aaa", TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+    }
+
+    // 测试简单上传
+    @Test public void testSimpleUploadFailed2() {
+        testUploadFileFailed(ServiceFactory.INSTANCE.newDefaultTransferService(), TestConst.PERSIST_BUCKET,
+                TestUtils.smallFilePath()+"aaa", TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+    }
+
+    private void testUploadFileFailed(TransferService transferService, String bucket, String filePath, String cosKey) {
+
+        QCloudLogger.i("QCloudTest", "upload path is " + filePath);
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket,
+                cosKey, filePath);
+
+        final COSUploadTask uploadTask = transferService.upload(putObjectRequest);
+        final TestLocker testLocker = new TestLocker();
+        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                Assert.fail();
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                Assert.assertTrue(true);
+                testLocker.release();
+            }
+        });
+
+        testLocker.lock();
+    }
 }

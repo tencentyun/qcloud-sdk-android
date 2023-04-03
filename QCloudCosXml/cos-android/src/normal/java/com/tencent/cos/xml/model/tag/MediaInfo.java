@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 获取媒体文件的信息
  */
-@XmlBean
+@XmlBean(method = XmlBean.GenerateMethod.FROM)
 public class MediaInfo {
     /**
      * 流信息
@@ -41,7 +41,7 @@ public class MediaInfo {
     /**
      * 流信息
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Stream {
         /**
          * 视频信息
@@ -60,7 +60,7 @@ public class MediaInfo {
     /**
      * 视频信息
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Video{
         /**
          * 该流的编号
@@ -163,7 +163,7 @@ public class MediaInfo {
     /**
      * 音频信息
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Audio{
         /**
          * 该流的编号
@@ -230,7 +230,7 @@ public class MediaInfo {
     /**
      * 字幕信息
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Subtitle{
         /**
          * 该流的编号
@@ -245,7 +245,7 @@ public class MediaInfo {
     /**
      * 格式信息
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Format {
         /**
          * Stream（包含 Video、Audio、Subtitle）的数量

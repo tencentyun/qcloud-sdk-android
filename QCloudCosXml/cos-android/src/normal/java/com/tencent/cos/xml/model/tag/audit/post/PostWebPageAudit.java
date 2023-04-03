@@ -29,7 +29,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 网页审核的具体配置项
  */
-@XmlBean(name = "Request")
+@XmlBean(name = "Request", method = XmlBean.GenerateMethod.TO)
 public class PostWebPageAudit {
     /**
      * 网页需要审核的内容
@@ -48,7 +48,7 @@ public class PostWebPageAudit {
     /**
      * 网页需要审核的内容
      */
-    @XmlBean(name = "Conf")
+    @XmlBean(name = "Conf", method = XmlBean.GenerateMethod.TO)
     public static class WebPageAuditConf extends AuditConf {
         /**
          * 指定是否需要高亮展示网页内的违规文本，查询及回调结果时会根据此参数决定是否返回高亮展示的 html 内容。

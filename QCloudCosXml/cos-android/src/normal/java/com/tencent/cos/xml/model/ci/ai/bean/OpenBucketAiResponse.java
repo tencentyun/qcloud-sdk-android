@@ -28,7 +28,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 开通AI内容识别服务结果实体
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class OpenBucketAiResponse {
     /**
      * 请求的唯一 ID

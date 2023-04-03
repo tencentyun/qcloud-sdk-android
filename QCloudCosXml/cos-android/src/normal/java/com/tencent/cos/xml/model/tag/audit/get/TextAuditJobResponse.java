@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * 文本审核返回的具体响应内容
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class TextAuditJobResponse {
     /**
      * 文本审核任务的详细信息
@@ -49,7 +49,7 @@ public class TextAuditJobResponse {
     /**
      * 文本审核任务的详细信息
      */
-    @XmlBean(name = "JobsDetail")
+    @XmlBean(name = "JobsDetail", method = XmlBean.GenerateMethod.FROM)
     public static class TextAuditJobsDetail extends AuditJobsDetail {
         /**
          * 文本内容的 Base64 编码。
@@ -93,7 +93,7 @@ public class TextAuditJobResponse {
     /**
      * 文本审核的具体结果信息
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Section extends AuditSection {
         /**
          * 该分片位于文本中的起始位置信息（即10代表第11个utf8文字）。从0开始。

@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 审核规则配置
  */
-@XmlBean(name = "Conf")
+@XmlBean(name = "Conf", method = XmlBean.GenerateMethod.TO)
 public class AuditConf {
     /**
      * 审核的场景类型，有效值：Porn（涉黄）、Terrorism（涉暴恐）、Politics（政治敏感）、Ads（广告）、Illegal（违法）、Abuse（谩骂），可以传入多种类型，不同类型以逗号分隔，例如：Porn,Terrorism

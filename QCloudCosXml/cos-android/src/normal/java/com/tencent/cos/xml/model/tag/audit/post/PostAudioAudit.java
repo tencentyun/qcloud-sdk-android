@@ -29,7 +29,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 音频审核的具体配置项
  */
-@XmlBean(name = "Request")
+@XmlBean(name = "Request", method = XmlBean.GenerateMethod.TO)
 public class PostAudioAudit {
     /**
      * 需要审核的内容
@@ -48,7 +48,7 @@ public class PostAudioAudit {
     /**
      * 音频审核规则配置
      */
-    @XmlBean(name = "Conf")
+    @XmlBean(name = "Conf", method = XmlBean.GenerateMethod.TO)
     public static class AudioAuditConf extends AuditConf {
         /**
          * 回调内容的结构，有效值：Simple（回调内容包含基本信息）、Detail（回调内容包含详细信息）。默认为 Simple

@@ -225,17 +225,17 @@ public final class COSXMLDownloadTask extends COSXMLTask{
      *
      * @return
      */
-    private synchronized String removeIfExist(){
-        if(sharedPreferences != null){
-
-            String filePath = sharedPreferences.getString(getKey(), null);
-            if (filePath == null) { // 第一次下载
-                FileUtils.deleteFileIfExist(getDownloadPath());
-            }
-            return filePath;
-        }
-        return null;
-    }
+//    private synchronized String removeIfExist(){
+//        if(sharedPreferences != null){
+//
+//            String filePath = sharedPreferences.getString(getKey(), null);
+//            if (filePath == null) { // 第一次下载
+//                FileUtils.deleteFileIfExist(getDownloadPath());
+//            }
+//            return filePath;
+//        }
+//        return null;
+//    }
 
     private synchronized String hasExisted(){
         if(sharedPreferences != null){

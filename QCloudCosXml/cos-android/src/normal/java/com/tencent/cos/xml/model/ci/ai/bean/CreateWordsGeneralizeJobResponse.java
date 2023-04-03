@@ -28,7 +28,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 提交一个AI分词识别任务响应内容
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class CreateWordsGeneralizeJobResponse {
     /**
      * 任务的详细信息

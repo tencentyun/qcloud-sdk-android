@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 片段审核结果
  */
-@XmlBean
+@XmlBean(method = XmlBean.GenerateMethod.FROM)
 public class AuditSection {
     /**
      * 审核场景为涉黄的审核结果信息。

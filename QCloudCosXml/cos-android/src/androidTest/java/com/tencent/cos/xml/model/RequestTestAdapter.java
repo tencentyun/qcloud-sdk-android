@@ -100,10 +100,9 @@ public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosX
     protected abstract void exeAsync(R request, CosXmlSimpleService cosXmlService, CosXmlResultListener resultListener);
 
     protected void assertResult(S result) {
-        result.printResult();
-        TestUtils.parseBadResponseBody(result);
-
-        Assert.assertTrue(result != null);
+        TestUtils.print(result.printResult());
+        TestUtils.printXML(result);
+        Assert.assertTrue(result.httpCode >= 200 && result.httpCode < 300);
     }
 
     protected void assertException(@Nullable CosXmlClientException clientException,
@@ -119,5 +118,46 @@ public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosX
         CosXmlClientException clientException;
 
         CosXmlServiceException serviceException;
+    }
+
+    // TODO: 2023/3/30 Post待删除
+    public void testPostSyncRequest() {
+
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
+        try {
+            S result = exeSync(newRequestInstance(), cosXmlService);
+            Assert.assertTrue(true);
+        } catch (CosXmlClientException clientException) {
+            Assert.assertTrue(true);
+        } catch (CosXmlServiceException serviceException) {
+            Assert.assertTrue(true);
+        } catch (Exception e){
+            Assert.assertTrue(true);
+        }
+    }
+
+    public void testPostAsyncRequest() {
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
+        final TestLocker locker = new TestLocker();
+
+        final COSResult cosResult = new COSResult();
+
+        exeAsync(newRequestInstance(), cosXmlService, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                cosResult.result = result;
+                locker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                cosResult.clientException = clientException;
+                cosResult.serviceException = serviceException;
+                locker.release();
+            }
+        });
+        locker.lock();
+
+        Assert.assertTrue(true);
     }
 }

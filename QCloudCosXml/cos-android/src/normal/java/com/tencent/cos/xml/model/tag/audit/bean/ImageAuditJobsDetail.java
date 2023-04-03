@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 图片审核任务的详细信息
  */
-@XmlBean(name = "JobsDetail")
+@XmlBean(name = "JobsDetail", method = XmlBean.GenerateMethod.FROM)
 public class ImageAuditJobsDetail extends AuditJobsDetail {
     /**
      * 该字段表示审核结果命中审核信息的置信度，取值范围：0（置信度最低）-100（置信度最高 ），越高代表该内容越有可能属于当前返回审核信息
