@@ -1,3 +1,8 @@
+## v5.9.12
+1. 修复单图审核ci token签名为cos token签名
+2. 解决okhttp4及以上Util.closeQuietly兼容问题
+3. 优化xml序列化库 去除无用序列化代码
+
 ## v5.9.9
 1. 解决弱网重试 偶现okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
 
