@@ -9,8 +9,12 @@ import java.io.IOException;
 /**
  * XML适配器（用于解析与编码）
  */
-public interface IXmlAdapter<T> {
-    T fromXml(XmlPullParser xmlPullParser, String elementName) throws XmlPullParserException, IOException;
+public abstract class IXmlAdapter<T> {
+    public T fromXml(XmlPullParser xmlPullParser, String elementName) throws XmlPullParserException, IOException{
+        throw new IllegalStateException("The fromXml method is not implemented");
+    }
 
-    void toXml(XmlSerializer xmlSerializer, T value, String elementName) throws XmlPullParserException, IOException;
+    public void toXml(XmlSerializer xmlSerializer, T value, String elementName) throws XmlPullParserException, IOException{
+        throw new IllegalStateException("The toXml method is not implemented");
+    }
 }

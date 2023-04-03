@@ -131,7 +131,9 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
             e.printStackTrace();
             throw new QCloudClientException("write local uri error for " + e.toString(), e);
         } finally {
-            Util.closeQuietly(output);
+            if(output != null) {
+                Util.closeQuietly(output);
+            }
         }
     }
 
