@@ -1,4 +1,3 @@
-include ':xmlCore'
 include ':xmlCompiler'
 include ':xmlAnnoation'
 include ':app'
