@@ -21,7 +21,7 @@ public class PutBucketInventoryTestAdapter extends NormalRequestTestAdapter<PutB
         PutBucketInventoryRequest putBucketInventoryRequest = new PutBucketInventoryRequest(TestConst.PERSIST_BUCKET);
         putBucketInventoryRequest.setInventoryId("inventoryId");
         putBucketInventoryRequest.isEnable(true);
-        putBucketInventoryRequest.setFilter("do_not_remove_test/");
+        putBucketInventoryRequest.setFilter("do_not_remove/");
         putBucketInventoryRequest.setIncludedObjectVersions(InventoryConfiguration.IncludedObjectVersions.ALL);
         putBucketInventoryRequest.setScheduleFrequency(InventoryConfiguration.SCHEDULE_FREQUENCY_DAILY);
         putBucketInventoryRequest.setOptionalFields(InventoryConfiguration.Field.StroageClass);

@@ -5,8 +5,8 @@ import static com.tencent.cos.xml.core.TestUtils.getContext;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -81,7 +81,7 @@ public class UploadTest {
         return new TransferManager(newDefaultService(), transferConfig);
     }
 
-    public CosXmlService newDefaultService() {
+    public CosXmlSimpleService newDefaultService() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
@@ -95,8 +95,8 @@ public class UploadTest {
         return newService(cosXmlServiceConfig);
     }
 
-    private CosXmlService newService(CosXmlServiceConfig cosXmlServiceConfig) {
-        return new CosXmlService(getContext(), cosXmlServiceConfig,
+    private CosXmlSimpleService newService(CosXmlServiceConfig cosXmlServiceConfig) {
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
 
     }

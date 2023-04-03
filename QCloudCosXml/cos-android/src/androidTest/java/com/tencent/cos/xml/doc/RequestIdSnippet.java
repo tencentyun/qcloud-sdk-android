@@ -2,8 +2,8 @@ package com.tencent.cos.xml.doc;
 
 import android.content.Context;
 
-import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -11,16 +11,11 @@ import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
-import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
-import com.tencent.cos.xml.transfer.COSDownloadTask;
 import com.tencent.cos.xml.transfer.COSUploadTask;
 import com.tencent.cos.xml.transfer.TransferConfig;
 import com.tencent.cos.xml.transfer.TransferService;
-import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
-
-import java.io.File;
 
 /**
  * <p>
@@ -42,7 +37,7 @@ public class RequestIdSnippet {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .setRegion(COS_REGION)
                 .builder();
-        CosXmlService cosXmlService = new CosXmlService(context, cosXmlServiceConfig, credentialProvider);
+        CosXmlSimpleService cosXmlService = new CosXmlSimpleService(context, cosXmlServiceConfig, credentialProvider);
         TransferService transferService = new TransferService(cosXmlService, transferConfig);
 
         // 2. 初始化 PutObjectRequest

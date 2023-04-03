@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 获取媒体文件的信息
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class MediaInfoResponse {
     public MediaInfo mediaInfo;
 }

@@ -99,6 +99,7 @@ public abstract class NormalRequestTestAdapter<R extends CosXmlRequest, S extend
 
     protected void assertResult(S result) {
         TestUtils.print(result.printResult());
+        TestUtils.printXML(result);
         Assert.assertTrue(result.httpCode >= 200 && result.httpCode < 300);
     }
 

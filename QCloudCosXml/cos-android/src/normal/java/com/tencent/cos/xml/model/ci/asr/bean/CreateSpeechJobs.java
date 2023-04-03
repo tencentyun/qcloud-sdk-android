@@ -29,7 +29,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 提交语音识别任务请求实体
  */
-@XmlBean(name = "Request")
+@XmlBean(name = "Request", method = XmlBean.GenerateMethod.TO)
 public class CreateSpeechJobs {
     /**
      * 创建任务的 Tag，目前仅支持：SpeechRecognition
@@ -76,7 +76,7 @@ public class CreateSpeechJobs {
         this.callBackMqConfig = new CallBackMqConfig();
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.TO)
     public static class CreateSpeechJobsInput {
         /**
          * 文件在 COS 上的 key，Bucket 由 Host 指定
@@ -91,7 +91,7 @@ public class CreateSpeechJobs {
     /**
      * 操作规则
      */
-    @XmlBean(name = "Operation")
+    @XmlBean(name = "Operation", method = XmlBean.GenerateMethod.TO)
     public static class CreateSpeechJobsOperation {
         public CreateSpeechJobsOperation() {
             this.speechRecognition = new SpeechRecognition();

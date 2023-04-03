@@ -1,6 +1,5 @@
 package com.tencent.cos.xml.model.tag;
 
-import com.tencent.cos.xml.model.tag.BucketDocumentPreviewState;
 import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 
@@ -11,7 +10,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
 
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class PutBucketDPState {
 
     @XmlElement

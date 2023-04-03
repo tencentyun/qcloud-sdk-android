@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * 已经开通语音识别功能的存储桶查询结果
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class DescribeSpeechBucketsResponse {
     /**
      * 请求的唯一 ID

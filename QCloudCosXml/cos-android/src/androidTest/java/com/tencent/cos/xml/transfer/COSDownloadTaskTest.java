@@ -77,12 +77,12 @@ public class COSDownloadTaskTest {
 
     @Test public void testAnonymousDownload() {
         TransferService transferService = ServiceFactory.INSTANCE.newAnonymousTransferService();
-        downloadObject(transferService, TestConst.PERSIST_BUCKET_ANONYMOUS_DOWNLOAD_OBJECT_PATH);
+        downloadObject(transferService, TestConst.PERSIST_BUCKET_CDN_BIG_OBJECT_PATH);
     }
 
     @Test public void testAnonymousPauseAndResume() {
         TransferService transferService = ServiceFactory.INSTANCE.newAnonymousTransferService();
-        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_ANONYMOUS_DOWNLOAD_OBJECT_PATH);
+        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_CDN_BIG_OBJECT_PATH);
     }
 
     @Test public void testPauseAndResume() {
@@ -153,7 +153,7 @@ public class COSDownloadTaskTest {
     }
 
     /**
-     * 下载 2s 后点击暂停，并等待 2s 后恢复上传
+     * 下载 1s 后点击暂停，并等待 1s 后恢复上传
      */
     private void testPauseAndResume(TransferService transferService, String key) {
 
@@ -202,17 +202,18 @@ public class COSDownloadTaskTest {
         });
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         if (downloadTask.getTaskState() == TransferState.COMPLETED) {
+            TestUtils.assertCOSXMLTaskSuccess(downloadTask);
             return;
         }
 
         downloadTask.pause();
-        TestUtils.sleep(2000);
+        TestUtils.sleep(1000);
         checkNotZero.set(true);
         downloadTask.resume();
 

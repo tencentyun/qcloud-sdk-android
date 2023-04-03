@@ -23,17 +23,12 @@
 package com.tencent.cos.xml.model.ci.asr;
 
 
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.ci.BaseDescribeQueuesResponse;
+import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpResponse;
-import com.tencent.qcloud.qcloudxml.core.QCloudXml;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 /**
  * 用于查询语音识别队列的返回结果.
@@ -49,12 +44,6 @@ final public class DescribeSpeechQueuesResult extends CosXmlResult {
     @Override
     public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
         super.parseResponseBody(response);
-        try {
-            describeSpeechQueuesResponse = QCloudXml.fromXml(response.byteStream(), BaseDescribeQueuesResponse.class);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+        describeSpeechQueuesResponse = QCloudXmlUtils.fromXml(response.byteStream(), BaseDescribeQueuesResponse.class);
     }
 }

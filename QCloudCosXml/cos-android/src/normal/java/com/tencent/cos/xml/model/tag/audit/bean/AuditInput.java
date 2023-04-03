@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 需要审核的内容
  */
-@XmlBean(name = "Input")
+@XmlBean(name = "Input", method = XmlBean.GenerateMethod.TO)
 public class AuditInput {
     /**
      * 当前 COS 存储桶中的文件名称，例如在目录 test 中的文件 video.mp4，则文件名称为 test/video.mp4。

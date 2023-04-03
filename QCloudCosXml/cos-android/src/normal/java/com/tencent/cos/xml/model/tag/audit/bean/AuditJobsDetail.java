@@ -26,7 +26,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 审核任务结果的详细信息
  */
-@XmlBean(name = "JobsDetail")
+@XmlBean(name = "JobsDetail", method = XmlBean.GenerateMethod.FROM)
 public class AuditJobsDetail extends BaseAuditJobsDetail {
     /**
      * 错误码，只有State为 Failed时返回。详情请查看 <a href="https://cloud.tencent.com/document/product/460/42867#.E9.94.99.E8.AF.AF.E7.A0.81.E5.88.97.E8.A1.A8">错误码列表</a>。

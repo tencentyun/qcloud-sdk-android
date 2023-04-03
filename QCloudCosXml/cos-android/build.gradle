@@ -32,12 +32,8 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
         consumerProguardFiles 'proguard-rules.pro'
-    }
 
-    testOptions {
-        unitTests.all {
-            setIgnoreFailures(true)
-        }
+//        multiDexEnabled true
     }
 
     buildTypes {
@@ -91,10 +87,24 @@ android {
 //      defaultPublishConfig  "slimRelease"
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     buildToolsVersion = '28.0.2'
+
+    // 单测失败也继续统计覆盖率
+    project.gradle.taskGraph.whenReady {
+        android.productFlavors.all { flavor ->
+            // Capitalize (as Gralde is case-sensitive).
+            def flavorName = flavor.name.substring(0, 1).toUpperCase() + flavor.name.substring(1)
+
+            // At last, configure.
+            "connected${flavorName}DebugAndroidTest" {
+                ignoreFailures = true
+                defaultConfig.multiDexEnabled = true
+            }
+        }
+    }
 }
 
 fataar {
@@ -109,19 +119,21 @@ fataar {
 }
 
 dependencies {
-    compileOnly 'androidx.appcompat:appcompat:1.2.0'
-    testCompileOnly 'junit:junit:4.13.2'
+    compileOnly 'androidx.appcompat:appcompat:1.6.1'
 
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    androidTestImplementation 'com.android.support.test:rules:1.0.2'
-    androidTestImplementation 'androidx.core:core:1.0.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation "androidx.test:rules:1.5.0"
+    androidTestImplementation 'androidx.core:core:1.6.0'
+    androidTestImplementation "androidx.test:runner:1.5.2"
 
     androidTestCompileOnly project(path: ':cos-android')
     androidTestCompileOnly project(path: ':cos-android-base')
     // kms 加密
     androidTestImplementation 'com.tencentcloudapi:tencentcloud-sdk-java-kms:3.1.213'
     androidTestImplementation 'xerces:xercesImpl:2.12.0'
+    androidTestImplementation project(path: ':quic')
 
 //    if (compileQuic() && false) {
 //        api project(path: ':quic')

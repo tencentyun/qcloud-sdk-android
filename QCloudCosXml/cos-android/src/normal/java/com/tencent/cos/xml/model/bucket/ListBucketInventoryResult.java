@@ -57,4 +57,9 @@ public class ListBucketInventoryResult extends CosXmlResult {
             throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
         }
     }
+
+    @Override
+    public String printResult() {
+        return listInventoryConfiguration != null ? listInventoryConfiguration.toString() : super.printResult();
+    }
 }

@@ -30,7 +30,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 /**
  * 视频审核的具体配置项
  */
-@XmlBean(name = "Request")
+@XmlBean(name = "Request", method = XmlBean.GenerateMethod.TO)
 public class PostVideoAudit {
     /**
      * 需要审核的内容
@@ -49,7 +49,7 @@ public class PostVideoAudit {
     /**
      * 视频审核规则配置
      */
-    @XmlBean(name = "Conf")
+    @XmlBean(name = "Conf", method = XmlBean.GenerateMethod.TO)
     public static class VideoAuditConf extends AuditConf {
         public VideoAuditConf() {
             this.snapshot = new Snapshot();
@@ -71,7 +71,7 @@ public class PostVideoAudit {
     /**
      * 视频截帧的配置
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.TO)
     public static class Snapshot{
         /**
          * 截帧模式。Interval 表示间隔模式；Average 表示平均模式；Fps 表示固定帧率模式。

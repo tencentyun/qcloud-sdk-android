@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * 文档审核返回的具体响应内容
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class GetDocumentAuditJobResponse {
     /**
      * 文档审核任务的详细信息
@@ -47,7 +47,7 @@ public class GetDocumentAuditJobResponse {
     /**
      * 文档审核任务的详细信息
      */
-    @XmlBean(name = "JobsDetail")
+    @XmlBean(name = "JobsDetail", method = XmlBean.GenerateMethod.FROM)
     public static class DocumentAuditJobsDetail extends AuditJobsDetail {
         /**
          * 该字段表示本次判定的审核结果，您可以根据该结果，进行后续的操作；建议您按照业务所需，对不同的审核结果进行相应处理。
@@ -76,7 +76,7 @@ public class GetDocumentAuditJobResponse {
         public PageSegment pageSegment;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Labels{
         /**
          * 审核场景为涉黄的审核结果信息
@@ -96,7 +96,7 @@ public class GetDocumentAuditJobResponse {
         public DocumentAuditScenarioInfo adsInfo;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class DocumentAuditScenarioInfo{
         /**
          * 否命中该审核分类，0表示未命中，1表示命中，2表示疑似
@@ -109,7 +109,7 @@ public class GetDocumentAuditJobResponse {
         public int score;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class PageSegment {
         /**
          * 文档转换为图片后，每张图片的详细审核结果信息
@@ -118,7 +118,7 @@ public class GetDocumentAuditJobResponse {
         public List<Results> results;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Results {
         /**
          * 文档转换成图片后，您可以通过该地址查看该图片内容，地址格式为标准 URL 格式。

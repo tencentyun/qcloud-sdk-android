@@ -27,18 +27,13 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
-import com.tencent.cos.xml.crypto.CryptoModuleAE;
-import com.tencent.cos.xml.crypto.CryptoModuleBase;
-import com.tencent.cos.xml.crypto.EncryptionMaterialsProvider;
-import com.tencent.cos.xml.crypto.QCLOUDKMS;
-import com.tencent.cos.xml.crypto.TencentCloudKMSClient;
-import com.tencent.cos.xml.crypto.COSDirectImpl;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
-import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
+import com.tencent.cos.xml.model.tag.UrlUploadPolicy;
 
 import java.io.InputStream;
+import java.net.URL;
 
 /**
  * 传输管理器
@@ -125,6 +120,47 @@ public class TransferManager{
         cosxmlUploadTask.upload();
         return cosxmlUploadTask;
 
+    }
+
+    /**
+     * 通过远程 URL 来上传文件
+     *
+     * @param bucket 存储桶
+     * @param cosPath 文件存放于存储桶上的位置
+     * @param url 远程 URL
+     * @param uploadId 是否分片续传的uploadId，如果为空，则从头开始上传文件
+     *
+     * @return COSXMLUploadTask 上传任务
+     */
+    public COSXMLUploadTask upload(String bucket, String cosPath, URL url, String uploadId) {
+
+        COSXMLUploadTask cosxmlUploadTask = new COSXMLUploadTask(cosXmlService, null, bucket, cosPath, url, uploadId);
+        cosxmlUploadTask.multiUploadSizeDivision = transferConfig.divisionForUpload; // 分片上传的界限
+        cosxmlUploadTask.sliceSize = transferConfig.sliceSizeForUpload; // 分片上传的分片大小
+        cosxmlUploadTask.forceSimpleUpload = transferConfig.isForceSimpleUpload();
+        cosxmlUploadTask.upload();
+        return cosxmlUploadTask;
+    }
+
+    /**
+     * 通过远程 URL 来上传文件
+     *
+     * @param bucket 存储桶
+     * @param cosPath 文件存放于存储桶上的位置
+     * @param url 远程 URL
+     * @param urlUploadPolicy url上传策略
+     * @param uploadId 是否分片续传的uploadId，如果为空，则从头开始上传文件
+     *
+     * @return COSXMLUploadTask 上传任务
+     */
+    public COSXMLUploadTask upload(String bucket, String cosPath, URL url, UrlUploadPolicy urlUploadPolicy, String uploadId) {
+
+        COSXMLUploadTask cosxmlUploadTask = new COSXMLUploadTask(cosXmlService, null, bucket, cosPath, url, urlUploadPolicy, uploadId);
+        cosxmlUploadTask.multiUploadSizeDivision = transferConfig.divisionForUpload; // 分片上传的界限
+        cosxmlUploadTask.sliceSize = transferConfig.sliceSizeForUpload; // 分片上传的分片大小
+        cosxmlUploadTask.forceSimpleUpload = transferConfig.isForceSimpleUpload();
+        cosxmlUploadTask.upload();
+        return cosxmlUploadTask;
     }
 
     /**

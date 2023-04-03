@@ -137,7 +137,6 @@ public class CosXmlBaseService implements BaseCosXml {
     public CosXmlBaseService(Context context, CosXmlServiceConfig configuration) {
         if(configuration.isDebuggable() && !BuildConfig.DEBUG){
             FileLogAdapter fileLogAdapter = FileLogAdapter.getInstance(context, "QLog");
-            LogServerProxy.init(context, fileLogAdapter);
             QCloudLogger.addAdapter(fileLogAdapter);
         }
         if(configuration.isDebuggable()){
@@ -182,6 +181,14 @@ public class CosXmlBaseService implements BaseCosXml {
                              QCloudSelfSigner selfSigner) {
         this(context, configuration);
         this.selfSigner = selfSigner;
+    }
+
+    /**
+     * 兼容某些request的signerType（比如SensitiveContentRecognitionRequest应该是cos 而不是ci）
+     * @return 新的正确的signerType
+     */
+    protected String signerTypeCompat(String signerType, CosXmlRequest cosXmlRequest){
+        return signerType;
     }
     
     private void init(QCloudHttpClient.Builder builder, CosXmlServiceConfig configuration){
@@ -353,7 +360,7 @@ public class CosXmlBaseService implements BaseCosXml {
         if (credentialProvider == null) {
             httpRequestBuilder.signer(null, null);
         } else {
-            httpRequestBuilder.signer(signerType, cosXmlRequest.getSignSourceProvider());
+            httpRequestBuilder.signer(signerTypeCompat(signerType, cosXmlRequest), cosXmlRequest.getSignSourceProvider());
         }
         
         if (selfSigner != null) {
@@ -558,7 +565,7 @@ public class CosXmlBaseService implements BaseCosXml {
         try {
             //step1: obtain sign, contain token if it exist.
             QCloudLifecycleCredentials qCloudLifecycleCredentials = (QCloudLifecycleCredentials) credentialProvider.getCredentials();
-            QCloudSigner signer = SignerFactory.getSigner(signerType);
+            QCloudSigner signer = SignerFactory.getSigner(signerTypeCompat(signerType, cosXmlRequest));
 
             QCloudHttpRequest request = buildHttpRequest(cosXmlRequest, null);
             signer.sign(request, qCloudLifecycleCredentials);
@@ -733,12 +740,9 @@ public class CosXmlBaseService implements BaseCosXml {
      * 获取 SDK 日志信息
      */
     public File[] getLogFiles(int limit) {
-        LogServerProxy logServerProxy = LogServerProxy.getInstance();
-        if (logServerProxy != null) {
-            FileLogAdapter fileLogAdapter = logServerProxy.getFileLogAdapter();
-            if (fileLogAdapter != null) {
-                return fileLogAdapter.getLogFilesDesc(limit);
-            }
+        FileLogAdapter fileLogAdapter = QCloudLogger.getAdapter(FileLogAdapter.class);
+        if (fileLogAdapter != null) {
+            return fileLogAdapter.getLogFilesDesc(limit);
         }
         return null;
     }

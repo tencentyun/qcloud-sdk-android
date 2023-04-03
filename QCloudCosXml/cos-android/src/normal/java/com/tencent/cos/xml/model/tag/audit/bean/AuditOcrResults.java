@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 该字段表示 OCR 文本识别的详细检测结果，包括文本坐标信息、文本识别结果等信息
  */
-@XmlBean(name = "OcrResults")
+@XmlBean(name = "OcrResults", method = XmlBean.GenerateMethod.FROM)
 public class AuditOcrResults{
     /**
      * 图片 OCR 文本识别出的具体文本内容。

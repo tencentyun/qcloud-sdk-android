@@ -3,6 +3,7 @@ package com.tencent.cos.xml.model.object;
 import android.util.Log;
 
 import com.tencent.cos.xml.CosXmlService;
+import com.tencent.cos.xml.common.COSACL;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -19,11 +20,19 @@ public class AppendObjectTestAdapter {
     public static class AppendObjectByteTestAdapter extends NormalRequestTestAdapter<AppendObjectRequest, AppendObjectResult> {
         @Override
         protected AppendObjectRequest newRequestInstance() {
+            byte[] bytes = "this is append object".getBytes();
             AppendObjectRequest request = new AppendObjectRequest(TestConst.PERSIST_BUCKET,
-                    TestConst.PERSIST_BUCKET_APPEND_OBJECT_PATH, "this is append object".getBytes(), 0);
+                    TestConst.PERSIST_BUCKET_APPEND_OBJECT_PATH, bytes, 0);
+            request.setData(bytes);
+            TestUtils.print(new String(request.getData()));
+            TestUtils.print(String.valueOf(request.getFileLength()));
             request.setCacheControl("no-cache");
             request.setContentDisposition("inline");
+            request.setXCOSMeta("testk", "testv");
+            request.setXCOSACL(COSACL.DEFAULT);
             request.setExpires("0");
+            request.setPosition(0);
+            TestUtils.print(String.valueOf(request.getPosition()));
             request.setContentEncodeing("deflate");
             ACLAccount aclAccount = new ACLAccount();
             aclAccount.addAccount(TestConst.OWNER_UIN, TestConst.OWNER_UIN);
@@ -55,7 +64,12 @@ public class AppendObjectTestAdapter {
         protected AppendObjectRequest newRequestInstance() {
             AppendObjectRequest request = new AppendObjectRequest(TestConst.PERSIST_BUCKET,
                     TestConst.PERSIST_BUCKET_APPEND_OBJECT_PATH, TestUtils.smallFilePath(), 21);
-
+            request.setSrcPath(TestUtils.smallFilePath());
+            request.setXCOSACL("default");
+            TestUtils.print(request.getSrcPath());
+            TestUtils.print(String.valueOf(request.getFileLength()));
+            request.setPosition(-1);
+            request.setPosition(21);
             return request;
         }
 

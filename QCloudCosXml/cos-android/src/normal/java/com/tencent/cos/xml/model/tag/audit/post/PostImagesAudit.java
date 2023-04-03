@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * 批量图片审核的具体配置项
  */
-@XmlBean(name = "Request")
+@XmlBean(name = "Request", method = XmlBean.GenerateMethod.TO)
 public class PostImagesAudit {
     /**
      * 需要审核的内容，如有多个图片，请传入多个 Input 结构。
@@ -53,7 +53,7 @@ public class PostImagesAudit {
     /**
      * 批量图片需要审核的内容
      */
-    @XmlBean(name = "Input")
+    @XmlBean(name = "Input", method = XmlBean.GenerateMethod.TO)
     public static class ImagesAuditInput extends AuditInput {
         /**
          * 截帧频率，GIF 图检测专用，默认值为5，表示从第一帧（包含）开始每隔5帧截取一帧

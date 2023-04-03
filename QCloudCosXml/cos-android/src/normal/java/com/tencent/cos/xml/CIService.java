@@ -5,6 +5,7 @@ import android.content.Context;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
+import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.ci.DeleteBucketDPStateRequest;
 import com.tencent.cos.xml.model.ci.DeleteBucketDPStateResult;
 import com.tencent.cos.xml.model.ci.DescribeDocProcessBucketsRequest;
@@ -65,7 +66,7 @@ import com.tencent.qcloud.core.auth.SignerFactory;
  */
 
 public class CIService extends CosXmlService {
-
+    public static final String SIGNERTYPE_CISIGNER = "CISigner";
     private static class CISigner extends COSXmlSigner {
         @Override
         protected String getSessionTokenKey() {
@@ -75,8 +76,20 @@ public class CIService extends CosXmlService {
 
     public CIService(Context context, CosXmlServiceConfig configuration, QCloudCredentialProvider qCloudCredentialProvider) {
         super(context, configuration, qCloudCredentialProvider);
-        this.signerType = "CISigner";
+        this.signerType = SIGNERTYPE_CISIGNER;
         SignerFactory.registerSigner(signerType, new CISigner());
+    }
+
+    @Override
+    protected String signerTypeCompat(String signerType, CosXmlRequest cosXmlRequest){
+        // SensitiveContentRecognitionRequest和QRCodeUploadRequest其实是cos域名 应该用cos签名
+        if(cosXmlRequest instanceof SensitiveContentRecognitionRequest || cosXmlRequest instanceof QRCodeUploadRequest){
+            // 此判断是为了兼容自定义签名UserCosXmlSigner的情况
+            if(SIGNERTYPE_CISIGNER.equals(signerType)){
+                return "CosXmlSigner";
+            }
+        }
+        return signerType;
     }
 
     public DescribeDocProcessBucketsResult describeDocProcessBuckets(DescribeDocProcessBucketsRequest request)
@@ -102,8 +115,7 @@ public class CIService extends CosXmlService {
         return execute(request, new DeleteBucketDPStateResult());
     }
 
-    public void deleteBucketDocumentPreviewStateAsync(DeleteBucketDPStateRequest request, CosXmlResultListener listener)
-            throws CosXmlClientException, CosXmlServiceException {
+    public void deleteBucketDocumentPreviewStateAsync(DeleteBucketDPStateRequest request, CosXmlResultListener listener) {
         schedule(request, new DeleteBucketDPStateResult(), listener);
     }
 
