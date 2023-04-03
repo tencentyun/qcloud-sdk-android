@@ -37,4 +37,16 @@ public @interface XmlBean {
      * @return XML根节点名称 默认为类名
      */
     String name() default "";
+
+    /**
+     * 生成的方法
+     * @return GenerateMethod ALL-所有方法 TO-toXml FROM-fromXml
+     */
+    GenerateMethod method() default GenerateMethod.ALL;
+
+    public enum GenerateMethod {
+        ALL,
+        TO,
+        FROM
+    }
 }
