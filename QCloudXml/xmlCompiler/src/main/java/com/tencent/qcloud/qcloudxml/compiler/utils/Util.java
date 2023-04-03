@@ -82,6 +82,19 @@ public class Util {
     }
 
     /**
+     * 获取XML映射类 节点需要生成的方法
+     * @param element XML映射类
+     * @return 节点名称 默认为类名，可以通过XmlBean name指定
+     */
+    public static XmlBean.GenerateMethod getTypeElementGenerateMethod(TypeElement element) {
+        if (element.getAnnotation(XmlBean.class) != null) {
+            return element.getAnnotation(XmlBean.class).method();
+        } else {
+            return XmlBean.GenerateMethod.ALL;
+        }
+    }
+
+    /**
      * 获取XML映射成员 节点名称
      * @param element XML映射成员
      * @return 节点名称 默认为成员字段名且首字母大写，可以通过XmlElement name指定
