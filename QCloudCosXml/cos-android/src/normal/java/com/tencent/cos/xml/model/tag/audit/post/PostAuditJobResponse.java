@@ -29,7 +29,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 审核返回的具体响应内容
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class PostAuditJobResponse {
     /**
      * 审核任务的详细信息

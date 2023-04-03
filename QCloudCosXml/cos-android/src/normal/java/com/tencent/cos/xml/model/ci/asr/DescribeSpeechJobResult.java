@@ -22,17 +22,12 @@
 
 package com.tencent.cos.xml.model.ci.asr;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.ci.asr.bean.DescribeSpeechJobResponse;
+import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpResponse;
-import com.tencent.qcloud.qcloudxml.core.QCloudXml;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 /**
  * 查询指定的语音识别任务的返回结果.
@@ -48,12 +43,6 @@ final public class DescribeSpeechJobResult extends CosXmlResult {
     @Override
     public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
         super.parseResponseBody(response);
-        try {
-            describeSpeechJobResponse = QCloudXml.fromXml(response.byteStream(), DescribeSpeechJobResponse.class);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+        describeSpeechJobResponse = QCloudXmlUtils.fromXml(response.byteStream(), DescribeSpeechJobResponse.class);
     }
 }

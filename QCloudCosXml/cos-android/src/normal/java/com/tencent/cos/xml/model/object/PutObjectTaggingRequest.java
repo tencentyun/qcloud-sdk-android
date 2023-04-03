@@ -23,17 +23,13 @@
 package com.tencent.cos.xml.model.object;
 
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.Tagging;
+import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
-import com.tencent.qcloud.qcloudxml.core.QCloudXml;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -85,16 +81,7 @@ public class PutObjectTaggingRequest extends ObjectRequest {
 
     @Override
     public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        try {
-//            return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-//                    XmlBuilder.buildTagging(tagging));
-
-            return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                    QCloudXml.toXml(tagging));
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-        }
+        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
+                QCloudXmlUtils.toXml(tagging));
     }
 }

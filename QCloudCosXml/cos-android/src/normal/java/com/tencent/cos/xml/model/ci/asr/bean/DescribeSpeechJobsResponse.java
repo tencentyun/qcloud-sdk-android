@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * 拉取符合条件的语音识别任务结果
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class DescribeSpeechJobsResponse {
     /**
      * 翻页的上下文 Token

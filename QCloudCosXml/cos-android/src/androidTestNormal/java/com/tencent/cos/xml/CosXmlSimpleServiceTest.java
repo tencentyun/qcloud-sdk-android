@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml;
 
+import static com.tencent.cos.xml.core.TestUtils.getContext;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.core.TestConst;
@@ -39,8 +41,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-
-import static com.tencent.cos.xml.core.TestUtils.getContext;
 
 @RunWith(AndroidJUnit4.class)
 public class CosXmlSimpleServiceTest {
@@ -73,10 +73,8 @@ public class CosXmlSimpleServiceTest {
         Assert.assertNotNull(cosXmlService.getRegion(request));
 
         FileLogAdapter fileLogAdapter = FileLogAdapter.getInstance(getContext(), "QLog");
-        LogServerProxy.init(getContext(), fileLogAdapter);
         QCloudLogger.addAdapter(fileLogAdapter);
         File[] files = cosXmlService.getLogFiles(100);
-        LogServerProxy.getInstance().destroy();
 
         try {
             Assert.assertNotNull(cosXmlService.getPresignedURL(request));

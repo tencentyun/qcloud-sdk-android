@@ -29,13 +29,11 @@ import androidx.annotation.Nullable;
 
 import com.tencent.beacon.core.info.BeaconPubParams;
 import com.tencent.beacon.event.open.BeaconReport;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.base.BuildConfig;
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlRequest;
-import com.tencent.cos.xml.model.object.BasePutObjectRequest;
-import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.ObjectRequest;
 import com.tencent.cos.xml.transfer.TransferTaskMetrics;
 import com.tencent.qcloud.core.common.QCloudAuthenticationException;
@@ -53,7 +51,6 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.HttpRetryException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -164,45 +161,45 @@ public class BeaconService {
                 createTransferExtra("DownloadTask", request));
     }
 
-    private String cosUploadName(boolean cse) {
-        return cse? "COSUploadTask-CSE" : "COSUploadTask";
-    }
-
-    private String cosDownloadName(boolean cse) {
-        return cse? "COSDownloadTask-CSE" : "COSDownloadTask";
-    }
+//    private String cosUploadName(boolean cse) {
+//        return cse? "COSUploadTask-CSE" : "COSUploadTask";
+//    }
+//
+//    private String cosDownloadName(boolean cse) {
+//        return cse? "COSDownloadTask-CSE" : "COSDownloadTask";
+//    }
     
-    public void reportCOSUploadTaskSuccess(CosXmlRequest request, boolean cse) {
-        // 只需要一个 PutObjectRequest 壳，带上 HttpTaskMetrics 信息
-        reportRequestSuccess(EVENT_CODE_UPLOAD, request,
-                Collections.singletonMap("name", cosUploadName(cse)));
-    }
-
-    public void reportCOSUploadTaskClientException(CosXmlRequest request, QCloudClientException clientException, boolean cse) {
-        reportClientException(EVENT_CODE_UPLOAD, request, clientException,
-                createTransferExtra(cosUploadName(cse), request));
-    }
-
-    public void reportCOSUploadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException, boolean cse) {
-        reportServiceException(EVENT_CODE_UPLOAD, request, serviceException,
-                createTransferExtra(cosUploadName(cse), request));
-    }
-
-    public void reportCOSDownloadTaskSuccess(CosXmlRequest request, boolean cse) {
-        // 只需要一个 GetObjectRequest 壳，带上 HttpTaskMetrics 信息
-        reportRequestSuccess(EVENT_CODE_DOWNLOAD, request,
-                Collections.singletonMap("name", cosDownloadName(cse)));
-    }
-
-    public void reportCOSDownloadTaskClientException(CosXmlRequest request, QCloudClientException clientException, boolean cse) {
-        reportClientException(EVENT_CODE_DOWNLOAD, request, clientException,
-                createTransferExtra(cosDownloadName(cse), request));
-    }
-
-    public void reportCOSDownloadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException, boolean cse) {
-        reportServiceException(EVENT_CODE_DOWNLOAD, request, serviceException,
-                createTransferExtra(cosDownloadName(cse), request));
-    }
+//    public void reportCOSUploadTaskSuccess(CosXmlRequest request, boolean cse) {
+//        // 只需要一个 PutObjectRequest 壳，带上 HttpTaskMetrics 信息
+//        reportRequestSuccess(EVENT_CODE_UPLOAD, request,
+//                Collections.singletonMap("name", cosUploadName(cse)));
+//    }
+//
+//    public void reportCOSUploadTaskClientException(CosXmlRequest request, QCloudClientException clientException, boolean cse) {
+//        reportClientException(EVENT_CODE_UPLOAD, request, clientException,
+//                createTransferExtra(cosUploadName(cse), request));
+//    }
+//
+//    public void reportCOSUploadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException, boolean cse) {
+//        reportServiceException(EVENT_CODE_UPLOAD, request, serviceException,
+//                createTransferExtra(cosUploadName(cse), request));
+//    }
+//
+//    public void reportCOSDownloadTaskSuccess(CosXmlRequest request, boolean cse) {
+//        // 只需要一个 GetObjectRequest 壳，带上 HttpTaskMetrics 信息
+//        reportRequestSuccess(EVENT_CODE_DOWNLOAD, request,
+//                Collections.singletonMap("name", cosDownloadName(cse)));
+//    }
+//
+//    public void reportCOSDownloadTaskClientException(CosXmlRequest request, QCloudClientException clientException, boolean cse) {
+//        reportClientException(EVENT_CODE_DOWNLOAD, request, clientException,
+//                createTransferExtra(cosDownloadName(cse), request));
+//    }
+//
+//    public void reportCOSDownloadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException, boolean cse) {
+//        reportServiceException(EVENT_CODE_DOWNLOAD, request, serviceException,
+//                createTransferExtra(cosDownloadName(cse), request));
+//    }
 
     public void reportCopyTaskSuccess(CosXmlRequest request) {
         // 只需要一个 CopyObjectRequest 壳，带上 HttpTaskMetrics 信息
@@ -554,11 +551,11 @@ public class BeaconService {
         return params;
     }
 
-    private BasePutObjectRequest emptyPutObjectRequestWithMetrics(HttpTaskMetrics taskMetrics) {
-        BasePutObjectRequest putObjectRequest = new BasePutObjectRequest("", "", "");
-        putObjectRequest.attachMetrics(taskMetrics);
-        return putObjectRequest;
-    }
+//    private BasePutObjectRequest emptyPutObjectRequestWithMetrics(HttpTaskMetrics taskMetrics) {
+//        BasePutObjectRequest putObjectRequest = new BasePutObjectRequest("", "", "");
+//        putObjectRequest.attachMetrics(taskMetrics);
+//        return putObjectRequest;
+//    }
 
 //    private CopyObjectRequest emptyCopyObjectRequestWithMetrics(HttpTaskMetrics taskMetrics) {
 //        CopyObjectRequest copyObjectRequest = new CopyObjectRequest("", "", null);
@@ -566,11 +563,11 @@ public class BeaconService {
 //        return copyObjectRequest;
 //    }
 
-    private GetObjectRequest emptyGetObjectRequestWithMetrics(HttpTaskMetrics taskMetrics) {
-        GetObjectRequest getObjectRequest = new GetObjectRequest("", "", "");
-        getObjectRequest.attachMetrics(taskMetrics);
-        return getObjectRequest;
-    }
+//    private GetObjectRequest emptyGetObjectRequestWithMetrics(HttpTaskMetrics taskMetrics) {
+//        GetObjectRequest getObjectRequest = new GetObjectRequest("", "", "");
+//        getObjectRequest.attachMetrics(taskMetrics);
+//        return getObjectRequest;
+//    }
 
     private String parseEventCode(CosXmlRequest request) {
 
@@ -661,26 +658,26 @@ public class BeaconService {
         return ipString.toString();
     }
 
-    private String getConnectIp(@Nullable InetSocketAddress socketAddress) {
-        if (socketAddress == null || socketAddress.getAddress() == null) {
-            return "";
-        }
-        return socketAddress.getAddress().getHostAddress();
-    }
-
-    private Map<String, String> getDownloadParams(String region, boolean isSuccess) {
-        Map<String, String> params = getCommonParams();
-        params.put("result", isSuccess ? EVENT_PARAMS_SUCCESS : EVENT_PARAMS_FAILURE);
-        params.put("region", region);
-        return params;
-    }
-
-    private Map<String, String> getUploadParams(String region, boolean isSuccess) {
-        Map<String, String> params = getCommonParams();
-        params.put("result", isSuccess ? EVENT_PARAMS_SUCCESS : EVENT_PARAMS_FAILURE);
-        params.put("region", region);
-        return params;
-    }
+//    private String getConnectIp(@Nullable InetSocketAddress socketAddress) {
+//        if (socketAddress == null || socketAddress.getAddress() == null) {
+//            return "";
+//        }
+//        return socketAddress.getAddress().getHostAddress();
+//    }
+//
+//    private Map<String, String> getDownloadParams(String region, boolean isSuccess) {
+//        Map<String, String> params = getCommonParams();
+//        params.put("result", isSuccess ? EVENT_PARAMS_SUCCESS : EVENT_PARAMS_FAILURE);
+//        params.put("region", region);
+//        return params;
+//    }
+//
+//    private Map<String, String> getUploadParams(String region, boolean isSuccess) {
+//        Map<String, String> params = getCommonParams();
+//        params.put("result", isSuccess ? EVENT_PARAMS_SUCCESS : EVENT_PARAMS_FAILURE);
+//        params.put("region", region);
+//        return params;
+//    }
 
     /**
      * 获取公共参数
@@ -857,13 +854,13 @@ public class BeaconService {
     }
 
 
-    // 这里有点问题，复制任务还包括了一部分分片上传的请求
-    private boolean isCopyTaskRequest(CosXmlRequest cosXmlRequest) {
-
-        String requestName = cosXmlRequest.getClass().getSimpleName();
-        return "UploadPartCopyRequest".equals(requestName) ||
-                "CopyObjectRequest".equals(requestName);
-    }
+//    // 这里有点问题，复制任务还包括了一部分分片上传的请求
+//    private boolean isCopyTaskRequest(CosXmlRequest cosXmlRequest) {
+//
+//        String requestName = cosXmlRequest.getClass().getSimpleName();
+//        return "UploadPartCopyRequest".equals(requestName) ||
+//                "CopyObjectRequest".equals(requestName);
+//    }
 
     /**
      * 是否上报（过滤掉不需要上报的异常）

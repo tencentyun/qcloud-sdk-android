@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * 审核返回的具体响应内容
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class GetVideoAuditJobResponse {
     /**
      * 每次请求发送时，服务端将会自动为请求生成一个 ID，遇到问题时，该 ID 能更快地协助定位问题。
@@ -45,7 +45,7 @@ public class GetVideoAuditJobResponse {
      */
     public VideoAuditJobsDetail jobsDetail;
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class VideoAuditJobsDetail extends AuditJobsDetail {
         /**
          * 本次审核的文件名称，创建任务使用 Object 时返回。
@@ -90,7 +90,7 @@ public class GetVideoAuditJobResponse {
     /**
      * 该字段用于返回视频中视频画面截图审核的结果。
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Snapshot{
         /**
          * 频截图的访问地址，您可以通过该地址查看该截图内容，地址格式为标准 URL 格式
@@ -125,7 +125,7 @@ public class GetVideoAuditJobResponse {
     /**
      * 审核场景的截图审核结果信息
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class SnapshotAuditScenarioInfo extends ImageAuditScenarioInfo {
         /**
          * 该字段为兼容旧版本的保留字段，表示该截图的结果标签（可能为 SubLabel，可能为人物名字等）

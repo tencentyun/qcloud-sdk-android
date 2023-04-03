@@ -128,7 +128,7 @@ public class ImageTest {
         // 添加一条将图片转化为 png 格式的 rule，处理后的图片在存储桶中的位置标识符为
         // examplepngobject
         rules.add(new PicOperationRule("examplepngobject", "imageView2/format/png"));
-        rules.add(new PicOperationRule("examplepngobject1", "imageView2/format/png"));
+        rules.add(new PicOperationRule(TestConst.PERSIST_BUCKET, "examplepngobject1", "imageView2/format/png"));
         PicOperations picOperations = new PicOperations(true, rules);
 
         PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET,

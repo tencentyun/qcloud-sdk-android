@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 提交一个分词任务请求实体
  */
-@XmlBean(name = "Request")
+@XmlBean(name = "Request", method = XmlBean.GenerateMethod.TO)
 public class CreateWordsGeneralizeJob {
     /**
      * 创建任务的 Tag，目前仅支持：WordsGeneralize

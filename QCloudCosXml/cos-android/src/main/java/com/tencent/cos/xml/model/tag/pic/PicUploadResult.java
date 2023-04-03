@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * 盲水印结果
  */
-@XmlBean(name = "UploadResult")
+@XmlBean(name = "UploadResult", method = XmlBean.GenerateMethod.FROM)
 public class PicUploadResult {
 
     @XmlElement(name = "OriginalInfo")

@@ -31,6 +31,16 @@ public class NormalServiceFactory {
         return newService(cosXmlServiceConfig);
     }
 
+    public CosXmlService newDefaultServiceBySessionCredentials() {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .builder();
+
+        return newServiceBySessionCredentials(cosXmlServiceConfig);
+    }
+
     public CosXmlService newSignInUrlService() {
 
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
@@ -67,6 +77,16 @@ public class NormalServiceFactory {
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
     }
 
+    public CIService newCIServiceBySessionCredentials() {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .builder();
+
+        return new CIService(getContext(), cosXmlServiceConfig, new MySessionCredentialProvider() );
+    }
+
     public CIService newWordsGeneralizeCIService() {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
@@ -88,6 +108,16 @@ public class NormalServiceFactory {
 
         return new CIService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
+    }
+
+    public CIService newCIAuditServiceBySessionCredentials() {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setRegion(TestConst.AUDIT_BUCKET_REGION)
+                .builder();
+
+        return new CIService(getContext(), cosXmlServiceConfig, new MySessionCredentialProvider() );
     }
 
     public TransferManager newDefaultTransferManager() {
@@ -143,7 +173,11 @@ public class NormalServiceFactory {
     private CosXmlService newService(CosXmlServiceConfig cosXmlServiceConfig) {
         return new CosXmlService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
+    }
 
+    private CosXmlService newServiceBySessionCredentials(CosXmlServiceConfig cosXmlServiceConfig) {
+        return new CosXmlService(getContext(), cosXmlServiceConfig,
+                new MySessionCredentialProvider());
     }
 
 }

@@ -23,17 +23,12 @@
 package com.tencent.cos.xml.model.ci;
 
 
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.DescribeMediaBucketsResult;
+import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpResponse;
-import com.tencent.qcloud.qcloudxml.core.QCloudXml;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 /**
  * 查询已经开通媒体处理功能的存储桶的返回结果.
@@ -49,12 +44,6 @@ final public class GetDescribeMediaBucketsResult extends CosXmlResult {
     @Override
     public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
         super.parseResponseBody(response);
-        try {
-            describeMediaBucketsResult = QCloudXml.fromXml(response.byteStream(), DescribeMediaBucketsResult.class);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+        describeMediaBucketsResult = QCloudXmlUtils.fromXml(response.byteStream(), DescribeMediaBucketsResult.class);
     }
 }

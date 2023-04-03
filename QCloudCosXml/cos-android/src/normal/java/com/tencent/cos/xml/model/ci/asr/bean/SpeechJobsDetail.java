@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * 语音识别任务结果的详细信息
  */
-@XmlBean(name = "JobsDetail")
+@XmlBean(name = "JobsDetail", method = XmlBean.GenerateMethod.FROM)
 public class SpeechJobsDetail {
     /**
      * 任务的 ID
@@ -134,7 +134,7 @@ public class SpeechJobsDetail {
         public String object;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class SpeechRecognitionResult {
         /**
          * 语音时长
@@ -166,7 +166,7 @@ public class SpeechJobsDetail {
         public WordsGeneralizeJobDetail.WordsGeneralizeResult wordsGeneralizeResult;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class FlashResult {
         /**
          * 声道标识，从0开始，对应音频声道数
@@ -187,7 +187,7 @@ public class SpeechJobsDetail {
         public List<FlashSentence> sentenceList;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class FlashSentence {
         /**
          * 句子/段落级别文本
@@ -220,7 +220,7 @@ public class SpeechJobsDetail {
         public List<FlashSentenceWord> wordList;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class FlashSentenceWord {
         /**
          * 词级别文本
@@ -241,7 +241,7 @@ public class SpeechJobsDetail {
         public int endTime;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class SentenceDetail {
         /**
          * 单句开始时间（毫秒）
@@ -289,7 +289,7 @@ public class SpeechJobsDetail {
         public List<SentenceWords> words;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class SentenceWords {
         /**
          * 在句子中的开始时间偏移量

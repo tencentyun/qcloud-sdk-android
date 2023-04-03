@@ -28,7 +28,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 查询指定的语音识别任务响应内容
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class DescribeWordsGeneralizeJobResponse {
     /**
      * 任务的详细信息

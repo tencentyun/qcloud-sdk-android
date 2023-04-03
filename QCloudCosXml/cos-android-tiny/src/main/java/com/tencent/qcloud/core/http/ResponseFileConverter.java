@@ -32,9 +32,14 @@ import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.util.QCloudHttpUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
 
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.internal.Util;
 import okio.Buffer;
@@ -121,7 +126,9 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
             e.printStackTrace();
             throw new QCloudClientException("write local uri error for " + e.toString(), e);
         } finally {
-            Util.closeQuietly(output);
+            if(output != null) {
+                Util.closeQuietly(output);
+            }
         }
     }
 

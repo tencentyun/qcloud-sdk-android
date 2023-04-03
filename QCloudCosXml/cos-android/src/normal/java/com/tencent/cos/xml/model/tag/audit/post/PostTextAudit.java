@@ -29,7 +29,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 文本审核的具体配置项
  */
-@XmlBean(name = "Request")
+@XmlBean(name = "Request", method = XmlBean.GenerateMethod.TO)
 public class PostTextAudit {
     /**
      * 文本需要审核的内容
@@ -48,7 +48,7 @@ public class PostTextAudit {
     /**
      * 文本审核规则配置
      */
-    @XmlBean(name = "Conf")
+    @XmlBean(name = "Conf", method = XmlBean.GenerateMethod.TO)
     public static class TextAuditConf extends AuditConf {
         /**
          * 回调内容的结构，有效值：Simple（回调内容包含基本信息）、Detail（回调内容包含详细信息）。默认为 Simple
@@ -59,7 +59,7 @@ public class PostTextAudit {
     /**
      * 文本需要审核的内容
      */
-    @XmlBean(name = "Input")
+    @XmlBean(name = "Input", method = XmlBean.GenerateMethod.TO)
     public static class TextAuditInput extends AuditInput {
         /**
          * 当传入的内容为纯文本信息，需要先经过 base64 编码，文本编码前的原文长度不能超过10000个 utf8 编码字符。若超出长度限制，接口将会报错。

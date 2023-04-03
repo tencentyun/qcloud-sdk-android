@@ -23,6 +23,7 @@ import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobsRequest;
 import com.tencent.cos.xml.model.ci.asr.DescribeSpeechJobsResult;
 import com.tencent.cos.xml.model.ci.asr.DescribeSpeechQueuesRequest;
 import com.tencent.cos.xml.model.ci.asr.DescribeSpeechQueuesResult;
+import com.tencent.cos.xml.model.tag.CallBackMqConfig;
 
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -62,7 +63,7 @@ public class SpeechTest {
 
     @Test
     public void stage1_describeSpeechBucketsAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditServiceBySessionCredentials();
         final TestLocker locker = new TestLocker();
         DescribeSpeechBucketsRequest request = new DescribeSpeechBucketsRequest();
         request.setPageNumber(1);
@@ -113,7 +114,7 @@ public class SpeechTest {
     public void stage2_describeSpeechQueuesAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         final TestLocker locker = new TestLocker();
-        DescribeSpeechQueuesRequest request = new DescribeSpeechQueuesRequest(TestConst.ASR_BUCKET);
+        DescribeSpeechQueuesRequest request = new DescribeSpeechQueuesRequest(TestConst.ASR_BUCKET, TestConst.PERSIST_BUCKET_REGION);
         request.setQueueIds(SpeechTest.queueId+",ashjdaosdhjiasodj12312"+",ashjdaosdasdashjiasodj12312");
         ciService.describeSpeechQueuesAsync(request, new CosXmlResultListener() {
             @Override
@@ -143,6 +144,22 @@ public class SpeechTest {
         request.setEngineModelType("8k_zh");
         request.setChannelNum(1);
         request.setResTextFormat(1);
+        request.setFilterDirty(0);
+        request.setFilterModal(0);
+        request.setConvertNumMode(1);
+        request.setSpeakerDiarization(0);
+        request.setSpeakerNumber(0);
+        request.setFilterPunc(0);
+        request.setOutputFileType("txt");
+        request.setFirstChannelOnly(1);
+        request.setWordInfo(0);
+        request.setUserData("userdata");
+        request.setJobLevel(0);
+        request.setCallBack("no");
+        request.setCallBackFormat("XML");
+        request.setCallBackType("Url");
+        request.setCallBackMqConfig(new CallBackMqConfig());
+
         try {
             CreateSpeechJobsResult result = ciService.createSpeechJobs(request);
             Assert.assertNotNull(result.createSpeechJobsResponse);
@@ -266,6 +283,12 @@ public class SpeechTest {
     public void stage7_describeSpeechJobs() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         DescribeSpeechJobsRequest request = new DescribeSpeechJobsRequest(TestConst.ASR_BUCKET, SpeechTest.queueId);
+        request.setOrderByTime("Desc");
+        request.setNextToken(null);
+        request.setSize(50);
+        request.setStates("All");
+//        request.setStartCreationTime("%Y-%m-%dT%H:%m:%S%z");
+//        request.setEndCreationTime("%Y-%m-%dT%H:%m:%S%z");
         try {
             DescribeSpeechJobsResult result = ciService.describeSpeechJobs(request);
             Assert.assertNotNull(result.describeSpeechJobsResponse);
@@ -281,7 +304,7 @@ public class SpeechTest {
     public void stage7_describeSpeechJobsAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         final TestLocker locker = new TestLocker();
-        DescribeSpeechJobsRequest request = new DescribeSpeechJobsRequest(TestConst.ASR_BUCKET, SpeechTest.queueId);
+        DescribeSpeechJobsRequest request = new DescribeSpeechJobsRequest(TestConst.ASR_BUCKET, TestConst.PERSIST_BUCKET_REGION, SpeechTest.queueId);
         ciService.describeSpeechJobsAsync(request, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult cosResult) {

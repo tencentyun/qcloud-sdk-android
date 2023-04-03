@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * 音频审核返回的具体响应内容
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class GetAudioAuditJobResponse {
     /**
      * 音频审核任务的详细信息
@@ -47,7 +47,7 @@ public class GetAudioAuditJobResponse {
     /**
      * 音频审核任务的详细信息
      */
-    @XmlBean(name = "JobsDetail")
+    @XmlBean(name = "JobsDetail", method = XmlBean.GenerateMethod.FROM)
     public static class AudioAuditJobsDetail extends AuditJobsDetail {
         /**
          * 本次审核的文件名称，创建任务使用 Object 时返回。
@@ -84,7 +84,7 @@ public class GetAudioAuditJobResponse {
         public List<AudioSection> section;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class AudioAuditScenarioInfo{
         /**
          * 否命中该审核分类，0表示未命中，1表示命中，2表示疑似
@@ -103,7 +103,7 @@ public class GetAudioAuditJobResponse {
     /**
      * 声音审核的结果。
      */
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class AudioSection extends AuditSection {
         /**
          * 视频声音片段的访问地址，您可以通过该地址获取该声音片段的内容，地址格式为标准 URL 格式。

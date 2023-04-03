@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * 网页审核返回的具体响应内容
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class GetWebPageAuditJobResponse {
     /**
      * 网页审核任务的详细信息
@@ -48,7 +48,7 @@ public class GetWebPageAuditJobResponse {
     /**
      * 网页审核任务的详细信息
      */
-    @XmlBean(name = "JobsDetail")
+    @XmlBean(name = "JobsDetail", method = XmlBean.GenerateMethod.FROM)
     public static class WebPageAuditJobsDetail extends AuditJobsDetail {
         /**
          * 该字段表示本次判定的审核结果，您可以根据该结果，进行后续的操作；建议您按照业务所需，对不同的审核结果进行相应处理。
@@ -81,7 +81,7 @@ public class GetWebPageAuditJobResponse {
         public TextResults textResults;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class Labels{
         /**
          * 审核场景为涉黄的审核结果信息
@@ -101,7 +101,7 @@ public class GetWebPageAuditJobResponse {
         public WebPageAuditScenarioInfo adsInfo;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class WebPageAuditScenarioInfo{
         /**
          * 否命中该审核分类，0表示未命中，1表示命中，2表示疑似
@@ -114,7 +114,7 @@ public class GetWebPageAuditJobResponse {
         public int score;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class ImageResults {
         /**
          * 网页内图片审核的结果，审核多张图片将返回多个Results。
@@ -123,7 +123,7 @@ public class GetWebPageAuditJobResponse {
         public List<ImageResult> results;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class ImageResult {
         /**
          * 网页中图片审核，被审核图片的访问地址，您可以通过该地址查看图片，地址格式为标准 URL 格式。
@@ -160,7 +160,7 @@ public class GetWebPageAuditJobResponse {
         public ImageAuditScenarioInfo adsInfo;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class TextResults {
         /**
          * 网页内文本审核的结果，审核多条文本将返回多个Results。
@@ -169,7 +169,7 @@ public class GetWebPageAuditJobResponse {
         public List<TextResult> results;
     }
 
-    @XmlBean
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
     public static class TextResult {
         /**
          * 网页文本将进行分段送审，每10000个 utf8 编码字符分一段，该参数返回本段文本内容。

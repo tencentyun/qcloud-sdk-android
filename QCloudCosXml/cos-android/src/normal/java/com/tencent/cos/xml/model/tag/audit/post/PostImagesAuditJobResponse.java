@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * 图片审核返回的具体响应内容
  */
-@XmlBean(name = "Response")
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
 public class PostImagesAuditJobResponse {
     /**
      * 图片审核任务的详细信息

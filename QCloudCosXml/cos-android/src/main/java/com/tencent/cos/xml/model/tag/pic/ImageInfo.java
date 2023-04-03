@@ -8,7 +8,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
  * Created by rickenwang on 2020/11/24.
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
-@XmlBean(name = "ImageInfo")
+@XmlBean(name = "ImageInfo", method = XmlBean.GenerateMethod.FROM)
 public class ImageInfo {
 
     @XmlElement(name = "Format")
