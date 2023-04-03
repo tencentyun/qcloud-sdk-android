@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 操作规则
  */
-@XmlBean(name = "Operation")
+@XmlBean(name = "Operation", method = XmlBean.GenerateMethod.TO)
 public class WordsGeneralizeJobOperation {
     public WordsGeneralizeJobOperation() {
         this.wordsGeneralize = new WordsGeneralize();

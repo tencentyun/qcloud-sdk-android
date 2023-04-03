@@ -28,7 +28,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 /**
  * 原图信息
  */
-@XmlBean(name = "OriginalInfo")
+@XmlBean(name = "OriginalInfo", method = XmlBean.GenerateMethod.FROM)
 public class PicOriginalInfo {
     /**
      * 原图文件名

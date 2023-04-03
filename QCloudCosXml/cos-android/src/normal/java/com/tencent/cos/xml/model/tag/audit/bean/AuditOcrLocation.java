@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 该参数用于返回 OCR 检测框在图片中的位置（左上角 xy 坐标、长宽、旋转角度），以方便快速定位识别文字的相关信息。
  */
-@XmlBean(name = "Location")
+@XmlBean(name = "Location", method = XmlBean.GenerateMethod.FROM)
 public class AuditOcrLocation {
     /**
      * 该参数用于返回检测框左上角位置的横坐标（x）所在的像素位置，结合剩余参数可唯一确定检测框的大小和位置。

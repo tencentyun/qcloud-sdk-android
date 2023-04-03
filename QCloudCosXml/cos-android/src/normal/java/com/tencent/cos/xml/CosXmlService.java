@@ -223,6 +223,18 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
         super(context, configuration);
     }
 
+    @Override
+    protected String signerTypeCompat(String signerType, CosXmlRequest cosXmlRequest){
+        // GetDescribeMediaBucketsRequest其实是ci域名 应该用ci签名
+        if(cosXmlRequest instanceof GetDescribeMediaBucketsRequest){
+            // 此判断是为了兼容自定义签名UserCosXmlSigner的情况
+            if("CosXmlSigner".equals(signerType)){
+                return CIService.SIGNERTYPE_CISIGNER;
+            }
+        }
+        return signerType;
+    }
+
     /**
      * <p>
      * 获取所属账户的所有存储空间列表的同步方法.&nbsp;

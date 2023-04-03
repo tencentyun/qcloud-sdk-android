@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * 二维码识别结果
  */
-@XmlBean(name = "QRcodeInfo")
+@XmlBean(name = "QRcodeInfo", method = XmlBean.GenerateMethod.FROM)
 public class QRCodeInfo {
     /**
      * 二维码的内容。可能识别不出
@@ -46,7 +46,7 @@ public class QRCodeInfo {
      */
     public List<QRCodePoint> codeLocation;
 
-    @XmlBean(name = "Point")
+    @XmlBean(name = "Point", method = XmlBean.GenerateMethod.FROM)
     public static class QRCodePoint {
         @XmlElement(ignoreName = true)
         public String point;

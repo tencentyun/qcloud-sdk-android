@@ -34,13 +34,9 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.bucket.BucketRequest;
 import com.tencent.cos.xml.model.ci.asr.bean.CreateSpeechJobs;
 import com.tencent.cos.xml.model.tag.CallBackMqConfig;
+import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
-import com.tencent.qcloud.qcloudxml.core.QCloudXml;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 /**
  * 提交一个语音识别任务的请求.
@@ -269,14 +265,8 @@ public class CreateSpeechJobsRequest extends BucketRequest {
 
     @Override
     public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        try {
-            return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                    QCloudXml.toXml(createSpeechJobs));
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-        }
+        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
+                QCloudXmlUtils.toXml(createSpeechJobs));
     }
 
     @Override

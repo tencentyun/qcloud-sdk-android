@@ -9,7 +9,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
  * Created by rickenwang on 2021/5/17.
  * Copyright 2010-2021 Tencent Cloud. All Rights Reserved.
  */
-@XmlBean(name = "RecognitionResult")
+@XmlBean(name = "RecognitionResult", method = XmlBean.GenerateMethod.FROM)
 public class RecognitionResult {
     /**
      * 图片审核的任务 ID，您可以通过该 ID 主动查询图片审核结果。
@@ -63,7 +63,7 @@ public class RecognitionResult {
     @XmlElement(name = "AdsInfo")
     public AdsInfo adsInfo;
 
-    @XmlBean(name = "PornInfo")
+    @XmlBean(name = "PornInfo", method = XmlBean.GenerateMethod.FROM)
     public static class PornInfo {
 
         @XmlElement(name = "Code")
@@ -87,7 +87,7 @@ public class RecognitionResult {
         @XmlElement(name = "OcrResults")
         public AuditOcrResults ocrResults;
     }
-    @XmlBean(name = "PoliticsInfo")
+    @XmlBean(name = "PoliticsInfo", method = XmlBean.GenerateMethod.FROM)
     public static class PoliticsInfo {
 
         @XmlElement(name = "Code")
@@ -112,7 +112,7 @@ public class RecognitionResult {
         public AuditOcrResults ocrResults;
 
     }
-    @XmlBean(name = "TerroristInfo")
+    @XmlBean(name = "TerroristInfo", method = XmlBean.GenerateMethod.FROM)
     public static class TerroristInfo {
 
         @XmlElement(name = "Code")
@@ -137,7 +137,7 @@ public class RecognitionResult {
         public AuditOcrResults ocrResults;
 
     }
-    @XmlBean(name = "AdsInfo")
+    @XmlBean(name = "AdsInfo", method = XmlBean.GenerateMethod.FROM)
     public static class AdsInfo {
 
         @XmlElement(name = "Code")

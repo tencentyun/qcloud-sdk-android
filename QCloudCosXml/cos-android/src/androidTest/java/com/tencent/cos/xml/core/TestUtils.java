@@ -8,16 +8,16 @@ import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.transfer.COSTransferTask;
 import com.tencent.cos.xml.transfer.COSXMLTask;
 import com.tencent.cos.xml.transfer.TransferState;
+import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
-import com.tencent.qcloud.qcloudxml.core.QCloudXml;
 
 import org.junit.Assert;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,13 +62,29 @@ public class TestUtils {
         Log.i(TestConst.UT_TAG, message);
     }
 
-    public static <T> void printXML(T object) {
+    private static boolean isXmlBean(Object object){
+        Class<?> clazz = object.getClass();
+        String targetClassName = clazz.getName();
         try {
-            TestUtils.print(QCloudXml.toXml(object));
-        } catch (XmlPullParserException e) {
-            Assert.fail(e.getMessage());
-        } catch (IOException e) {
-            Assert.fail(e.getMessage());
+            Class.forName(targetClassName + "$$XmlAdapter");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static <T> void printXML(T object) {
+        if(isXmlBean(object)) {
+            try {
+                Log.i(TestConst.UT_TAG, "printXML");
+                TestUtils.print(QCloudXmlUtils.toXml(object));
+            } catch (CosXmlClientException e) {
+                Assert.fail(e.getMessage());
+            } catch (IllegalStateException e){
+                if(!e.getMessage().equals("The toXml method is not implemented")){
+                    Assert.fail(e.getMessage());
+                }
+            }
         }
     }
 
@@ -111,6 +127,18 @@ public class TestUtils {
         String filePath = localPath(TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
         try {
             boolean success = createFile(filePath, TestConst.PERSIST_BUCKET_BIG_OBJECT_SIZE);
+            return filePath;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String big60mFilePath() {
+
+        String filePath = localPath(TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH);
+        try {
+            boolean success = createFile(filePath, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_SIZE);
             return filePath;
         } catch (IOException e) {
             e.printStackTrace();

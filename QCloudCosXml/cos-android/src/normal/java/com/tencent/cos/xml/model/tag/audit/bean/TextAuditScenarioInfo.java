@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 /**
  * 文本审核的审核结果信息
  */
-@XmlBean
+@XmlBean(method = XmlBean.GenerateMethod.FROM)
 public class TextAuditScenarioInfo {
     /**
      * 否命中该审核分类，0表示未命中，1表示命中，2表示疑似

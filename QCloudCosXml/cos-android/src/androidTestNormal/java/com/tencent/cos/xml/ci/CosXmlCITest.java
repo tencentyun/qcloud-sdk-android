@@ -1,8 +1,10 @@
 package com.tencent.cos.xml.ci;
 
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.CIService;
+import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.core.NormalServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestLocker;
@@ -19,6 +21,7 @@ import com.tencent.cos.xml.model.ci.GetMediaInfoResult;
 import com.tencent.cos.xml.model.ci.QRCodeUploadRequest;
 import com.tencent.cos.xml.model.ci.QRCodeUploadResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
+import com.tencent.cos.xml.model.tag.pic.QRCodeInfo;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,12 +51,61 @@ public class CosXmlCITest {
         try {
             QRCodeUploadResult result = ciService.qrCodeUpload(request);
             Assert.assertNotNull(result.picUploadResult);
+            for (QRCodeUploadResult.QrPicObject qrPicObject : result.picUploadResult.processResults){
+                for (QRCodeInfo qrCodeInfo : qrPicObject.qrCodeInfo){
+                    for (QRCodeInfo.QRCodePoint qrCodePoint : qrCodeInfo.codeLocation){
+                        TestUtils.print(qrCodePoint.point);
+                        TestUtils.print(qrCodePoint.point().toString());
+                    }
+                }
+            }
             Assert.assertTrue(true);
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         }
+    }
+
+    @Test
+    public void testQRCodeUploadAsync() {
+        CosXmlService cosXmlService = NormalServiceFactory.INSTANCE.newDefaultServiceBySessionCredentials();
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIServiceBySessionCredentials();
+        try {
+            cosXmlService.getObject(new GetObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
+                    TestUtils.localParentPath()));
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+        }
+        final TestLocker testLocker = new TestLocker();
+        QRCodeUploadRequest request = new QRCodeUploadRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
+                TestUtils.localPath("qr.png"));
+        ciService.qrCodeUploadAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult resultArg) {
+                QRCodeUploadResult result = (QRCodeUploadResult)resultArg;
+                Assert.assertNotNull(result.picUploadResult);
+                for (QRCodeUploadResult.QrPicObject qrPicObject : result.picUploadResult.processResults){
+                    for (QRCodeInfo qrCodeInfo : qrPicObject.qrCodeInfo){
+                        for (QRCodeInfo.QRCodePoint qrCodePoint : qrCodeInfo.codeLocation){
+                            TestUtils.print(qrCodePoint.point);
+                            TestUtils.print(qrCodePoint.point().toString());
+                        }
+                    }
+                }
+                Assert.assertTrue(true);
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
     }
 
     @Test
@@ -76,7 +128,8 @@ public class CosXmlCITest {
 
     @Test
     public void getDescribeMediaBucketsAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+//        CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditServiceBySessionCredentials();
+        CosXmlService ciService = NormalServiceFactory.INSTANCE.newDefaultServiceBySessionCredentials();
         final TestLocker locker = new TestLocker();
         GetDescribeMediaBucketsRequest request = new GetDescribeMediaBucketsRequest();
         request.setRegions(TestConst.PERSIST_BUCKET_REGION+",ap-beijing");
@@ -108,7 +161,7 @@ public class CosXmlCITest {
         try {
             GetMediaInfoResult result = ciService.getMediaInfo(request);
             TestUtils.parseBadResponseBody(result);
-            Assert.assertNotNull(result.printResult());
+            TestUtils.printXML(result.mediaInfo);
             Assert.assertNotNull(result.mediaInfo);
             Assert.assertTrue(true);
         } catch (CosXmlClientException e) {
@@ -128,7 +181,7 @@ public class CosXmlCITest {
             public void onSuccess(CosXmlRequest request, CosXmlResult cosResult) {
                 GetMediaInfoResult result = (GetMediaInfoResult) cosResult;
                 TestUtils.parseBadResponseBody(result);
-                Assert.assertNotNull(result.printResult());
+                TestUtils.printXML(result.mediaInfo);
                 Assert.assertNotNull(result.mediaInfo);
                 Assert.assertTrue(true);
                 locker.release();
