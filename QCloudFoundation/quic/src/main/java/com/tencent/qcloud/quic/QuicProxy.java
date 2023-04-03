@@ -225,7 +225,9 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                     }
                 }
             }finally {
-                Util.closeQuietly(response);
+                if(response != null) {
+                    Util.closeQuietly(response);
+                }
             }
         }
 
