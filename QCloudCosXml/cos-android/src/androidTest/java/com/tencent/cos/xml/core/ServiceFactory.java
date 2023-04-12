@@ -261,8 +261,11 @@ public class ServiceFactory {
     }
 
     private CosXmlSimpleService newServiceBySessionCredentials(CosXmlServiceConfig cosXmlServiceConfig) {
+//        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
+//                new MySessionCredentialProvider());
+
         return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
-                new MySessionCredentialProvider());
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
     }
 
     private CosXmlSimpleService newService(CosXmlServiceConfig cosXmlServiceConfig) {
