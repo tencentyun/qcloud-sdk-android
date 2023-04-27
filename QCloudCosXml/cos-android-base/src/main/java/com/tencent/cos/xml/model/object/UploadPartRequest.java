@@ -37,7 +37,10 @@ import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.util.ContextHolder;
 import com.tencent.qcloud.core.util.QCloudUtils;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
@@ -226,12 +229,12 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
         if(srcPath != null){
             if(fileOffset != -1){
                 return RequestBodySerializer.file(getContentType(), new File(srcPath), fileOffset, fileContentLength);
             }else {
-               return RequestBodySerializer.file(getContentType(), new File(srcPath));
+                return RequestBodySerializer.file(getContentType(), new File(srcPath));
             }
         }else if(data != null){
             return RequestBodySerializer.bytes(getContentType(), data);
