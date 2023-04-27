@@ -157,10 +157,6 @@ public class SensitiveContentRecognitionRequest extends BucketRequest {
     }
 
     private void addCiParams() {
-        if (types.isEmpty()) {
-            types.add("porn");
-        }
-
         StringBuilder typeStr = new StringBuilder();
         int count = 0;
         for (String type : types) {

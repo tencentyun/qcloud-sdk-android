@@ -9,7 +9,7 @@ def compileQuic() {
 }
 
 //是否包含灯塔
-def includeBeacon = true
+def includeBeacon = false
 
 repositories {
     flatDir {
@@ -60,6 +60,8 @@ android {
             it.buildConfigField 'String', 'QUIC_TEST_IP', quotWrapper(System.getenv("QUIC_TEST_IP"))
             it.buildConfigField 'String', 'PERSIST_BUCKET_REPLICATION', quotWrapper(System.getenv("PERSIST_BUCKET_REPLICATION"))
             it.buildConfigField 'String', 'PERSIST_BUCKET_REPLICATION_REGION', quotWrapper(System.getenv("PERSIST_BUCKET_REPLICATION_REGION"))
+            it.buildConfigField 'String', 'UT_DNS_ID', quotWrapper(System.getenv("UT_DNS_ID"))
+            it.buildConfigField 'String', 'UT_DNS_KEY', quotWrapper(System.getenv("UT_DNS_KEY"))
         }
 
         release {
@@ -101,6 +103,7 @@ android {
             // At last, configure.
             "connected${flavorName}DebugAndroidTest" {
                 ignoreFailures = true
+//                defaultConfig.multiDexEnabled = true
             }
         }
     }
@@ -133,6 +136,12 @@ dependencies {
     androidTestImplementation 'com.tencentcloudapi:tencentcloud-sdk-java-kms:3.1.213'
     androidTestImplementation 'xerces:xercesImpl:2.12.0'
 
+    androidTestImplementation project(path: ':quic')
+    //tencent http dns
+    androidTestImplementation "io.github.dnspod:httpdns-sdk:4.3.0"
+//    androidTestImplementation 'android.arch.persistence.room:rxjava2:2.1.1'
+    androidTestImplementation "androidx.room:room-rxjava2:2.5.1"
+
 //    if (compileQuic() && false) {
 //        api project(path: ':quic')
 //    }
@@ -144,17 +153,17 @@ dependencies {
     api project(':foundation')
     embed project(':cos-android-base')
     if(includeBeacon){
-        embed('com.tencent.beacon:beacon-android-release:4.2.80.6:official@aar') {
-            exclude(group:'com.android.support', module:'support-annotations')
-            exclude(group:'androidx.annotation', module:'annotation')
-        }
-        embed('com.tencent.qimei:qimei:1.2.13.1') {
-            exclude(group:'com.android.support', module:'support-annotations')
-            exclude(group:'androidx.annotation', module:'annotation')
-        }
+        embed(name: 'beacon-android-release-4.2.80.6-official', ext: 'aar')
+        embed(name: 'qimei-1.2.13.1', ext: 'aar')
+        embed(name: 'qimei-core-1.2.13.1-normal', ext: 'aar')
+        embed(name: 'qmsp-oaid2-1.0.4', ext: 'aar')
     } else {
-        compileOnly 'com.tencent.beacon:beacon-android-release:4.2.80.6:official@aar'
-        compileOnly 'com.tencent.qimei:qimei:1.2.13.1'
+        compileOnly files(
+                'libs/beacon-android-release-4.2.80.6-official.aar',
+                'libs/qimei-1.2.13.1.aar',
+                'libs/qimei-core-1.2.13.1-normal.aar',
+                'libs/qmsp-oaid2-1.0.4.aar'
+        )
     }
 
     // kms 加密
@@ -200,8 +209,22 @@ if (android.defaultPublishConfig.contains("slim")){
         project.extensions.add('archiveFilePath', 'outputs/aar/cos-android-nobeacon-normal-release.aar')
     }
 }
-//apply from: '../../publishMavenCentral.gradle'
+apply from: '../../publishMavenCentral.gradle'
 
+//发布本地repo
+//执行uploadArchives先设置includeBeacon为false
+apply plugin: 'maven'
+uploadArchives {
+    repositories.mavenDeployer {
+        pom.project {
+            groupId 'com.qcloud.cos'
+            artifactId 'cos-android-nobeacon'
+            version cosSdkVersionName
+            packaging 'aar'
+        }
+        repository(url: uri("${rootProject.projectDir}/repo"))
+    }
+}
 
 // 发布到内部仓库
 // 已经不再需要发布到内部仓库了

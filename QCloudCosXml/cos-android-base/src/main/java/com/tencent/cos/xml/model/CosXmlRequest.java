@@ -41,7 +41,6 @@ import com.tencent.qcloud.core.task.QCloudTask;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -230,6 +229,13 @@ public abstract class CosXmlRequest{
      * @throws CosXmlClientException 客户异常
      */
     public abstract RequestBodySerializer getRequestBody() throws CosXmlClientException;
+
+//    /**
+//     * 收拢xml解析
+//     */
+//    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
+//
+//    }
 
     /**
      * sdk 参数校验

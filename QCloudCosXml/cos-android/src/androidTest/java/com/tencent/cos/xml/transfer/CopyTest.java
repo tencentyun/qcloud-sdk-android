@@ -15,7 +15,9 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
+import com.tencent.cos.xml.model.object.CopyObjectResult;
 import com.tencent.cos.xml.model.object.DeleteObjectRequest;
+import com.tencent.qcloud.core.util.Base64Utils;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -145,7 +147,7 @@ public class CopyTest {
     public void testCopySmallObject() {
 
         final TestLocker testLocker = new TestLocker();
-        final String cosPath = "copy_object_" + System.currentTimeMillis();
+        final String cosPath = "copy_object";
         CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
                 TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
@@ -176,6 +178,32 @@ public class CopyTest {
         });
         testLocker.lock();
         TestUtils.assertCOSXMLTaskSuccess(cosxmlCopyTask);
+    }
+
+    @Test
+    public void testCopySmallObjectFailed() {
+        final TestLocker testLocker = new TestLocker();
+        final String cosPath = "copy_object_" + System.currentTimeMillis();
+        CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+"qqqqqqqqqqqq");
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(TestConst.PERSIST_BUCKET, cosPath, copySourceStruct);
+        COSXMLCopyTask cosxmlCopyTask = transferManager.copy(copyObjectRequest);
+
+        cosxmlCopyTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                Assert.fail();
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
+                Assert.assertTrue(true);
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
     }
 
     @Test
@@ -301,6 +329,31 @@ public class CopyTest {
     }
 
     @Test
+    public void testServiceCopySmallObject() {
+        CosXmlSimpleService cosXmlSimpleService =  ServiceFactory.INSTANCE.newDefaultService();
+        final TestLocker testLocker = new TestLocker();
+        final String cosPath = "copy_object";
+        CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(TestConst.PERSIST_BUCKET, cosPath, copySourceStruct);
+        cosXmlSimpleService.copyObjectAsync(copyObjectRequest, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                Assert.assertNotNull(((CopyObjectResult)result).printResult());
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+    }
+
+    @Test
     public void testCopySmallObjectFailByCheckParameters1() {
         CosXmlSimpleService cosXmlSimpleService =  ServiceFactory.INSTANCE.newDefaultService();
         final TestLocker testLocker = new TestLocker();
@@ -321,5 +374,49 @@ public class CopyTest {
             }
         });
         testLocker.lock();
+    }
+
+    // TODO: 2023/4/26 单测
+    @Test public void testCopyObjectSSE_KMS() {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+        final String cosPath = "copy_object_" + System.currentTimeMillis();
+        CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(TestConst.PERSIST_BUCKET, cosPath, copySourceStruct);
+        try {
+            copyObjectRequest.setCOSServerSideEncryptionWithKMS("customKey", "encryptContext");
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        }
+        try {
+            CopyObjectResult result = cosXmlSimpleService.copyObject(copyObjectRequest);
+            Assert.fail();
+        } catch (CosXmlClientException e) {
+            Assert.fail();
+        } catch (CosXmlServiceException e) {
+            Assert.assertTrue(true);
+        }
+    }
+
+    // TODO: 2023/4/26 单测
+    @Test public void testCopyObjectSSE_CustomerKey() {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+        final String cosPath = "copy_object_" + System.currentTimeMillis();
+        CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(TestConst.PERSIST_BUCKET, cosPath, copySourceStruct);
+        try {
+            copyObjectRequest.setCOSServerSideEncryptionWithCustomerKey(Base64Utils.encode("customKey".getBytes()));
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        }
+        try {
+            CopyObjectResult result = cosXmlSimpleService.copyObject(copyObjectRequest);
+            Assert.fail();
+        } catch (CosXmlClientException e) {
+            Assert.fail();
+        } catch (CosXmlServiceException e) {
+            Assert.assertTrue(true);
+        }
     }
 }

@@ -221,6 +221,57 @@ public class COSDownloadTaskTest {
         TestUtils.assertCOSXMLTaskSuccess(downloadTask);
     }
 
+    @Test public void testCancel() {
+        TransferService transferService = ServiceFactory.INSTANCE.newDefaultTransferService();
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+                TestUtils.localParentPath());
+        COSDownloadTask downloadTask = transferService.download(getObjectRequest);
+        final TestLocker testLocker = new TestLocker();
+        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+                TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+            }
 
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                testLocker.release();
+                Assert.assertEquals("UserCancelled", clientException.getMessage());
+            }
+        });
+        TestUtils.sleep(1000);
+        downloadTask.cancel();
+        TestUtils.sleep(200);
+        //仅仅为了覆盖异常状态日志打印
+        downloadTask.pause();
+        downloadTask.resume();
+        testLocker.lock();
+    }
 
+    // TODO: 2023/4/27 新的下载 不支持range
+//    @Test public void testRange() {
+//        TransferService transferService = ServiceFactory.INSTANCE.newDefaultTransferService();
+//        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+//                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+//                TestUtils.localParentPath());
+//        getObjectRequest.setRange(100);
+//        getObjectRequest.setRange(100, 1000);
+//        COSDownloadTask downloadTask = transferService.download(getObjectRequest);
+//        final TestLocker testLocker = new TestLocker();
+//        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+//            @Override
+//            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+//                testLocker.release();
+//            }
+//
+//            @Override
+//            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+//                testLocker.release();
+//            }
+//        });
+//        testLocker.lock();
+//        TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+//    }
 }

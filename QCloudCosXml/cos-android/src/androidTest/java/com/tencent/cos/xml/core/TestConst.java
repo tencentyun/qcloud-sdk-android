@@ -67,6 +67,7 @@ public class TestConst {
     public static final long PERSIST_BUCKET_BIG_60M_OBJECT_SIZE = 60 * 1024 * 1024;
     public static final String PERSIST_BUCKET_SMALL_OBJECT_PATH = "do_not_remove/small_object";
     public static final String PERSIST_BUCKET_BIG_OBJECT_PATH = "do_not_remove/big_object";
+    public static final String PERSIST_BUCKET_BATCH_OBJECT_PATH = "do_not_remove//batch/small_object";
     public static final String PERSIST_BUCKET_BIG_60M_OBJECT_PATH = "do_not_remove/big_60m_object";
 
     public static final String PERSIST_BUCKET_CSE_SMALL_OBJECT_PATH = "do_not_remove/cse_small_object";
@@ -86,4 +87,5 @@ public class TestConst {
     public static final String PERSIST_BUCKET_CDN_BIG_OBJECT_PATH = "do_not_remove/cdn/big_object";
     public static final String PERSIST_BUCKET_CDN_PIC_PATH = "do_not_remove/cdn/image.png";
     public static final String PERSIST_BUCKET_CDN_SMALL_OBJECT_URL = "https://mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com/do_not_remove/cdn/small_object";
+    public static final String PERSIST_BUCKET_CDN_BIG_OBJECT_URL = "https://mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com/do_not_remove/cdn/big_object";
 }

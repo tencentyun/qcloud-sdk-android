@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.CIService;
+import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.core.NormalServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestLocker;
@@ -68,9 +69,10 @@ public class CosXmlCITest {
 
     @Test
     public void testQRCodeUploadAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        CosXmlService cosXmlService = NormalServiceFactory.INSTANCE.newDefaultServiceBySessionCredentials();
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIServiceBySessionCredentials();
         try {
-            ciService.getObject(new GetObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
+            cosXmlService.getObject(new GetObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
                     TestUtils.localParentPath()));
         } catch (CosXmlClientException e) {
             e.printStackTrace();
@@ -126,7 +128,8 @@ public class CosXmlCITest {
 
     @Test
     public void getDescribeMediaBucketsAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+//        CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditServiceBySessionCredentials();
+        CosXmlService ciService = NormalServiceFactory.INSTANCE.newDefaultServiceBySessionCredentials();
         final TestLocker locker = new TestLocker();
         GetDescribeMediaBucketsRequest request = new GetDescribeMediaBucketsRequest();
         request.setRegions(TestConst.PERSIST_BUCKET_REGION+",ap-beijing");

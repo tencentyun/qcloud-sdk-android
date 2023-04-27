@@ -28,8 +28,11 @@ import static com.tencent.cos.xml.core.TestUtils.getContext;
 import static com.tencent.cos.xml.core.TestUtils.smallFilePath;
 
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+import androidx.collection.ArraySet;
 import androidx.core.content.FileProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -46,11 +49,14 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.listener.CosXmlResultSimpleListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
+import com.tencent.cos.xml.model.object.BasePutObjectResult;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.tag.InitiateMultipartUpload;
 import com.tencent.cos.xml.utils.UrlUtil;
+import com.tencent.qcloud.core.auth.COSXmlSignSourceProvider;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.util.Base64Utils;
 import com.tencent.qcloud.core.util.QCloudStringUtils;
 
 import org.junit.Assert;
@@ -62,6 +68,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -460,6 +467,7 @@ public class UploadTest {
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
         PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH, Uri.fromFile(new File(smallFilePath())));
+        putObjectRequest.setUri(Uri.fromFile(new File(smallFilePath())));
 
         final COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
 //        uploadTask.setOnGetHttpTaskMetrics(new COSXMLTask.OnGetHttpTaskMetrics() {
@@ -624,6 +632,103 @@ public class UploadTest {
         TestUtils.assertCOSXMLTaskSuccess(uploadTask);
     }
 
+    @Test public void testUploadSmallFileByUrlPolicy1() throws MalformedURLException {
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+
+        PutObjectRequest request = new PutObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                new URL(TestConst.PERSIST_BUCKET_CDN_SMALL_OBJECT_URL));
+        request.setUrlUploadPolicy(UrlUtil.getUrlUploadPolicy(TestConst.PERSIST_BUCKET_CDN_SMALL_OBJECT_URL));
+        final COSXMLUploadTask uploadTask = transferManager.upload(request, null);
+        final TestLocker testLocker = new TestLocker();
+        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError("失败回调 " + TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+
+        uploadTask.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                String uploadId = uploadTask.getUploadId();
+            }
+        });
+
+        testLocker.lock();
+        TestUtils.assertCOSXMLTaskSuccess(uploadTask);
+    }
+
+    @Test public void testUploadBigFileByInputStream() throws IOException {
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+        final COSXMLUploadTask uploadTask = transferManager.upload(
+                TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+                Files.newInputStream(new File(bigFilePath()).toPath())
+        );
+        final TestLocker testLocker = new TestLocker();
+        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError("失败回调 " + TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+
+        uploadTask.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                String uploadId = uploadTask.getUploadId();
+            }
+        });
+
+        testLocker.lock();
+        TestUtils.assertCOSXMLTaskSuccess(uploadTask);
+    }
+
+    @Test public void testUploadBigFileByUrl() throws MalformedURLException {
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+        final COSXMLUploadTask uploadTask = transferManager.upload(
+                TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+                new URL(TestConst.PERSIST_BUCKET_CDN_BIG_OBJECT_URL),
+                null
+        );
+        final TestLocker testLocker = new TestLocker();
+        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError("失败回调 " + TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+
+        uploadTask.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                String uploadId = uploadTask.getUploadId();
+            }
+        });
+
+        testLocker.lock();
+        TestUtils.assertCOSXMLTaskSuccess(uploadTask);
+    }
 
     @Test public void testUploadBigFileByUri() {
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
@@ -679,38 +784,19 @@ public class UploadTest {
 
 
     @Test public void testUploadBigFileByPath() {
+        testUploadBigFileByPath(ServiceFactory.INSTANCE.newDefaultTransferManager());
+    }
 
-        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
-        String localPath = TestUtils.localPath("1642166999131.m4a");
-        try {
-            TestUtils.createFile(localPath, PERSIST_BUCKET_BIG_OBJECT_SIZE);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        COSXMLUploadTask uploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
-                localPath, null);
-        final TestLocker testLocker = new TestLocker();
+    @Test public void testDnsUploadBigFileByPath() {
+        testUploadBigFileByPath(ServiceFactory.INSTANCE.newDnsTransferManager());
+    }
 
-        uploadTask.setInitMultipleUploadListener(initiateMultipartUpload -> TestUtils.print(initiateMultipartUpload.uploadId));
-        uploadTask.setInternalStateListener(state -> TestUtils.print(state.name()));
-        uploadTask.setInternalProgressListener((complete, target) -> TestUtils.print(String.format("%d-%d", complete, target)));
+    @Test public void testSingerUploadBigFileByPath() {
+        testUploadBigFileByPath(ServiceFactory.INSTANCE.newSingerTransferManager());
+    }
 
-        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                TestUtils.printError("upload success");
-                testLocker.release();
-            }
-
-            @Override
-            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
-                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
-                testLocker.release();
-            }
-        });
-
-        testLocker.lock();
-        TestUtils.assertCOSXMLTaskSuccess(uploadTask);
+    @Test public void testTencentcosUploadBigFileByPath() {
+        testUploadBigFileByPath(ServiceFactory.INSTANCE.newTencentcosTransferManager());
     }
 
     @Test public void testUploadBigFileForceSimpleUploadByPath() {
@@ -1151,4 +1237,139 @@ public class UploadTest {
 //
 //        testLocker.lock();
 //    }
+
+    @Test public void testBasePutObject() {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+        PutObjectRequest request = new PutObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                smallFilePath());
+        String region = cosXmlSimpleService.getRegion(request);
+        Assert.assertEquals(region, TestConst.PERSIST_BUCKET_REGION);
+        request.addNoSignParams("test");
+        try {
+            request.setRequestHeaders("test1", "value1");
+        } catch (CosXmlClientException e) {
+            throw new RuntimeException(e);
+        }
+        request.setSignInUrl(true);
+        request.isSupportAccelerate(true);
+        Assert.assertTrue(request.isSupportAccelerate());
+        request.setSignSourceProvider(new COSXmlSignSourceProvider());
+
+        request.setSign(1000);
+        request.setSign(100, 200);
+        Set<String> parameters = new ArraySet<>();
+        parameters.add("parameters1");
+        parameters.add("parameters2");
+        Set<String> headers = new ArraySet<>();
+        headers.add("headers1");
+        headers.add("headers2");
+        request.setSign(1000, parameters, headers);
+        request.setSign(100, 200, parameters, headers);
+        request.setSignParamsAndHeaders(parameters, headers);
+
+        request.setPriorityLow();
+        Assert.assertTrue(request.isPriorityLow());
+
+        try {
+            BasePutObjectResult result = cosXmlSimpleService.basePutObject(request);
+            Assert.assertFalse(TextUtils.isEmpty(result.eTag));
+        } catch (CosXmlClientException e) {
+            Assert.fail();
+        } catch (CosXmlServiceException e) {
+            Assert.fail();
+        }
+
+        final TestLocker testLocker = new TestLocker();
+        cosXmlSimpleService.basePutObjectAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                BasePutObjectResult result1 = (BasePutObjectResult) result;
+                Assert.assertFalse(TextUtils.isEmpty(result1.eTag));
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+                Assert.fail();
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+    }
+
+    private void testUploadBigFileByPath(TransferManager transferManager) {
+        String localPath = TestUtils.localPath("1642166999131.m4a");
+        try {
+            TestUtils.createFile(localPath, PERSIST_BUCKET_BIG_OBJECT_SIZE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        COSXMLUploadTask uploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+                localPath, null);
+        final TestLocker testLocker = new TestLocker();
+
+        uploadTask.setInitMultipleUploadListener(initiateMultipartUpload -> TestUtils.print(initiateMultipartUpload.uploadId));
+        uploadTask.setInternalStateListener(state -> TestUtils.print(state.name()));
+        uploadTask.setInternalProgressListener((complete, target) -> TestUtils.print(String.format("%d-%d", complete, target)));
+
+        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                TestUtils.printError("upload success");
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+
+        testLocker.lock();
+        TestUtils.assertCOSXMLTaskSuccess(uploadTask);
+    }
+
+    // TODO: 2023/4/26 单测
+    @Test public void testBasePutObjectSSE_KMS() {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+        PutObjectRequest request = new PutObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                smallFilePath());
+        try {
+            request.setCOSServerSideEncryptionWithKMS("customKey", "encryptContext");
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        }
+        try {
+            BasePutObjectResult result = cosXmlSimpleService.basePutObject(request);
+            Assert.fail();
+        } catch (CosXmlClientException e) {
+            Assert.fail();
+        } catch (CosXmlServiceException e) {
+            Assert.assertTrue(true);
+        }
+    }
+
+    // TODO: 2023/4/26 单测
+    @Test public void testBasePutObjectSSE_CustomerKey() {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+        PutObjectRequest request = new PutObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                smallFilePath());
+        try {
+            request.setCOSServerSideEncryptionWithCustomerKey(Base64Utils.encode("customKey".getBytes()));
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        }
+        try {
+            BasePutObjectResult result = cosXmlSimpleService.basePutObject(request);
+            Assert.fail();
+        } catch (CosXmlClientException e) {
+            Assert.fail();
+        } catch (CosXmlServiceException e) {
+            Assert.assertTrue(true);
+        }
+    }
 }

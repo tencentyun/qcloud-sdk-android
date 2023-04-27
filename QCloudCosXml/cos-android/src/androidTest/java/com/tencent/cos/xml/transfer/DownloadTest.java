@@ -22,8 +22,14 @@
 
 package com.tencent.cos.xml.transfer;
 
+import static com.tencent.cos.xml.core.TestUtils.smallFilePath;
+
+import android.net.Uri;
+
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.MyOnSignatureListener;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
@@ -44,6 +50,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -453,5 +460,52 @@ public class DownloadTest {
         downloadTask.cancel();
         TestUtils.sleep(200);
         Assert.assertTrue(downloadTask.getTaskState() == TransferState.CANCELED);
+    }
+
+    @Test public void testDownloadClientError() {
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                "aaaaaaa");
+        final TestLocker testLocker = new TestLocker();
+        COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+                getObjectRequest);
+        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                Assert.fail();
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+                if(clientException != null){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail();
+                }
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+    }
+
+    @Test public void testSmallDownloadToUri() {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                Uri.fromFile(new File(smallFilePath())));
+        Assert.assertNotNull(getObjectRequest.getFileContentUri());
+        try {
+            cosXmlSimpleService.getObject(getObjectRequest);
+        } catch (CosXmlClientException e) {
+            Assert.fail(e.getMessage());
+            return;
+        } catch (CosXmlServiceException e) {
+            Assert.fail(e.getMessage());
+            return;
+        }
+        Assert.assertTrue(true);
     }
 }

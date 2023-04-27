@@ -2,6 +2,8 @@ package com.tencent.cos.xml.model.object;
 
 import android.util.Log;
 
+import androidx.collection.ArraySet;
+
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.COSStorageClass;
 import com.tencent.cos.xml.core.TestConst;
@@ -17,6 +19,7 @@ import org.junit.Assert;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Set;
 
 public class PostObjectTestAdapter{
     public static class PostObjectByteTestAdapter extends RequestTestAdapter<PostObjectRequest, PostObjectResult> {
@@ -60,6 +63,13 @@ public class PostObjectTestAdapter{
                     Log.d(TestConst.UT_TAG, complete + "/" + target);
                 }
             });
+            Set<String> parameters = new ArraySet<>();
+            parameters.add("parameters1");
+            parameters.add("parameters2");
+            Set<String> headers = new ArraySet<>();
+            headers.add("headers1");
+            headers.add("headers2");
+            request.setSignParamsAndHeaders(parameters, headers);
             return request;
         }
 

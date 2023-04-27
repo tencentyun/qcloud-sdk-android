@@ -1,6 +1,7 @@
 package com.tencent.cos.xml.model.object;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
+import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
@@ -10,7 +11,7 @@ import com.tencent.cos.xml.model.RequestTestAdapter;
 public class InitMultipartUploadTestAdapter extends RequestTestAdapter<InitMultipartUploadRequest, InitMultipartUploadResult> {
     @Override
     protected InitMultipartUploadRequest newRequestInstance() {
-        return null;
+        return new InitMultipartUploadRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
     }
 
     @Override

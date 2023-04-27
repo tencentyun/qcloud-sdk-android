@@ -63,4 +63,4 @@ project.extensions.add('artifactDesc', 'Tencent COSXml SDK Kotlin Extension')
 project.extensions.add('lang', 'kotlin')
 project.extensions.add('archiveFilePath', 'outputs/aar/cos-ktx-release.aar')
 
-//apply from: '../../publishMavenCentral.gradle'
+apply from: '../../publishMavenCentral.gradle'

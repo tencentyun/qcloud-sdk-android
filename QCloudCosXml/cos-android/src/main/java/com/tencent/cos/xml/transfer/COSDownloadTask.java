@@ -156,10 +156,10 @@ public class COSDownloadTask extends COSTransferTask {
 
 
     // 暂不支持分块下载
-    private GetObjectResult multipartDownload() throws CosXmlClientException, CosXmlServiceException {
-
-        return null;
-    }
+//    private GetObjectResult multipartDownload() throws CosXmlClientException, CosXmlServiceException {
+//
+//        return null;
+//    }
 
     private class SimpleDownloadTask implements Runnable {
 

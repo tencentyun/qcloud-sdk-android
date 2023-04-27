@@ -82,7 +82,7 @@ public class AuditTest {
 
     @Test
     public void testSensitiveContentRecognitionAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditServiceBySessionCredentials();
         String cosPath = String.format(TestConst.AUDIT_BUCKET_IMAGE_GIF, 1);
         SensitiveContentRecognitionRequest request = new SensitiveContentRecognitionRequest(TestConst.AUDIT_BUCKET, cosPath);
         request.setCosPath(cosPath);

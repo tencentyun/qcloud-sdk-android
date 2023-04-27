@@ -63,7 +63,7 @@ public class SpeechTest {
 
     @Test
     public void stage1_describeSpeechBucketsAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditServiceBySessionCredentials();
         final TestLocker locker = new TestLocker();
         DescribeSpeechBucketsRequest request = new DescribeSpeechBucketsRequest();
         request.setPageNumber(1);

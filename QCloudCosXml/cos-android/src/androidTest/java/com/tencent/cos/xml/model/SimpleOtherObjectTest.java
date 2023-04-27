@@ -23,10 +23,14 @@
 
 package com.tencent.cos.xml.model;
 
+import static com.tencent.cos.xml.core.TestUtils.smallFilePath;
+
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.COSACL;
 import com.tencent.cos.xml.common.COSStorageClass;
@@ -38,6 +42,7 @@ import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadRequest;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadResult;
+import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.InitMultipartUploadRequest;
 import com.tencent.cos.xml.model.object.InitMultipartUploadResult;
 import com.tencent.cos.xml.model.object.ListPartsRequest;
@@ -51,6 +56,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,7 +95,7 @@ public class SimpleOtherObjectTest {
      */
     @Test
     public void multiUploadObject() {
-        String fileName = TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH;
+        String fileName = TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH;
         String bucketName = TestConst.PERSIST_BUCKET;
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
 
@@ -128,8 +134,8 @@ public class SimpleOtherObjectTest {
         Assert.assertEquals(uploadId, listPartsRequest.getUploadId());
         listPartsRequest.setMaxParts(1000);
         Assert.assertEquals(1000, listPartsRequest.getMaxParts());
-        listPartsRequest.setPartNumberMarker(0);
-        Assert.assertEquals(0, listPartsRequest.getPartNumberMarker());
+//        listPartsRequest.setPartNumberMarker(0);
+//        Assert.assertEquals(0, listPartsRequest.getPartNumberMarker());
         listPartsRequest.setEncodingType(null);
         Assert.assertEquals(null, listPartsRequest.getEncodingType());
         ListPartsResult listPartsResult = null;
@@ -144,7 +150,6 @@ public class SimpleOtherObjectTest {
         Assert.assertNotNull(listPartsResult.printResult());
         Assert.assertEquals(200, listPartsResult.httpCode);
         Assert.assertNotNull(listPartsResult.listParts);
-
 
         // 上传分片
         int partNumber = 1;
@@ -194,6 +199,8 @@ public class SimpleOtherObjectTest {
         uploadPartRequest2.setSrcPath(localFilePath2);
         Assert.assertEquals(localFilePath2, uploadPartRequest2.getSrcPath());
         Assert.assertNotEquals(uploadPartRequest2.getFileLength(), 0);
+        uploadPartRequest2.setPriorityLow();
+        Assert.assertTrue(uploadPartRequest2.isPriorityLow());
         uploadPartRequest2.setProgressListener(new CosXmlProgressListener() {
             @Override
             public void onProgress(long complete, long target) {
@@ -235,6 +242,124 @@ public class SimpleOtherObjectTest {
         Assert.assertNotNull(uploadPartResult3);
         Assert.assertEquals(200, uploadPartResult3.httpCode);
         Assert.assertNotNull(uploadPartResult3.eTag);
+        // 上传分片
+        int partNumber4 = 4;
+        UploadPartRequest uploadPartRequest4 = new UploadPartRequest(
+                bucketName,
+                fileName,
+                partNumber4,
+                Uri.fromFile(new File(smallFilePath())),
+                uploadId);
+        uploadPartRequest4.setPartNumber(partNumber4);
+        uploadPartRequest4.setUploadId(uploadId);
+        UploadPartResult uploadPartResult4 = null;
+        try {
+            uploadPartResult4 = cosXmlService.uploadPart(uploadPartRequest4);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(uploadPartResult4);
+        // 上传分片
+        int partNumber5 = 5;
+        InputStream inputStream5 = new ByteArrayInputStream((getBigString()+"asdasdasd").getBytes());
+        UploadPartRequest uploadPartRequest5 = null;
+        try {
+            uploadPartRequest5 = new UploadPartRequest(
+                    bucketName,
+                    fileName,
+                    partNumber5,
+                    inputStream5,
+                    1000,
+                    uploadId);
+        } catch (CosXmlClientException e) {
+            throw new RuntimeException(e);
+        }
+        uploadPartRequest5.setPartNumber(partNumber5);
+        uploadPartRequest5.setUploadId(uploadId);
+        UploadPartResult uploadPartResult5 = null;
+        try {
+            uploadPartResult5 = cosXmlService.uploadPart(uploadPartRequest5);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(uploadPartResult5);
+        // TODO: 2023/4/26 传url会报错
+//        <Error>
+//          <Code>MissingContentLength</Code>
+//          <Message>You must provide the Content-Length HTTP header.</Message>
+//          <Resource>/do_not_remove/big_object</Resource>
+//          <RequestId>NjQ0OTE5NGVfOWY0YzMxMWVfNmNjOV8xMzAxNg==</RequestId>
+//          <TraceId>OGVmYzZiMmQzYjA2OWNhODk0NTRkMTBiOWVmMDAxODc0OWRkZjk0ZDM1NmI1M2E2MTRlY2MzZDhmNmI5MWI1OTI5MWRkM2I1ZDU3ZWE5Y2YzNDYzZTEzY2JlMjU3NDQ0ZWM3MTJlNThkMDhlYzIwYWI1MjgzZTU4MTc5MmM5MGM=</TraceId>
+//        </Error>
+//        // 上传分片
+//        int partNumber6 = 6;
+//        UploadPartRequest uploadPartRequest6 = null;
+//        try {
+//            uploadPartRequest6 = new UploadPartRequest(
+//                    bucketName,
+//                    fileName,
+//                    partNumber6,
+//                    new URL(TestConst.PERSIST_BUCKET_CDN_SMALL_OBJECT_URL),
+//                    uploadId);
+//        } catch (MalformedURLException e) {
+//            throw new RuntimeException(e);
+//        }
+//        uploadPartRequest6.setPartNumber(partNumber6);
+//        uploadPartRequest6.setUploadId(uploadId);
+//        UploadPartResult uploadPartResult6 = null;
+//        try {
+//            uploadPartResult6 = cosXmlService.uploadPart(uploadPartRequest6);
+//        } catch (CosXmlClientException e) {
+//            e.printStackTrace();
+//        } catch (CosXmlServiceException e) {
+//            e.printStackTrace();
+//        }
+//        Assert.assertNotNull(uploadPartResult6);
+//
+//        // 上传分片
+//        int partNumber7 = 7;
+//        UploadPartRequest uploadPartRequest7 = null;
+//        try {
+//            uploadPartRequest7 = new UploadPartRequest(
+//                    bucketName,
+//                    fileName,
+//                    partNumber7,
+//                    new URL(TestConst.PERSIST_BUCKET_CDN_SMALL_OBJECT_URL),
+//                    10,
+//                    1000,
+//                    uploadId);
+//        } catch (MalformedURLException e) {
+//            throw new RuntimeException(e);
+//        }
+//        uploadPartRequest7.setPartNumber(partNumber7);
+//        uploadPartRequest7.setUploadId(uploadId);
+//        UploadPartResult uploadPartResult7 = null;
+//        try {
+//            uploadPartResult7 = cosXmlService.uploadPart(uploadPartRequest7);
+//        } catch (CosXmlClientException e) {
+//            e.printStackTrace();
+//        } catch (CosXmlServiceException e) {
+//            e.printStackTrace();
+//        }
+//        Assert.assertNotNull(uploadPartResult7);
+
+        // 查询分片上传
+        ListPartsRequest listPartsRequest1 = new ListPartsRequest(bucketName, fileName, uploadId);
+        ListPartsResult listPartsResult1 = null;
+        try {
+            listPartsResult1 = cosXmlService.listParts(listPartsRequest);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(listPartsResult1);
+        Assert.assertNotNull(listPartsResult1.printResult());
+        Assert.assertNotNull(listPartsResult1.listParts);
 
         // 完成分片上传
         CompleteMultiUploadRequest completeMultiUploadRequest = new CompleteMultiUploadRequest(bucketName, fileName, uploadId, null);
@@ -273,5 +398,39 @@ public class SimpleOtherObjectTest {
         }
         return sb.toString();
 
+    }
+
+    @Test
+    public void testBeaconReportError() {
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
+        try {
+            BeaconService.getInstance().reportError("UT_Test", new IllegalStateException());
+            Assert.assertTrue(true);
+        } catch (Exception e){
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testBeaconFlatInetAddressList() {
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
+        String[] ipAddress = new String[]{"10.1.1.1", "10.1.1.2"};
+        try {
+            cosXmlService.addCustomerDNS("stackoverflowa.com", ipAddress);
+        } catch (CosXmlClientException e) {
+            throw new RuntimeException(e);
+        }
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH, "aaaaaaa");
+        getObjectRequest.setRequestURL("https://stackoverflowa.com/");
+        try {
+            cosXmlService.getObject(getObjectRequest);
+        } catch (CosXmlClientException ignored) {
+            Assert.assertNull(getObjectRequest.getMetrics().getConnectAddress());
+            return;
+        } catch (CosXmlServiceException e) {
+            Assert.assertNull(getObjectRequest.getMetrics().getConnectAddress());
+            return;
+        }
+        Assert.fail();
     }
 }

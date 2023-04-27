@@ -106,8 +106,7 @@ public class PutObjectRequest extends BasePutObjectRequest implements TransferRe
      * </p>
      * @param cacheControl Cache-Control头部
      */
-    public void setCacheControl(String cacheControl) {
-        if(cacheControl == null)return;
+    public void setCacheControl(@NonNull String cacheControl) {
         addHeader(COSRequestHeaderKey.CACHE_CONTROL,cacheControl);
     }
 
@@ -117,8 +116,7 @@ public class PutObjectRequest extends BasePutObjectRequest implements TransferRe
      * </p>
      * @param contentDisposition Content-Disposition头部
      */
-    public void setContentDisposition(String contentDisposition) {
-        if(contentDisposition == null)return;
+    public void setContentDisposition(@NonNull String contentDisposition) {
        addHeader(COSRequestHeaderKey.CONTENT_DISPOSITION,contentDisposition);
     }
 
@@ -128,8 +126,7 @@ public class PutObjectRequest extends BasePutObjectRequest implements TransferRe
      * </p>
      * @param contentEncoding Content-Encoding头部
      */
-    public void setContentEncodeing(String contentEncoding) {
-        if(contentEncoding == null)return;
+    public void setContentEncodeing(@NonNull String contentEncoding) {
         addHeader(COSRequestHeaderKey.CONTENT_ENCODING,contentEncoding);
     }
 
@@ -139,8 +136,7 @@ public class PutObjectRequest extends BasePutObjectRequest implements TransferRe
      * </p>
      * @param expires Expires头部
      */
-    public void setExpires(String expires) {
-        if(expires == null)return;
+    public void setExpires(@NonNull String expires) {
         addHeader(COSRequestHeaderKey.EXPIRES,expires);
     }
 

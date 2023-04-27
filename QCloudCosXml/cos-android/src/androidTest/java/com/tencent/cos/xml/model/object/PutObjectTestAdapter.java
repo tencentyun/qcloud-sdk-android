@@ -69,12 +69,6 @@ public class PutObjectTestAdapter{
             request.setData("this is object".getBytes());
             Assert.assertNotNull(request.getData());
             setRequest(request);
-            // TODO: 2023/3/30 单测
-//            try {
-//                request.setCOSServerSideEncryptionWithKMS("customKey", "encryptContext");
-//            } catch (CosXmlClientException e) {
-//                e.printStackTrace();
-//            }
             Assert.assertTrue(request.getFileLength()>0);
             request.setXCOSACL(COSACL.DEFAULT.getAcl());
             return request;
@@ -99,12 +93,6 @@ public class PutObjectTestAdapter{
             request.setStrData("this is object");
             Assert.assertNotNull(request.getStrData());
             setRequest(request);
-            // TODO: 2023/3/30 单测
-//            try {
-//                request.setCOSServerSideEncryptionWithCustomerKey(Base64Utils.encode("customKey".getBytes()));
-//            } catch (CosXmlClientException e) {
-//                e.printStackTrace();
-//            }
             return request;
         }
 
