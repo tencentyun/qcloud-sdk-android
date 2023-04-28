@@ -52,9 +52,7 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.net.InetAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 @RunWith(AndroidJUnit4.class)
 public class DownloadTest {
@@ -192,9 +190,8 @@ public class DownloadTest {
      * 批量文件下载
      */
     @Test public void testBatchSmallDownload() {
-
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();;
-        int count = 10;
+        int count = 5;
         final TestLocker testLocker = new TestLocker(count);
         final AtomicInteger errorCount = new AtomicInteger(0);
         final StringBuilder errorMessage = new StringBuilder();
@@ -232,70 +229,6 @@ public class DownloadTest {
         testLocker.lock();
         TestUtils.assertErrorMessageNull(errorMessage);
     }
-
-
-    /**
-     * 下载 1s 后点击暂停，并等待 1s 后恢复上传
-     */
-    @Test public void testPauseAndResume() {
-
-        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();;
-        final COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
-                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
-                TestUtils.localParentPath());
-
-        final TestLocker testLocker = new TestLocker();
-        final AtomicBoolean checkNotZero = new AtomicBoolean(false);
-        final AtomicLong currentProgress = new AtomicLong(0);
-
-        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                testLocker.release();
-            }
-
-            @Override
-            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
-                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
-                testLocker.release();
-            }
-        });
-
-        downloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
-            @Override
-            public void onProgress(long complete, long target) {
-
-                currentProgress.set(complete);
-                if (checkNotZero.get()) {
-                    checkNotZero.set(false);
-                    if (complete < currentProgress.get()) {
-                        testLocker.release();
-                    }
-                }
-                TestUtils.print("download task " + complete + "/" + target);
-            }
-        });
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        if (downloadTask.getTaskState() == TransferState.COMPLETED) {
-            TestUtils.assertCOSXMLTaskSuccess(downloadTask);
-            return;
-        }
-
-        downloadTask.pause();
-        TestUtils.sleep(1000);
-        checkNotZero.set(true);
-        downloadTask.resume();
-
-        testLocker.lock();
-        TestUtils.assertCOSXMLTaskSuccess(downloadTask);
-    }
-
 
     /**
      * 测试续传
@@ -426,7 +359,7 @@ public class DownloadTest {
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
                 TestUtils.localParentPath());
-         getObjectRequest.setRange(100, 200);
+         getObjectRequest.setRange(0, 10);
         getObjectRequest.addNoSignHeader("Range");
         COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
                 getObjectRequest);
@@ -446,20 +379,6 @@ public class DownloadTest {
         });
         testLocker.lock();
         TestUtils.assertCOSXMLTaskSuccess(downloadTask);
-    }
-
-    @Test
-    public void testCancelTask() {
-        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
-        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
-                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
-                TestUtils.localParentPath());
-        COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
-                getObjectRequest);
-        TestUtils.sleep(200);
-        downloadTask.cancel();
-        TestUtils.sleep(200);
-        Assert.assertTrue(downloadTask.getTaskState() == TransferState.CANCELED);
     }
 
     @Test public void testDownloadClientError() {

@@ -344,17 +344,30 @@ public class ServiceFactory {
         return new TransferManager(newCDNService(), new TransferConfig.Builder().build());
     }
 
+    public TransferManager newBigSliceSizeTransferManager() {
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .setDivisionForUpload(2 * 1024 * 1024)
+                .setSliceSizeForUpload(2 * 1024 * 1024)
+                .setVerifyCRC64(true)
+                .setSliceSizeForCopy(5242880)
+                .setDividsionForCopy(5242880)
+                .build();
+        Log.d(TestConst.UT_TAG, String.valueOf(transferConfig.getDivisionForCopy()));
+        return new TransferManager(newDefaultService(), transferConfig);
+    }
+
+
     private CosXmlSimpleService newServiceBySessionCredentials(CosXmlServiceConfig cosXmlServiceConfig) {
 //        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
 //                new MySessionCredentialProvider());
 
         return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
-                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
     private CosXmlSimpleService newService(CosXmlServiceConfig cosXmlServiceConfig) {
         return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
-                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
 
     }
 

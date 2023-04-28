@@ -82,13 +82,13 @@ public class COSDownloadTaskTest {
 
     @Test public void testAnonymousPauseAndResume() {
         TransferService transferService = ServiceFactory.INSTANCE.newAnonymousTransferService();
-        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_CDN_BIG_OBJECT_PATH);
+        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_CDN_BIG_60M_OBJECT_PATH);
     }
 
     @Test public void testPauseAndResume() {
 
         TransferService transferService = ServiceFactory.INSTANCE.newDefaultTransferService();
-        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH);
     }
 
     private void downloadObject(TransferService transferService, String key) {
@@ -224,7 +224,7 @@ public class COSDownloadTaskTest {
     @Test public void testCancel() {
         TransferService transferService = ServiceFactory.INSTANCE.newDefaultTransferService();
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
-                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+                TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH,
                 TestUtils.localParentPath());
         COSDownloadTask downloadTask = transferService.download(getObjectRequest);
         final TestLocker testLocker = new TestLocker();
@@ -243,7 +243,7 @@ public class COSDownloadTaskTest {
         });
         TestUtils.sleep(1000);
         downloadTask.cancel();
-        TestUtils.sleep(200);
+        TestUtils.sleep(1000);
         //仅仅为了覆盖异常状态日志打印
         downloadTask.pause();
         downloadTask.resume();

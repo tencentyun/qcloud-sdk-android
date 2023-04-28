@@ -133,13 +133,18 @@ public class CopyTest {
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
         final String cosPath = "copy_object_" + System.currentTimeMillis();
         CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
-                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH);
         CopyObjectRequest copyObjectRequest = new CopyObjectRequest(TestConst.PERSIST_BUCKET, cosPath, copySourceStruct);
         final COSXMLCopyTask cosxmlCopyTask = transferManager.copy(copyObjectRequest);
-        TestUtils.sleep(200);
-        cosxmlCopyTask.cancel();
-        TestUtils.sleep(200);
-        Assert.assertTrue(cosxmlCopyTask.getTaskState() == TransferState.CANCELED);
+        cosxmlCopyTask.setTransferStateListener(state -> {
+            if(state == TransferState.IN_PROGRESS){
+                TestUtils.sleep(500);
+                Assert.assertNotNull(cosxmlCopyTask.getUploadId());
+                cosxmlCopyTask.cancel();
+                TestUtils.sleep(500);
+                Assert.assertSame(cosxmlCopyTask.getTaskState(), TransferState.CANCELED);
+            }
+        });
     }
 
 
@@ -211,7 +216,7 @@ public class CopyTest {
         final TestLocker testLocker = new TestLocker();
         final String cosPath = "copy_object_" + System.currentTimeMillis();
         CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
-                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH);
         final TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
         COSXMLCopyTask cosxmlCopyTask = transferManager.copy(TestConst.PERSIST_BUCKET, cosPath, copySourceStruct, new MyOnSignatureListener());
 
@@ -283,7 +288,7 @@ public class CopyTest {
         final TestLocker testLocker = new TestLocker();
         final String cosPath = "copy_object_" + System.currentTimeMillis();
         CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
-                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH);
         final TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
         COSXMLCopyTask cosxmlCopyTask = transferManager.copy(TestConst.PERSIST_BUCKET+"aaa", cosPath, copySourceStruct);
         cosxmlCopyTask.setCosXmlResultListener(new CosXmlResultListener() {

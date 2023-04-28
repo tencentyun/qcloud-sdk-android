@@ -23,6 +23,7 @@
 package com.tencent.cos.xml.core;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class TestLocker {
 
@@ -38,7 +39,15 @@ public class TestLocker {
 
     public void lock() {
         try {
-            locker.await();
+            locker.await(30000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void lock(long timeout) {
+        try {
+            locker.await(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

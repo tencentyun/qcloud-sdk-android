@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public class ZClearTest {
+public class ZZClearTest {
     //com.tencent.cos.xml.transfer.ZClearTest是为了在transfer测试类最后执行
 
     @Test
