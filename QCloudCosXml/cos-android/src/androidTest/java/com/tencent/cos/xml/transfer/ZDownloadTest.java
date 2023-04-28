@@ -105,6 +105,46 @@ public class ZDownloadTest {
     }
 
     @Test
+    public void testPauseAndResume1() {
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();;
+        final COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH,
+                TestUtils.localParentPath());
+
+        final TestLocker testLocker = new TestLocker();
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (downloadTask.getTaskState() == TransferState.COMPLETED) {
+            TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+            return;
+        }
+
+        downloadTask.pause();
+        TestUtils.sleep(1000);
+        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+        downloadTask.resume();
+
+        testLocker.lock(30000);
+        TestUtils.sleep(10000);
+        TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+    }
+
+    @Test
     public void testCancelTask() {
         TestUtils.sleep(20000);
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();

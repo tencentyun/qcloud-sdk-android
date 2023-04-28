@@ -235,29 +235,29 @@ public class DownloadTest {
      *
      * 下载 2s 后点击暂停，并记录当前的下载进度，等待 1s 后重新下载，进度必须大于之前记录的进度
      */
-    // TODO: 2023/3/29 真机会失败
-//    @Test public void testContinueDownload() {
-//
-//        String localFileName = TestUtils.extractName(TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
-//
-//        TestUtils.removeLocalFile(TestUtils.localPath(localFileName));
-//
-//        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();;
-//        final COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
-//                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
-//                TestUtils.localParentPath(), localFileName);
-//
-//        TestUtils.sleep(4000);
-//        downloadTask.pause();
+    @Test public void testContinueDownload() {
+
+        String localFileName = TestUtils.extractName(TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH);
+
+        TestUtils.removeLocalFile(TestUtils.localPath(localFileName));
+
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();;
+        final COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH,
+                TestUtils.localParentPath(), localFileName);
+
+        TestUtils.sleep(4000);
+        downloadTask.pause();
+        TestUtils.sleep(4000);
 //        final StringBuilder errorMessage = new StringBuilder();
-//
-//        final COSXMLDownloadTask continueTask = transferManager.download(TestUtils.getContext(),
-//                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
-//                TestUtils.localParentPath(), localFileName);
-//
-//        final TestLocker testLocker = new TestLocker();
-//
-//        final long currentProgress = new File(TestUtils.localParentPath(), localFileName).length();
+
+        final COSXMLDownloadTask continueTask = transferManager.download(TestUtils.getContext(),
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH,
+                TestUtils.localParentPath(), localFileName);
+
+        final TestLocker testLocker = new TestLocker();
+
+        final long currentProgress = new File(TestUtils.localParentPath(), localFileName).length();
 //        continueTask.setCosXmlProgressListener(new CosXmlProgressListener() {
 //            @Override
 //            public void onProgress(long complete, long target) {
@@ -268,6 +268,42 @@ public class DownloadTest {
 //                }
 //            }
 //        });
+
+        continueTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException exception, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(exception, serviceException));
+                testLocker.release();
+            }
+        });
+
+        testLocker.lock();
+//        TestUtils.assertErrorMessageNull(errorMessage);
+        TestUtils.assertCOSXMLTaskSuccess(continueTask);
+    }
+
+//    @Test public void testContinueDownloadExisted() {
+//        String localFileName = TestUtils.big60mFilePath();
+//        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+//        final COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+//                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH,
+//                localFileName);
+//
+//        TestUtils.sleep(4000);
+//        downloadTask.pause();
+//        TestUtils.sleep(4000);
+//
+//        TestUtils.big60mFilePath();
+//        final COSXMLDownloadTask continueTask = transferManager.download(TestUtils.getContext(),
+//                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH,
+//                localFileName);
+//
+//        final TestLocker testLocker = new TestLocker();
 //
 //        continueTask.setCosXmlResultListener(new CosXmlResultListener() {
 //            @Override
@@ -283,7 +319,6 @@ public class DownloadTest {
 //        });
 //
 //        testLocker.lock();
-//        TestUtils.assertErrorMessageNull(errorMessage);
 //        TestUtils.assertCOSXMLTaskSuccess(continueTask);
 //    }
 
@@ -379,6 +414,39 @@ public class DownloadTest {
         });
         testLocker.lock();
         TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+    }
+
+    @Test public void testSmallDownloadRangeFaild() {
+        // 能通过head  但是get服务端非200-300
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                TestUtils.localParentPath());
+//        getObjectRequest.setIfModifiedSince("Wed, 21 Oct 2009 07:28:00 GMT");
+//        getObjectRequest.setIfUnmodifiedSince("Wed, 21 Oct 2052 07:28:00 GMT");
+        getObjectRequest.setIfMatch("none_match_etag");
+//        getObjectRequest.setIfNONEMatch("none_match_etag");
+        getObjectRequest.addNoSignHeader("Range");
+        COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+                getObjectRequest);
+
+        final TestLocker testLocker = new TestLocker();
+        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                Assert.fail();
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                Assert.assertTrue(true);
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
     }
 
     @Test public void testDownloadClientError() {

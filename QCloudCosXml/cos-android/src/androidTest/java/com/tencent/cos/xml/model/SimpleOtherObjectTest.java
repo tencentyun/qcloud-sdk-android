@@ -40,6 +40,8 @@ import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
+import com.tencent.cos.xml.model.object.AbortMultiUploadRequest;
+import com.tencent.cos.xml.model.object.AbortMultiUploadResult;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadRequest;
 import com.tencent.cos.xml.model.object.CompleteMultiUploadResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
@@ -95,6 +97,7 @@ public class SimpleOtherObjectTest {
      */
     @Test
     public void multiUploadObject() {
+        TestUtils.sleep(10000);
         String fileName = TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH;
         String bucketName = TestConst.PERSIST_BUCKET;
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
@@ -112,6 +115,7 @@ public class SimpleOtherObjectTest {
         initMultipartUploadRequest.setXCOSGrantRead(aclAccount);
         initMultipartUploadRequest.setXCOSGrantWrite(null);
         initMultipartUploadRequest.setXCOSReadWrite(aclAccount);
+        initMultipartUploadRequest.setXCOSACL(COSACL.DEFAULT.getAcl());
         initMultipartUploadRequest.setXCOSACL(COSACL.DEFAULT);
         InitMultipartUploadResult initMultipartUploadResult = null;
         try {
@@ -351,7 +355,7 @@ public class SimpleOtherObjectTest {
         ListPartsRequest listPartsRequest1 = new ListPartsRequest(bucketName, fileName, uploadId);
         ListPartsResult listPartsResult1 = null;
         try {
-            listPartsResult1 = cosXmlService.listParts(listPartsRequest);
+            listPartsResult1 = cosXmlService.listParts(listPartsRequest1);
         } catch (CosXmlClientException e) {
             e.printStackTrace();
         } catch (CosXmlServiceException e) {
@@ -389,6 +393,104 @@ public class SimpleOtherObjectTest {
         TestUtils.parseBadResponseBody(listPartsResult);
         TestUtils.parseBadResponseBody(uploadPartResult1);
         TestUtils.parseBadResponseBody(completeMultiUploadResult);
+    }
+
+    @Test
+    public void testAbortMultiUpload() {
+        TestUtils.sleep(10000);
+        String fileName = TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH;
+        String bucketName = TestConst.PERSIST_BUCKET;
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
+
+        // 初始化分片上传
+        InitMultipartUploadRequest initMultipartUploadRequest = new InitMultipartUploadRequest(bucketName, fileName);
+        InitMultipartUploadResult initMultipartUploadResult = null;
+        try {
+            initMultipartUploadResult = cosXmlService.initMultipartUpload(initMultipartUploadRequest);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(initMultipartUploadResult);
+        Assert.assertNotNull(initMultipartUploadResult.printResult());
+        Assert.assertEquals(200, initMultipartUploadResult.httpCode);
+        Assert.assertNotNull(initMultipartUploadResult.initMultipartUpload.uploadId);
+
+        String uploadId = initMultipartUploadResult.initMultipartUpload.uploadId;
+
+        // 上传分片
+        int partNumber = 1;
+        InputStream inputStream = new ByteArrayInputStream((getBigString()+"asdasdasd").getBytes());
+        UploadPartRequest uploadPartRequest1 = null;
+        try {
+            uploadPartRequest1 = new UploadPartRequest(bucketName, fileName,
+                    partNumber, inputStream, uploadId);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        }
+        uploadPartRequest1.setTrafficLimit(838860800);
+        uploadPartRequest1.setPartNumber(partNumber);
+        Assert.assertEquals(partNumber, uploadPartRequest1.getPartNumber());
+        uploadPartRequest1.setUploadId(uploadId);
+        Assert.assertEquals(uploadId, uploadPartRequest1.getUploadId());
+        uploadPartRequest1.setData(getBigString().getBytes());
+        Assert.assertNotNull(uploadPartRequest1.getData());
+        Assert.assertNotEquals(uploadPartRequest1.getFileLength(), 0);
+        uploadPartRequest1.setProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                Log.d(TestConst.UT_TAG, complete + "/" + target);
+            }
+        });
+        UploadPartResult uploadPartResult1 = null;
+        try {
+            uploadPartResult1 = cosXmlService.uploadPart(uploadPartRequest1);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(uploadPartResult1);
+        Assert.assertNotNull(uploadPartResult1.printResult());
+        Assert.assertEquals(200, uploadPartResult1.httpCode);
+        Assert.assertNotNull(uploadPartResult1.eTag);
+
+        // 查询分片上传
+        ListPartsRequest listPartsRequest1 = new ListPartsRequest(bucketName, fileName, uploadId);
+        listPartsRequest1.setPartNumberMarker(0);
+        Assert.assertEquals(listPartsRequest1.getPartNumberMarker(), 0);
+        ListPartsResult listPartsResult1 = null;
+        try {
+            listPartsResult1 = cosXmlService.listParts(listPartsRequest1);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(listPartsResult1);
+        Assert.assertNotNull(listPartsResult1.printResult());
+        Assert.assertNotNull(listPartsResult1.listParts);
+
+        //取消上传
+        AbortMultiUploadRequest abortMultiUploadRequest = new AbortMultiUploadRequest(bucketName, fileName, uploadId);
+        abortMultiUploadRequest.setUploadId(uploadId);
+        Assert.assertEquals(abortMultiUploadRequest.getUploadId(), uploadId);
+        AbortMultiUploadResult abortMultiUploadResult = null;
+        try {
+            abortMultiUploadResult = cosXmlService.abortMultiUpload(abortMultiUploadRequest);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(abortMultiUploadResult);
+        Assert.assertNotNull(abortMultiUploadResult.printResult());
+        Assert.assertEquals(abortMultiUploadResult.httpCode, 204);
+
+        TestUtils.parseBadResponseBody(initMultipartUploadResult);
+        TestUtils.parseBadResponseBody(uploadPartResult1);
+        TestUtils.parseBadResponseBody(abortMultiUploadResult);
     }
 
     private String getBigString(){

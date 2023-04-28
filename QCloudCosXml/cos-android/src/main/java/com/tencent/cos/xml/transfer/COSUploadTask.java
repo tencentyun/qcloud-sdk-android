@@ -247,7 +247,7 @@ public class COSUploadTask extends COSTransferTask {
             uploadTask = new SimpleUploadTask(cosDirect, mPutObjectRequest, mTransferTaskCts, getUploadLength());
         }
         uploadTask.mTransferMetrics = transferTaskMetrics;
-        uploadTask.taskId = taskId;
+        uploadTask.setTaskId(taskId);
 
         CosXmlResult cosxmlResult = uploadTask.upload(mPutObjectRequest);
         if (cosxmlResult instanceof CompleteMultiUploadResult) {

@@ -359,12 +359,12 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
         PreBuildConnectionRequest preBuildConnectionRequest = new PreBuildConnectionRequest(bucket);
         try {
             execute(preBuildConnectionRequest, new PreBuildConnectionResult());
+            return true;
         } catch (CosXmlClientException e) {
             return false;
         } catch (CosXmlServiceException e) {
             return e.getStatusCode() != 404;
         }
-        return true;
     }
 
     /**

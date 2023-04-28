@@ -131,7 +131,7 @@ public class COSDownloadTask extends COSTransferTask {
         simpleDownloadTask.bucket = bucket;
         simpleDownloadTask.key = key;
         simpleDownloadTask.region = region;
-        simpleDownloadTask.taskId = taskId;
+        simpleDownloadTask.setTaskId(taskId);
         simpleDownloadTask.mTransferMetrics = transferTaskMetrics;
         mGetObjectRequest.setProgressListener(new CosXmlProgressListener() {
             @Override

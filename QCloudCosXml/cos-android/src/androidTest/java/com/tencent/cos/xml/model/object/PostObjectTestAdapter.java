@@ -75,7 +75,9 @@ public class PostObjectTestAdapter{
 
         @Override
         protected PostObjectResult exeSync(PostObjectRequest request, CosXmlSimpleService cosXmlService) throws CosXmlClientException, CosXmlServiceException {
-            return cosXmlService.postObject(request);
+            PostObjectResult result = cosXmlService.postObject(request);
+            TestUtils.print(result.toString());
+            return result;
         }
 
         @Override
