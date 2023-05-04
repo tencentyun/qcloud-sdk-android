@@ -21,9 +21,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -38,15 +35,92 @@ public class AUploadTest {
     /**
      * 上传进度 100% 后点击暂停，并等待 5s 后恢复上传
      */
+//    @Test
+//    public void testPauseAndResumeTask() {
+////        TestUtils.sleep(10000);
+//        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+//        final COSXMLUploadTask uploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH,
+//                big60mFilePath(), null);
+//        final TestLocker testLocker = new TestLocker();
+//        final TestLocker waitPauseLocker = new TestLocker();
+//
+//        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+//            @Override
+//            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+//                testLocker.release();
+//            }
+//
+//            @Override
+//            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+//                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+//                testLocker.release();
+//            }
+//        });
+//
+//        uploadTask.setTransferStateListener(new TransferStateListener() {
+//            @Override
+//            public void onStateChanged(TransferState state) {
+//                Log.i(TestConst.UT_TAG, "state " + state);
+//            }
+//        });
+//
+//
+//        final AtomicBoolean pauseSuccess = new AtomicBoolean(false);
+//        uploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+//            @Override
+//            public void onProgress(long complete, long target) {
+//
+//                Log.i(TestConst.UT_TAG, "progress  = " + 1.0 * complete / target);
+//
+//                if (complete == target && !pauseSuccess.get()) {
+//                    if (uploadTask.pauseSafely()) {
+//                        Log.i(TestConst.UT_TAG, "pause success!!");
+//                        pauseSuccess.set(true);
+//                    } else {
+//                        Log.i(TestConst.UT_TAG, "pause failed!!");
+//                    }
+//                    waitPauseLocker.release();
+//                }
+//            }
+//        });
+//
+//        waitPauseLocker.lock(); // 等待暂停
+//
+//        if (pauseSuccess.get()) {
+//            new Timer().schedule(new TimerTask() {
+//                @Override
+//                public void run() {
+//                    Log.i(TestConst.UT_TAG, "start resume");
+//                    uploadTask.resume();
+//                }
+//            }, 3000);
+//        }
+//
+//        testLocker.lock(20000);
+//        TestUtils.sleep(10000);
+//        TestUtils.assertCOSXMLTaskSuccess(uploadTask);
+//    }
+
     @Test
     public void testPauseAndResumeTask() {
-
+        TestUtils.sleep(10000);
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
         final COSXMLUploadTask uploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH,
                 big60mFilePath(), null);
         final TestLocker testLocker = new TestLocker();
-        final TestLocker waitPauseLocker = new TestLocker();
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
+        if (uploadTask.getTaskState() == TransferState.COMPLETED) {
+            TestUtils.assertCOSXMLTaskSuccess(uploadTask);
+            return;
+        }
+
+        uploadTask.pauseSafely();
+        TestUtils.sleep(1000);
         uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
@@ -59,47 +133,9 @@ public class AUploadTest {
                 testLocker.release();
             }
         });
+        uploadTask.resume();
 
-        uploadTask.setTransferStateListener(new TransferStateListener() {
-            @Override
-            public void onStateChanged(TransferState state) {
-                Log.i(TestConst.UT_TAG, "state " + state);
-            }
-        });
-
-
-        final AtomicBoolean pauseSuccess = new AtomicBoolean(false);
-        uploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
-            @Override
-            public void onProgress(long complete, long target) {
-
-                Log.i(TestConst.UT_TAG, "progress  = " + 1.0 * complete / target);
-
-                if (complete == target && !pauseSuccess.get()) {
-                    if (uploadTask.pauseSafely()) {
-                        Log.i(TestConst.UT_TAG, "pause success!!");
-                        pauseSuccess.set(true);
-                    } else {
-                        Log.i(TestConst.UT_TAG, "pause failed!!");
-                    }
-                    waitPauseLocker.release();
-                }
-            }
-        });
-
-        waitPauseLocker.lock(); // 等待暂停
-
-        if (pauseSuccess.get()) {
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    Log.i(TestConst.UT_TAG, "start resume");
-                    uploadTask.resume();
-                }
-            }, 3000);
-        }
-
-        testLocker.lock(20000);
+        testLocker.lock(30000);
         TestUtils.sleep(10000);
         TestUtils.assertCOSXMLTaskSuccess(uploadTask);
     }

@@ -236,7 +236,7 @@ public class DownloadTest {
      * 下载 2s 后点击暂停，并记录当前的下载进度，等待 1s 后重新下载，进度必须大于之前记录的进度
      */
     @Test public void testContinueDownload() {
-
+        TestUtils.sleep(10000);
         String localFileName = TestUtils.extractName(TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH);
 
         TestUtils.removeLocalFile(TestUtils.localPath(localFileName));
@@ -284,6 +284,7 @@ public class DownloadTest {
 
         testLocker.lock();
 //        TestUtils.assertErrorMessageNull(errorMessage);
+        TestUtils.sleep(10000);
         TestUtils.assertCOSXMLTaskSuccess(continueTask);
     }
 

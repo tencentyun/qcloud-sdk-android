@@ -115,7 +115,6 @@ public class SimpleOtherObjectTest {
         initMultipartUploadRequest.setXCOSGrantRead(aclAccount);
         initMultipartUploadRequest.setXCOSGrantWrite(null);
         initMultipartUploadRequest.setXCOSReadWrite(aclAccount);
-        initMultipartUploadRequest.setXCOSACL(COSACL.DEFAULT.getAcl());
         initMultipartUploadRequest.setXCOSACL(COSACL.DEFAULT);
         InitMultipartUploadResult initMultipartUploadResult = null;
         try {
@@ -404,6 +403,7 @@ public class SimpleOtherObjectTest {
 
         // 初始化分片上传
         InitMultipartUploadRequest initMultipartUploadRequest = new InitMultipartUploadRequest(bucketName, fileName);
+        initMultipartUploadRequest.setXCOSACL(COSACL.DEFAULT.getAcl());
         InitMultipartUploadResult initMultipartUploadResult = null;
         try {
             initMultipartUploadResult = cosXmlService.initMultipartUpload(initMultipartUploadRequest);

@@ -38,14 +38,18 @@ public class TestUtils {
 
     public static void assertCOSXMLTaskSuccess(COSXMLTask cosxmlTask) {
 
-        Assert.assertTrue(getCosExceptionMessage(cosxmlTask.getException()),
+        Assert.assertTrue(cosxmlTask.getException() == null?cosxmlTask.getTaskState().name():getCosExceptionMessage(cosxmlTask.getException()),
                 cosxmlTask.getTaskState() == TransferState.COMPLETED);
     }
 
     public static void assertCOSXMLTaskSuccess(COSTransferTask cosxmlTask) {
-
-        Assert.assertTrue(getCosExceptionMessage(cosxmlTask.getClientException(), cosxmlTask.getServiceException()),
-                cosxmlTask.getTaskState() == TransferState.COMPLETED);
+        if(cosxmlTask.getClientException() == null && cosxmlTask.getServiceException() == null){
+            Assert.assertTrue(cosxmlTask.getTaskState().name(),
+                    cosxmlTask.getTaskState() == TransferState.COMPLETED);
+        } else {
+            Assert.assertTrue(getCosExceptionMessage(cosxmlTask.getClientException(), cosxmlTask.getServiceException()),
+                    cosxmlTask.getTaskState() == TransferState.COMPLETED);
+        }
     }
 
     public static void assertErrorMessageNull(StringBuilder builder) {
