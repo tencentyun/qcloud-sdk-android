@@ -282,7 +282,8 @@ public class SpeechTest {
     @Test
     public void stage7_describeSpeechJobs() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        DescribeSpeechJobsRequest request = new DescribeSpeechJobsRequest(TestConst.ASR_BUCKET, SpeechTest.queueId);
+        DescribeSpeechJobsRequest request = new DescribeSpeechJobsRequest(TestConst.ASR_BUCKET);
+        request.setQueueId(SpeechTest.queueId);
         request.setOrderByTime("Desc");
         request.setNextToken(null);
         request.setSize(50);
@@ -304,7 +305,8 @@ public class SpeechTest {
     public void stage7_describeSpeechJobsAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         final TestLocker locker = new TestLocker();
-        DescribeSpeechJobsRequest request = new DescribeSpeechJobsRequest(TestConst.ASR_BUCKET, TestConst.PERSIST_BUCKET_REGION, SpeechTest.queueId);
+        DescribeSpeechJobsRequest request = new DescribeSpeechJobsRequest(TestConst.ASR_BUCKET, TestConst.PERSIST_BUCKET_REGION);
+        request.setQueueId(SpeechTest.queueId);
         ciService.describeSpeechJobsAsync(request, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult cosResult) {

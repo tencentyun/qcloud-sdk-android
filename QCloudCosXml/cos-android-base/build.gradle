@@ -71,12 +71,8 @@ dependencies {
 
     api project(':foundation')
 
-    compileOnly files(
-            'libs/beacon-android-release-4.2.80.6-official.aar',
-            'libs/qimei-1.2.13.1.aar',
-            'libs/qimei-core-1.2.13.1-normal.aar',
-            'libs/qmsp-oaid2-1.0.4.aar'
-    )
+    compileOnly 'com.tencent.beacon:beacon-android-release:4.2.80.6:official@aar'
+    compileOnly 'com.tencent.qimei:qimei:1.2.13.1'
 }
 
 static String quotWrapper(key) {
