@@ -1,3 +1,6 @@
+## v5.9.13
+1. 语音识别、分词去掉队列id设置和校验
+
 ## v5.9.12
 1. 修复单图审核ci token签名为cos token签名
 2. 解决okhttp4及以上Util.closeQuietly兼容问题
