@@ -23,10 +23,9 @@
 package com.tencent.cos.xml.model.ci.asr;
 
 
-import android.text.TextUtils;
+import androidx.annotation.NonNull;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.bucket.BucketRequest;
@@ -39,17 +38,22 @@ import com.tencent.qcloud.core.http.RequestBodySerializer;
  * @see com.tencent.cos.xml.CIService#describeSpeechJobsAsync(DescribeSpeechJobsRequest, CosXmlResultListener) 
  */
 final public class DescribeSpeechJobsRequest extends BucketRequest {
-    private final String queueId;
-    public DescribeSpeechJobsRequest(String bucket, String queueId) {
+    public DescribeSpeechJobsRequest(String bucket) {
         super(bucket);
-        this.queueId = queueId;
-        queryParameters.put("queueId", queueId);
         queryParameters.put("tag", "SpeechRecognition");
     }
 
-    public DescribeSpeechJobsRequest(String bucket, String region, String queueId) {
-        this(bucket, queueId);
+    public DescribeSpeechJobsRequest(String bucket, String region) {
+        this(bucket);
         this.region = region;
+    }
+
+    /**
+     * 队列 ID
+     * @param queueId 队列 ID
+     */
+    public void setQueueId(@NonNull String queueId) {
+        queryParameters.put("queueId", queueId);
     }
 
     /**
@@ -117,8 +121,5 @@ final public class DescribeSpeechJobsRequest extends BucketRequest {
     @Override
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
-        if(TextUtils.isEmpty(queueId)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "queueId must be non-empty");
-        }
     }
 }
