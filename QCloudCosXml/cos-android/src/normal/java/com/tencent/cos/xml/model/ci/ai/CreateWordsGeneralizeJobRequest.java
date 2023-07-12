@@ -133,10 +133,6 @@ public class CreateWordsGeneralizeJobRequest extends BucketRequest {
         if(TextUtils.isEmpty(createWordsGeneralizeJob.input.object)){
             throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "input must be non-empty");
         }
-
-        if(TextUtils.isEmpty(createWordsGeneralizeJob.queueId)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "queueId must be non-empty");
-        }
     }
 
     @Override
