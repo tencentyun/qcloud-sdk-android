@@ -122,4 +122,11 @@ public @interface XmlElement {
    * @return 是否忽略0值
    */
   boolean ignoreZero() default false;
+
+  /**
+   * 是否解析为原始的xml字符串
+   * 仅用于fromxml
+   * @return 原始的xml字符串
+   */
+  boolean originalXmlString() default false;
 }

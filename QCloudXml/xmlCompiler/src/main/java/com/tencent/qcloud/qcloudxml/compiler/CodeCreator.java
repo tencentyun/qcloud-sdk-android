@@ -158,22 +158,37 @@ public class CodeCreator {
                         codeBlock.endControlFlow();
                     }
                 } else if (typeXmlKind == TypeXmlKind.LIST) {
-                    if(!Util.ignoreListNote(element)){
-                        codeBlock.addStatement(String.format("xmlSerializer.startTag(\"\", \"%s\")", Util.getElementName(element)));
-                    }
                     TypeMirror genericListType = Util.getGenericTypeFromList(element);
                     TypeElement genericListElement = ElementUtil.typeMirrorToTypeElement(genericListType);
 
+                    boolean genericTypeIsBaseType = false;
+                    if (genericListElement != null) {
+                        TypeXmlKind genericTypeXmlKind = ElementUtil.getXmlKind(genericListElement);
+                        if (genericTypeXmlKind.isBaseType()) {
+                            genericTypeIsBaseType = true;
+                        }
+                    }
+
+                    if(!Util.ignoreListNote(element)){
+                        codeBlock.addStatement(String.format("xmlSerializer.startTag(\"\", \"%s\")", Util.getElementName(element)));
+                    }
+
                     codeBlock.beginControlFlow(String.format("if (value.%s != null)", element.getSimpleName()))
-                            .beginControlFlow(String.format("for (int i =0; i<value.%s.size(); i++)", element.getSimpleName()))
-                            .addStatement(String.format("%s.toXml(xmlSerializer, value.%s.get(i), %s)",
-                                    ClassName.bestGuess("com.tencent.qcloud.qcloudxml.core.QCloudXml"),
-                                    element.getSimpleName(),
-                                    genericListElement != null
-                                            ? String.format("\"%s\"", Util.initialsUpperCase(Util.getTypeElementName(genericListElement)))
-                                            : null
-                            ))
-                            .endControlFlow()
+                            .beginControlFlow(String.format("for (int i =0; i<value.%s.size(); i++)", element.getSimpleName()));
+                    if(genericTypeIsBaseType){
+                        codeBlock.addStatement(String.format("xmlSerializer.startTag(\"\", \"%s\")", Util.getElementName(element)))
+                                .addStatement(String.format("xmlSerializer.text(String.valueOf(value.%s.get(i)))", element.getSimpleName()))
+                                .addStatement(String.format("xmlSerializer.endTag(\"\", \"%s\")", Util.getElementName(element)));
+                    } else {
+                        codeBlock.addStatement(String.format("%s.toXml(xmlSerializer, value.%s.get(i), %s)",
+                                ClassName.bestGuess("com.tencent.qcloud.qcloudxml.core.QCloudXml"),
+                                element.getSimpleName(),
+                                genericListElement != null
+                                        ? String.format("\"%s\"", Util.initialsUpperCase(Util.getTypeElementName(genericListElement)))
+                                        : null
+                        ));
+                    }
+                    codeBlock.endControlFlow()
                             .endControlFlow();
                     if(!Util.ignoreListNote(element)){
                         codeBlock.addStatement(String.format("xmlSerializer.endTag(\"\", \"%s\")", Util.getElementName((element))));
@@ -236,12 +251,20 @@ public class CodeCreator {
             codeBlock.addStatement(String.format(generateBaseTypeAssignment(typeXmlKind), element.getSimpleName()));
         } else if (typeXmlKind == TypeXmlKind.LIST) {
             TypeMirror genericListType = Util.getGenericTypeFromList(element);
+            TypeElement genericListElement = ElementUtil.typeMirrorToTypeElement(genericListType);
+
+            boolean genericTypeIsBaseType = false;
+            if (genericListElement != null) {
+                TypeXmlKind genericTypeXmlKind = ElementUtil.getXmlKind(genericListElement);
+                if (genericTypeXmlKind.isBaseType()) {
+                    genericTypeIsBaseType = true;
+                }
+            }
 
             ParameterizedTypeName valueTypeAsArrayList = ParameterizedTypeName.get(ClassName.get(ArrayList.class), ClassName.get(genericListType));
             //两种list解析
             if(!Util.flatListNote(element)){
-                TypeElement genericListElement = ElementUtil.typeMirrorToTypeElement(genericListType);
-
+                // TODO: 2023/7/6 兼容响应中List的基础类型 比如string
                 codeBlock.beginControlFlow(String.format("if (value.%s == null)", element.getSimpleName()))
                         .addStatement(String.format("value.%s = new %s()", element.getSimpleName(), valueTypeAsArrayList))
                         .endControlFlow()
@@ -274,12 +297,34 @@ public class CodeCreator {
             } else {
                 codeBlock.beginControlFlow(String.format("if (value.%s == null)", element.getSimpleName()))
                         .addStatement(String.format("value.%s = new %s()", element.getSimpleName(), valueTypeAsArrayList))
-                        .endControlFlow()
-                        .addStatement(String.format("value.%s.add(%s.fromXml(xmlPullParser, %s.class, \"%s\"))",
-                                element.getSimpleName(),
-                                ClassName.bestGuess("com.tencent.qcloud.qcloudxml.core.QCloudXml"),
-                                ClassName.get(genericListType),
-                                Util.initialsUpperCase(Util.getElementName(element))));
+                        .endControlFlow();
+                if(genericTypeIsBaseType){
+                    codeBlock.addStatement("int eventType = xmlPullParser.getEventType()")
+                            .beginControlFlow("while (eventType != XmlPullParser.END_DOCUMENT)")
+                            .beginControlFlow("switch (eventType)")
+
+                            .beginControlFlow("case XmlPullParser.START_TAG:")
+                            .addStatement("xmlPullParser.next()")
+                            .addStatement(String.format(generateListBaseTypeAssignment(ElementUtil.getXmlKind(genericListElement)), element.getSimpleName()))
+                            .endControlFlow()
+                            .addStatement("break")
+
+                            .beginControlFlow("case XmlPullParser.END_TAG:")
+                            .beginControlFlow(String.format("if(\"%s\".equalsIgnoreCase(xmlPullParser.getName()))", Util.getElementName(element)))
+                            .addStatement("return")
+                            .endControlFlow()
+                            .endControlFlow()
+
+                            .endControlFlow()
+                            .addStatement("eventType = xmlPullParser.next()")
+                            .endControlFlow();
+                } else {
+                    codeBlock.addStatement(String.format("value.%s.add(%s.fromXml(xmlPullParser, %s.class, \"%s\"))",
+                            element.getSimpleName(),
+                            ClassName.bestGuess("com.tencent.qcloud.qcloudxml.core.QCloudXml"),
+                            ClassName.get(genericListType),
+                            Util.initialsUpperCase(Util.getElementName(element))));
+                }
             }
         } else if (typeXmlKind == TypeXmlKind.NORMAL_BEAN) {
             codeBlock.addStatement(String.format("value.%s = %s.fromXml(xmlPullParser, %s.class, \"%s\")",
@@ -311,6 +356,7 @@ public class CodeCreator {
     /**
      * 生成基础类型赋值语句
      */
+    // TODO: 2023/7/6 支持originalXmlString
     private static String generateBaseTypeAssignment(TypeXmlKind typeXmlKind) {
         switch (typeXmlKind) {
             case STRING:
@@ -330,6 +376,30 @@ public class CodeCreator {
                 return "value.%s = Double.parseDouble(xmlPullParser.getText())";
             case BOOLEAN:
                 return "value.%s = Boolean.parseBoolean(xmlPullParser.getText())";
+            default:
+                return "";
+        }
+    }
+
+    private static String generateListBaseTypeAssignment(TypeXmlKind typeXmlKind) {
+        switch (typeXmlKind) {
+            case STRING:
+            case CHAR:
+                return "value.%s.add(xmlPullParser.getText())";
+            case INT:
+                return "value.%s.add(Integer.parseInt(xmlPullParser.getText()))";
+            case BYTE:
+                return "value.%s.add(Byte.parseByte(xmlPullParser.getText()))";
+            case LONG:
+                return "value.%s.add(Long.parseLong(xmlPullParser.getText()))";
+            case FLOAT:
+                return "value.%s.add(Float.parseFloat(xmlPullParser.getText()))";
+            case SHORT:
+                return "value.%s.add(Short.parseShort(xmlPullParser.getText()))";
+            case DOUBLE:
+                return "value.%s.add(Double.parseDouble(xmlPullParser.getText()))";
+            case BOOLEAN:
+                return "value.%s.add(Boolean.parseBoolean(xmlPullParser.getText()))";
             default:
                 return "";
         }
