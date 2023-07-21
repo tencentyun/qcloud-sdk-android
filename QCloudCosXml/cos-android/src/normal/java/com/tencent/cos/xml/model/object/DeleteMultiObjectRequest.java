@@ -74,14 +74,8 @@ final public class DeleteMultiObjectRequest extends ObjectRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        try {
-            return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML, XmlBuilder.buildDelete(delete));
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-        }
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
+        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML, XmlBuilder.buildDelete(delete));
     }
 
     @Override

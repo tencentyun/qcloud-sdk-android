@@ -25,10 +25,12 @@ package com.tencent.cos.xml.model.tag.audit.get;
 
 import com.tencent.cos.xml.model.tag.audit.bean.AuditJobsDetail;
 import com.tencent.cos.xml.model.tag.audit.bean.AuditSection;
+import com.tencent.cos.xml.model.tag.audit.bean.TextAuditScenarioInfo;
 import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 音频审核返回的具体响应内容
@@ -82,6 +84,18 @@ public class GetAudioAuditJobResponse {
          */
         @XmlElement(flatListNote = true)
         public List<AudioSection> section;
+        /**
+         * 创建的音频审核任务所属的存储桶名称	。
+         */
+        public String bucketId;
+        /**
+         * 存储桶所在的地域。
+         */
+        public String region;
+        /**
+         * 资源上传到 COS 时设置的自定义 Header 内容，如果未设置则不返回。map 结构，key 为自定义 Header 的名称，value 为内容。
+         */
+        public Map<String, String> cosHeaders;
     }
 
     @XmlBean(method = XmlBean.GenerateMethod.FROM)
@@ -98,6 +112,14 @@ public class GetAudioAuditJobResponse {
          * 本次审核的结果标签，如果命中了敏感的关键词，该字段返回对应的关键词。
          */
         public String label;
+        /**
+         * 该字段表示审核命中的具体审核类别。注意：该字段可能返回空。
+         */
+        public String category;
+        /**
+         * 该字段表示审核命中的具体子标签。注意：该字段可能返回空。
+         */
+        public String subLabel;
     }
 
     /**
@@ -127,11 +149,21 @@ public class GetAudioAuditJobResponse {
          * 该字段用于返回检测结果中所对应的优先级最高的恶意标签，表示模型推荐的审核结果，建议您按照业务所需，对不同违规类型与建议值进行处理。 返回值：Normal：正常，Porn：色情，Ads：广告，Politics：涉政，Terrorism：暴恐。
          */
         public String label;
+        /**
+         * 该字段表示审核命中的具体子标签。注意：该字段可能返回空。
+         */
+        public String subLabel;
 
         /**
          * 该字段表示本次判定的审核结果，您可以根据该结果，进行后续的操作；建议您按照业务所需，对不同的审核结果进行相应处理。
          * 有效值：0（审核正常），1 （判定为违规敏感文件），2（疑似敏感，建议人工复核）。
          */
         public int result;
+
+        /**
+         * 该字段表示音频中语种的识别结果。注意：未开启该功能时不返回该字段。
+         */
+        @XmlElement(flatListNote = true)
+        public List<TextAuditScenarioInfo.Results> languageResults;
     }
 }

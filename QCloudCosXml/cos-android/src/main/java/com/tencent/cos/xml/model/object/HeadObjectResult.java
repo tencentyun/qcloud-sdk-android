@@ -37,11 +37,18 @@ final public class HeadObjectResult extends CosXmlResult {
     public String cosObjectType;
     public String cosStorageClass;
 
+    /**
+     * 返回文件的 MD5 算法校验值.eTag 的值可以用于检查 Object 在上传过程中是否有损坏
+     */
+    public String eTag;
+
     @Override
     public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
         super.parseResponseBody(response);
         cosObjectType = response.header("x-cos-object-type");
         cosStorageClass = response.header("x-cos-storage-class");
+
+        eTag = response.header("ETag");
     }
 
 }

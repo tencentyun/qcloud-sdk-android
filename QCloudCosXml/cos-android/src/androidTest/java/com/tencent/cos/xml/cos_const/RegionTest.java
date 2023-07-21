@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml.cos_const;
 
+import static org.junit.Assert.assertEquals;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.common.Region;
@@ -32,8 +34,6 @@ import org.junit.runner.RunWith;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by bradyxiao on 2018/3/14.
@@ -57,6 +57,7 @@ public class RegionTest {
         assertEquals(Region.CN_SOUTH, Region.fromValue("cn-south"));
         assertEquals(Region.CN_EAST, Region.fromValue("cn-east"));
         assertEquals(Region.CN_SOUTHWEST, Region.fromValue("cn-southwest"));
+        Assert.assertNull(Region.fromValue("test"));
     }
 
     @Test public void test2() {

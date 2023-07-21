@@ -31,6 +31,7 @@ import android.text.TextUtils;
 import com.tencent.cos.xml.common.VersionInfo;
 import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
 import com.tencent.qcloud.core.task.RetryStrategy;
+import com.tencent.qcloud.core.task.TaskExecutors;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,50 +69,52 @@ public class CosXmlServiceConfig implements Parcelable {
      */
     public static final String DEFAULT_USER_AGENT = VersionInfo.getUserAgent();
 
-    private String protocol;
-    private String userAgent;
-    private String userAgentExtended;
+    private final String protocol;
+    private final String userAgent;
+    private final String userAgentExtended;
 
-    private String region;
-    private String appid;
+    private final String region;
+    private final String appid;
 
-    private String host;
-    private int port;
-    private String endpointSuffix;
+    private final String host;
+    private final int port;
+    private final String endpointSuffix;
 
-    private boolean isDebuggable;
+    private final boolean isDebuggable;
 
-    private RetryStrategy retryStrategy;
-    private QCloudHttpRetryHandler qCloudHttpRetryHandler;
+    private final RetryStrategy retryStrategy;
+    private final QCloudHttpRetryHandler qCloudHttpRetryHandler;
 
-    private int connectionTimeout;
-    private int socketTimeout;
+    private final int connectionTimeout;
+    private final int socketTimeout;
 
-    private Executor executor;
+    private final Executor executor;
 
-    private Executor observeExecutor;
+    private final Executor observeExecutor;
 
-    private boolean isQuic;
+    private final boolean isQuic;
 
     private List<String> prefetchHosts;
 
-    private Map<String, List<String>> commonHeaders;
+    private final Map<String, List<String>> commonHeaders;
 
-    private Set<String> noSignHeaders;
+    private final Set<String> noSignHeaders;
 
-    private boolean dnsCache;
+    private final boolean dnsCache;
 
     private String hostFormat = DEFAULT_HOST_FORMAT;
 
     private String hostHeaderFormat = null;
 
-    private boolean bucketInPath; // path style
+    private final boolean bucketInPath; // path style
 
-    private boolean accelerate; //
+    private final boolean accelerate; //
 
-    private boolean signInUrl; //
+    private final boolean signInUrl; //
 
-    private boolean transferThreadControl = true;
+    private final boolean transferThreadControl;
+    private final int uploadMaxThreadCount;
+    private final int downloadMaxThreadCount;
 
     public CosXmlServiceConfig(Builder builder) {
         this.protocol = builder.protocol;
@@ -148,6 +151,8 @@ public class CosXmlServiceConfig implements Parcelable {
         this.dnsCache = builder.dnsCache;
         this.signInUrl = builder.signInUrl;
         this.transferThreadControl = builder.transferThreadControl;
+        this.uploadMaxThreadCount = builder.uploadMaxThreadCount;
+        this.downloadMaxThreadCount = builder.downloadMaxThreadCount;
     }
 
     public Builder newBuilder() {
@@ -410,6 +415,14 @@ public class CosXmlServiceConfig implements Parcelable {
         return transferThreadControl;
     }
 
+    public int getUploadMaxThreadCount() {
+        return uploadMaxThreadCount;
+    }
+
+    public int getDownloadMaxThreadCount() {
+        return downloadMaxThreadCount;
+    }
+
     @Deprecated
     public String getEndpointSuffix() {
         return getEndpointSuffix(region, false);
@@ -608,6 +621,8 @@ public class CosXmlServiceConfig implements Parcelable {
         private boolean signInUrl;
         
         private boolean transferThreadControl = true;
+        private int uploadMaxThreadCount;
+        private int downloadMaxThreadCount;
 
         public Builder() {
             protocol = HTTPS_PROTOCOL;
@@ -615,6 +630,8 @@ public class CosXmlServiceConfig implements Parcelable {
             isDebuggable = false;
             retryStrategy = RetryStrategy.DEFAULT;
             bucketInPath = false;
+            uploadMaxThreadCount = TaskExecutors.DEFAULT_UPLOAD_THREAD_COUNT;
+            downloadMaxThreadCount = TaskExecutors.DEFAULT_DOWNLOAD_THREAD_COUNT;
         }
 
         public Builder(CosXmlServiceConfig config) {
@@ -652,6 +669,8 @@ public class CosXmlServiceConfig implements Parcelable {
 
             signInUrl = config.signInUrl;
             transferThreadControl = config.transferThreadControl;
+            uploadMaxThreadCount = config.uploadMaxThreadCount;
+            downloadMaxThreadCount = config.downloadMaxThreadCount;
         }
 
         /**
@@ -676,11 +695,32 @@ public class CosXmlServiceConfig implements Parcelable {
             return this;
         }
 
+        /**
+         * 设置传输时是否进行线程并发控制
+         * @param transferThreadControl 是否进行线程并发控制
+         */
         public Builder setTransferThreadControl(boolean transferThreadControl) {
             this.transferThreadControl = transferThreadControl;
             return this;
         }
 
+        /**
+         * 设置上传时线程并发的最大值
+         * @param uploadMaxThreadCount 线程并发的最大值
+         */
+        public Builder setUploadMaxThreadCount(int uploadMaxThreadCount) {
+            this.uploadMaxThreadCount = uploadMaxThreadCount;
+            return this;
+        }
+
+        /**
+         * 设置下载时线程并发的最大值
+         * @param downloadMaxThreadCount 线程并发的最大值
+         */
+        public Builder setDownloadMaxThreadCount(int downloadMaxThreadCount) {
+            this.downloadMaxThreadCount = downloadMaxThreadCount;
+            return this;
+        }
 
         /**
          * 设置是否 Https 协议，默认为 Https

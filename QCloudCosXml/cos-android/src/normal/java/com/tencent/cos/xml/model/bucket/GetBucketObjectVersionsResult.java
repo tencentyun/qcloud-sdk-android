@@ -22,10 +22,6 @@
 
 package com.tencent.cos.xml.model.bucket;
 
-import com.tencent.cos.xml.BeaconService;
-import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.ListVersionResult;
 import com.tencent.cos.xml.transfer.XmlParser;
@@ -41,25 +37,13 @@ import java.io.IOException;
  * @see GetBucketObjectVersionsRequest
  */
 public class GetBucketObjectVersionsResult extends CosXmlResult {
-    private static final String TAG = "GetBucketObjectVersionsResult";
     /**
      * Bucket Object versions 信息
      */
-    public ListVersionResult listVersionResult;
+    public ListVersionResult listVersionResult = new ListVersionResult();
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws CosXmlClientException, CosXmlServiceException {
-        super.parseResponseBody(response);
-        listVersionResult = new ListVersionResult();
-
-        try {
-            XmlParser.parseGetBucketObjectVersionsResult(response.byteStream(), listVersionResult);
-        } catch (XmlPullParserException e) {
-            BeaconService.getInstance().reportError(TAG, e);
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            BeaconService.getInstance().reportError(TAG, e);
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException{
+        XmlParser.parseGetBucketObjectVersionsResult(response.byteStream(), listVersionResult);
     }
 }

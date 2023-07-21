@@ -22,9 +22,6 @@
 
 package com.tencent.cos.xml.model.object;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.AccessControlPolicy;
 import com.tencent.cos.xml.transfer.XmlParser;
@@ -43,19 +40,11 @@ final public class GetObjectACLResult extends CosXmlResult {
     /**
      * acl 信息
      */
-    public AccessControlPolicy accessControlPolicy;
+    public AccessControlPolicy accessControlPolicy = new AccessControlPolicy();
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
-        super.parseResponseBody(response);
-        accessControlPolicy = new AccessControlPolicy();
-        try {
-            XmlParser.parseAccessControlPolicy(response.byteStream(), accessControlPolicy);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException{
+        XmlParser.parseAccessControlPolicy(response.byteStream(), accessControlPolicy);
     }
 
     @Override

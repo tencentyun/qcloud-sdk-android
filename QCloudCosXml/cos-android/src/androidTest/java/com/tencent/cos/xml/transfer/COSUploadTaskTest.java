@@ -22,7 +22,10 @@
 
 package com.tencent.cos.xml.transfer;
 
+import static com.tencent.cos.xml.core.TestUtils.smallFilePath;
 import static com.tencent.cos.xml.crypto.Headers.COS_HASH_CRC64_ECMA;
+
+import android.net.Uri;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -45,6 +48,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.util.LinkedList;
 
 
@@ -98,6 +102,42 @@ public class COSUploadTaskTest {
                 TestUtils.bigFilePath(), TestConst.PERSIST_BUCKET_CSE_BIG_OBJECT_PATH);
     }
 
+    @Test public void testMultipartUploadByUri() {
+        testUploadFile(ServiceFactory.INSTANCE.newDefaultTransferService(),
+                new PutObjectRequest(
+                        TestConst.PERSIST_BUCKET,
+                        TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+                        Uri.fromFile(new File(TestUtils.bigFilePath())))
+        );
+    }
+
+    @Test public void testSimpleUploadByUri() {
+        testUploadFile(ServiceFactory.INSTANCE.newDefaultTransferService(),
+                new PutObjectRequest(
+                        TestConst.PERSIST_BUCKET,
+                        TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                        Uri.fromFile(new File(smallFilePath())))
+        );
+    }
+
+    @Test public void testSimpleUploadByBytes() {
+        testUploadFile(ServiceFactory.INSTANCE.newDefaultTransferService(),
+                new PutObjectRequest(
+                        TestConst.PERSIST_BUCKET,
+                        TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                        "this is small object".getBytes())
+        );
+    }
+
+    @Test public void testSimpleUploadByStr() {
+        testUploadFile(ServiceFactory.INSTANCE.newDefaultTransferService(),
+                new PutObjectRequest(
+                        TestConst.PERSIST_BUCKET,
+                        TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                        new StringBuilder("this is small object"))
+        );
+    }
+
     @Test public void testCancel() {
         TransferService transferService = ServiceFactory.INSTANCE.newDefaultTransferService();
         String bucket = TestConst.PERSIST_BUCKET;
@@ -129,11 +169,17 @@ public class COSUploadTaskTest {
         testLocker.lock();
     }
 
-    private void testUploadFile(TransferService transferService, String bucket, String filePath, String cosKey) {
-
+    private PutObjectRequest getFilePathRequest(String bucket, String filePath, String cosKey){
         QCloudLogger.i("QCloudTest", "upload path is " + filePath);
-        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket,
+        return new PutObjectRequest(bucket,
                 cosKey, filePath);
+    }
+
+    private void testUploadFile(TransferService transferService, String bucket, String filePath, String cosKey){
+        testUploadFile(transferService, getFilePathRequest(bucket, filePath, cosKey));
+    }
+
+    private void testUploadFile(TransferService transferService, PutObjectRequest putObjectRequest) {
         try {
             // 设置 content-type
             putObjectRequest.setRequestHeaders("Content-Type", "image/png", false);
@@ -265,12 +311,32 @@ public class COSUploadTaskTest {
                 TestUtils.smallFilePath()+"aaa", TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
     }
 
-    private void testUploadFileFailed(TransferService transferService, String bucket, String filePath, String cosKey) {
+    @Test public void testSimpleUploadFailed3() {
+        testUploadFileFailed(ServiceFactory.INSTANCE.newDefaultTransferService(), TestConst.PERSIST_BUCKET,
+                null, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+    }
 
+    @Test public void testSimpleUploadFailed4() {
+        testUploadFileFailed(ServiceFactory.INSTANCE.newDefaultTransferService(), TestConst.PERSIST_BUCKET,
+                TestUtils.localParentPath(), TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+    }
+
+    @Test public void testSimpleUploadFailedUri() {
+        PutObjectRequest putObjectRequest = new PutObjectRequest(
+                TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+                Uri.parse("file://test.jpg"));
+        testUploadFileFailed(ServiceFactory.INSTANCE.newDefaultTransferService(), putObjectRequest);
+    }
+
+    private void testUploadFileFailed(TransferService transferService, String bucket, String filePath, String cosKey) {
         QCloudLogger.i("QCloudTest", "upload path is " + filePath);
         PutObjectRequest putObjectRequest = new PutObjectRequest(bucket,
                 cosKey, filePath);
+        testUploadFileFailed(transferService, putObjectRequest);
+    }
 
+    private void testUploadFileFailed(TransferService transferService, PutObjectRequest putObjectRequest) {
         final COSUploadTask uploadTask = transferService.upload(putObjectRequest);
         final TestLocker testLocker = new TestLocker();
         uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
@@ -290,4 +356,5 @@ public class COSUploadTaskTest {
 
         testLocker.lock();
     }
+
 }

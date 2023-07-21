@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml.model.object;
 
+import androidx.annotation.NonNull;
+
 import com.tencent.cos.xml.common.COSACL;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.COSStorageClass;
@@ -56,8 +58,7 @@ final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest
      * 设置Cache-Control头部
      * @param cacheControl Cache-Control头部
      */
-    public void setCacheControl(String cacheControl) {
-        if(cacheControl == null)return;
+    public void setCacheControl(@NonNull String cacheControl) {
         addHeader(COSRequestHeaderKey.CACHE_CONTROL,cacheControl);
     }
 
@@ -65,8 +66,7 @@ final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest
      * 设置 Content-Disposition 头部
      * @param contentDisposition Content-Disposition 头部
      */
-    public void setContentDisposition(String contentDisposition) {
-        if(contentDisposition == null)return;
+    public void setContentDisposition(@NonNull String contentDisposition) {
         addHeader(COSRequestHeaderKey.CONTENT_DISPOSITION,contentDisposition);
     }
 
@@ -74,8 +74,7 @@ final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest
      * 设置 Content-Encoding 头部
      * @param contentEncoding Content-Encoding头部
      */
-    public void setContentEncoding(String contentEncoding) {
-        if(contentEncoding == null)return;
+    public void setContentEncoding(@NonNull String contentEncoding) {
         addHeader(COSRequestHeaderKey.CONTENT_ENCODING,contentEncoding);
     }
 
@@ -101,8 +100,7 @@ final public class InitMultipartUploadRequest extends BaseMultipartUploadRequest
      * 设置 Expires 头部
      * @param expires Expires 头部
      */
-    public void setExpires(String expires) {
-        if(expires == null)return;
+    public void setExpires(@NonNull String expires) {
         addHeader(COSRequestHeaderKey.EXPIRES,expires);
     }
 

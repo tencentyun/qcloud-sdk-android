@@ -47,6 +47,10 @@ public class ImageAuditScenarioInfo {
      */
     public String subLabel;
     /**
+     * 命中的审核类别结果。
+     */
+    public String category;
+    /**
      * 该字段表示 OCR 文本识别的详细检测结果，包括文本坐标信息、文本识别结果等信息
      */
     @XmlElement(flatListNote = true)
@@ -56,6 +60,11 @@ public class ImageAuditScenarioInfo {
      */
     @XmlElement(flatListNote = true)
     public List<ObjectResults> objectResults;
+    /**
+     * 该字段用于返回基于风险库识别的结果。
+     */
+    @XmlElement(flatListNote = true)
+    public List<LibResults> libResults;
 
     /**
      * 该字段表示审核到的一些具体结果，例如政治人物名称。注意：该字段仅在 PoliticsInfo 中返回。
@@ -68,8 +77,27 @@ public class ImageAuditScenarioInfo {
          */
         public String name;
         /**
+         * 该字段表示审核命中的具体子标签。注意：该字段可能返回空。
+         */
+        public String subLabel;
+        /**
          * 该参数用于返回 OCR 检测框在图片中的位置（左上角 xy 坐标、长宽、旋转角度），以方便快速定位识别文字的相关信息。
          */
         public AuditOcrLocation location;
+    }
+
+    /**
+     * 该字段用于返回基于风险库识别的结果。
+     */
+    @XmlBean(method = XmlBean.GenerateMethod.FROM)
+    public static class LibResults{
+        /**
+         * 该字段表示命中的风险库中的图片样本ID。
+         */
+        public String imageId;
+        /**
+         * 该字段用于返回当前标签下的置信度，取值范围：0（置信度最低）-100（置信度最高 ），越高代表当前的图片越有可能命中库中的样本。例如：色情 99，则表明该数据非常有可能命中库中的色情样本。
+         */
+        public int score;
     }
 }

@@ -22,9 +22,6 @@
 
 package com.tencent.cos.xml.model.bucket;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.InventoryConfiguration;
 import com.tencent.cos.xml.transfer.XmlParser;
@@ -40,23 +37,14 @@ import java.io.IOException;
  * @see GetBucketInventoryRequest
  */
 public class GetBucketInventoryResult extends CosXmlResult {
-
     /**
      * 清单的配置参数
      */
-    public InventoryConfiguration inventoryConfiguration;
+    public InventoryConfiguration inventoryConfiguration = new InventoryConfiguration();
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws CosXmlClientException, CosXmlServiceException {
-        super.parseResponseBody(response);
-        inventoryConfiguration = new InventoryConfiguration();
-        try {
-            XmlParser.parseInventoryConfiguration(response.byteStream(), inventoryConfiguration);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException{
+        XmlParser.parseInventoryConfiguration(response.byteStream(), inventoryConfiguration);
     }
 
     @Override

@@ -22,9 +22,6 @@
 
 package com.tencent.cos.xml.model.bucket;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.DomainConfiguration;
 import com.tencent.cos.xml.transfer.XmlParser;
@@ -43,18 +40,10 @@ public class GetBucketDomainResult extends CosXmlResult {
     /**
      * todo jordan api 缺少
      */
-    public DomainConfiguration domainConfiguration;
+    public DomainConfiguration domainConfiguration = new DomainConfiguration();
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
-        super.parseResponseBody(response);
-        domainConfiguration = new DomainConfiguration();
-        try {
-            XmlParser.parseDomainConfiguration(response.byteStream(), domainConfiguration);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException{
+        XmlParser.parseDomainConfiguration(response.byteStream(), domainConfiguration);
     }
 }

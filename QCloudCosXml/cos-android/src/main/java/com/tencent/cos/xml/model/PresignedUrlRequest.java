@@ -26,6 +26,8 @@ import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.qcloud.core.auth.STSCredentialScope;
+import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
 public class PresignedUrlRequest extends CosXmlRequest {
@@ -67,7 +69,11 @@ public class PresignedUrlRequest extends CosXmlRequest {
 
     @Override
     public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return null;
+        if(requestMethod.equals(HttpConstants.RequestMethod.POST)){
+            return RequestBodySerializer.bytes(null, new byte[0]);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -78,5 +84,13 @@ public class PresignedUrlRequest extends CosXmlRequest {
         if(cosPath == null || cosPath.length() < 1){
             throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "cosPath must not be null ");
         }
+    }
+
+    @Override
+    public STSCredentialScope[] getSTSCredentialScope(CosXmlServiceConfig config) {
+        String action = "name/cos:" + (RequestMethod.PUT.equals(requestMethod) ? "PutObject" : "GetObject");
+        STSCredentialScope scope = new STSCredentialScope(action, config.getBucket(bucket),
+                config.getRegion(), getPath(config));
+        return scope.toArray();
     }
 }

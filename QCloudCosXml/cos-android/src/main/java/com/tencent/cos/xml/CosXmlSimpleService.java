@@ -190,7 +190,9 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
      */
     @Override
     public HeadObjectResult headObject(HeadObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new HeadObjectResult());
+        HeadObjectResult headObjectResult = new HeadObjectResult();
+        headObjectResult.accessUrl = getAccessUrl(request);
+        return execute(request, headObjectResult);
     }
 
     /**
@@ -201,7 +203,9 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
      */
     @Override
     public void headObjectAsync(HeadObjectRequest request, CosXmlResultListener cosXmlResultListener) {
-        schedule(request, new HeadObjectResult(), cosXmlResultListener);
+        HeadObjectResult headObjectResult = new HeadObjectResult();
+        headObjectResult.accessUrl = getAccessUrl(request);
+        schedule(request, headObjectResult, cosXmlResultListener);
     }
 
     /**
@@ -359,12 +363,12 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
         PreBuildConnectionRequest preBuildConnectionRequest = new PreBuildConnectionRequest(bucket);
         try {
             execute(preBuildConnectionRequest, new PreBuildConnectionResult());
+            return true;
         } catch (CosXmlClientException e) {
             return false;
         } catch (CosXmlServiceException e) {
             return e.getStatusCode() != 404;
         }
-        return true;
     }
 
     /**

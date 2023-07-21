@@ -25,9 +25,6 @@ package com.tencent.cos.xml.model.tag.pic;
 import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 
-/**
- * 盲水印图片处理结果
- */
 @XmlBean(name = "Object", method = XmlBean.GenerateMethod.FROM)
 public class PicObject {
 
@@ -62,6 +59,9 @@ public class PicObject {
     /** 图片质量 */
     @XmlElement(name = "ETag")
     public String etag;
+
+    @XmlElement(name = "FrameCount")
+    public int frameCount;
     
     public PicObject() {}
 }

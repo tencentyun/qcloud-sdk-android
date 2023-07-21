@@ -23,6 +23,7 @@
 package com.tencent.cos.xml.model.tag.audit.post;
 
 import com.tencent.cos.xml.model.tag.audit.bean.AuditConf;
+import com.tencent.cos.xml.model.tag.audit.bean.AuditEncryption;
 import com.tencent.cos.xml.model.tag.audit.bean.AuditInput;
 import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
@@ -35,15 +36,23 @@ public class PostVideoAudit {
     /**
      * 需要审核的内容
      */
-    public AuditInput input;
+    public VideoAuditInput input;
     /**
      * 视频审核规则配置
      */
     public VideoAuditConf conf;
 
     public PostVideoAudit() {
-        this.input = new AuditInput();
+        this.input = new VideoAuditInput();
         this.conf = new VideoAuditConf();
+    }
+
+    @XmlBean(name = "Input", method = XmlBean.GenerateMethod.TO)
+    public static class VideoAuditInput extends AuditInput {
+        /**
+         * 文件加密信息。如果视频未做加密则不需要使用该字段，如果设置了该字段，则会按设置的信息解密后再做审核。
+         */
+        public AuditEncryption encryption;
     }
 
     /**

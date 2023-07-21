@@ -49,34 +49,58 @@ public class PostTextAuditRequest extends BasePostAuditRequest {
         postTextAudit = new PostTextAudit();
     }
 
+    /**
+     * 设置需要审核的内容
+     * @param input 需要审核的内容
+     */
+    public void setInput(@NonNull PostTextAudit.TextAuditInput input){
+        postTextAudit.input = input;
+    }
+
+    /**
+     * 设置审核规则配置
+     * @param conf 审核规则配置
+     */
+    public void setConfig(@NonNull PostTextAudit.TextAuditConf conf){
+        postTextAudit.conf = conf;
+    }
+
+    @Deprecated
     public void setContent(@NonNull String content){
         postTextAudit.input.content = content;
     }
 
+    @Deprecated
     public void setObject(@NonNull String object){
         postTextAudit.input.object = object;
     }
 
+    @Deprecated
     public void setUrl(@NonNull String url){
         postTextAudit.input.url = url;
     }
 
+    @Deprecated
     public void setDataId(@NonNull String dataId){
         postTextAudit.input.dataId = dataId;
     }
 
+    @Deprecated
     public void setDetectType(@NonNull String detectType){
         postTextAudit.conf.detectType = detectType;
     }
 
+    @Deprecated
     public void setCallback(@NonNull String callback){
         postTextAudit.conf.callback = callback;
     }
 
+    @Deprecated
     public void setBizType(@NonNull String bizType){
         postTextAudit.conf.bizType = bizType;
     }
 
+    @Deprecated
     public void setCallbackVersion(@NonNull String callbackVersion){
         postTextAudit.conf.callbackVersion = callbackVersion;
     }

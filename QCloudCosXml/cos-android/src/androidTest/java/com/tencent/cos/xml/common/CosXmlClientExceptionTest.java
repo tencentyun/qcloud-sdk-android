@@ -22,15 +22,14 @@
 
 package com.tencent.cos.xml.common;
 
+import static org.junit.Assert.assertEquals;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by bradyxiao on 2018/3/14.
@@ -48,5 +47,8 @@ public class CosXmlClientExceptionTest {
         assertEquals("exception cause by client", cosXmlClientException2.getMessage());
         assertEquals(true, cosXmlClientException2.getCause() instanceof NullPointerException);
         assertEquals(cosXmlClientException.errorCode, ClientErrorCode.INVALID_ARGUMENT.getCode());
+
+        CosXmlClientException internalException = CosXmlClientException.internalException("test");
+        assertEquals("test", internalException.getMessage());
     }
 }

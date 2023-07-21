@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Xml;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -18,13 +19,17 @@ import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 
 import org.junit.Assert;
+import org.xmlpull.v1.XmlSerializer;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -38,14 +43,18 @@ public class TestUtils {
 
     public static void assertCOSXMLTaskSuccess(COSXMLTask cosxmlTask) {
 
-        Assert.assertTrue(getCosExceptionMessage(cosxmlTask.getException()),
+        Assert.assertTrue(cosxmlTask.getException() == null?cosxmlTask.getTaskState().name():getCosExceptionMessage(cosxmlTask.getException()),
                 cosxmlTask.getTaskState() == TransferState.COMPLETED);
     }
 
     public static void assertCOSXMLTaskSuccess(COSTransferTask cosxmlTask) {
-
-        Assert.assertTrue(getCosExceptionMessage(cosxmlTask.getClientException(), cosxmlTask.getServiceException()),
-                cosxmlTask.getTaskState() == TransferState.COMPLETED);
+        if(cosxmlTask.getClientException() == null && cosxmlTask.getServiceException() == null){
+            Assert.assertTrue(cosxmlTask.getTaskState().name(),
+                    cosxmlTask.getTaskState() == TransferState.COMPLETED);
+        } else {
+            Assert.assertTrue(getCosExceptionMessage(cosxmlTask.getClientException(), cosxmlTask.getServiceException()),
+                    cosxmlTask.getTaskState() == TransferState.COMPLETED);
+        }
     }
 
     public static void assertErrorMessageNull(StringBuilder builder) {
@@ -83,8 +92,12 @@ public class TestUtils {
             } catch (IllegalStateException e){
                 if(!e.getMessage().equals("The toXml method is not implemented")){
                     Assert.fail(e.getMessage());
+                } else {
+                    TestUtils.print(objectToXml(object));
                 }
             }
+        } else {
+            TestUtils.print(objectToXml(object));
         }
     }
 
@@ -139,6 +152,18 @@ public class TestUtils {
         String filePath = localPath(TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH);
         try {
             boolean success = createFile(filePath, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_SIZE);
+            return filePath;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String bigPlusFilePath() {
+
+        String filePath = localPath(TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+        try {
+            boolean success = createFile(filePath, TestConst.PERSIST_BUCKET_BIG_OBJECT_SIZE+369);
             return filePath;
         } catch (IOException e) {
             e.printStackTrace();
@@ -304,6 +329,48 @@ public class TestUtils {
     }
 
     public static void parseBadResponseBody(CosXmlResult result){
-        // TODO: 2022/12/15 通过反射遍历解析result 并打印日志
+        TestUtils.print(objectToXml(result));
+    }
+
+    public static String objectToXml(Object object) {
+        StringWriter writer = new StringWriter();
+        XmlSerializer serializer = Xml.newSerializer();
+        try {
+            serializer.setOutput(writer);
+            serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true); // 设置缩进特性
+            serializer.startDocument("UTF-8", true);
+            serializeObject(serializer, object);
+            serializer.endDocument();
+        } catch (IOException | IllegalAccessException e) {
+            e.printStackTrace();
+            return e.getMessage();
+        }
+        return writer.toString();
+    }
+
+    private static void serializeObject(XmlSerializer serializer, Object object) throws IllegalAccessException, IllegalArgumentException, IOException {
+        Class<?> clazz = object.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        serializer.startTag("", clazz.getSimpleName());
+        for (Field field : fields) {
+            field.setAccessible(true);
+            String fieldName = field.getName();
+            Object fieldValue = field.get(object);
+            if (fieldValue != null) {
+                if (field.getType().isPrimitive() || field.getType().equals(String.class)) {
+                    serializer.startTag("", fieldName);
+                    serializer.text(fieldValue.toString());
+                    serializer.endTag("", fieldName);
+                } else if (field.getType().equals(List.class)) {
+                    List<?> list = (List<?>) fieldValue;
+                    for (Object item : list) {
+                        serializeObject(serializer, item);
+                    }
+                } else {
+                    serializeObject(serializer, fieldValue);
+                }
+            }
+        }
+        serializer.endTag("", clazz.getSimpleName());
     }
 }

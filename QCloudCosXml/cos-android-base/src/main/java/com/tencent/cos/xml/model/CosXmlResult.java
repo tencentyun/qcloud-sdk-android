@@ -24,10 +24,14 @@ package com.tencent.cos.xml.model;
 
 import androidx.annotation.Nullable;
 
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.qcloud.core.http.HttpResponse;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +70,14 @@ public abstract class CosXmlResult {
         httpCode = response.code();
         httpMessage = response.message();
         headers = response.headers();
+
+        try {
+            xmlParser(response);
+        } catch (XmlPullParserException e) {
+            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
+        } catch (IOException e) {
+            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
+        }
     }
 
     /**
@@ -73,6 +85,13 @@ public abstract class CosXmlResult {
      */
     public String printResult(){
         return httpCode + "|" + httpMessage;
+    }
+
+    /**
+     * 收拢xml解析
+     */
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException {
+
     }
 
     @Nullable public String getHeader(String key) {

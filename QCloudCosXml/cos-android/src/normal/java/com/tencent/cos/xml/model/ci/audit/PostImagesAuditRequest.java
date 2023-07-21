@@ -29,6 +29,7 @@ import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
+import com.tencent.cos.xml.model.tag.audit.bean.AuditConf;
 import com.tencent.cos.xml.model.tag.audit.post.PostImagesAudit;
 import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
@@ -50,16 +51,45 @@ public class PostImagesAuditRequest extends BasePostAuditRequest {
         postImagesAudit = new PostImagesAudit();
     }
 
+    /**
+     * 添加需要审核的内容
+     * @param image 需要审核的内容
+     */
     public void addImage(@NonNull PostImagesAudit.ImagesAuditInput image){
         postImagesAudit.input.add(image);
     }
 
+    /**
+     * 设置审核规则配置
+     * @param conf 审核规则配置
+     */
+    public void setConfig(@NonNull AuditConf conf){
+        postImagesAudit.conf = conf;
+    }
+
+    @Deprecated
     public void setDetectType(@NonNull String detectType){
         postImagesAudit.conf.detectType = detectType;
     }
 
+    @Deprecated
     public void setBizType(@NonNull String bizType){
         postImagesAudit.conf.bizType = bizType;
+    }
+
+    @Deprecated
+    public void setAsync(int async){
+        postImagesAudit.conf.async = async;
+    }
+
+    @Deprecated
+    public void setCallback(@NonNull String callback){
+        postImagesAudit.conf.callback = callback;
+    }
+
+    @Deprecated
+    public void setFreeze(@NonNull AuditConf.Freeze freeze){
+        postImagesAudit.conf.freeze = freeze;
     }
 
     @Override

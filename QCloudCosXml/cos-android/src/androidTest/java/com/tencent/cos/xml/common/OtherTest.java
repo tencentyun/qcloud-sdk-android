@@ -71,17 +71,33 @@ public class OtherTest {
     public void testServerEncryptType(){
         assertEquals("SSE-C", ServerEncryptType.SSE_C.getType());
         assertEquals(ServerEncryptType.SSE_COS, ServerEncryptType.fromString("SSE-COS"));
+        Assert.assertNull(ServerEncryptType.fromString("test"));
     }
 
     @Test
-    public void testGetService() {
+    public void testClientErrorCode(){
+        assertEquals(ClientErrorCode.to(-10000), ClientErrorCode.UNKNOWN);
+        ClientErrorCode clientErrorCode = ClientErrorCode.UNKNOWN;
+        clientErrorCode.setErrorMsg("UNKNOWN_TEST");
+        assertEquals("UNKNOWN_TEST", clientErrorCode.getErrorMsg());
+    }
+
+    @Test
+    public void testPreBuildConnection() {
         CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newSelfService();
         boolean b = cosXmlSimpleService.preBuildConnection(TestConst.PERSIST_BUCKET);
         Assert.assertTrue(b);
     }
 
     @Test
-    public void testGetServiceAsync() {
+    public void testPreBuildConnectionFailed() {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newSelfService();
+        boolean b = cosXmlSimpleService.preBuildConnection(TestConst.PERSIST_BUCKET+"aaaaaaa");
+        Assert.assertFalse(b);
+    }
+
+    @Test
+    public void testPreBuildConnectionAsync() {
         CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
         cosXmlSimpleService.preBuildConnectionAsync(TestConst.PERSIST_BUCKET, new CosXmlResultSimpleListener() {
             @Override
@@ -92,6 +108,22 @@ public class OtherTest {
             @Override
             public void onFail(CosXmlClientException exception, CosXmlServiceException serviceException) {
                 Assert.fail(TestUtils.getCosExceptionMessage(exception, serviceException));
+            }
+        });
+    }
+
+    @Test
+    public void testPreBuildConnectionAsyncFailed() {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+        cosXmlSimpleService.preBuildConnectionAsync(TestConst.PERSIST_BUCKET+"aaaaa", new CosXmlResultSimpleListener() {
+            @Override
+            public void onSuccess() {
+                Assert.fail();
+            }
+
+            @Override
+            public void onFail(CosXmlClientException exception, CosXmlServiceException serviceException) {
+                Assert.assertTrue(true);
             }
         });
     }
