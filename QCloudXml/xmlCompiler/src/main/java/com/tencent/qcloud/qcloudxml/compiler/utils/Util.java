@@ -160,6 +160,19 @@ public class Util {
     }
 
     /**
+     * 获取Element是否解析为原始的xml字符串
+     * @param element Element节点
+     * @return 是否解析为原始的xml字符串
+     */
+    public static boolean originalXmlString(Element element) {
+        if (element.getAnnotation(XmlElement.class) != null) {
+            return element.getAnnotation(XmlElement.class).originalXmlString();
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * 获取List泛型类型
      * @param listVariableElement List Element
      * @return 泛型类型
