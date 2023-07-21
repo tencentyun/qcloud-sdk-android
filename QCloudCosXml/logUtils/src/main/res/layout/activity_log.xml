@@ -101,13 +101,6 @@
             <!--android:id="@+id/swipeRefreshId"-->
             <!--android:layout_width="match_parent"-->
             <!--android:layout_height="match_parent">-->
-
-            <!--<android.support.v7.widget.RecyclerView-->
-                <!--android:id="@+id/item_list"-->
-                <!--android:layout_width="325dp"-->
-                <!--android:layout_height="294dp"-->
-                <!--tools:layout_editor_absoluteX="173dp"-->
-                <!--tools:layout_editor_absoluteY="0dp" />-->
         <!--</android.support.v4.widget.SwipeRefreshLayout>-->
     <!--</FrameLayout>-->
 <!--</android.support.constraint.ConstraintLayout>-->

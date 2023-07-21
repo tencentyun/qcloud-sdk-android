@@ -45,4 +45,26 @@ public class AuditJobsDetail extends BaseAuditJobsDetail {
      * 该字段用于返回检测结果中所对应的优先级最高的恶意标签，表示模型推荐的审核结果，建议您按照业务所需，对不同违规类型与建议值进行处理。 返回值：Normal：正常，Porn：色情，Ads：广告，Politics：涉政，Terrorism：暴恐
      */
     public String label;
+    /**
+     * 该文本内容命中的二级标签结果，该字段可能返回空，表示未命中具体的子标签。
+     */
+    public String subLabel;
+    /**
+     * 命中的审核类别结果。
+     */
+    public String category;
+    /**
+     * 用户业务字段。
+     */
+    public AuditUserInfo userInfo;
+
+    /**
+     * 账号黑白名单结果。
+     */
+    public AuditListInfo listInfo;
+
+    /**
+     * 若您设置了自动冻结，该字段表示冻结状态。0：未冻结，1：已被冻结，2：已转移文件。
+     */
+    public int forbidState;
 }

@@ -22,9 +22,6 @@
 
 package com.tencent.cos.xml.model.bucket;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.LocationConstraint;
 import com.tencent.cos.xml.transfer.XmlParser;
@@ -40,23 +37,14 @@ import java.io.IOException;
  * @see GetBucketLocationRequest
  */
 final public class GetBucketLocationResult extends CosXmlResult {
-
     /**
      * Bucket 所在地域
      */
-    public LocationConstraint locationConstraint;
+    public LocationConstraint locationConstraint = new LocationConstraint();
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
-        super.parseResponseBody(response);
-        locationConstraint = new LocationConstraint();
-        try {
-            XmlParser.parseLocationConstraint(response.byteStream(), locationConstraint);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException{
+        XmlParser.parseLocationConstraint(response.byteStream(), locationConstraint);
     }
 
     @Override

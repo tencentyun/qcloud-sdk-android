@@ -961,20 +961,19 @@ public final class COSXMLUploadTask extends COSXMLTask {
     @Override
     protected CosXmlResult buildCOSXMLTaskResult(CosXmlResult sourceResult) {
         COSXMLUploadTaskResult cosxmlUploadTaskResult = new COSXMLUploadTaskResult();
-        if(sourceResult != null && sourceResult instanceof PutObjectResult){
+        if(sourceResult != null){
+            cosxmlUploadTaskResult.httpCode = sourceResult.httpCode;
+            cosxmlUploadTaskResult.httpMessage = sourceResult.httpMessage;
+            cosxmlUploadTaskResult.headers = sourceResult.headers;
+            cosxmlUploadTaskResult.accessUrl = sourceResult.accessUrl;
+        }
+
+        if(sourceResult instanceof PutObjectResult){
             PutObjectResult putObjectResult = (PutObjectResult) sourceResult;
-            cosxmlUploadTaskResult.httpCode = putObjectResult.httpCode;
-            cosxmlUploadTaskResult.httpMessage = putObjectResult.httpMessage;
-            cosxmlUploadTaskResult.headers = putObjectResult.headers;
             cosxmlUploadTaskResult.eTag = putObjectResult.eTag;
-            cosxmlUploadTaskResult.accessUrl = putObjectResult.accessUrl;
             cosxmlUploadTaskResult.picUploadResult = putObjectResult.picUploadResult();
-        }else if(sourceResult != null && sourceResult instanceof CompleteMultiUploadResult){
+        } else if(sourceResult instanceof CompleteMultiUploadResult){
             CompleteMultiUploadResult completeMultiUploadResult = (CompleteMultiUploadResult) sourceResult;
-            cosxmlUploadTaskResult.httpCode = completeMultiUploadResult.httpCode;
-            cosxmlUploadTaskResult.httpMessage = completeMultiUploadResult.httpMessage;
-            cosxmlUploadTaskResult.headers = completeMultiUploadResult.headers;
-            cosxmlUploadTaskResult.accessUrl = completeMultiUploadResult.accessUrl;
             if(completeMultiUploadResult.completeMultipartUpload != null){
                 cosxmlUploadTaskResult.eTag = completeMultiUploadResult.completeMultipartUpload.eTag;
                 PicUploadResult picUploadResult = new PicUploadResult();
@@ -982,6 +981,9 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 picUploadResult.processResults = completeMultiUploadResult.completeMultipartUpload.processResults;
                 cosxmlUploadTaskResult.picUploadResult = picUploadResult;
             }
+        } else if(sourceResult instanceof HeadObjectResult){
+            HeadObjectResult headObjectResult = (HeadObjectResult) sourceResult;
+            cosxmlUploadTaskResult.eTag = headObjectResult.eTag;
         }
         return cosxmlUploadTaskResult;
     }

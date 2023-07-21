@@ -25,6 +25,7 @@ package com.tencent.cos.xml.model;
 import android.text.TextUtils;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.utils.URLEncodeUtils;
 import com.tencent.qcloud.core.auth.COSXmlSignSourceProvider;
@@ -38,10 +39,12 @@ import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 import com.tencent.qcloud.core.task.QCloudTask;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -229,7 +232,22 @@ public abstract class CosXmlRequest{
      * @return 请求体
      * @throws CosXmlClientException 客户异常
      */
-    public abstract RequestBodySerializer getRequestBody() throws CosXmlClientException;
+    public RequestBodySerializer getRequestBody() throws CosXmlClientException{
+        try {
+            return xmlBuilder();
+        } catch (XmlPullParserException e) {
+            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
+        } catch (IOException e) {
+            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
+        }
+    }
+
+    /**
+     * 收拢xml解析
+     */
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
+        throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "xmlBuilder empty implementation");
+    }
 
     /**
      * sdk 参数校验
@@ -418,8 +436,11 @@ public abstract class CosXmlRequest{
      */
     public STSCredentialScope[] getSTSCredentialScope(CosXmlServiceConfig config) {
         String action = "name/cos:" + getClass().getSimpleName().replace("Request", "");
-        STSCredentialScope scope = new STSCredentialScope(action, config.getBucket(bucket),
-                config.getRegion(), getPath(config));
+        STSCredentialScope scope = new STSCredentialScope(
+                action,
+                config.getBucket(bucket),
+                this.getRegion() == null ? config.getRegion() : this.getRegion(),
+                getPath(config));
         return scope.toArray();
     }
 

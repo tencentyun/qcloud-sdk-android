@@ -22,9 +22,6 @@
 
 package com.tencent.cos.xml.model.object;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.PostResponse;
 import com.tencent.cos.xml.transfer.XmlSlimParser;
@@ -54,23 +51,16 @@ public class PostObjectResult extends CosXmlResult {
     /**
      * 使用表单请求上传对象的响应
      */
-    public PostResponse postResponse;
+    public PostResponse postResponse = new PostResponse();
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws CosXmlClientException, CosXmlServiceException {
-        super.parseResponseBody(response);
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException{
         eTag = response.header("ETag");
         location = response.header("Location");
-        postResponse = new PostResponse();
-        try {
-            InputStream inputStream = response.byteStream();
-            if(inputStream != null){
-                XmlSlimParser.parsePostResponseResult(response.byteStream(), postResponse);
-            }
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
+
+        InputStream inputStream = response.byteStream();
+        if(inputStream != null){
+            XmlSlimParser.parsePostResponseResult(response.byteStream(), postResponse);
         }
     }
 

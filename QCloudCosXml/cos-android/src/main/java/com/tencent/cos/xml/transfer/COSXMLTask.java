@@ -22,7 +22,6 @@
 
 package com.tencent.cos.xml.transfer;
 
-import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_CONSTRAINT;
 import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_INIT;
 import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_MANUAL;
 
@@ -212,15 +211,15 @@ public abstract class COSXMLTask {
     /**
      * 限制条件被满足，状态应该由 {@link TransferState#CONSTRAINED} 切换到 {@link TransferState#RESUMED_WAITING}
      */
-    void constraintSatisfied() {
-
-        monitor.sendStateMessage(this, TransferState.RESUMED_WAITING,null,null, MESSAGE_TASK_CONSTRAINT);
-    }
-
-    void constraintUnSatisfied() {
-
-        monitor.sendStateMessage(this, TransferState.CONSTRAINED, null, null, MESSAGE_TASK_CONSTRAINT);
-    }
+//    void constraintSatisfied() {
+//
+//        monitor.sendStateMessage(this, TransferState.RESUMED_WAITING,null,null, MESSAGE_TASK_CONSTRAINT);
+//    }
+//
+//    void constraintUnSatisfied() {
+//
+//        monitor.sendStateMessage(this, TransferState.CONSTRAINED, null, null, MESSAGE_TASK_CONSTRAINT);
+//    }
 
     /**
      * 暂停任务，若是 {@link COSXMLUploadTask} 请调用 {@link COSXMLUploadTask#pauseSafely()} 接口来暂停。
@@ -403,13 +402,13 @@ public abstract class COSXMLTask {
                 }
                 break;
 
-            case CONSTRAINED:
-                if (taskState == TransferState.WAITING || taskState == TransferState.RESUMED_WAITING
-                  || taskState == TransferState.IN_PROGRESS) {
-                    taskState = TransferState.CONSTRAINED;
-                    dispatchStateChange(taskState);
-                    internalPause();
-                }
+//            case CONSTRAINED:
+//                if (taskState == TransferState.WAITING || taskState == TransferState.RESUMED_WAITING
+//                  || taskState == TransferState.IN_PROGRESS) {
+//                    taskState = TransferState.CONSTRAINED;
+//                    dispatchStateChange(taskState);
+//                    internalPause();
+//                }
 
             default:
                 IllegalStateException illegalStateException = new IllegalStateException("invalid state: " + newTaskState);

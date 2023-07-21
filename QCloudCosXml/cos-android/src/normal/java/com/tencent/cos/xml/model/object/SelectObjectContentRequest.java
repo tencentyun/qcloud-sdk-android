@@ -23,9 +23,7 @@
 package com.tencent.cos.xml.model.object;
 
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
-import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.listener.SelectObjectContentListener;
 import com.tencent.cos.xml.model.tag.eventstreaming.InputSerialization;
@@ -115,16 +113,10 @@ public class SelectObjectContentRequest extends ObjectRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        try {
-            return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                    XmlBuilder.buildSelectRequest(new SelectRequest(expressionType, expression,
-                            requestProgress, inputSerialization, outputSerialization)));
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.IO_ERROR.getCode(), e);
-        }
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
+        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
+                XmlBuilder.buildSelectRequest(new SelectRequest(expressionType, expression,
+                        requestProgress, inputSerialization, outputSerialization)));
     }
 
     @Override

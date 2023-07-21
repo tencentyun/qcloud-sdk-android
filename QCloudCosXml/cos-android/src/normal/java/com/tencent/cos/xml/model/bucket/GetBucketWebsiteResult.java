@@ -43,19 +43,11 @@ public class GetBucketWebsiteResult extends CosXmlResult {
     /**
      * 存储桶关联的静态网站配置信息
      */
-    public WebsiteConfiguration websiteConfiguration;
+    public WebsiteConfiguration websiteConfiguration = new WebsiteConfiguration();
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
-        super.parseResponseBody(response);
-        websiteConfiguration = new WebsiteConfiguration();
-        try {
-            XmlParser.parseWebsiteConfig(response.byteStream(), websiteConfiguration);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException{
+        XmlParser.parseWebsiteConfig(response.byteStream(), websiteConfiguration);
     }
 
     @Override

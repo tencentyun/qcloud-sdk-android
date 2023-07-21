@@ -27,6 +27,10 @@ import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 /**
  * 下载 COS 对象到字节数组的请求.
  * @see BaseCosXml#getObject(String, String)
@@ -42,7 +46,7 @@ final public class GetObjectBytesRequest extends ObjectRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
         return null;
     }
 }

@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml.cos_const;
 
+import static org.junit.Assert.assertEquals;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.common.MetaDataDirective;
@@ -29,8 +31,6 @@ import com.tencent.cos.xml.common.MetaDataDirective;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by bradyxiao on 2018/3/14.
@@ -42,5 +42,6 @@ public class MetaDataDirectiveTest {
     public void test() throws Exception{
         Assert.assertEquals(MetaDataDirective.COPY, MetaDataDirective.fromValue("Copy"));
         assertEquals(MetaDataDirective.REPLACED, MetaDataDirective.fromValue("Replaced"));
+        Assert.assertNull(MetaDataDirective.fromValue("test"));
     }
 }

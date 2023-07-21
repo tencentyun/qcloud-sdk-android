@@ -44,4 +44,8 @@ public class AuditInput {
      *该 字段在审核结果中会返回原始内容，长度限制为512字节。您可以使用该字段对待审核的数据进行唯一业务标识。
      */
     public String dataId;
+    /**
+     * 用户业务字段。
+     */
+    public AuditUserInfo userInfo;
 }

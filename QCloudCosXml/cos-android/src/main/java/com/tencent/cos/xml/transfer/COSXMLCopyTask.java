@@ -27,7 +27,6 @@ import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.BeaconService;
 import com.tencent.cos.xml.CosXmlSimpleService;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
@@ -146,6 +145,15 @@ public final class COSXMLCopyTask extends COSXMLTask {
         this.queries = copyObjectRequest.getQueryString();
         this.headers = copyObjectRequest.getRequestHeaders();
         this.isNeedMd5 = copyObjectRequest.isNeedMD5();
+    }
+
+    COSXMLCopyTask( CosXmlSimpleService cosXmlService, CopyObjectRequest copyObjectRequest, String uploadId){
+        this(cosXmlService, copyObjectRequest.getRegion(), copyObjectRequest.getBucket(), copyObjectRequest.getPath(cosXmlService.getConfig()),
+                copyObjectRequest.getCopySource());
+        this.queries = copyObjectRequest.getQueryString();
+        this.headers = copyObjectRequest.getRequestHeaders();
+        this.isNeedMd5 = copyObjectRequest.isNeedMD5();
+        this.uploadId = uploadId;
     }
 
     /**

@@ -22,9 +22,6 @@
 
 package com.tencent.cos.xml.model.bucket;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.Tagging;
 import com.tencent.cos.xml.transfer.XmlParser;
@@ -40,22 +37,13 @@ import java.io.IOException;
  * @see GetBucketTaggingRequest
  */
 final public class GetBucketTaggingResult extends CosXmlResult {
-
     /**
      * 标签集合
      */
-    public Tagging tagging;
+    public Tagging tagging = new Tagging();
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
-        super.parseResponseBody(response);
-        tagging = new Tagging();
-        try {
-            XmlParser.parseTagging(response.byteStream(), tagging);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException{
+        XmlParser.parseTagging(response.byteStream(), tagging);
     }
 }

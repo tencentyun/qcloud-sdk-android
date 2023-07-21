@@ -42,9 +42,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-
 @RunWith(AndroidJUnit4.class)
 public class COSDownloadTaskTest {
 
@@ -81,14 +78,15 @@ public class COSDownloadTaskTest {
     }
 
     @Test public void testAnonymousPauseAndResume() {
+        TestUtils.sleep(10000);
         TransferService transferService = ServiceFactory.INSTANCE.newAnonymousTransferService();
-        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_CDN_BIG_OBJECT_PATH);
+        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_CDN_BIG_60M_OBJECT_PATH);
     }
 
     @Test public void testPauseAndResume() {
-
+        TestUtils.sleep(10000);
         TransferService transferService = ServiceFactory.INSTANCE.newDefaultTransferService();
-        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+        testPauseAndResume(transferService, TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH);
     }
 
     private void downloadObject(TransferService transferService, String key) {
@@ -155,17 +153,91 @@ public class COSDownloadTaskTest {
     /**
      * 下载 1s 后点击暂停，并等待 1s 后恢复上传
      */
-    private void testPauseAndResume(TransferService transferService, String key) {
+//    private void testPauseAndResume(TransferService transferService, String key) {
+//        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+//                key,
+//                TestUtils.localParentPath());
+//        COSDownloadTask downloadTask = transferService.download(getObjectRequest);
+//
+//        final TestLocker testLocker = new TestLocker();
+//        final AtomicBoolean checkNotZero = new AtomicBoolean(false);
+//        final AtomicLong currentProgress = new AtomicLong(0);
+//
+//        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+//            @Override
+//            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+//                testLocker.release();
+//            }
+//
+//            @Override
+//            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+//                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+//                testLocker.release();
+//            }
+//        });
+//
+//        downloadTask.setTransferStateListener(new TransferStateListener() {
+//            @Override
+//            public void onStateChanged(TransferState state) {
+//                TestUtils.print("download task state " + state);
+//            }
+//        });
+//
+//        downloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+//            @Override
+//            public void onProgress(long complete, long target) {
+//
+//                currentProgress.set(complete);
+//                if (checkNotZero.get()) {
+//                    checkNotZero.set(false);
+//                    if (complete < currentProgress.get()) {
+//                        testLocker.release();
+//                    }
+//                }
+//                TestUtils.print("download task " + complete + "/" + target);
+//            }
+//        });
+//
+//        try {
+//            Thread.sleep(3000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        if (downloadTask.getTaskState() == TransferState.COMPLETED) {
+//            TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+//            return;
+//        }
+//
+//        downloadTask.pause();
+//        TestUtils.sleep(3000);
+//        checkNotZero.set(true);
+//        downloadTask.resume();
+//
+//        testLocker.lock();
+//        TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+//    }
 
+    private void testPauseAndResume(TransferService transferService, String key) {
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
                 key,
                 TestUtils.localParentPath());
         COSDownloadTask downloadTask = transferService.download(getObjectRequest);
 
         final TestLocker testLocker = new TestLocker();
-        final AtomicBoolean checkNotZero = new AtomicBoolean(false);
-        final AtomicLong currentProgress = new AtomicLong(0);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
+        if (downloadTask.getTaskState() == TransferState.COMPLETED) {
+            TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+            return;
+        }
+
+        downloadTask.pause();
+        TestUtils.sleep(1000);
         downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
@@ -178,49 +250,66 @@ public class COSDownloadTaskTest {
                 testLocker.release();
             }
         });
-
-        downloadTask.setTransferStateListener(new TransferStateListener() {
-            @Override
-            public void onStateChanged(TransferState state) {
-                TestUtils.print("download task state " + state);
-            }
-        });
-
-        downloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
-            @Override
-            public void onProgress(long complete, long target) {
-
-                currentProgress.set(complete);
-                if (checkNotZero.get()) {
-                    checkNotZero.set(false);
-                    if (complete < currentProgress.get()) {
-                        testLocker.release();
-                    }
-                }
-                TestUtils.print("download task " + complete + "/" + target);
-            }
-        });
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        if (downloadTask.getTaskState() == TransferState.COMPLETED) {
-            TestUtils.assertCOSXMLTaskSuccess(downloadTask);
-            return;
-        }
-
-        downloadTask.pause();
-        TestUtils.sleep(1000);
-        checkNotZero.set(true);
         downloadTask.resume();
 
-        testLocker.lock();
+        testLocker.lock(30000);
+        TestUtils.sleep(10000);
         TestUtils.assertCOSXMLTaskSuccess(downloadTask);
     }
 
+    @Test public void testCancel() {
+        TransferService transferService = ServiceFactory.INSTANCE.newDefaultTransferService();
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH,
+                TestUtils.localParentPath());
+        COSDownloadTask downloadTask = transferService.download(getObjectRequest);
+        final TestLocker testLocker = new TestLocker();
+        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+                TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+            }
 
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                testLocker.release();
+                Assert.assertEquals("UserCancelled", clientException.getMessage());
+            }
+        });
+        TestUtils.sleep(1000);
+        downloadTask.cancel();
+        TestUtils.sleep(1000);
+        //仅仅为了覆盖异常状态日志打印
+        downloadTask.pause();
+        downloadTask.resume();
+        testLocker.lock();
+    }
 
+    // TODO: 2023/4/27 新的下载 不支持range
+    @Test public void testRange() {
+        TransferService transferService = ServiceFactory.INSTANCE.newDefaultTransferService();
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+                TestUtils.localParentPath());
+        getObjectRequest.setRange(100);
+        getObjectRequest.setRange(0, 1000);
+        COSDownloadTask downloadTask = transferService.download(getObjectRequest);
+
+        final TestLocker testLocker = new TestLocker();
+        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                testLocker.release();
+                Assert.fail();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                testLocker.release();
+                Assert.assertTrue(clientException.getMessage().startsWith("verify CRC64 failed"));
+            }
+        });
+        testLocker.lock();
+    }
 }

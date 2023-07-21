@@ -24,9 +24,7 @@ package com.tencent.cos.xml.model.bucket;
 
 import com.tencent.cos.xml.common.COSACL;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
-import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.ACLAccount;
 import com.tencent.cos.xml.model.tag.CreateBucketConfiguration;
@@ -164,15 +162,9 @@ final public class PutBucketRequest extends BucketRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
         if(createBucketConfiguration != null){
-            try {
-                return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML, XmlBuilder.buildCreateBucketConfiguration(createBucketConfiguration));
-            } catch (XmlPullParserException e) {
-                throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-            } catch (IOException e) {
-                throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-            }
+            return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML, XmlBuilder.buildCreateBucketConfiguration(createBucketConfiguration));
         } else {
             return RequestBodySerializer.wrap(RequestBody.create(null, new byte[]{}));
         }

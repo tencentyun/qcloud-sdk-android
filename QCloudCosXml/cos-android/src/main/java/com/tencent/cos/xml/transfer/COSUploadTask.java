@@ -28,7 +28,6 @@ import com.tencent.cos.xml.model.object.ListPartsRequest;
 import com.tencent.cos.xml.model.object.ListPartsResult;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectResult;
-import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.cos.xml.model.tag.ListMultipartUploads;
 import com.tencent.cos.xml.model.tag.ListParts;
 import com.tencent.cos.xml.model.tag.UrlUploadPolicy;
@@ -248,7 +247,7 @@ public class COSUploadTask extends COSTransferTask {
             uploadTask = new SimpleUploadTask(cosDirect, mPutObjectRequest, mTransferTaskCts, getUploadLength());
         }
         uploadTask.mTransferMetrics = transferTaskMetrics;
-        uploadTask.taskId = taskId;
+        uploadTask.setTaskId(taskId);
 
         CosXmlResult cosxmlResult = uploadTask.upload(mPutObjectRequest);
         if (cosxmlResult instanceof CompleteMultiUploadResult) {
@@ -776,21 +775,21 @@ public class COSUploadTask extends COSTransferTask {
             }
         }
 
-        private UploadPartRequest transform(PutObjectRequest putObjectRequest) throws CosXmlClientException {
-            UploadPartRequest uploadPartRequest = null;
-            if (putObjectRequest.getUri() != null) {
-                uploadPartRequest = new UploadPartRequest(bucket, key, 1,
-                        putObjectRequest.getUri(), mUploadId);
-            } else if (putObjectRequest.getSrcPath() != null) {
-                uploadPartRequest = new UploadPartRequest(bucket, key, 1,
-                        putObjectRequest.getSrcPath(), mUploadId);
-            }
-            assetNotNull(uploadPartRequest);
-            uploadPartRequest.setFileOffset(0);
-            uploadPartRequest.setFileContentLength(new File(putObjectRequest.getSrcPath()).length());
-
-            return uploadPartRequest;
-        }
+//        private UploadPartRequest transform(PutObjectRequest putObjectRequest) throws CosXmlClientException {
+//            UploadPartRequest uploadPartRequest = null;
+//            if (putObjectRequest.getUri() != null) {
+//                uploadPartRequest = new UploadPartRequest(bucket, key, 1,
+//                        putObjectRequest.getUri(), mUploadId);
+//            } else if (putObjectRequest.getSrcPath() != null) {
+//                uploadPartRequest = new UploadPartRequest(bucket, key, 1,
+//                        putObjectRequest.getSrcPath(), mUploadId);
+//            }
+//            assetNotNull(uploadPartRequest);
+//            uploadPartRequest.setFileOffset(0);
+//            uploadPartRequest.setFileContentLength(new File(putObjectRequest.getSrcPath()).length());
+//
+//            return uploadPartRequest;
+//        }
 
 
         // 只有分片上传才需要校验

@@ -35,10 +35,6 @@ public class ImageAuditJobsDetail extends AuditJobsDetail {
      */
     public int score;
     /**
-     * 该图命中的二级标签结果
-     */
-    public String subLabel;
-    /**
      * 该图里的文字内容（OCR），当审核策略开启文本内容检测时返回
      */
     public String text;
@@ -70,6 +66,10 @@ public class ImageAuditJobsDetail extends AuditJobsDetail {
      * 审核场景为广告引导的审核结果信息。
      */
     public ImagesAuditScenarioInfo adsInfo;
+    /**
+     * 审核场景为低质量的审核结果信息。
+     */
+    public ImagesAuditScenarioInfo qualityInfo;
 
     public static class ImagesAuditScenarioInfo extends ImageAuditScenarioInfo {
         /**
