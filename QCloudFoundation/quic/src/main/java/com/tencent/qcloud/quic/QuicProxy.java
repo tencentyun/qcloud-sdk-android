@@ -35,6 +35,7 @@ import com.tencent.qcloud.core.http.NetworkProxy;
 import com.tencent.qcloud.core.http.OkHttpLoggingUtils;
 import com.tencent.qcloud.core.http.ResponseBodyConverter;
 import com.tencent.qcloud.core.http.ResponseFileConverter;
+import com.tencent.qcloud.core.http.SelfCloseConverter;
 import com.tencent.qcloud.core.task.RetryStrategy;
 
 import java.net.InetAddress;
@@ -93,6 +94,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
         QCloudServiceException serviceException = null;
         int attempt = 0;
         long startTime = System.nanoTime();
+        boolean selfCloseConverter = httpRequest.getResponseBodyConverter() instanceof SelfCloseConverter;
         while (true){
             CallMetricsListener callMetricsListener;
             try {
@@ -225,7 +227,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                     }
                 }
             }finally {
-                if(response != null) {
+                if(response != null && !selfCloseConverter) {
                     Util.closeQuietly(response);
                 }
             }
