@@ -76,6 +76,8 @@ public abstract class QCloudTask<T> implements Callable<T> {
 
     private int weight = WEIGHT_LOW; //
     private boolean enableTraffic = true;
+    private int uploadMaxThreadCount;
+    private int downloadMaxThreadCount;
     private OnRequestWeightListener onRequestWeightListener;
 
     private Executor observerExecutor;
@@ -218,6 +220,22 @@ public abstract class QCloudTask<T> implements Callable<T> {
 
     public boolean isEnableTraffic() {
         return enableTraffic;
+    }
+
+    public int getUploadMaxThreadCount() {
+        return uploadMaxThreadCount;
+    }
+
+    public void setUploadMaxThreadCount(int uploadMaxThreadCount) {
+        this.uploadMaxThreadCount = uploadMaxThreadCount;
+    }
+
+    public int getDownloadMaxThreadCount() {
+        return downloadMaxThreadCount;
+    }
+
+    public void setDownloadMaxThreadCount(int downloadMaxThreadCount) {
+        this.downloadMaxThreadCount = downloadMaxThreadCount;
     }
 
     /**

@@ -61,7 +61,9 @@ public final class QCloudHttpClient {
     private final HttpLogger httpLogger;
 
     private final Set<String> verifiedHost;
+
     private final Map<String, List<InetAddress>> dnsMap;
+    private final ArrayList<QCloudDnsFetch> dnsFetchs;
 
     private final ConnectionRepository connectionRepository;
 
@@ -96,8 +98,25 @@ public final class QCloudHttpClient {
                 dns = dnsMap.get(hostname);
             }
 
+            // 使用自定义Dns获取器
+            // 根据添加的DnsFetch顺序进行获取
+            if (dns == null || dns.size() == 0) {
+                for (QCloudDnsFetch dnsFetch : dnsFetchs) {
+                    if(dnsFetch != null) {
+                        try {
+                            dns = dnsFetch.fetch(hostname);
+                            if (dns != null) {
+                                break;
+                            }
+                        } catch (UnknownHostException ignored) {
+
+                        }
+                    }
+                }
+            }
+
             // 然后使用系统的 dns
-            if (dns == null) {
+            if (dns == null || dns.size() == 0) {
                 try {
                     dns = Dns.SYSTEM.lookup(hostname);
                 } catch (UnknownHostException e) {
@@ -106,12 +125,12 @@ public final class QCloudHttpClient {
                 }
             }
 
-            if (dns == null && !dnsCache) {
+            if ((dns == null || dns.size() == 0) && !dnsCache) {
                 throw new UnknownHostException("can not resolve host name " + hostname);
             }
 
             // 最后使用缓存的 dns
-            if (dns == null) {
+            if (dns == null || dns.size() == 0) {
                 try {
                     dns = connectionRepository.getDnsRecord(hostname);
                 } catch (UnknownHostException e) {
@@ -119,7 +138,7 @@ public final class QCloudHttpClient {
                 }
             }
 
-            if (dns != null) {
+            if (dns != null && dns.size() > 0) {
                 ConnectionRepository.getInstance().insertDnsRecordCache(hostname, dns);
             } else {
                 throw new UnknownHostException(hostname);
@@ -154,6 +173,12 @@ public final class QCloudHttpClient {
         }
     }
 
+    /**
+     * 添加自定义DNS记录
+     * @param hostName host
+     * @param ipAddress ip集合
+     * @throws UnknownHostException 无法解析host异常
+     */
     public void addDnsRecord(@NonNull String hostName, @NonNull String[] ipAddress) throws UnknownHostException {
         if (ipAddress.length > 0) {
             List<InetAddress> addresses = new ArrayList<>(ipAddress.length);
@@ -164,6 +189,14 @@ public final class QCloudHttpClient {
         }
     }
 
+    /**
+     * 添加自定义Dns获取器
+     * @param dnsFetch Dns获取器
+     */
+    public void addDnsFetch(@NonNull QCloudDnsFetch dnsFetch){
+        dnsFetchs.add(dnsFetch);
+    }
+
     public void setDebuggable(boolean debuggable) {
         httpLogger.setDebug(debuggable);
     }
@@ -171,6 +204,7 @@ public final class QCloudHttpClient {
     private QCloudHttpClient(Builder b) {
         this.verifiedHost = new HashSet<>(5);
         this.dnsMap = new ConcurrentHashMap<>(3);
+        this.dnsFetchs = new ArrayList<>(3);
         this.taskManager = TaskManager.getInstance();
         this.connectionRepository = ConnectionRepository.getInstance();
         httpLogger = new HttpLogger(false);
@@ -235,6 +269,19 @@ public final class QCloudHttpClient {
     private <T> HttpTask<T> handleRequest(HttpRequest<T> request,
                                             QCloudCredentialProvider credentialProvider) {
         return new HttpTask<T>(request, credentialProvider, networkClientMap.get(networkClientType.hashCode()));
+    }
+
+    /**
+     * DNS获取
+     */
+    public interface QCloudDnsFetch {
+        /**
+         * 获取dns记录
+         * @param hostname host
+         * @return ip集合
+         * @throws UnknownHostException 无法解析host异常
+         */
+        List<InetAddress> fetch(String hostname) throws UnknownHostException;
     }
 
     public final static class Builder {

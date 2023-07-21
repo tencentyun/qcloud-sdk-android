@@ -7,8 +7,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 10553
-        versionName "1.5.53"
+        versionCode 10555
+        versionName "1.5.55"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -61,6 +61,20 @@ project.extensions.add('archiveFilePath', 'outputs/aar/qcloud-foundation-release
 
 
 apply from: '../../publishMavenCentral.gradle'
+
+//发布本地repo
+apply plugin: 'maven'
+uploadArchives {
+    repositories.mavenDeployer {
+        pom.project {
+            groupId 'com.qcloud.cos'
+            artifactId 'qcloud-foundation'
+            version android.defaultConfig.versionName
+            packaging 'aar'
+        }
+        repository(url: uri("${rootProject.projectDir}/repo"))
+    }
+}
 
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.

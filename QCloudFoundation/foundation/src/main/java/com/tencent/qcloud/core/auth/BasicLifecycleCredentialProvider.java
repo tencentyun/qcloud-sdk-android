@@ -86,6 +86,13 @@ public abstract class BasicLifecycleCredentialProvider implements QCloudCredenti
         }
     }
 
+    /**
+     * 强制让凭证失效
+     */
+    public synchronized void forceInvalidationCredential(){
+        safeSetCredentials(null);
+    }
+
     private synchronized void safeSetCredentials(QCloudLifecycleCredentials credentials) {
         this.credentials = credentials;
     }

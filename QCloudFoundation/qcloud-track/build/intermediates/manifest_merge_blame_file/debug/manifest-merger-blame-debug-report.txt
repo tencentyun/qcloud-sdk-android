@@ -1,0 +1,17 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.tencent.qcloud.track"
+4    android:versionCode="10000"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="19"
+8-->/Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml
+9        android:targetSdkVersion="33" />
+9-->/Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml
+10
+11    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+11-->/Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:4:5-79
+11-->/Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:4:22-76
+12
+13</manifest>
