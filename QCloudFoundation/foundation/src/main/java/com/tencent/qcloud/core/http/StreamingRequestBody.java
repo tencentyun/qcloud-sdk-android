@@ -158,13 +158,20 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
     @Override
     public long contentLength() throws IOException {
         long contentMaxLength = getContentRawLength();
+        long contentLength;
         if (contentMaxLength <= 0) {
-            return Math.max(requiredLength, -1);
+            contentLength = Math.max(requiredLength, -1);
         } else if (requiredLength <= 0) {
-            return Math.max(contentMaxLength - offset, -1);
+            contentLength = Math.max(contentMaxLength - offset, -1);
         } else {
-            return Math.min(contentMaxLength - offset, requiredLength);
+            contentLength = Math.min(contentMaxLength - offset, requiredLength);
         }
+
+        // 此处考虑文件被修改，大小发生变化，contentMaxLength - offset为负数的情况，会导致400 Bad Request
+        if(contentLength < 0){
+            contentLength = -1;
+        }
+        return contentLength;
     }
 
     protected long getContentRawLength() throws IOException {

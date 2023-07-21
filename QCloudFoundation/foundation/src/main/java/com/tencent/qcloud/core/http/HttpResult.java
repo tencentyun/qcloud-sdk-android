@@ -33,6 +33,7 @@ public final class HttpResult<T> {
     private final String message;
     private final Map<String, List<String>> headers;
     private final HttpRequest<T> request;
+    private final long contentLength;
 
     private final T content;
 
@@ -42,6 +43,7 @@ public final class HttpResult<T> {
         this.headers = response.response.headers().toMultimap();
         this.content = content;
         this.request = response.request;
+        this.contentLength = response.contentLength();
     }
 
     public T content() {
@@ -62,6 +64,10 @@ public final class HttpResult<T> {
 
     public Map<String, List<String>> headers() {
         return headers;
+    }
+
+    public long getContentLength() {
+        return contentLength;
     }
 
     public final boolean isSuccessful() {
