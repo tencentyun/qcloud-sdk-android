@@ -41,10 +41,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class TrafficControlInterceptor implements Interceptor {
-    // TODO: 2022/5/12 maxConcurrent为多少比较合适？
-    private TrafficStrategy uploadTrafficStrategy = new ModerateTrafficStrategy("UploadStrategy-", 2);
-    private TrafficStrategy downloadTrafficStrategy = new AggressiveTrafficStrategy("DownloadStrategy-", 3);
-
     private static class ResizableSemaphore extends Semaphore {
 
         ResizableSemaphore(int permit, boolean fair) {
@@ -172,7 +168,15 @@ public class TrafficControlInterceptor implements Interceptor {
         if (!task.isEnableTraffic()) {
             return null;
         }
-        return task.isDownloadTask() ? downloadTrafficStrategy : task.isUploadTask() ? uploadTrafficStrategy : null;
+        TrafficStrategy uploadTrafficStrategy = new ModerateTrafficStrategy("UploadStrategy-", task.getUploadMaxThreadCount());
+        TrafficStrategy downloadTrafficStrategy = new AggressiveTrafficStrategy("DownloadStrategy-", task.getDownloadMaxThreadCount());
+        if(task.isDownloadTask()){
+            return downloadTrafficStrategy;
+        } else if(task.isUploadTask()){
+            return uploadTrafficStrategy;
+        } else {
+            return null;
+        }
     }
 
     private double getAverageStreamingSpeed(HttpTask task, long networkMillsTook) {

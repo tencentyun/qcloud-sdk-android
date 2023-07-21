@@ -29,10 +29,6 @@ import com.tencent.qcloud.core.common.QCloudServiceException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import okio.Buffer;
-import okio.Okio;
-import okio.Source;
-
 /**
  * 响应体转换器
  * @param <T>
@@ -72,7 +68,7 @@ public abstract class ResponseBodyConverter<T> {
         }
     }
 
-    private static final class InputStreamConverter extends ResponseBodyConverter<InputStream> {
+    private static final class InputStreamConverter extends ResponseBodyConverter<InputStream> implements SelfCloseConverter {
 
         @Override
         public InputStream convert(HttpResponse<InputStream> response) throws QCloudClientException, QCloudServiceException {
