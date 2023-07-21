@@ -42,14 +42,14 @@ public class TransferTaskMetrics {
     private long firstProgressCallbackTime = 0;
     private long completeTime = 0;
 
-    public TransferTaskMetrics(String domain, InetAddress connectAddress,
-                               long uploadLength, long tookTime, long firstProgressTookTime) {
-        this.domain = domain;
-        this.connectAddress = connectAddress;
-        this.size = uploadLength;
-        this.tookTime = tookTime;
-        this.firstProgressTookTime = firstProgressTookTime;
-    }
+//    public TransferTaskMetrics(String domain, InetAddress connectAddress,
+//                               long uploadLength, long tookTime, long firstProgressTookTime) {
+//        this.domain = domain;
+//        this.connectAddress = connectAddress;
+//        this.size = uploadLength;
+//        this.tookTime = tookTime;
+//        this.firstProgressTookTime = firstProgressTookTime;
+//    }
 
     public TransferTaskMetrics() {}
 

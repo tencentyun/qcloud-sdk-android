@@ -45,4 +45,8 @@ public class AuditSection {
      * 审核场景为广告引导的审核结果信息。
      */
     public TextAuditScenarioInfo adsInfo;
+    /**
+     * 审核场景为未成年的审核结果信息。
+     */
+    public TextAuditScenarioInfo teenagerInfo;
 }

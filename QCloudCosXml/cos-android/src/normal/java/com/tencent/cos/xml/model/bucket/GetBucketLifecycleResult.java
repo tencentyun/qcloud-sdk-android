@@ -22,9 +22,6 @@
 
 package com.tencent.cos.xml.model.bucket;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.LifecycleConfiguration;
 import com.tencent.cos.xml.transfer.XmlParser;
@@ -40,23 +37,14 @@ import java.io.IOException;
  * @see GetBucketLifecycleRequest
  */
 final public class GetBucketLifecycleResult extends CosXmlResult {
-
     /**
      * 生命周期配置
      */
-    public LifecycleConfiguration lifecycleConfiguration;
+    public LifecycleConfiguration lifecycleConfiguration = new LifecycleConfiguration();
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws  CosXmlServiceException, CosXmlClientException {
-        super.parseResponseBody(response);
-        lifecycleConfiguration = new LifecycleConfiguration();
-        try {
-            XmlParser.parseLifecycleConfiguration(response.byteStream(), lifecycleConfiguration);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(),e);
-        }
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException{
+        XmlParser.parseLifecycleConfiguration(response.byteStream(), lifecycleConfiguration);
     }
 
     @Override

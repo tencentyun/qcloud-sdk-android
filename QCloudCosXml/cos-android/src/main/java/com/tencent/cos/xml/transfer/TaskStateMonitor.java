@@ -96,20 +96,15 @@ final class TaskStateMonitor implements Runnable{
         try {
             setMessageQueue();
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-            BeaconService.getInstance().reportError(TAG, e);
+            setMessageQueueException(e);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            BeaconService.getInstance().reportError(TAG, e);
+            setMessageQueueException(e);
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            BeaconService.getInstance().reportError(TAG, e);
+            setMessageQueueException(e);
         } catch (InstantiationException e) {
-            e.printStackTrace();
-            BeaconService.getInstance().reportError(TAG, e);
+            setMessageQueueException(e);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            BeaconService.getInstance().reportError(TAG, e);
+            setMessageQueueException(e);
         }
         taskHandler = new Handler(getLooper()){
             @Override
@@ -135,6 +130,11 @@ final class TaskStateMonitor implements Runnable{
             }
         };
         Looper.loop();
+    }
+
+    private void setMessageQueueException(Exception e){
+        e.printStackTrace();
+        BeaconService.getInstance().reportError(TAG, e);
     }
 
     private void setMessageQueue() throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException, InvocationTargetException, InstantiationException {

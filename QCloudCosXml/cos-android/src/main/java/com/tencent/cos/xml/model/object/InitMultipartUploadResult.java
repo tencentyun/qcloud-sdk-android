@@ -22,9 +22,6 @@
 
 package com.tencent.cos.xml.model.object;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.InitiateMultipartUpload;
 import com.tencent.cos.xml.transfer.XmlSlimParser;
@@ -40,23 +37,14 @@ import java.io.IOException;
  * @see InitMultipartUploadRequest
  */
 final public class InitMultipartUploadResult extends CosXmlResult {
-
     /**
      * 初始化上传请求返回的信息
      */
-    public InitiateMultipartUpload initMultipartUpload;
+    public InitiateMultipartUpload initMultipartUpload = new InitiateMultipartUpload();
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
-        super.parseResponseBody(response);
-        initMultipartUpload = new InitiateMultipartUpload();
-        try {
-            XmlSlimParser.parseInitiateMultipartUploadResult(response.byteStream(), initMultipartUpload);
-        } catch (XmlPullParserException e) {
-           throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException{
+        XmlSlimParser.parseInitiateMultipartUploadResult(response.byteStream(), initMultipartUpload);
     }
 
     @Override

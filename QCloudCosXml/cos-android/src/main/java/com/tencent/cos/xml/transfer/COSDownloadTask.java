@@ -131,7 +131,7 @@ public class COSDownloadTask extends COSTransferTask {
         simpleDownloadTask.bucket = bucket;
         simpleDownloadTask.key = key;
         simpleDownloadTask.region = region;
-        simpleDownloadTask.taskId = taskId;
+        simpleDownloadTask.setTaskId(taskId);
         simpleDownloadTask.mTransferMetrics = transferTaskMetrics;
         mGetObjectRequest.setProgressListener(new CosXmlProgressListener() {
             @Override
@@ -156,10 +156,10 @@ public class COSDownloadTask extends COSTransferTask {
 
 
     // 暂不支持分块下载
-    private GetObjectResult multipartDownload() throws CosXmlClientException, CosXmlServiceException {
-
-        return null;
-    }
+//    private GetObjectResult multipartDownload() throws CosXmlClientException, CosXmlServiceException {
+//
+//        return null;
+//    }
 
     private class SimpleDownloadTask implements Runnable {
 

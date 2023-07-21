@@ -137,6 +137,10 @@ import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlRequest;
 import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlResult;
 import com.tencent.cos.xml.model.ci.PreviewDocumentRequest;
 import com.tencent.cos.xml.model.ci.PreviewDocumentResult;
+import com.tencent.cos.xml.model.ci.media.GetPrivateM3U8Request;
+import com.tencent.cos.xml.model.ci.media.GetPrivateM3U8Result;
+import com.tencent.cos.xml.model.ci.media.GetWorkflowDetailRequest;
+import com.tencent.cos.xml.model.ci.media.GetWorkflowDetailResult;
 import com.tencent.cos.xml.model.object.AppendObjectRequest;
 import com.tencent.cos.xml.model.object.AppendObjectResult;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
@@ -2161,6 +2165,63 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
         schedule(request, new GetDescribeMediaBucketsResult(), cosXmlResultListener);
     }
 
+    /**
+     * <p>
+     * GetPrivateM3U8 接口用于获取私有 M3U8 ts 资源的下载授权。（此方式通过对象存储转发请求至数据万象）的同步方法.&nbsp;
+     * </p>
+     *
+     * @param request GetPrivateM3U8 接口用于获取私有 M3U8 ts 资源的下载授权。（此方式通过对象存储转发请求至数据万象）请求 {@link GetPrivateM3U8Request}
+     * @return GetPrivateM3U8 接口用于获取私有 M3U8 ts 资源的下载授权。（此方式通过对象存储转发请求至数据万象）返回结果 {@link GetPrivateM3U8Result}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    @Override
+    public GetPrivateM3U8Result getPrivateM3U8(GetPrivateM3U8Request request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetPrivateM3U8Result());
+    }
+
+    /**
+     * <p>
+     * GetPrivateM3U8 接口用于获取私有 M3U8 ts 资源的下载授权。（此方式通过对象存储转发请求至数据万象）的异步方法.&nbsp;
+     * </p>
+     *
+     * @param request GetPrivateM3U8 接口用于获取私有 M3U8 ts 资源的下载授权。（此方式通过对象存储转发请求至数据万象）请求 {@link GetPrivateM3U8Request}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    @Override
+    public void getPrivateM3U8Async(GetPrivateM3U8Request request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new GetPrivateM3U8Result(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 获取工作流实例详情的同步方法.&nbsp;
+     * </p>
+     *
+     * @param request 获取工作流实例详情请求 {@link GetWorkflowDetailRequest}
+     * @return 获取工作流实例详情返回结果 {@link GetWorkflowDetailResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    @Override
+    public GetWorkflowDetailResult getWorkflowDetail(GetWorkflowDetailRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetWorkflowDetailResult());
+    }
+
+    /**
+     * <p>
+     * 获取工作流实例详情的异步方法.&nbsp;
+     * </p>
+     *
+     * @param request 获取工作流实例详情请求 {@link GetWorkflowDetailRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    @Override
+    public void getWorkflowDetailAsync(GetWorkflowDetailRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new GetWorkflowDetailResult(), cosXmlResultListener);
+    }
+
+
     @Override
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> boolean buildHttpRequestBodyConverter(T1 cosXmlRequest, T2 cosXmlResult, QCloudHttpRequest.Builder<T2> httpRequestBuilder) {
 
@@ -2175,16 +2236,6 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
             return true;
         }
         return super.buildHttpRequestBodyConverter(cosXmlRequest, cosXmlResult, httpRequestBuilder);
-    }
-
-    @Override
-    protected String getRequestHostHeader(CosXmlRequest request) {
-
-        if (request instanceof GetServiceRequest) {
-            return "service.cos.myqcloud.com";
-        }
-
-        return super.getRequestHostHeader(request);
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.tencent.cos.xml.model.ci.DescribeDocProcessBucketsRequest;
 import com.tencent.cos.xml.model.ci.DescribeDocProcessBucketsResult;
 import com.tencent.cos.xml.model.ci.PutBucketDPStateRequest;
 import com.tencent.cos.xml.model.ci.PutBucketDPStateResult;
+import com.tencent.cos.xml.model.tag.BucketDocumentPreviewState;
 
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -122,6 +123,9 @@ public class BucketDocumentPreviewTest {
         DescribeDocProcessBucketsRequest request = new DescribeDocProcessBucketsRequest();
         request.setPageNumber(1);
         request.setPageSize(20);
+//        request.setRegions("ap-chongqing,ap-beijing");
+        request.setRegions("All");
+        request.setBucketName(TestConst.PERSIST_BUCKET.substring(0,3));
         final TestLocker testLocker = new TestLocker();
         ciService.describeDocProcessBucketsAsync(request, new CosXmlResultListener() {
             @Override
@@ -144,7 +148,43 @@ public class BucketDocumentPreviewTest {
     }
 
     @Test
-    public void stage6_deleteBucketDocumentPreviewStateAsync() {
+    public void stage6_getBucketDocumentPreviewStateAsync() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        DescribeDocProcessBucketsRequest request = new DescribeDocProcessBucketsRequest();
+        request.setPageNumber(1);
+        request.setPageSize(1);
+        request.setRegions(TestConst.PERSIST_BUCKET_REGION);
+        request.setBucketNames(TestConst.PERSIST_BUCKET);
+        final TestLocker testLocker = new TestLocker();
+        ciService.describeDocProcessBucketsAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                DescribeDocProcessBucketsResult describeDocProcessBucketsResult = (DescribeDocProcessBucketsResult)result;
+                TestUtils.parseBadResponseBody(describeDocProcessBucketsResult);
+                TestUtils.printXML(describeDocProcessBucketsResult.describeDocProcessBuckets);
+
+                if(describeDocProcessBucketsResult.describeDocProcessBuckets.docBucketList != null &&
+                        describeDocProcessBucketsResult.describeDocProcessBuckets.docBucketList.size()>0) {
+                    BucketDocumentPreviewState bucketDocumentPreviewState =
+                            describeDocProcessBucketsResult.describeDocProcessBuckets.docBucketList.get(0);
+                    Assert.assertEquals(bucketDocumentPreviewState.Name, TestConst.PERSIST_BUCKET);
+                } else {
+                    Assert.assertTrue(true);
+                }
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+    }
+
+    @Test
+    public void stage7_deleteBucketDocumentPreviewStateAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         DeleteBucketDPStateRequest request = new DeleteBucketDPStateRequest(TestConst.PERSIST_BUCKET);
         final TestLocker testLocker = new TestLocker();

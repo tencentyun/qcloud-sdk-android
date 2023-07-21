@@ -22,7 +22,6 @@
 
 package com.tencent.cos.xml.transfer;
 
-import static com.tencent.cos.xml.common.ClientErrorCode.INTERNAL_ERROR;
 import static com.tencent.cos.xml.transfer.COSDownloadTask.TASK_UNKNOWN_STATUS;
 
 import android.text.TextUtils;
@@ -234,9 +233,9 @@ public abstract class COSTransferTask {
         }
     }
 
-    private void throwException() throws CosXmlClientException, CosXmlServiceException {
-        throw new CosXmlClientException(INTERNAL_ERROR);
-    }
+//    private void throwException() throws CosXmlClientException, CosXmlServiceException {
+//        throw new CosXmlClientException(INTERNAL_ERROR);
+//    }
 
     /**
      * 执行上传任务
@@ -384,18 +383,18 @@ public abstract class COSTransferTask {
         return serviceException;
     }
 
-    protected void throwException(Exception e) throws CosXmlClientException, CosXmlServiceException{
-
-        if (e instanceof CosXmlClientException) {
-            throw (CosXmlClientException) e;
-        } else if (e instanceof CosXmlServiceException) {
-            throw (CosXmlServiceException) e;
-        } else if (e != null) {
-            throw new CosXmlClientException(INTERNAL_ERROR.getCode(), e.getMessage());
-        } else {
-            throw CosXmlClientException.internalException("unknown exception");
-        }
-    }
+//    protected void throwException(Exception e) throws CosXmlClientException, CosXmlServiceException{
+//
+//        if (e instanceof CosXmlClientException) {
+//            throw (CosXmlClientException) e;
+//        } else if (e instanceof CosXmlServiceException) {
+//            throw (CosXmlServiceException) e;
+//        } else if (e != null) {
+//            throw new CosXmlClientException(INTERNAL_ERROR.getCode(), e.getMessage());
+//        } else {
+//            throw CosXmlClientException.internalException("unknown exception");
+//        }
+//    }
 
     protected static final class TaskThreadFactory implements ThreadFactory {
         private final AtomicInteger increment = new AtomicInteger(1);

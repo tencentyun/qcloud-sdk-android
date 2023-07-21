@@ -306,6 +306,14 @@ public class TransferManager{
         return cosxmlCopyTask;
     }
 
+    public COSXMLCopyTask copy(CopyObjectRequest copyObjectRequest, String uploadId){
+        COSXMLCopyTask cosxmlCopyTask = new COSXMLCopyTask(cosXmlService, copyObjectRequest, uploadId);
+        cosxmlCopyTask.multiCopySizeDivision = transferConfig.divisionForCopy;
+        cosxmlCopyTask.sliceSize = transferConfig.sliceSizeForCopy;
+        cosxmlCopyTask.copy();
+        return cosxmlCopyTask;
+    }
+
     /**
      * 复制文件，并自行负责签名串的生成
      * @param bucket 存储桶

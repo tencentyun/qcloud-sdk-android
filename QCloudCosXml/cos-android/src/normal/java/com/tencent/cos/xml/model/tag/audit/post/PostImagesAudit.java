@@ -23,6 +23,7 @@
 package com.tencent.cos.xml.model.tag.audit.post;
 
 import com.tencent.cos.xml.model.tag.audit.bean.AuditConf;
+import com.tencent.cos.xml.model.tag.audit.bean.AuditEncryption;
 import com.tencent.cos.xml.model.tag.audit.bean.AuditInput;
 import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
@@ -56,6 +57,11 @@ public class PostImagesAudit {
     @XmlBean(name = "Input", method = XmlBean.GenerateMethod.TO)
     public static class ImagesAuditInput extends AuditInput {
         /**
+         * 图片文件的内容，需要先经过 base64 编码。Content，Object 和 Url 只能选择其中一种，传入多个时仅一个生效，按 Content，Object， Url 顺序。
+         */
+        public String content;
+
+        /**
          * 截帧频率，GIF 图检测专用，默认值为5，表示从第一帧（包含）开始每隔5帧截取一帧
          */
         @XmlElement(ignoreZero = true)
@@ -66,5 +72,15 @@ public class PostImagesAudit {
          */
         @XmlElement(ignoreZero = true)
         public int maxFrames;
+
+        /**
+         * 对于超过大小限制的图片是否进行压缩后再审核，取值为： 0（不压缩），1（压缩）。默认为0。注：压缩最大支持32M的图片，且会收取压缩费用。
+         */
+        public int largeImageDetect;
+
+        /**
+         * 文件加密信息。如果图片未做加密则不需要使用该字段，如果设置了该字段，则会按设置的信息解密后再做审核。
+         */
+        public AuditEncryption encryption;
     }
 }

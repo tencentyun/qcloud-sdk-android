@@ -168,7 +168,7 @@ public class BeaconService {
 //    private String cosDownloadName(boolean cse) {
 //        return cse? "COSDownloadTask-CSE" : "COSDownloadTask";
 //    }
-    
+
 //    public void reportCOSUploadTaskSuccess(CosXmlRequest request, boolean cse) {
 //        // 只需要一个 PutObjectRequest 壳，带上 HttpTaskMetrics 信息
 //        reportRequestSuccess(EVENT_CODE_UPLOAD, request,
@@ -431,8 +431,7 @@ public class BeaconService {
         List<InetAddress> dns = null;
         try {
             dns = ConnectionRepository.getInstance().getDnsRecord(host);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+        } catch (UnknownHostException ignored) {
         }
         params.put("ips", flatDns(taskMetrics.getConnectAddress(), dns));
         return params;

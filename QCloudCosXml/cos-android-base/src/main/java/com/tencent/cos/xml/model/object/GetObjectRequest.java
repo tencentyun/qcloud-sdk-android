@@ -32,7 +32,10 @@ import com.tencent.cos.xml.listener.CosXmlProgressListener;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -378,7 +381,7 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() {
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
         return null;
     }
 

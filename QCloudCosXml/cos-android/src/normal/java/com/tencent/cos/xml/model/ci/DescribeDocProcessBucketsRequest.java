@@ -22,6 +22,30 @@ public class DescribeDocProcessBucketsRequest extends CosXmlRequest {
     }
 
     /**
+     * 地域信息，以“,”分隔字符串，支持 All、ap-shanghai、ap-beijing
+     * @param regions 地域信息，以“,”分隔字符串，支持 All、ap-shanghai、ap-beijing
+     */
+    public void setRegions(String regions) {
+        queryParameters.put("regions", regions);
+    }
+
+    /**
+     * 存储桶名称，以“,”分隔，支持多个存储桶，精确搜索
+     * @param bucketNames 存储桶名称，以“,”分隔，支持多个存储桶，精确搜索
+     */
+    public void setBucketNames(String bucketNames) {
+        queryParameters.put("bucketNames", bucketNames);
+    }
+
+    /**
+     * 存储桶名称前缀，前缀搜索
+     * @param bucketName 存储桶名称前缀，前缀搜索
+     */
+    public void setBucketName(String bucketName) {
+        queryParameters.put("bucketName", bucketName);
+    }
+
+    /**
      * 第几页
      * @param pageNumber 第几页
      */

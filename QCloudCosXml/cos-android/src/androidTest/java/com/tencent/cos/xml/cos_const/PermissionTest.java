@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml.cos_const;
 
+import static org.junit.Assert.assertEquals;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.common.Permission;
@@ -29,8 +31,6 @@ import com.tencent.cos.xml.common.Permission;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by bradyxiao on 2018/3/14.
@@ -43,5 +43,7 @@ public class PermissionTest {
         Assert.assertEquals(Permission.READ, Permission.fromValue("READ"));
         assertEquals(Permission.WRITE, Permission.fromValue("WRITE"));
         assertEquals(Permission.FULL_CONTROL, Permission.fromValue("FULL_CONTROL"));
+        assertEquals(Permission.FULL_CONTROL.getPermission(), "FULL_CONTROL");
+        Assert.assertNull(Permission.fromValue("test"));
     }
 }

@@ -29,6 +29,9 @@ public class CopyObjectTestAdapter extends RequestTestAdapter<CopyObjectRequest,
             e.printStackTrace();
         }
         copyObjectRequest.setCosStorageClass(COSStorageClass.STANDARD);
+        copyObjectRequest.setCopyIfModifiedSince("Wed, 21 Oct 2009 07:28:00 GMT");
+        copyObjectRequest.setCopyIfMatch(null);
+        copyObjectRequest.setCopyIfNoneMatch("none_match_etag");
         copyObjectRequest.setXCOSACL(COSACL.DEFAULT);
         ACLAccount aclAccount = new ACLAccount();
         aclAccount.addAccount(TestConst.OWNER_UIN);
