@@ -22,19 +22,15 @@
 
 package com.tencent.cos.xml.cos_const;
 
-import android.os.Handler;
+import static org.junit.Assert.assertEquals;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.common.COSACL;
-import com.tencent.cos.xml.core.TestLocker;
-import com.tencent.cos.xml.core.TestUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by bradyxiao on 2018/3/14.
@@ -47,5 +43,6 @@ public class COSACLTest {
         Assert.assertEquals(COSACL.PRIVATE, COSACL.fromString("private"));
         assertEquals(COSACL.PUBLIC_READ, COSACL.fromString("public-read"));
         assertEquals(COSACL.PUBLIC_READ_WRITE, COSACL.fromString("public-read-write"));
+        Assert.assertNull(COSACL.fromString("test"));
     }
 }

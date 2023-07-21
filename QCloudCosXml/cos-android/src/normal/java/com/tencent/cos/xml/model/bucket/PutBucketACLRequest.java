@@ -162,19 +162,12 @@ final public class PutBucketACLRequest extends BucketRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
         if (accessControlPolicy == null) {
             return RequestBodySerializer.bytes(null, new byte[0]);
         } else {
-            try {
-                return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                        XmlBuilder.buildAccessControlPolicyXML(accessControlPolicy));
-            } catch (XmlPullParserException e) {
-                throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-            } catch (IOException e) {
-                throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), e);
-            }
+            return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
+                    XmlBuilder.buildAccessControlPolicyXML(accessControlPolicy));
         }
     }
 }

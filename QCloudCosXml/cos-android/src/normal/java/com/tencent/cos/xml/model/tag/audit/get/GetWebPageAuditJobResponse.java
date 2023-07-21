@@ -74,7 +74,7 @@ public class GetWebPageAuditJobResponse {
         /**
          * 网页内图片的审核结果。
          */
-        public ImageResults pageSegment;
+        public ImageResults imageResults;
         /**
          * 网页内文字的审核结果。
          */

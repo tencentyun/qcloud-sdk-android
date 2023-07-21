@@ -23,6 +23,7 @@
 package com.tencent.cos.xml.model.tag.audit.bean;
 
 import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 
 /**
  * 审核规则配置
@@ -34,11 +35,45 @@ public class AuditConf {
      */
     public String detectType;
     /**
+     * 是否异步进行审核，0：同步返回结果，1：异步进行审核。默认值为 0。
+     */
+    public int async;
+    /**
      * 审核结果以回调形式发送至您的回调地址，支持以 http:// 或者 https:// 开头的地址，例如：http://www.callback.com。
      */
     public String callback;
     /**
+     * 回调片段类型，有效值：1（回调全部分页）、2（回调违规分页）。默认为 1。
+     */
+    @XmlElement(ignoreZero = true)
+    public int callbackType;
+    /**
      * 审核策略，不填写则使用默认策略。可在控制台进行配置，详情请参见 <a href="https://cloud.tencent.com/document/product/436/55206">设置公共审核策略</a>
      */
     public String bizType;
+
+    /**
+     * 可通过该字段，设置根据审核结果给出的不同分值，对图片进行自动冻结，仅当input中审核的图片为object时有效。
+     */
+    public Freeze freeze;
+
+    @XmlBean(name = "Freeze", method = XmlBean.GenerateMethod.TO)
+    public static class Freeze {
+        /**
+         * 取值为[0,100]，表示当色情审核结果大于或等于该分数时，自动进行冻结操作。不填写则表示不自动冻结，默认值为空。
+         */
+        public int pornScore;
+        /**
+         * 取值为[0,100]，表示当广告审核结果大于或等于该分数时，自动进行冻结操作。不填写则表示不自动冻结，默认值为空。
+         */
+        public int adsScore;
+        /**
+         * 取值为[0,100]，表示当违法审核结果大于或等于该分数时，自动进行冻结操作。不填写则表示不自动冻结，默认值为空。
+         */
+        public int illegalScore;
+        /**
+         * 取值为[0,100]，表示当谩骂审核结果大于或等于该分数时，自动进行冻结操作。不填写则表示不自动冻结，默认值为空。
+         */
+        public int abuseScore;
+    }
 }

@@ -31,6 +31,7 @@ import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
+import com.tencent.cos.xml.model.tag.audit.bean.AuditInput;
 import com.tencent.cos.xml.model.tag.audit.post.PostWebPageAudit;
 import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
@@ -52,18 +53,38 @@ public class PostWebPageAuditRequest extends BasePostAuditRequest {
         postWebPageAudit = new PostWebPageAudit();
     }
 
+    /**
+     * 设置需要审核的内容
+     * @param input 需要审核的内容
+     */
+    public void setInput(@NonNull AuditInput input){
+        postWebPageAudit.input = input;
+    }
+
+    /**
+     * 设置审核规则配置
+     * @param conf 审核规则配置
+     */
+    public void setConfig(@NonNull PostWebPageAudit.WebPageAuditConf conf){
+        postWebPageAudit.conf = conf;
+    }
+
+    @Deprecated
     public void setUrl(@NonNull String url){
         postWebPageAudit.input.url = url;
     }
 
+    @Deprecated
     public void setDetectType(@NonNull String detectType){
         postWebPageAudit.conf.detectType = detectType;
     }
 
+    @Deprecated
     public void setCallback(@NonNull String callback){
         postWebPageAudit.conf.callback = callback;
     }
 
+    @Deprecated
     public void setReturnHighlightHtml(boolean returnHighlightHtml){
         postWebPageAudit.conf.returnHighlightHtml = returnHighlightHtml;
     }

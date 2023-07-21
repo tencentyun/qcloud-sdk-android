@@ -25,6 +25,8 @@ package com.tencent.cos.xml;
 import android.content.Context;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import com.tencent.cos.xml.base.BuildConfig;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -47,9 +49,10 @@ import com.tencent.cos.xml.transfer.ResponseXmlS3BodySerializer;
 import com.tencent.cos.xml.utils.StringUtils;
 import com.tencent.cos.xml.utils.URLEncodeUtils;
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
-import com.tencent.qcloud.core.auth.QCloudLifecycleCredentials;
+import com.tencent.qcloud.core.auth.QCloudCredentials;
 import com.tencent.qcloud.core.auth.QCloudSelfSigner;
 import com.tencent.qcloud.core.auth.QCloudSigner;
+import com.tencent.qcloud.core.auth.ScopeLimitCredentialProvider;
 import com.tencent.qcloud.core.auth.SignerFactory;
 import com.tencent.qcloud.core.auth.StaticCredentialProvider;
 import com.tencent.qcloud.core.common.QCloudClientException;
@@ -80,7 +83,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -146,6 +148,8 @@ public class CosXmlBaseService implements BaseCosXml {
 
         BeaconService.init(context.getApplicationContext(), IS_CLOSE_BEACON, BRIDGE);
         appCachePath = context.getApplicationContext().getFilesDir().getPath();
+
+        TaskExecutors.initExecutor(configuration.getUploadMaxThreadCount(), configuration.getDownloadMaxThreadCount());
 
         setNetworkClient(configuration);
         ContextHolder.setContext(context);
@@ -247,6 +251,15 @@ public class CosXmlBaseService implements BaseCosXml {
         }
     }
 
+    /**
+     * 添加自定义 DNS 解析器
+     * 支持添加多个，会顺序解析获取
+     * @param dnsFetch DNS 解析器
+     */
+    public void addCustomerDNSFetch(@NonNull QCloudHttpClient.QCloudDnsFetch dnsFetch){
+        client.addDnsFetch(dnsFetch);
+    }
+
     @Deprecated
     public void addVerifiedHost(String hostName) {
         client.addVerifiedHost(hostName);
@@ -260,14 +273,6 @@ public class CosXmlBaseService implements BaseCosXml {
     public void setDomain(String domain) {
 
         this.requestDomain = domain;
-    }
-
-    protected String getRequestHostHeader(CosXmlRequest request) {
-
-        String bucket = config.getBucket(request.getBucket());
-        String region = !TextUtils.isEmpty(request.getRegion()) ? request.getRegion() :
-                config.getRegion();
-        return String.format(Locale.ENGLISH, "%s.cos.%s.myqcloud.com", bucket, region);
     }
 
     protected String getRequestHost(CosXmlRequest request) throws CosXmlClientException {
@@ -416,6 +421,8 @@ public class CosXmlBaseService implements BaseCosXml {
 
             httpTask = client.resolveRequest(httpRequest, credentialProvider);
             httpTask.setTransferThreadControl(config.isTransferThreadControl());
+            httpTask.setUploadMaxThreadCount(config.getUploadMaxThreadCount());
+            httpTask.setDownloadMaxThreadCount(config.getDownloadMaxThreadCount());
             cosXmlRequest.setTask(httpTask);
 
             setProgressListener(cosXmlRequest, httpTask, false);
@@ -475,6 +482,8 @@ public class CosXmlBaseService implements BaseCosXml {
             httpTask = client.resolveRequest(httpRequest, credentialProvider);
             
             httpTask.setTransferThreadControl(config.isTransferThreadControl());
+            httpTask.setUploadMaxThreadCount(config.getUploadMaxThreadCount());
+            httpTask.setDownloadMaxThreadCount(config.getDownloadMaxThreadCount());
 
             cosXmlRequest.setTask(httpTask);
 
@@ -564,11 +573,19 @@ public class CosXmlBaseService implements BaseCosXml {
     public String getPresignedURL(CosXmlRequest cosXmlRequest) throws CosXmlClientException {
         try {
             //step1: obtain sign, contain token if it exist.
-            QCloudLifecycleCredentials qCloudLifecycleCredentials = (QCloudLifecycleCredentials) credentialProvider.getCredentials();
+            // 根据 provider 类型判断是否需要传入 credential scope
+            QCloudCredentials credentials;
+            if (credentialProvider instanceof ScopeLimitCredentialProvider) {
+                credentials = ((ScopeLimitCredentialProvider) credentialProvider).getCredentials(
+                        cosXmlRequest.getSTSCredentialScope(config));
+            } else {
+                credentials = credentialProvider.getCredentials();
+            }
+
             QCloudSigner signer = SignerFactory.getSigner(signerTypeCompat(signerType, cosXmlRequest));
 
             QCloudHttpRequest request = buildHttpRequest(cosXmlRequest, null);
-            signer.sign(request, qCloudLifecycleCredentials);
+            signer.sign(request, credentials);
             String sign = request.header(HttpConstants.Header.AUTHORIZATION);
             String token = request.header("x-cos-security-token");
             if(!TextUtils.isEmpty(token)){

@@ -22,9 +22,6 @@
 
 package com.tencent.cos.xml.model.bucket;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.ReplicationConfiguration;
 import com.tencent.cos.xml.transfer.XmlParser;
@@ -40,23 +37,14 @@ import java.io.IOException;
  * @see GetBucketReplicationRequest
  */
 public class GetBucketReplicationResult extends CosXmlResult {
-
     /**
      * 跨地域配置信息
      */
-    public ReplicationConfiguration replicationConfiguration;
+    public ReplicationConfiguration replicationConfiguration = new ReplicationConfiguration();
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
-        super.parseResponseBody(response);
-        replicationConfiguration = new ReplicationConfiguration();
-        try {
-            XmlParser.parseReplicationConfiguration(response.byteStream(), replicationConfiguration);
-        } catch (XmlPullParserException e) {
-            throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException{
+        XmlParser.parseReplicationConfiguration(response.byteStream(), replicationConfiguration);
     }
 
     @Override

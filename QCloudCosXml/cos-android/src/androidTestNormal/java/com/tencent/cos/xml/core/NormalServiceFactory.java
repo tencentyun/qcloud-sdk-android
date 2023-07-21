@@ -74,7 +74,7 @@ public class NormalServiceFactory {
                 .builder();
 
         return new CIService(getContext(), cosXmlServiceConfig,
-                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
     public CIService newCIServiceBySessionCredentials() {
@@ -84,7 +84,9 @@ public class NormalServiceFactory {
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
 
-        return new CIService(getContext(), cosXmlServiceConfig, new MySessionCredentialProvider() );
+//        return new CIService(getContext(), cosXmlServiceConfig, new MySessionCredentialProvider() );
+        return new CIService(getContext(), cosXmlServiceConfig,
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
     public CIService newWordsGeneralizeCIService() {
@@ -96,7 +98,7 @@ public class NormalServiceFactory {
                 .builder();
 
         return new CIService(getContext(), cosXmlServiceConfig,
-                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
     public CIService newCIAuditService() {
@@ -107,7 +109,7 @@ public class NormalServiceFactory {
                 .builder();
 
         return new CIService(getContext(), cosXmlServiceConfig,
-                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
     public CIService newCIAuditServiceBySessionCredentials() {
@@ -117,7 +119,9 @@ public class NormalServiceFactory {
                 .setRegion(TestConst.AUDIT_BUCKET_REGION)
                 .builder();
 
-        return new CIService(getContext(), cosXmlServiceConfig, new MySessionCredentialProvider() );
+//        return new CIService(getContext(), cosXmlServiceConfig, new MySessionCredentialProvider() );
+        return new CIService(getContext(), cosXmlServiceConfig,
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
     public TransferManager newDefaultTransferManager() {
@@ -172,12 +176,15 @@ public class NormalServiceFactory {
 
     private CosXmlService newService(CosXmlServiceConfig cosXmlServiceConfig) {
         return new CosXmlService(getContext(), cosXmlServiceConfig,
-                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
     private CosXmlService newServiceBySessionCredentials(CosXmlServiceConfig cosXmlServiceConfig) {
+//        return new CosXmlService(getContext(), cosXmlServiceConfig,
+//                new MySessionCredentialProvider());
+
         return new CosXmlService(getContext(), cosXmlServiceConfig,
-                new MySessionCredentialProvider());
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
 }

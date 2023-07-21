@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml.model.object;
 
+import androidx.annotation.NonNull;
+
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.COSACL;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
@@ -238,8 +240,7 @@ final public class AppendObjectRequest extends ObjectRequest {
      *
      * @param cacheControl Cache-Control头部
      */
-    public void setCacheControl(String cacheControl) {
-        if(cacheControl == null)return;
+    public void setCacheControl(@NonNull String cacheControl) {
         addHeader(COSRequestHeaderKey.CACHE_CONTROL,cacheControl);
     }
 
@@ -253,8 +254,7 @@ final public class AppendObjectRequest extends ObjectRequest {
      *
      * @param contentDisposition Content-Disposition头部
      */
-    public void setContentDisposition(String contentDisposition) {
-        if(contentDisposition == null)return;
+    public void setContentDisposition(@NonNull String contentDisposition) {
         addHeader(COSRequestHeaderKey.CONTENT_DISPOSITION,contentDisposition);
     }
 
@@ -268,8 +268,7 @@ final public class AppendObjectRequest extends ObjectRequest {
      *
      * @param contentEncoding Content-Encoding头部
      */
-    public void setContentEncodeing(String contentEncoding) {
-        if(contentEncoding == null)return;
+    public void setContentEncodeing(@NonNull String contentEncoding) {
         addHeader(COSRequestHeaderKey.CONTENT_ENCODING,contentEncoding);
     }
 
@@ -283,8 +282,7 @@ final public class AppendObjectRequest extends ObjectRequest {
      *
      * @param expires Expires头部
      */
-    public void setExpires(String expires) {
-        if(expires == null)return;
+    public void setExpires(@NonNull String expires) {
         addHeader(COSRequestHeaderKey.EXPIRES, expires);
     }
 

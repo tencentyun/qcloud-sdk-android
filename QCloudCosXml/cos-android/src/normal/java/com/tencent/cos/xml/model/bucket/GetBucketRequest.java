@@ -22,8 +22,10 @@
 
 package com.tencent.cos.xml.model.bucket;
 
+import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
+import com.tencent.qcloud.core.auth.STSCredentialScope;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
 import java.util.Map;
@@ -96,6 +98,15 @@ final public class GetBucketRequest extends BucketRequest {
     @Override
     public RequestBodySerializer getRequestBody() {
         return null;
+    }
+
+    // GetBucketRequest的STSCredentialScope prefix比较特殊，不是cos path，而是prefix参数
+    @Override
+    public STSCredentialScope[] getSTSCredentialScope(CosXmlServiceConfig config) {
+        String action = "name/cos:" + getClass().getSimpleName().replace("Request", "");
+        STSCredentialScope scope = new STSCredentialScope(action, config.getBucket(bucket),
+                config.getRegion(), this.prefix == null? null : config.getUrlPath(bucket, this.prefix));
+        return scope.toArray();
     }
 
     /**

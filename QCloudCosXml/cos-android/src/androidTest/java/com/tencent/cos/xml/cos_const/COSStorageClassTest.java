@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml.cos_const;
 
+import static org.junit.Assert.assertEquals;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.common.COSStorageClass;
@@ -29,8 +31,6 @@ import com.tencent.cos.xml.common.COSStorageClass;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by bradyxiao on 2018/3/14.
@@ -42,5 +42,6 @@ public class COSStorageClassTest {
     public void test() throws Exception{
         Assert.assertEquals(COSStorageClass.STANDARD, COSStorageClass.fromString("Standard"));
         assertEquals(COSStorageClass.STANDARD_IA, COSStorageClass.fromString("Standard_IA"));
+        Assert.assertNull(COSStorageClass.fromString("test"));
     }
 }

@@ -28,4 +28,7 @@ public class ImageInfo {
 
     @XmlElement(name = "Orientation")
     public int orientation;
+
+    @XmlElement(name = "FrameCount")
+    public int frameCount;
 }

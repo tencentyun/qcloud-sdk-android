@@ -52,46 +52,73 @@ public class PostVideoAuditRequest extends BasePostAuditRequest {
         postVideoAudit = new PostVideoAudit();
     }
 
+    /**
+     * 设置需要审核的内容
+     * @param input 需要审核的内容
+     */
+    public void setInput(@NonNull PostVideoAudit.VideoAuditInput input){
+        postVideoAudit.input = input;
+    }
+
+    /**
+     * 设置审核规则配置
+     * @param conf 审核规则配置
+     */
+    public void setConfig(@NonNull PostVideoAudit.VideoAuditConf conf){
+        postVideoAudit.conf = conf;
+    }
+
+    @Deprecated
     public void setObject(@NonNull String object){
         postVideoAudit.input.object = object;
     }
 
+    @Deprecated
     public void setUrl(@NonNull String url){
         postVideoAudit.input.url = url;
     }
 
+    @Deprecated
     public void setDataId(@NonNull String dataId){
         postVideoAudit.input.dataId = dataId;
     }
 
+    @Deprecated
     public void setDetectType(@NonNull String detectType){
         postVideoAudit.conf.detectType = detectType;
     }
 
+    @Deprecated
     public void setCallback(@NonNull String callback){
         postVideoAudit.conf.callback = callback;
     }
 
+    @Deprecated
     public void setCallbackVersion(@NonNull String callbackVersion){
         postVideoAudit.conf.callbackVersion = callbackVersion;
     }
 
+    @Deprecated
     public void setBizType(@NonNull String bizType){
         postVideoAudit.conf.bizType = bizType;
     }
 
+    @Deprecated
     public void setDetectContent(int detectContent){
         postVideoAudit.conf.detectContent = detectContent;
     }
 
+    @Deprecated
     public void setMode(@NonNull String mode){
         postVideoAudit.conf.snapshot.mode = mode;
     }
 
+    @Deprecated
     public void setCount(int count){
         postVideoAudit.conf.snapshot.count = count;
     }
 
+    @Deprecated
     public void setTimeInterval(float timeInterval){
         postVideoAudit.conf.snapshot.timeInterval = timeInterval;
     }

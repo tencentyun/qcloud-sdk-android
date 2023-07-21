@@ -38,7 +38,10 @@ import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.util.ContextHolder;
 import com.tencent.qcloud.core.util.QCloudUtils;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -142,9 +145,8 @@ public class BasePutObjectRequest extends UploadRequest implements TransferReque
         return this.priority == QCloudTask.PRIORITY_LOW;
     }
 
-
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
         if(srcPath != null){
             return RequestBodySerializer.file(getContentType(), new File(srcPath));
         } else if(data != null){

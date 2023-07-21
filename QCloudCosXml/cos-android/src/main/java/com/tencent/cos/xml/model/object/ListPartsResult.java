@@ -22,9 +22,6 @@
 
 package com.tencent.cos.xml.model.object;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
-import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.tag.ListParts;
 import com.tencent.cos.xml.transfer.XmlSlimParser;
@@ -40,23 +37,14 @@ import java.io.IOException;
  * @see ListPartsRequest
  */
 final public class ListPartsResult extends CosXmlResult {
-
     /**
      * List Parts 请求结果的所有信息
      */
-    public ListParts listParts;
+    public ListParts listParts = new ListParts();
 
     @Override
-    public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
-        super.parseResponseBody(response);
-        listParts = new ListParts();
-        try {
-            XmlSlimParser.parseListPartsResult(response.byteStream(), listParts);
-        } catch (XmlPullParserException e) {
-           throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+    protected void xmlParser(HttpResponse response) throws XmlPullParserException, IOException{
+        XmlSlimParser.parseListPartsResult(response.byteStream(), listParts);
     }
 
     @Override
