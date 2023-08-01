@@ -32,8 +32,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskExecutors {
-    public static final int DEFAULT_UPLOAD_THREAD_COUNT = 2;
-    public static final int DEFAULT_DOWNLOAD_THREAD_COUNT = 5;
+    // 上传线程数
+    public static int UPLOAD_THREAD_COUNT = 4;
+    // 下载线程数
+    public static int DOWNLOAD_THREAD_COUNT = 6;
 
     public static final ThreadPoolExecutor COMMAND_EXECUTOR;
 
@@ -44,10 +46,13 @@ public class TaskExecutors {
     public static final UIThreadExecutor UI_THREAD_EXECUTOR;
 
     public static void initExecutor(int uploadMaxThreadCount, int downloadMaxThreadCount){
-        UPLOAD_EXECUTOR = new ThreadPoolExecutor(Math.min(DEFAULT_UPLOAD_THREAD_COUNT, uploadMaxThreadCount), uploadMaxThreadCount, 5L,
+        UPLOAD_THREAD_COUNT = uploadMaxThreadCount;
+        DOWNLOAD_THREAD_COUNT = downloadMaxThreadCount;
+
+        UPLOAD_EXECUTOR = new ThreadPoolExecutor(UPLOAD_THREAD_COUNT, UPLOAD_THREAD_COUNT, 5L,
                 TimeUnit.SECONDS, new PriorityBlockingQueue<Runnable>(),
                 new TaskThreadFactory("Upload-", 3));
-        DOWNLOAD_EXECUTOR = new ThreadPoolExecutor(Math.min(DEFAULT_DOWNLOAD_THREAD_COUNT, downloadMaxThreadCount), downloadMaxThreadCount, 5L,
+        DOWNLOAD_EXECUTOR = new ThreadPoolExecutor(DOWNLOAD_THREAD_COUNT, DOWNLOAD_THREAD_COUNT, 5L,
                 TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(Integer.MAX_VALUE),
                 new TaskThreadFactory("Download-", 3));
         UPLOAD_EXECUTOR.allowCoreThreadTimeOut(true);
@@ -58,10 +63,10 @@ public class TaskExecutors {
         COMMAND_EXECUTOR = new ThreadPoolExecutor(5, 5, 5L,
                 TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(Integer.MAX_VALUE),
                 new TaskThreadFactory("Command-", 8));
-        UPLOAD_EXECUTOR = new ThreadPoolExecutor(DEFAULT_UPLOAD_THREAD_COUNT, DEFAULT_UPLOAD_THREAD_COUNT, 5L,
+        UPLOAD_EXECUTOR = new ThreadPoolExecutor(UPLOAD_THREAD_COUNT, UPLOAD_THREAD_COUNT, 5L,
                 TimeUnit.SECONDS, new PriorityBlockingQueue<Runnable>(),
                 new TaskThreadFactory("Upload-", 3));
-        DOWNLOAD_EXECUTOR = new ThreadPoolExecutor(DEFAULT_DOWNLOAD_THREAD_COUNT, DEFAULT_DOWNLOAD_THREAD_COUNT, 5L,
+        DOWNLOAD_EXECUTOR = new ThreadPoolExecutor(DOWNLOAD_THREAD_COUNT, DOWNLOAD_THREAD_COUNT, 5L,
                 TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(Integer.MAX_VALUE),
                 new TaskThreadFactory("Download-", 3));
         UI_THREAD_EXECUTOR = new UIThreadExecutor();

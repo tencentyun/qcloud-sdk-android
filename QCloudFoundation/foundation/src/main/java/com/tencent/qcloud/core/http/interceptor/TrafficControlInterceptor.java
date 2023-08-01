@@ -29,6 +29,7 @@ import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.http.HttpUtil;
 import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.task.TaskExecutors;
 import com.tencent.qcloud.core.task.TaskManager;
 
 import java.io.IOException;
@@ -41,6 +42,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class TrafficControlInterceptor implements Interceptor {
+    private TrafficStrategy uploadTrafficStrategy = new ModerateTrafficStrategy("UploadStrategy-", TaskExecutors.UPLOAD_THREAD_COUNT);
+    private TrafficStrategy downloadTrafficStrategy = new AggressiveTrafficStrategy("DownloadStrategy-", TaskExecutors.DOWNLOAD_THREAD_COUNT);
+
     private static class ResizableSemaphore extends Semaphore {
 
         ResizableSemaphore(int permit, boolean fair) {
@@ -168,8 +172,6 @@ public class TrafficControlInterceptor implements Interceptor {
         if (!task.isEnableTraffic()) {
             return null;
         }
-        TrafficStrategy uploadTrafficStrategy = new ModerateTrafficStrategy("UploadStrategy-", task.getUploadMaxThreadCount());
-        TrafficStrategy downloadTrafficStrategy = new AggressiveTrafficStrategy("DownloadStrategy-", task.getDownloadMaxThreadCount());
         if(task.isDownloadTask()){
             return downloadTrafficStrategy;
         } else if(task.isUploadTask()){

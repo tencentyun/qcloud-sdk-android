@@ -143,7 +143,7 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
     }
 
     boolean isLargeData() {
-        return file != null || stream != null;
+        return file != null || uri != null || stream != null;
     }
 
     @Override
