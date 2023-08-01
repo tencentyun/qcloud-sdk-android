@@ -51,7 +51,7 @@ public class ServiceFactory {
                 .setConnectionTimeout(4000)
                 .setSocketTimeout(4000)
                 .setTransferThreadControl(true)
-                .setUploadMaxThreadCount(2)
+                .setUploadMaxThreadCount(10)
                 .setDownloadMaxThreadCount(3)
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();

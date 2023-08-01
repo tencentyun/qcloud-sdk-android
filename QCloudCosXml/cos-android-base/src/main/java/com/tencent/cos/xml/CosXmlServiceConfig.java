@@ -630,8 +630,8 @@ public class CosXmlServiceConfig implements Parcelable {
             isDebuggable = false;
             retryStrategy = RetryStrategy.DEFAULT;
             bucketInPath = false;
-            uploadMaxThreadCount = TaskExecutors.DEFAULT_UPLOAD_THREAD_COUNT;
-            downloadMaxThreadCount = TaskExecutors.DEFAULT_DOWNLOAD_THREAD_COUNT;
+            uploadMaxThreadCount = TaskExecutors.UPLOAD_THREAD_COUNT;
+            downloadMaxThreadCount = TaskExecutors.DOWNLOAD_THREAD_COUNT;
         }
 
         public Builder(CosXmlServiceConfig config) {

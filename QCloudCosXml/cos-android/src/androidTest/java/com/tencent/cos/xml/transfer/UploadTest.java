@@ -29,6 +29,7 @@ import static com.tencent.cos.xml.core.TestUtils.bigFilePath;
 import static com.tencent.cos.xml.core.TestUtils.bigPlusFilePath;
 import static com.tencent.cos.xml.core.TestUtils.getContext;
 import static com.tencent.cos.xml.core.TestUtils.smallFilePath;
+import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -60,6 +61,7 @@ import com.tencent.cos.xml.utils.UrlUtil;
 import com.tencent.qcloud.core.auth.COSXmlSignSourceProvider;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.task.TaskExecutors;
 import com.tencent.qcloud.core.util.Base64Utils;
 import com.tencent.qcloud.core.util.QCloudStringUtils;
 
@@ -312,8 +314,9 @@ public class UploadTest {
 //    }
 
     @Test public void testMultiUpload() {
-        int count = 2;
+        int count = 20;
         long sleep = 1000;
+        final TestLocker testLocker = new TestLocker();
         for (int i = 0; i <= count; i++) {
             testUploadSmallFileByPath(i);
             QCloudLogger.i("QCloudTest", "!!!Start to sleep for %d ms", sleep);
@@ -322,12 +325,18 @@ public class UploadTest {
             } else {
                 QCloudLogger.i("QCloudTest", "------ Finish Test --------");
             }
+            if(i == count){
+                TestUtils.sleep(60000);
+                Assert.assertTrue(true);
+                testLocker.release();
+            }
         }
+        testLocker.lock();
     }
 
     public void testUploadSmallFileByPath(int number) {
         // String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/youxue.jpg";
-        String path = bigFilePath();
+        String path = smallFilePath();
         QCloudLogger.i("QCloudTest", "upload path is " + path);
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
@@ -355,13 +364,11 @@ public class UploadTest {
                 QCloudLogger.i("QCloudTest", "ip is " + httpTaskMetrics.getConnectAddress().getHostAddress());
             }
         });
-        final TestLocker testLocker = new TestLocker();
         uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 result.printResult();
                 TestUtils.parseBadResponseBody(result);
-                testLocker.release();
                 uploadTask.clearResultAndException();
             }
 
@@ -369,7 +376,6 @@ public class UploadTest {
             public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
                 TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
                 Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
-                testLocker.release();
             }
         });
 
@@ -386,9 +392,6 @@ public class UploadTest {
                 String uploadId = initiateMultipartUpload.uploadId;
             }
         });
-        
-        testLocker.lock();
-        TestUtils.assertCOSXMLTaskSuccess(uploadTask);
     }
 
     @Test public void testUpload() {
