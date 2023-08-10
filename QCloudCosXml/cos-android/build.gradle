@@ -33,7 +33,7 @@ android {
 
         consumerProguardFiles 'proguard-rules.pro'
 
-//        multiDexEnabled true
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -85,8 +85,8 @@ android {
     }
 
     // 切换发 normal 或者 slim 包，需要同步修改 pom.artifactId 信息
-//    defaultPublishConfig "normalRelease"
-      defaultPublishConfig  "slimRelease"
+    defaultPublishConfig "normalRelease"
+//      defaultPublishConfig  "slimRelease"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
