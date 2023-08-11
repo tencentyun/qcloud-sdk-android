@@ -1,4 +1,4 @@
-package com.tencent.cos.xml.transfer;
+package com.tencent.cos.xml.server_sign;
 
 import static com.tencent.cos.xml.core.TestUtils.bigPlusFilePath;
 import static com.tencent.cos.xml.core.TestUtils.getContext;
@@ -21,6 +21,9 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
+import com.tencent.cos.xml.transfer.COSXMLUploadTask;
+import com.tencent.cos.xml.transfer.TransferConfig;
+import com.tencent.cos.xml.transfer.TransferManager;
 import com.tencent.qcloud.core.auth.QCloudSelfSigner;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.http.HttpConstants;
@@ -129,7 +132,15 @@ public class SelfUploadTest {
                 .setDebuggable(true)
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig, new MyQCloudSelfSigner());
+    }
 
+    public CosXmlSimpleService newSelfService1() {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .builder();
         return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
                 new QCloudSelfSigner() {
                     /**
