@@ -31,13 +31,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.tencent.qcloud.core.auth.AuthConstants;
-import com.tencent.qcloud.core.auth.QCloudCredentials;
-import com.tencent.qcloud.core.auth.QCloudSignSourceProvider;
 import com.tencent.qcloud.core.auth.Utils;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.http.HttpConfiguration;
 import com.tencent.qcloud.core.http.HttpRequest;
-import com.tencent.qcloud.core.http.QCloudHttpRequest;
 import com.tencent.qcloud.core.util.QCloudHttpUtils;
 import com.tencent.qcloud.core.util.QCloudStringUtils;
 
@@ -57,18 +54,19 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
+ * 签名物料source计算器
  * 提供COS请求中参与签名的字段
  * <p>
  * 具体请参考：<a href="https://cloud.tencent.com/document/product/436/7778#.E7.AD.BE.E5.90.8D.E6.AD.A5.E9.AA.A4">签名步骤</a>中的 步骤6：生成 StringToSign
  */
 
-public class MyCOSXmlSignSourceProvider implements QCloudSignSourceProvider {
+public class MyCOSXmlSignSourceProvider {
 
-    private Set<String> parametersRequiredToSign;
-    private Set<String> parametersSigned;
+    private final Set<String> parametersRequiredToSign;
+    private final Set<String> parametersSigned;
 
-    private Set<String> headerKeysRequiredToSign;
-    private Set<String> headerKeysSigned;
+    private final Set<String> headerKeysRequiredToSign;
+    private final Set<String> headerKeysSigned;
     private Map<String, List<String>> headerPairs;
 
     private String signTime;
@@ -85,33 +83,10 @@ public class MyCOSXmlSignSourceProvider implements QCloudSignSourceProvider {
         noSignParams = new HashSet<>();
     }
 
-    public void parameter(String key) {
-        parametersRequiredToSign.add(key);
-    }
-
-    public void parameters(Set<String> keys) {
-        if(keys != null){
-            parametersRequiredToSign.addAll(keys);
-        }
-    }
-
-    public void header(String key) {
-        headerKeysRequiredToSign.add(key);
-    }
-
     public void headers(Set<String> keys) {
         if(keys != null){
             headerKeysRequiredToSign.addAll(keys);
         }
-    }
-
-    /**
-     * 设置签名使用的 headers 参数，默认读取的是 {@link QCloudHttpRequest#headers()}
-     *
-     * @param headerPairs 键值对，签名使用的 headers 参数
-     */
-    public void setHeaderPairsForSign(Map<String, List<String>> headerPairs) {
-        this.headerPairs = headerPairs;
     }
 
     void setSignTime(String signTime) {
@@ -124,12 +99,6 @@ public class MyCOSXmlSignSourceProvider implements QCloudSignSourceProvider {
 
     public void addNoSignParam(String key){
         noSignParams.add(key);
-    }
-
-    @Override
-    public <T> void onSignRequestSuccess(HttpRequest<T> request, QCloudCredentials credentials,
-                                         String authorization) {
-
     }
 
     // 只会签名如下 header
@@ -152,7 +121,6 @@ public class MyCOSXmlSignSourceProvider implements QCloudSignSourceProvider {
             "transfer-encoding"
     );
 
-    @Override
     public <T> String source(HttpRequest<T> request) throws QCloudClientException {
         if (request == null) {
             return null;
@@ -187,7 +155,7 @@ public class MyCOSXmlSignSourceProvider implements QCloudSignSourceProvider {
         // 默认URL参数字段参与计算，需要减去设置的不需要签名的 params
         if (parametersRequiredToSign.size() < 1) {
             Map<String, List<String>> queryNameValues = QCloudHttpUtils.getQueryPair(request.url());
-            for (String noSignParam : request.getNoSignHeaders()) {
+            for (String noSignParam : request.getNoSignParams()) {
                 queryNameValues.remove(QCloudHttpUtils.urlDecodeString(noSignParam));
             }
             for (String noSignParam : noSignParams) {
