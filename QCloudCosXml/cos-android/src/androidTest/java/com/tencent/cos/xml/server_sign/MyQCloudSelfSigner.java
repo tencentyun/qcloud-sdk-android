@@ -6,15 +6,19 @@ import com.tencent.qcloud.core.auth.QCloudSelfSigner;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.QCloudHttpRequest;
+import com.tencent.qcloud.core.util.QCloudHttpUtils;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
+ * 实现自签名器
  * <p>
  * Created by jordanqin on 2023/8/11 17:20.
- * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
+ * Copyright 2010-2023 Tencent Cloud. All Rights Reserved.
  */
 public class MyQCloudSelfSigner implements QCloudSelfSigner {
     private static final String TAG = "MyQCloudSelfSigner";
@@ -41,7 +45,7 @@ public class MyQCloudSelfSigner implements QCloudSelfSigner {
         int sourceId = source.hashCode();
         SignResult signResult = lookupValidSignResult(sourceId);
         if (signResult == null) {
-            signResult = fetchNewSignResult(sourceProvider, source);
+            signResult = fetchNewSignResult(sourceProvider, source, request);
             Log.d(TAG, signResult.authorization);
             cacheSignResultAndCleanUp(sourceId, signResult);
         }
@@ -58,9 +62,17 @@ public class MyQCloudSelfSigner implements QCloudSelfSigner {
     /**
      * 远程获取签名结果
      */
-    private SignResult fetchNewSignResult(MyCOSXmlSignSourceProvider sourceProvider, String source) throws QCloudClientException {
+    private SignResult fetchNewSignResult(MyCOSXmlSignSourceProvider sourceProvider, String source, QCloudHttpRequest request) throws QCloudClientException {
         Log.d(TAG, "fetchNewSignResult");
-        return MyCOSXmlSigner.sign(source, sourceProvider.getRealHeaderList(), sourceProvider.getRealParameterList());
+
+        // 获取请求内容传给服务端，用于做业务处理
+        String httpMethod = request.method().toLowerCase(Locale.ROOT);
+        String path = QCloudHttpUtils.urlDecodeString(request.url().getPath());
+        Map<String, List<String>> headers = request.headers();
+        Map<String, List<String>> queryNameValues = QCloudHttpUtils.getQueryPair(request.url());
+
+        return MyCOSXmlSigner.sign(source, sourceProvider.getRealHeaderList(), sourceProvider.getRealParameterList(),
+                httpMethod, path, headers, queryNameValues);
     }
 
     /**

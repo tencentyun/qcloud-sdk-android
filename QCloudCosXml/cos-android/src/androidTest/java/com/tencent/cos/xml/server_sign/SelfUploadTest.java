@@ -3,10 +3,7 @@ package com.tencent.cos.xml.server_sign;
 import static com.tencent.cos.xml.core.TestUtils.bigPlusFilePath;
 import static com.tencent.cos.xml.core.TestUtils.getContext;
 
-import android.net.Uri;
 import android.util.Log;
-
-import androidx.core.content.FileProvider;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.CosXmlSimpleService;
@@ -35,7 +32,6 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -47,18 +43,29 @@ import okhttp3.Response;
 /**
  * <p>
  * Created by jordanqin on 2023/8/10 23:56.
- * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
+ * Copyright 2010-2023 Tencent Cloud. All Rights Reserved.
  */
 public class SelfUploadTest {
     private static final String TAG = "SelfUploadTest";
 
     // 小文件上传
     @Test
-    public void testUploadSmallFileByPath() {
+    public void testUploadSmallFile() {
         TransferManager transferManager = newSelfTransferManager();
+
         PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
                 TestUtils.filePath("N好.", 1024));
+        long maxSize = 100 * 1024 * 1024;
+//        String mimeLimit = "text/plain;img/jpg;img/*";
+        String mimeLimit = "!text/plain";
+        try {
+            // 限定上传文件大小最大值，单位Byte。大于限制上传文件大小的最大值会被判为上传失败
+            putObjectRequest.setRequestHeaders("x-cos-fsize-max", String.valueOf(maxSize), false);
+            // 限定放通或不放通若干类型的 mimetype(可以限制上传文件的类型。一些比较常用的类型可以，特别少见的类型可能不太准确)
+            putObjectRequest.setRequestHeaders("x-cos-mime-limit", mimeLimit, false);
+        } catch (CosXmlClientException ignored) {
+        }
         final COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
         final TestLocker testLocker = new TestLocker();
         uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
@@ -82,22 +89,35 @@ public class SelfUploadTest {
 
     // 大文件上传
     @Test
-    public void testUploadBigFileByUri() {
+    public void testUploadBigFile() {
         TransferManager transferManager = newSelfTransferManager();
-        File file = new File(bigPlusFilePath());
-        Uri uri = FileProvider.getUriForFile(getContext().getApplicationContext(), getContext().getPackageName()+".fileProvider", file);
 
-        final COSXMLUploadTask uploadTask = transferManager.upload(
+        PutObjectRequest putObjectRequest = new PutObjectRequest(
                 TestConst.PERSIST_BUCKET,
-                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH + 12,
-                uri,
-                null);
+                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
+                bigPlusFilePath());
+        long maxSize = 1024 * 1024;
+        int maxNum = 100;
+//        String mimeLimit = "text/plain;img/jpg;img/*";
+        String mimeLimit = "!text/plain";
+        try {
+            // 用于UploadPart，限定上传分块大小最大值，单位 Byte。大于限制上传文件大小的最大值会被判为上传失败
+            putObjectRequest.setRequestHeaders("x-cos-psize-max", String.valueOf(maxSize), false);
+
+            // 用于CompleteMultipartUpload，限定上传分块的数量。分块数量超过限制，请求会被拒绝。
+            putObjectRequest.setRequestHeaders("x-cos-pnum-max", String.valueOf(maxNum), false);
+
+            // 限定放通或不放通若干类型的 mimetype(可以限制上传文件的类型。一些比较常用的类型可以，特别少见的类型可能不太准确)
+            putObjectRequest.setRequestHeaders("x-cos-mime-limit", mimeLimit, false);
+        } catch (CosXmlClientException ignored) {
+        }
+
+        final COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
 
         final TestLocker testLocker = new TestLocker();
         uploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
             @Override
             public void onProgress(long complete, long target) {
-                // QCloudLogger.i(TestConst.UT_TAG, "transfer state is " + state);
                 QCloudLogger.i(TestConst.UT_TAG, "upload id is " + uploadTask.getUploadId());
             }
         });
@@ -121,6 +141,8 @@ public class SelfUploadTest {
 
     public TransferManager newSelfTransferManager() {
         TransferConfig transferConfig = new TransferConfig.Builder()
+                .setDivisionForUpload(2*1024*1024)
+                .setSliceSizeForUpload(1024*1024)
                 .build();
         return new TransferManager(newSelfService(), transferConfig);
     }
