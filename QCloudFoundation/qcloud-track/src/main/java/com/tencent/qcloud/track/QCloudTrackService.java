@@ -92,7 +92,7 @@ public class QCloudTrackService {
     }
 
     public static void track(String eventCode, Map<String, String> params) {
-        if (QCloudTrackService.isCloseTrack || !isIncludeTrackService()) return;
+        if (QCloudTrackService.isCloseTrack) return;
 
         if (clsClient == null) {
             throw new IllegalArgumentException("Please call the init method of TrackService first");
@@ -132,14 +132,5 @@ public class QCloudTrackService {
      */
     public static void setIsCloseTrack(boolean isCloseTrack) {
         QCloudTrackService.isCloseTrack = isCloseTrack;
-    }
-
-    private static boolean isIncludeTrackService() {
-        try {
-            Class.forName("com.tencent.qcloud.track.QCloudTrackService");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
     }
 }
