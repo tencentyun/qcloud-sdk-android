@@ -218,21 +218,4 @@ public class QCloudUtils {
         }
         return data;
     }
-
-    public static boolean isNetworkConnected() {
-
-        Context context = ContextHolder.getAppContext();
-        if (context == null) {
-            return true;
-        }
-
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager == null) {
-            return true;
-        }
-
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-
-        return networkInfo != null && networkInfo.isConnected();
-    }
 }

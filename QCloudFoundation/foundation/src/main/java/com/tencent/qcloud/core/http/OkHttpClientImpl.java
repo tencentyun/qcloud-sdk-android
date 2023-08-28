@@ -23,7 +23,6 @@
 package com.tencent.qcloud.core.http;
 
 import com.tencent.qcloud.core.BuildConfig;
-import com.tencent.qcloud.core.http.interceptor.HttpMetricsInterceptor;
 import com.tencent.qcloud.core.http.interceptor.RetryInterceptor;
 import com.tencent.qcloud.core.http.interceptor.TrafficControlInterceptor;
 
@@ -66,7 +65,7 @@ public class OkHttpClientImpl extends NetworkClient {
                 .readTimeout(b.socketTimeout, TimeUnit.MILLISECONDS)
                 .writeTimeout(b.socketTimeout, TimeUnit.MILLISECONDS)
                 .eventListenerFactory(mEventListenerFactory)
-                .addNetworkInterceptor(new HttpMetricsInterceptor())
+//                .addNetworkInterceptor(new HttpMetricsInterceptor())
                 .addInterceptor(logInterceptor)
                 .addInterceptor(new RetryInterceptor(b.retryStrategy))
                 .addInterceptor(new TrafficControlInterceptor())
