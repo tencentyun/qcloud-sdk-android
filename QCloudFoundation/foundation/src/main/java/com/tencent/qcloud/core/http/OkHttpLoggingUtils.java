@@ -1,6 +1,6 @@
 package com.tencent.qcloud.core.http;
 
-import com.tencent.qcloud.core.http.HttpLoggingInterceptor;
+import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -15,7 +15,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okhttp3.internal.http.HttpHeaders;
 import okio.Buffer;
 import okio.BufferedSource;
 
@@ -48,7 +47,7 @@ public class OkHttpLoggingUtils {
                 logger.logResponse(response, headers.name(i) + ": " + headers.value(i));
             }
 
-            if (!logBody || !HttpHeaders.hasBody(response) || !hasResponseBody || isContentLengthTooLarge(contentLength)) {
+            if (!logBody || !OkhttpInternalUtils.hasBody(response) || !hasResponseBody || isContentLengthTooLarge(contentLength)) {
                 logger.logResponse(response, "<-- END HTTP");
             } else if (bodyEncoded(response.headers())) {
                 logger.logResponse(response, "<-- END HTTP (encoded body omitted)");

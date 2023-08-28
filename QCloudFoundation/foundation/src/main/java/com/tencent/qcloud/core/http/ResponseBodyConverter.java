@@ -31,7 +31,6 @@ import java.io.InputStream;
 
 /**
  * 响应体转换器
- * @param <T>
  */
 public abstract class ResponseBodyConverter<T> {
 
