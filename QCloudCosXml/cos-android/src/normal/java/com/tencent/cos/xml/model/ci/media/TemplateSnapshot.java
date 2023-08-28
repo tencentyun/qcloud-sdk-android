@@ -90,7 +90,7 @@ public class TemplateSnapshot {
         public String isCheckBlack;
 
         /**
-         *截图黑屏检测参数;是否必传：否;默认值：空;限制：当 IsCheckBlack=true 时有效值参考范围[30，100]，表示黑色像素的占比值，值越小，黑色占比越小Start>0，参数设置无效，不做过滤黑屏Start =0 参数有效，截帧的开始时间为第一帧非黑屏开始;
+         *截图黑屏检测参数;是否必传：否;默认值：空;限制：当 IsCheckBlack=true 时有效值参考范围[30，100]，表示黑色像素的占比值，值越小，黑色占比越小，Start大于0，参数设置无效，不做过滤黑屏Start =0 参数有效，截帧的开始时间为第一帧非黑屏开始;
          */
         public String blackLevel;
 

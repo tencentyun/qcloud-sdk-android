@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.common.QCloudServiceException;
+import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 import com.tencent.qcloud.core.util.QCloudHttpUtils;
 
 import java.io.File;
@@ -41,7 +42,6 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
 import okhttp3.ResponseBody;
-import okhttp3.internal.Util;
 import okio.Buffer;
 
 
@@ -127,7 +127,7 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
             throw new QCloudClientException("write local uri error for " + e.toString(), e);
         } finally {
             if(output != null) {
-                Util.closeQuietly(output);
+                OkhttpInternalUtils.closeQuietly(output);
             }
         }
     }
@@ -170,7 +170,7 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
                 countingSink.writeBytesInternal(len);
             }
         } finally {
-            if(randomAccessFile != null) Util.closeQuietly(randomAccessFile);
+            if(randomAccessFile != null) OkhttpInternalUtils.closeQuietly(randomAccessFile);
         }
     }
 

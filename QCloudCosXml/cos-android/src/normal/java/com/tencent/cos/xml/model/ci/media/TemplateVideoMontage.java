@@ -80,7 +80,7 @@ public class TemplateVideoMontage {
     @XmlBean(name = "Video")
     public static class TemplateVideoMontageVideo {
         /**
-         *编解码格式;是否必传：否;默认值：H.264;限制：1. H.264<br/> 2.H.265;
+         *编解码格式;是否必传：否;默认值：H.264;限制：1. H.264 2.H.265;
          */
         public String codec;
 

@@ -773,12 +773,6 @@ public class BeaconService {
     }
 
     private CosXmlClientException convertClientException(QCloudClientException e) {
-        //网络未连接的情况
-        if (!TextUtils.isEmpty(e.getMessage()) &&
-                e.getMessage().contains("NetworkNotConnected")) {
-            return new CosXmlClientException(ClientErrorCode.NETWORK_NOT_CONNECTED.getCode(), e);
-        }
-
         CosXmlClientException xmlClientException;
         if (e instanceof CosXmlClientException) {
             xmlClientException = (CosXmlClientException) e;

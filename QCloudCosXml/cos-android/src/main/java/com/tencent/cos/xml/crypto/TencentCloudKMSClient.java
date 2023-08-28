@@ -101,7 +101,7 @@ public class TencentCloudKMSClient implements QCLOUDKMS {
     *
     * @param encryptRequest EncryptRequest
     * @return EncryptResponse
-    * @throws TencentCloudSDKException
+    * @throws CosXmlClientException CosXmlClientException
     */
     @Override
     public EncryptResponse encrypt(EncryptRequest encryptRequest) throws CosXmlClientException {

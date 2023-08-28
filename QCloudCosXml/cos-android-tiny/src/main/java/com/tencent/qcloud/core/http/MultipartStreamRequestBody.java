@@ -29,6 +29,7 @@ import android.webkit.MimeTypeMap;
 
 import com.tencent.qcloud.core.common.QCloudDigistListener;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
+import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +41,6 @@ import java.util.Map;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.internal.Util;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
@@ -146,7 +146,7 @@ public class MultipartStreamRequestBody extends RequestBody implements ProgressB
        try {
            multipartBody.writeTo(sink);
        }finally {
-           if(streamingRequestBody.countingSink != null)Util.closeQuietly(streamingRequestBody.countingSink);
+           if(streamingRequestBody.countingSink != null) OkhttpInternalUtils.closeQuietly(streamingRequestBody.countingSink);
        }
     }
 
@@ -243,8 +243,8 @@ public class MultipartStreamRequestBody extends RequestBody implements ProgressB
                 }
             } finally {
 
-               if(inputStream != null) Util.closeQuietly(inputStream);
-               if(source != null) Util.closeQuietly(source);
+               if(inputStream != null) OkhttpInternalUtils.closeQuietly(inputStream);
+               if(source != null) OkhttpInternalUtils.closeQuietly(source);
             }
         }
     }

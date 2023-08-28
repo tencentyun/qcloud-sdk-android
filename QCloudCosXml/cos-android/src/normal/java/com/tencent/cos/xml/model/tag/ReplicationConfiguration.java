@@ -30,7 +30,7 @@ import java.util.List;
 public class ReplicationConfiguration {
     /**
      * 发起者身份标示：
-     * qcs::cam::uin/&lt;OwnerUin>:uin/&lt;SubUin>
+     * qcs::cam::uin/&lt;OwnerUin&gt;:uin/&lt;SubUin&gt;
      */
     public String role;
     /**

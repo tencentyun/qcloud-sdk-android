@@ -741,8 +741,6 @@ public class CosXmlServiceConfig implements Parcelable {
          * 设置 Host 的格式化字符串，sdk 会将 ${bucket} 替换为真正的 bucket，${region} 替换为真正的 region，
          * 比如将 hostFormat 设置为  ${bucket}.${region}.tencent.com，并且您的存储桶和地域分别为 bucket-1250000000
          * 和 ap-shanghai，那么最终的请求地址为 bucket-1250000000.ap-shanghai.tencent.com
-         *
-         * </>
          * 注意，这个设置不会影响 GetService 请求，GetService 请求 Host 通过 {@link CosXmlBaseService#setDomain(String)} 设置
          *
          * @param hostFormat host 格式化字符串
