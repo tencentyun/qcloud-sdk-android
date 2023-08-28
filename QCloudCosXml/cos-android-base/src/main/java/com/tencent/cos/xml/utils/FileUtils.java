@@ -27,6 +27,7 @@ import android.util.Log;
 import com.tencent.cos.xml.CosXmlBaseService;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,16 +35,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import okhttp3.internal.Util;
-
 /**
  * 文件工具类
  */
 
 public class FileUtils {
-
-
-
     public static void saveInputStreamToTmpFile(InputStream stream, File file, long offset, long size) throws IOException {
         FileOutputStream fos = null;
         try {
@@ -64,7 +60,7 @@ public class FileUtils {
             }
             fos.flush();
         } finally {
-            if(fos != null) Util.closeQuietly(fos);
+            if(fos != null) OkhttpInternalUtils.closeQuietly(fos);
         }
     }
 

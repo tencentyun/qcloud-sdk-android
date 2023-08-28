@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class ListBucket {
     /**
-     * 存储桶的名称，格式为<BucketName-APPID>，例如examplebucket-1250000000
+     * 存储桶的名称，格式为&lt;BucketName-APPID&gt;，例如examplebucket-1250000000
      */
     public String name;
     /**

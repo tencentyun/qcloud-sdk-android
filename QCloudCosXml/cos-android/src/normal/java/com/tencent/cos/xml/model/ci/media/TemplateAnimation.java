@@ -75,7 +75,7 @@ public class TemplateAnimation {
         public String fps;
 
         /**
-         *动图只保留关键帧 。若 AnimateOnlyKeepKeyFrame 设置为 true 时，则不考虑 AnimateTimeIntervalOfFrame、AnimateFramesPerSecond；若 AnimateOnlyKeepKeyFrame 设置为 false 时，则必须填写AnimateTimeIntervalOfFrame 或 AnimateFramesPerSecond;是否必传：否;默认值：false;限制：true、false动图保留关键帧参数优先级：AnimateFramesPerSecond > AnimateOnlyKeepKeyFrame > AnimateTimeIntervalOfFrame;
+         *动图只保留关键帧 。若 AnimateOnlyKeepKeyFrame 设置为 true 时，则不考虑 AnimateTimeIntervalOfFrame、AnimateFramesPerSecond；若 AnimateOnlyKeepKeyFrame 设置为 false 时，则必须填写AnimateTimeIntervalOfFrame 或 AnimateFramesPerSecond;是否必传：否;默认值：false;限制：true、false动图保留关键帧参数优先级：AnimateFramesPerSecond 大于 AnimateOnlyKeepKeyFrame 大于 AnimateTimeIntervalOfFrame;
          */
         public String animateOnlyKeepKeyFrame;
 
@@ -85,7 +85,7 @@ public class TemplateAnimation {
         public String animateTimeIntervalOfFrame;
 
         /**
-         *Animation 每秒抽帧帧数;是否必传：否;默认值：无;限制：（0，视频帧率）动图抽帧频率优先级AnimateFramesPerSecond > AnimateOnlyKeepKeyFrame> AnimateTimeIntervalOfFrame;
+         *Animation 每秒抽帧帧数;是否必传：否;默认值：无;限制：（0，视频帧率）动图抽帧频率优先级AnimateFramesPerSecond 大于 AnimateOnlyKeepKeyFrame 大于 AnimateTimeIntervalOfFrame;
          */
         public String animateFramesPerSecond;
 

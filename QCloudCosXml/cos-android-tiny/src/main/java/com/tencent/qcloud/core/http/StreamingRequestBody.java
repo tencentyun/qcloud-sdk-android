@@ -28,6 +28,7 @@ import android.net.Uri;
 import com.tencent.qcloud.core.common.QCloudDigistListener;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.util.Base64Utils;
+import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 import com.tencent.qcloud.core.util.QCloudUtils;
 
 import java.io.ByteArrayInputStream;
@@ -43,7 +44,6 @@ import java.security.NoSuchAlgorithmException;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
-import okhttp3.internal.Util;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
@@ -190,7 +190,7 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
             try {
                 saveInputStreamToTmpFile(stream, file);
             } finally {
-                if(stream != null) Util.closeQuietly(stream);
+                if(stream != null) OkhttpInternalUtils.closeQuietly(stream);
                 stream = null;
                 offset = 0;
             }
@@ -237,7 +237,7 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
             }
             fos.flush();
         } finally {
-            if(fos != null) Util.closeQuietly(fos);
+            if(fos != null) OkhttpInternalUtils.closeQuietly(fos);
         }
     }
 
@@ -260,9 +260,9 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
                 bufferedSink.flush();
             }
         } finally {
-            if(inputStream != null) Util.closeQuietly(inputStream);
-            if(source != null) Util.closeQuietly(source);
-            if(countingSink != null) Util.closeQuietly(countingSink);
+            if(inputStream != null) OkhttpInternalUtils.closeQuietly(inputStream);
+            if(source != null) OkhttpInternalUtils.closeQuietly(source);
+            if(countingSink != null) OkhttpInternalUtils.closeQuietly(countingSink);
         }
 
     }
@@ -291,7 +291,7 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
         } catch (NoSuchAlgorithmException e) {
             throw new IOException("unSupport Md5 algorithm", e);
         } finally {
-            if(inputStream != null)Util.closeQuietly(inputStream);
+            if(inputStream != null)OkhttpInternalUtils.closeQuietly(inputStream);
         }
     }
 

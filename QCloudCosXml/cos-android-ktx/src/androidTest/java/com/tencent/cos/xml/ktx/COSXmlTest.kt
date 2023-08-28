@@ -17,8 +17,6 @@ import java.io.RandomAccessFile
 import java.util.*
 
 /**
- * <p>
- * </p>
  * Created by wjielai on 2020/7/7.
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */

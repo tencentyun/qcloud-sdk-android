@@ -41,8 +41,8 @@ import java.util.Map;
 
 /**
  * 简单上传的请求.
- * @see SimpleCosXml#putObject(PutObjectRequest)
- * @see SimpleCosXml#putObjectAsync(PutObjectRequest, CosXmlResultListener)
+ * @see com.tencent.cos.xml.SimpleCosXml#putObject(PutObjectRequest)
+ * @see com.tencent.cos.xml.SimpleCosXml#putObjectAsync(PutObjectRequest, CosXmlResultListener)
  */
 public class PutObjectRequest extends BasePutObjectRequest implements TransferRequest {
     private ObjectMetadata metadata;

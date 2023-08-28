@@ -608,7 +608,6 @@ public class CosXmlBaseService implements BaseCosXml {
      * 获取 COS 对象的同步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#getObject(GetObjectRequest)}
-     * </p>
      */
     @Override
     public GetObjectResult getObject(GetObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -620,7 +619,6 @@ public class CosXmlBaseService implements BaseCosXml {
      * 获取 COS 对象的异步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#getObjectAsync(GetObjectRequest, CosXmlResultListener)}
-     * </p>
      */
     @Override
     public void getObjectAsync(GetObjectRequest request, CosXmlResultListener cosXmlResultListener) {
@@ -646,7 +644,6 @@ public class CosXmlBaseService implements BaseCosXml {
      * 基础简单上传的同步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#basePutObject(BasePutObjectRequest)}
-     * </p>
      */
     @Override
     public BasePutObjectResult basePutObject(BasePutObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -660,7 +657,6 @@ public class CosXmlBaseService implements BaseCosXml {
      * 基础简单上传的异步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#basePutObjectAsync(BasePutObjectRequest, CosXmlResultListener)}
-     * </p>
      */
     @Override
     public void basePutObjectAsync(BasePutObjectRequest request, CosXmlResultListener cosXmlResultListener) {
@@ -674,7 +670,6 @@ public class CosXmlBaseService implements BaseCosXml {
      * 上传一个对象某个分片块的同步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#uploadPart(UploadPartRequest)}
-     * </p>
      */
     @Override
     public UploadPartResult uploadPart(UploadPartRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -686,7 +681,6 @@ public class CosXmlBaseService implements BaseCosXml {
      * 上传一个对象某个分片块的异步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#uploadPartAsync(UploadPartRequest, CosXmlResultListener)}
-     * </p>
      */
     @Override
     public void uploadPartAsync(UploadPartRequest request, CosXmlResultListener cosXmlResultListener) {
