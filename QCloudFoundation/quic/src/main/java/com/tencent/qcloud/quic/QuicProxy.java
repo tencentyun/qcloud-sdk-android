@@ -37,6 +37,7 @@ import com.tencent.qcloud.core.http.ResponseBodyConverter;
 import com.tencent.qcloud.core.http.ResponseFileConverter;
 import com.tencent.qcloud.core.http.SelfCloseConverter;
 import com.tencent.qcloud.core.task.RetryStrategy;
+import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 
 import java.net.InetAddress;
 import java.util.List;
@@ -50,7 +51,6 @@ import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.internal.Util;
 
 
 public class QuicProxy<T> extends NetworkProxy<T> {
@@ -228,7 +228,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                 }
             }finally {
                 if(response != null && !selfCloseConverter) {
-                    Util.closeQuietly(response);
+                    OkhttpInternalUtils.closeQuietly(response);
                 }
             }
         }

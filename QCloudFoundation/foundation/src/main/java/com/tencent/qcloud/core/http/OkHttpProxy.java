@@ -24,6 +24,7 @@ package com.tencent.qcloud.core.http;
 
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
+import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -34,7 +35,6 @@ import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.internal.Util;
 
 public class OkHttpProxy<T> extends NetworkProxy<T> {
 
@@ -109,7 +109,7 @@ public class OkHttpProxy<T> extends NetworkProxy<T> {
             }
         } finally {
             if(response != null && !selfCloseConverter) {
-                Util.closeQuietly(response);
+                OkhttpInternalUtils.closeQuietly(response);
             }
         }
 
