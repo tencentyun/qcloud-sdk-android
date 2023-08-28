@@ -155,7 +155,7 @@ public interface BaseCosXml {
      * <p>
      * 上传一个分片块的同步方法.&nbsp;
      * <p>
-     * 使用分块上传时，可将对象切分成一个个分块的方式上传到 COS，每个分块上传需要携带分块号（partNumber） 和 uploadId（{@link #initMultipartUpload(InitMultipartUploadRequest)}），
+     * 使用分块上传时，可将对象切分成一个个分块的方式上传到 COS，每个分块上传需要携带分块号（partNumber） 和 uploadId（{SimpleCosXml#initMultipartUpload(InitMultipartUploadRequest)}），
      * 每个分块大小为 1 MB 到 5 GB ，最后一个分块可以小于 1 MB, 若传入 uploadId 和 partNumber都相同，
      * 后传入的块将覆盖之前传入的块，且支持乱序上传.
      * <p>
@@ -177,7 +177,7 @@ public interface BaseCosXml {
      * <p>
      * 上传一个分片块的异步方法.&nbsp;
      * <p>
-     * 使用分块上传时，可将对象切分成一个个分块的方式上传到 COS，每个分块上传需要携带分块号（partNumber） 和 uploadId（{@link #initMultipartUpload(InitMultipartUploadRequest)}），
+     * 使用分块上传时，可将对象切分成一个个分块的方式上传到 COS，每个分块上传需要携带分块号（partNumber） 和 uploadId（{SimpleCosXml#initMultipartUpload(InitMultipartUploadRequest)}），
      * 每个分块大小为 1 MB 到 5 GB ,最后一个分块可以小于 1 MB, 若传入 uploadId 和 partNumber都相同，
      * 后传入的块将覆盖之前传入的块，且支持乱序上传.
      * <p>
