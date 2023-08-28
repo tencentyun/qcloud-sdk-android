@@ -33,16 +33,11 @@ import java.lang.annotation.Target;
  *      <Title>Effective Java</Title>
  *   </Book>
  *   }
- * </pre>
  *
- * <pre>
- *   {@code
- *
- *   @XmlBean
+ *   &#64;XmlBean
  *   public class Book {
- *   @XmlElement
+ *   &#64;XmlElement
  *   String title;
- *   }
  *   }
  * </pre>
  */
@@ -59,16 +54,19 @@ public @interface XmlElement {
   String name() default "";
 
   /**
-   * 忽略List节点
+   * 忽略List节点<br/>
    * 目前仅用于toxml，适配部分不合理XML节点设计
    * @return 是否忽略List节点
    */
   boolean ignoreListNote() default false;
 
   /**
-   * 是否是平铺的List节点
-   * 仅用于fromxml
+   * 是否是平铺的List节点<br/>
+   * 仅用于fromxml<br/>
    * 如下XML
+   *
+   * <pre>
+   * {@code
    *   <Response>
    *     <MediaBucketList>
    *           <BucketId></BucketId>
@@ -94,14 +92,18 @@ public @interface XmlElement {
    *         public String bucketId;
    *     }
    * }
-   *
+   * }
+   * </pre>
    * @return 是否是平铺的List节点
    */
   boolean flatListNote() default false;
 
   /**
-   * 忽略Element名称
+   * 忽略Element名称<br/>
    * 目前仅用于toxml，用于适配以下XML
+   *
+   * <pre>
+   * {@code
    *   <DomainList>
    *     <Domain>*.qq.com</Domain>
    *     <Domain>*.qcloud.com</Domain>
@@ -113,6 +115,8 @@ public @interface XmlElement {
    *       @XmlElement(ignoreName = true)
    *       public String domain;
    *   }
+   *   }
+   *   </pre>
    * @return 是否忽略Element名称
    */
   boolean ignoreName() default false;
@@ -124,7 +128,7 @@ public @interface XmlElement {
   boolean ignoreZero() default false;
 
   /**
-   * 是否解析为原始的xml字符串
+   * 是否解析为原始的xml字符串<br/>
    * 仅用于fromxml
    * @return 原始的xml字符串
    */
