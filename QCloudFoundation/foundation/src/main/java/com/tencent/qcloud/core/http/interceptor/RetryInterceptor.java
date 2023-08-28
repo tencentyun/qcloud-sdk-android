@@ -26,7 +26,6 @@ package com.tencent.qcloud.core.http.interceptor;
 import static com.tencent.qcloud.core.http.HttpConstants.Header.RANGE;
 import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
 
-import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.HttpConfiguration;
 import com.tencent.qcloud.core.http.HttpConstants;
@@ -36,7 +35,6 @@ import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.RetryStrategy;
 import com.tencent.qcloud.core.task.TaskManager;
-import com.tencent.qcloud.core.util.QCloudUtils;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -75,7 +73,6 @@ public class RetryInterceptor implements Interceptor {
     private volatile static Map<String, HostReliable> hostReliables = new HashMap<>();
 
     private static final int MIN_CLOCK_SKEWED_OFFSET = 600;
-    private static final int NETWORK_DETECT_RETRY_DELAY = 3000; // ms
 
     // 线程安全
     private static class HostReliable {
@@ -160,19 +157,6 @@ public class RetryInterceptor implements Interceptor {
                 }
             }
 
-            // avoid useless retry
-            if (!QCloudUtils.isNetworkConnected()) {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(NETWORK_DETECT_RETRY_DELAY);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-
-                if (!QCloudUtils.isNetworkConnected()) {
-                    e = new IOException(new QCloudClientException("NetworkNotConnected"));
-                    break;
-                }
-            }
             QCloudLogger.i(HTTP_LOG_TAG, "%s start to execute, attempts is %d", request, attempts);
 
             //记录重试次数
@@ -195,7 +179,15 @@ public class RetryInterceptor implements Interceptor {
                 e = exception;
             }
             // server date header
-            String serverDate = response != null ? response.header(HttpConstants.Header.DATE) : null;
+            String serverDate = null;
+            if(response != null){
+                // 增加cos服务端响应校验 防止cdn等其他服务端响应的date不准确
+                String server = response.header(HttpConstants.Header.SERVER);
+                if(HttpConstants.TENCENT_COS_SERVER.equals(server)){
+                    serverDate = response.header(HttpConstants.Header.DATE);
+                    QCloudLogger.i(HTTP_LOG_TAG, "serverDate is %s", serverDate);
+                }
+            }
 
             if ((e == null && response.isSuccessful())) {
                 if (serverDate != null) {

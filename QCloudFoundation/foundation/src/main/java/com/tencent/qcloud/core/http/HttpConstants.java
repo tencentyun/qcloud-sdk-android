@@ -23,6 +23,10 @@
 package com.tencent.qcloud.core.http;
 
 public final class HttpConstants {
+    /**
+     * 腾讯云COS服务响应标识: 接收请求并返回响应的服务器的名称
+     */
+    public static final String TENCENT_COS_SERVER = "tencent-cos";
 
     public static final class ContentType {
         
@@ -73,6 +77,8 @@ public final class HttpConstants {
         public final static String DATE = "Date";
 
         public final static String EXPECT = "Expect";
+
+        public final static String SERVER = "Server";
     }
 
     public static final class RequestMethod {
