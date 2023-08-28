@@ -4,8 +4,8 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
 
 /**
  * @author Created by jordanqin.
- * @date Created in 2022/10/21 11:36
- * @description： Copyright 2010-2022 Tencent Cloud. All Rights Reserved.
+ * Created in 2022/10/21 11:36
+ * Copyright 2010-2022 Tencent Cloud. All Rights Reserved.
  */
 @XmlBean(name = "CallBackMqConfig")
 public class CallBackMqConfig {

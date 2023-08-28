@@ -79,12 +79,16 @@ public class StringUtils {
 
     /**
      * 提取一个完整路径的文件名，比如：
-     *
-     * resource/image/logo.png  -> logo.png
-     * resource/image/          -> image/
-     * resource/image           -> image
-     * image/                   -> image/
-     * image                    -> image
+     * <p>
+     * resource/image/logo.png  -&gt; logo.png
+     * <p>
+     * resource/image/          -&gt; image/
+     * <p>
+     * resource/image           -&gt; image
+     * <p>
+     * image/                   -&gt; image/
+     * <p>
+     * image                    -&gt; image
      */
     public static String extractFileName(String absolutePath) {
 
@@ -105,10 +109,12 @@ public class StringUtils {
 
     /**
      *  提取一个路径或者文件名中的名称（不含后缀），比如：
-     *
-     *  resource/image/logo.png   -> logo
-     *  logo.png                  -> logo
-     *  logo                      -> logo
+     * <p>
+     *  resource/image/logo.png   -&gt; logo
+     * <p>
+     *  logo.png                  -&gt; logo
+     * <p>
+     *  logo                      -&gt; logo
      */
     public static String extractNameNoSuffix(String absolutePath) {
         String fileName = extractFileName(absolutePath);
@@ -127,10 +133,12 @@ public class StringUtils {
 
     /**
      *  提取一个路径或者文件名中的后缀，比如：
-     *
-     *  resource/image/logo.png   -> .png
-     *  logo.png                  -> .png
-     *  logo                      ->
+     * <p>
+     *  resource/image/logo.png   -&gt; .png
+     * <p>
+     *  logo.png                  -&gt; .png
+     * <p>
+     *  logo                      -&gt;
      */
     public static String extractSuffix(String absolutePath) {
         if (TextUtils.isEmpty(absolutePath)) {

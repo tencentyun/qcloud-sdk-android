@@ -23,7 +23,6 @@
 package com.tencent.qcloud.core.http.interceptor;
 
 
-import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.HttpConfiguration;
 import com.tencent.qcloud.core.http.HttpConstants;
@@ -31,7 +30,6 @@ import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
 import com.tencent.qcloud.core.task.RetryStrategy;
 import com.tencent.qcloud.core.task.TaskManager;
-import com.tencent.qcloud.core.util.QCloudUtils;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -69,7 +67,6 @@ public class RetryInterceptor implements Interceptor {
     private volatile static Map<String, HostReliable> hostReliables = new HashMap<>();
 
     private static final int MIN_CLOCK_SKEWED_OFFSET = 600;
-    private static final int NETWORK_DETECT_RETRY_DELAY = 3000; // ms
 
     // 线程安全
     private static class HostReliable {
@@ -154,19 +151,6 @@ public class RetryInterceptor implements Interceptor {
                 }
             }
 
-            // avoid useless retry
-            if (!QCloudUtils.isNetworkConnected()) {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(NETWORK_DETECT_RETRY_DELAY);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-
-                if (!QCloudUtils.isNetworkConnected()) {
-                    e = new IOException(new QCloudClientException("NetworkNotConnected"));
-                    break;
-                }
-            }
             //QCloudLogger.i(HTTP_LOG_TAG, "%s start to execute, attempts is %d", request, attempts);
 
             attempts++;

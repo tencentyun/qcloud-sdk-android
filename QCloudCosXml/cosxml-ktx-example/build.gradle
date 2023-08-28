@@ -16,6 +16,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            it.buildConfigField 'String', 'COS_SECRET_ID', quotWrapper(System.getenv("COS_SECRET_ID"))
+            it.buildConfigField 'String', 'COS_SECRET_KEY', quotWrapper(System.getenv("COS_SECRET_KEY"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET_REGION', quotWrapper(System.getenv("PERSIST_BUCKET_REGION"))
+            it.buildConfigField 'String', 'PERSIST_BUCKET', quotWrapper(System.getenv("PERSIST_BUCKET"))
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -33,7 +40,13 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    implementation("com.tencent.qcloud:cosxml:5.5.3")
-    implementation("com.tencent.qcloud:cosxml-ktx:5.5.0")
+    implementation("com.qcloud.cos:cos-android:5.9.16")
+    implementation("com.qcloud.cos:cos-ktx:5.7.2")
+}
 
+static String quotWrapper(key) {
+    if (key == null) {
+        return "\"\""
+    }
+    return "\"".concat(key).concat("\"")
 }

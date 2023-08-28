@@ -110,13 +110,13 @@ public class ResettableInputStream extends ReleasableInputStream {
      * If the opened file is meant to be closed only (in a finally block) by the very same code
      * block that created it, then it is necessary that the release method must not be called while
      * the execution is made in other stack frames.
-     * 
+     * <p>
      * In such case, as other stack frames may inadvertently or indirectly call the close method of
      * the stream, the creator of the stream would need to explicitly disable the accidental closing
      * via {@link ResettableInputStream#disableClose()}, so that the release method becomes the only
      * way to truly close the opened file.
      * 
-     * @param _ ignored
+     * @param limit limit
      */
     @Override
     public void mark(int limit) {

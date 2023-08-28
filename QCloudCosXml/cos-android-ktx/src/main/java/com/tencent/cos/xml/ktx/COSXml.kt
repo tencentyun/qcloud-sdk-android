@@ -31,8 +31,6 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * <p>
- * </p>
  * Created by wjielai on 2020/7/3.
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
