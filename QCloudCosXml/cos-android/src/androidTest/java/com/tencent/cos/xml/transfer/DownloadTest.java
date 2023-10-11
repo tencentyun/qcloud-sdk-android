@@ -191,7 +191,7 @@ public class DownloadTest {
      */
     @Test public void testBatchSmallDownload() {
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();;
-        int count = 20;
+        int count = 6;
         final TestLocker testLocker = new TestLocker(count);
         final AtomicInteger errorCount = new AtomicInteger(0);
         final AtomicInteger successCount = new AtomicInteger(0);
@@ -201,7 +201,7 @@ public class DownloadTest {
 
             final String localName = "1M_" + i + ".txt";
             COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
-                    TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                    TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
                     TestUtils.localParentPath(), localName);
 
             downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
@@ -227,7 +227,13 @@ public class DownloadTest {
             downloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
                 @Override
                 public void onProgress(long complete, long target) {
-                    TestUtils.print("download " + localName + ": " + complete + "/" + target);
+                    TestUtils.print(localName+ " download_Progress" + ": " + complete + "/" + target);
+                }
+            });
+            downloadTask.setTransferStateListener(new TransferStateListener() {
+                @Override
+                public void onStateChanged(TransferState state) {
+                    TestUtils.print(localName+ " download_State:" + state.name());
                 }
             });
         }

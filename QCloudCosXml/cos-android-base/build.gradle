@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply from: '../version.gradle'
 
 android {
     compileSdkVersion 28
@@ -7,8 +6,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode cosSdkVersionCode
-        versionName cosSdkVersionName
+        versionCode 50916
+        versionName '5.9.16'
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -78,6 +77,12 @@ dependencies {
             'libs/qmsp-oaid2-1.0.4.aar'
     )
 }
+
+project.extensions.add('artifactId', 'qcloud-cos-android-base')
+project.extensions.add('artifactDesc', 'qcloud-cos-android-base')
+project.extensions.add('archiveFilePath', 'outputs/aar/qcloud-cos-android-base-release.aar')
+
+apply from: '../../publishMavenCentral.gradle'
 
 static String quotWrapper(key) {
     if (key == null) {
