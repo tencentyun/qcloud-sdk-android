@@ -97,7 +97,8 @@ public class MyQCloudSelfSigner implements QCloudSelfSigner {
 
     private synchronized SignResult lookupValidSignResult(int sourceId) {
         SignResult signResult = signResultPairs.get(sourceId);
-        if (signResult != null) {
+//        if (signResult != null) {
+        if (signResult != null && signResult.isValid()) {
             return signResult;
         }
         return null;
@@ -125,10 +126,17 @@ public class MyQCloudSelfSigner implements QCloudSelfSigner {
     public static class SignResult {
         public String authorization;
         public String securityToken;
+        public long expiredTime;
 
-        public SignResult(String authorization, String securityToken) {
+        public SignResult(String authorization, String securityToken, long expiredTime) {
             this.authorization = authorization;
             this.securityToken = securityToken;
+            this.expiredTime = expiredTime;
+        }
+
+        public boolean isValid(){
+            int EXPIRE_TIME_RESERVE_IN_SECONDS = 60;
+            return System.currentTimeMillis() / 1000 <= expiredTime - EXPIRE_TIME_RESERVE_IN_SECONDS;
         }
     }
 }
