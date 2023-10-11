@@ -1,6 +1,7 @@
 ## v5.9.17
 1. 完善foundation混淆
 2. 完善connectAddress获取逻辑
+3. 远程依赖qcloud-cos-android-base
 
 ## v5.9.16
 1. 冷存储枚举支持
