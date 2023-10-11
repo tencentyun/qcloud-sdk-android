@@ -187,7 +187,7 @@ public class MyCOSXmlSigner {
                 .append(AuthConstants.Q_SIGNATURE).append("=").append(signature);
         String auth = authorization.toString();
         // --------------- 计算签名结束 ------------------
-        return new MyQCloudSelfSigner.SignResult(auth, credentials.getToken());
+        return new MyQCloudSelfSigner.SignResult(auth, credentials.getToken(), credentials.getExpiredTime());
     }
 
     private static String signature(String source, String signKey) {
