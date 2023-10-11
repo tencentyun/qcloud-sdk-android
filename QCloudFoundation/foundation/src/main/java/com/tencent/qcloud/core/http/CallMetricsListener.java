@@ -112,14 +112,18 @@ public class CallMetricsListener extends EventListener {
     public void connectEnd(Call call, InetSocketAddress inetSocketAddress, Proxy proxy, Protocol protocol) {
         super.connectEnd(call, inetSocketAddress, proxy, protocol);
         connectTookTime += System.nanoTime() - connectStartTime;
-        connectAddress = inetSocketAddress.getAddress();
+        if(inetSocketAddress != null) {
+            connectAddress = inetSocketAddress.getAddress();
+        }
     }
 
     @Override
     public void connectFailed(Call call, InetSocketAddress inetSocketAddress, Proxy proxy, Protocol protocol, IOException ioe) {
         super.connectFailed(call, inetSocketAddress, proxy, protocol, ioe);
         connectTookTime += System.nanoTime() - connectStartTime;
-        connectAddress = inetSocketAddress.getAddress();
+        if(inetSocketAddress != null) {
+            connectAddress = inetSocketAddress.getAddress();
+        }
     }
 
     @Override
