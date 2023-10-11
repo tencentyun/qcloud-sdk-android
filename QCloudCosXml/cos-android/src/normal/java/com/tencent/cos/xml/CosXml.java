@@ -222,7 +222,7 @@ public interface CosXml extends SimpleCosXml {
      * <p>
      * 追加上传对象的同步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/31929">https://cloud.tencent.com/document/product/436/31929.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/7741">https://cloud.tencent.com/document/product/436/7741.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E6.9F.A5.E8.AF.A2.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99.E9.85.8D.E7.BD.AE">追加上传对象示例</a>
@@ -238,7 +238,7 @@ public interface CosXml extends SimpleCosXml {
      * <p>
      * 追加上传对象的异步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/31929">https://cloud.tencent.com/document/product/436/31929.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/7741">https://cloud.tencent.com/document/product/436/7741.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E6.9F.A5.E8.AF.A2.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99.E9.85.8D.E7.BD.AE">追加上传对象示例</a>

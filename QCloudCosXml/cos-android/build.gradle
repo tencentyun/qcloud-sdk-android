@@ -33,7 +33,7 @@ android {
 
         consumerProguardFiles 'proguard-rules.pro'
 
-//        multiDexEnabled true
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -151,7 +151,7 @@ dependencies {
     annotationProcessor project(':xmlCompiler')
 
     api project(':foundation')
-    embed project(':cos-android-base')
+    api project(':cos-android-base')
     if(includeBeacon){
         embed(name: 'beacon-android-release-4.2.80.6-official', ext: 'aar')
         embed(name: 'qimei-1.2.13.1', ext: 'aar')
