@@ -22,7 +22,6 @@
 
 package com.tencent.qcloud.core.task;
 
-import android.util.Log;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import java.util.ArrayList;
@@ -64,6 +63,10 @@ public final class TaskManager {
             QCloudLogger.d(TASK_LOG_TAG, "[Pool] REMOVE %s, %d cached",
                     task.getIdentifier(), taskPool.size());
         }
+    }
+
+    public int getPoolCount(){
+        return taskPool.size();
     }
 
     public QCloudTask get(String identifier) {

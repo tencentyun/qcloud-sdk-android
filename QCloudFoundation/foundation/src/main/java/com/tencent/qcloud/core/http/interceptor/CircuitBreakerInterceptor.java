@@ -22,6 +22,8 @@
 
 package com.tencent.qcloud.core.http.interceptor;
 
+import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
+
 import com.tencent.qcloud.core.http.HttpRequest;
 import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.logger.QCloudLogger;
@@ -36,8 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
 
 public class CircuitBreakerInterceptor implements Interceptor {
 
@@ -80,6 +80,11 @@ public class CircuitBreakerInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         HttpTask task = (HttpTask) TaskManager.getInstance().get((String) request.tag());
+
+        if (task == null || task.isCanceled()) {
+            throw new IOException("CANCELED");
+        }
+
         boolean isFreshTask;
 
         synchronized (CircuitBreakerInterceptor.class) {
