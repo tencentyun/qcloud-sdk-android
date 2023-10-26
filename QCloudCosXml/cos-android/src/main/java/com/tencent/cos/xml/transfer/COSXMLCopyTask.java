@@ -424,32 +424,32 @@ public final class COSXMLCopyTask extends COSXMLTask {
      *  暂停、失败、取消调用
      * @param cosXmlService cosXmlSimpleService
      */
-    private void cancelAllRequest(CosXmlSimpleService cosXmlService){
+    private void cancelAllRequest(CosXmlSimpleService cosXmlService, boolean now){
         HeadObjectRequest tempHeadObjectRequest = headObjectRequest;
         if(tempHeadObjectRequest != null){
-            cosXmlService.cancel(tempHeadObjectRequest);
+            cosXmlService.cancel(tempHeadObjectRequest, now);
         }
         CopyObjectRequest tempCopyObjectRequest = copyObjectRequest;
         if(tempCopyObjectRequest != null){
-            cosXmlService.cancel(tempCopyObjectRequest);
+            cosXmlService.cancel(tempCopyObjectRequest, now);
         }
         InitMultipartUploadRequest tempInitMultipartRequest = initMultipartUploadRequest;
         if(tempInitMultipartRequest != null){
-            cosXmlService.cancel(tempInitMultipartRequest);
+            cosXmlService.cancel(tempInitMultipartRequest, now);
         }
         ListPartsRequest tempListPartsRequest = listPartsRequest;
         if(tempListPartsRequest != null){
-            cosXmlService.cancel(tempListPartsRequest);
+            cosXmlService.cancel(tempListPartsRequest, now);
         }
         if(uploadPartCopyRequestList != null) {
             Iterator<UploadPartCopyRequest> iterator = uploadPartCopyRequestList.iterator();
             while (iterator.hasNext()){
-                cosXmlService.cancel(iterator.next());
+                cosXmlService.cancel(iterator.next(), now);
             }
         }
         CompleteMultiUploadRequest tempCompleteMultiUploadRequest = completeMultiUploadRequest;
         if(tempCompleteMultiUploadRequest != null){
-            cosXmlService.cancel(tempCompleteMultiUploadRequest);
+            cosXmlService.cancel(tempCompleteMultiUploadRequest, now);
         }
     }
 
@@ -499,7 +499,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
 
     @Override
     protected void internalFailed() {
-        cancelAllRequest(cosXmlService);
+        cancelAllRequest(cosXmlService, false);
     }
 
     @Override
@@ -508,12 +508,12 @@ public final class COSXMLCopyTask extends COSXMLTask {
         CosXmlRequest request = buildCOSXMLTaskRequest();
         request.attachMetrics(httpTaskMetrics);
         BeaconService.getInstance().reportUploadTaskSuccess(request);
-        cancelAllRequest(cosXmlService);
+        cancelAllRequest(cosXmlService, false);
     }
 
     @Override
-    protected void internalCancel() {
-        cancelAllRequest(cosXmlService);
+    protected void internalCancel(boolean now) {
+        cancelAllRequest(cosXmlService, now);
         if(isLargeCopy)abortMultiUpload(cosXmlService);
     }
 

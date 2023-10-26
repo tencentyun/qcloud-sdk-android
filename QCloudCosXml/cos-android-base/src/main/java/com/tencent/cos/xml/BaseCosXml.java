@@ -201,6 +201,12 @@ public interface BaseCosXml {
     String getObjectUrl(String bucket, String region, String key);
 
     /**
+     * 立即取消请求任务
+     * @param cosXmlRequest 请求request {@link CosXmlRequest}
+     */
+    void cancel(CosXmlRequest cosXmlRequest, boolean now);
+
+    /**
      * 取消请求任务
      * @param cosXmlRequest 请求request {@link CosXmlRequest}
      */

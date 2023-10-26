@@ -120,4 +120,11 @@ public class COSDirectImpl implements COSDirect {
             cosService.cancel(request);
         }
     }
+
+    @Override
+    public void cancel(CosXmlRequest request, boolean now) {
+        if (cosService != null) {
+            cosService.cancel(request, now);
+        }
+    }
 }

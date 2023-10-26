@@ -831,7 +831,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     @Override
     protected void internalFailed() {
-        cancelAllRequest(cosXmlService);
+        cancelAllRequest(cosXmlService, false);
     }
 
     @Override
@@ -840,7 +840,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         CosXmlRequest request = buildCOSXMLTaskRequest();
         request.attachMetrics(httpTaskMetrics);
         BeaconService.getInstance().reportUploadTaskSuccess(request);
-        cancelAllRequest(cosXmlService);
+        cancelAllRequest(cosXmlService, false);
     }
 
     /**
@@ -860,8 +860,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
 
     @Override
-    protected void internalCancel() {
-        cancelAllRequest(cosXmlService);
+    protected void internalCancel(boolean now) {
+        cancelAllRequest(cosXmlService, now);
         if(isSliceUpload)abortMultiUpload(cosXmlService);
         clear();
     }
@@ -882,37 +882,37 @@ public final class COSXMLUploadTask extends COSXMLTask {
     }
 
 
-    void cancelAllRequest(CosXmlSimpleService cosXmlService){
+    void cancelAllRequest(CosXmlSimpleService cosXmlService, boolean now){
 
         HeadObjectRequest tempHeadObjectRequest = headObjectRequest;
         if (tempHeadObjectRequest != null) {
-            cosXmlService.cancel(tempHeadObjectRequest);
+            cosXmlService.cancel(tempHeadObjectRequest, now);
         }
 
         PutObjectRequest tempPutObjectRequest = putObjectRequest;
         if(tempPutObjectRequest != null){
-            cosXmlService.cancel(tempPutObjectRequest);
+            cosXmlService.cancel(tempPutObjectRequest, now);
         }
         InitMultipartUploadRequest tempInitMultipartUploadRequest = initMultipartUploadRequest;
         if(tempInitMultipartUploadRequest != null){
-            cosXmlService.cancel(tempInitMultipartUploadRequest);
+            cosXmlService.cancel(tempInitMultipartUploadRequest, now);
         }
         ListPartsRequest tempListPartsRequest = listPartsRequest;
         if(tempListPartsRequest != null){
-            cosXmlService.cancel(tempListPartsRequest);
+            cosXmlService.cancel(tempListPartsRequest, now);
         }
 
         if(uploadPartRequestLongMap != null){
             Set<UploadPartRequest> set = uploadPartRequestLongMap.keySet();
             Iterator<UploadPartRequest> iterator = set.iterator();
             while(iterator.hasNext()){
-                cosXmlService.cancel(iterator.next());
+                cosXmlService.cancel(iterator.next(), now);
             }
         }
 
         CompleteMultiUploadRequest tempCompleteMultiUploadRequest = completeMultiUploadRequest;
         if(tempCompleteMultiUploadRequest != null){
-            cosXmlService.cancel(tempCompleteMultiUploadRequest);
+            cosXmlService.cancel(tempCompleteMultiUploadRequest, now);
         }
 
     }
