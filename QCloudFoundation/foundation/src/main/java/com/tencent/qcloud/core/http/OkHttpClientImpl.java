@@ -70,6 +70,10 @@ public class OkHttpClientImpl extends NetworkClient {
                 .addInterceptor(new RetryInterceptor(b.retryStrategy))
                 .addInterceptor(new TrafficControlInterceptor())
                 .build();
+
+//        Dispatcher dispatcher = okHttpClient.dispatcher();
+//        dispatcher.setMaxRequests(64); // 设置最大并发请求数
+//        dispatcher.setMaxRequestsPerHost(36); // 设置每个主机的最大并发请求数
     }
 
     @Override
