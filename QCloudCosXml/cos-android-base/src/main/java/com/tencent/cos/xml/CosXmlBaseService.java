@@ -706,6 +706,17 @@ public class CosXmlBaseService implements BaseCosXml {
     }
 
     /**
+     * 取消请求任务.&nbsp;
+     * 详细介绍，请查看:{@link  BaseCosXml#cancel(CosXmlRequest)}
+     */
+    @Override
+    public void cancel(CosXmlRequest cosXmlRequest, boolean now) {
+        if (cosXmlRequest != null && cosXmlRequest.getHttpTask() != null) {
+            cosXmlRequest.getHttpTask().cancel(now);
+        }
+    }
+
+    /**
      * 取消所有的请求任务.&nbsp;
      * 详细介绍，请查看:{@link  BaseCosXml#cancelAll()}
      */

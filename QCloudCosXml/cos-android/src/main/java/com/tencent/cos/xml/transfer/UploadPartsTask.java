@@ -96,7 +96,7 @@ abstract class BaseUploadPartsTask {
     abstract public Set<COSUploadTask.UploadPart> upload() throws Exception;
 
     abstract public void cancel();
-
+    abstract public void cancel(boolean now);
 
     UploadPartRequest getUploadRequest(int partNumber, long offset, long size) {
 
@@ -223,6 +223,12 @@ class SerialUploadPartsTask extends BaseUploadPartsTask {
         }
     }
 
+    @Override public void cancel(boolean now) {
+        if (currentUploadPartRequest != null) {
+            mCosDirect.cancel(currentUploadPartRequest, now);
+        }
+    }
+
     public void setHttpTaskMetrics(HttpTaskMetrics httpTaskMetrics) {
         this.httpTaskMetrics = httpTaskMetrics;
     }
@@ -285,7 +291,7 @@ class ParallelUploadPartsTask extends BaseUploadPartsTask {
                     // 检查 etag 参数是否存在
                     if (TextUtils.isEmpty(eTag)) {
                         tcs.trySetError(new CosXmlClientException(ETAG_NOT_FOUND));
-                        cancelAllUploadingRequests();
+                        cancelAllUploadingRequests(false);
                         return;
                     }
                     uploadParts.add(new COSUploadTask.UploadPart(uploadPartResult.eTag, partNumber, startPointer, partSize));
@@ -304,7 +310,7 @@ class ParallelUploadPartsTask extends BaseUploadPartsTask {
                     } else {
                         tcs.trySetError(new CosXmlClientException(ClientErrorCode.UNKNOWN));
                     }
-                    cancelAllUploadingRequests();
+                    cancelAllUploadingRequests(false);
                 }
             });
 
@@ -341,13 +347,19 @@ class ParallelUploadPartsTask extends BaseUploadPartsTask {
     @Override
     public void cancel() {
         tcs.trySetCancelled();
-        cancelAllUploadingRequests();
+        cancelAllUploadingRequests(false);
+    }
+
+    @Override
+    public void cancel(boolean now) {
+        tcs.trySetCancelled();
+        cancelAllUploadingRequests(now);
     }
     
-    private void cancelAllUploadingRequests() {
+    private void cancelAllUploadingRequests(boolean now) {
         synchronized(runningRequestSet) {
             for (UploadPartRequest request : runningRequestSet) {
-                mCosDirect.cancel(request);
+                mCosDirect.cancel(request, now);
             }
         }
     }

@@ -6,8 +6,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 50916
-        versionName '5.9.16'
+        versionCode 50917
+        versionName '5.9.17'
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -16,7 +16,7 @@ android {
 
     buildTypes {
         debug {
-            testCoverageEnabled = true
+//            testCoverageEnabled = true
 //            it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
 //            it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
 

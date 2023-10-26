@@ -39,7 +39,7 @@ android {
     buildTypes {
 
         debug {
-            testCoverageEnabled = true
+//            testCoverageEnabled = true
 //            it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
 //            it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
             it.buildConfigField 'String', 'OWNER_UIN', quotWrapper(System.getenv("OWNER_UIN"))
