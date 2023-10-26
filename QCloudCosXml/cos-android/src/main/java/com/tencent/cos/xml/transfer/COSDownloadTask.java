@@ -97,7 +97,7 @@ public class COSDownloadTask extends COSTransferTask {
         super.pause();
 
         if (simpleDownloadTask != null) {
-            simpleDownloadTask.cancel();
+            simpleDownloadTask.cancel(false);
         }
     }
 
@@ -106,7 +106,19 @@ public class COSDownloadTask extends COSTransferTask {
         super.cancel();
 
         if (simpleDownloadTask != null) {
-            simpleDownloadTask.cancel();
+            simpleDownloadTask.cancel(false);
+        }
+
+        // 删除本地文件
+        FileUtils.deleteFileIfExist(mGetObjectRequest.getDownloadPath());
+    }
+
+    @Override
+    public void cancel(boolean now) {
+        super.cancel();
+
+        if (simpleDownloadTask != null) {
+            simpleDownloadTask.cancel(now);
         }
 
         // 删除本地文件
@@ -235,12 +247,12 @@ public class COSDownloadTask extends COSTransferTask {
             return tcs.getTask();
         }
 
-        public void cancel() {
+        public void cancel(boolean now) {
             if (headObjectRequest != null) {
-                cosDirect.cancel(headObjectRequest);
+                cosDirect.cancel(headObjectRequest, now);
             }
             if (getObjectRequest != null) {
-                cosDirect.cancel(getObjectRequest);
+                cosDirect.cancel(getObjectRequest, now);
             }
         }
 

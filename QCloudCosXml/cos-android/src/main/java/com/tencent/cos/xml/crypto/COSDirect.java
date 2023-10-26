@@ -48,4 +48,5 @@ public interface COSDirect {
 
     void cancel(CosXmlRequest request);
 
+    void cancel(CosXmlRequest request, boolean now);
 }
