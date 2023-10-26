@@ -7,15 +7,15 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 10558
-        versionName "1.5.58"
+        versionCode 10559
+        versionName "1.5.59"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
     }
     buildTypes {
         debug {
-            testCoverageEnabled = true
+//            testCoverageEnabled = true
         }
         release {
             minifyEnabled false

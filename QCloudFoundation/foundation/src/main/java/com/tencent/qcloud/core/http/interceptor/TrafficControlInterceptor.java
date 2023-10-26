@@ -193,6 +193,11 @@ public class TrafficControlInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         HttpTask task = (HttpTask) TaskManager.getInstance().get((String) request.tag());
+
+        if (task == null || task.isCanceled()) {
+            throw new IOException("CANCELED");
+        }
+
         TrafficStrategy strategy = getSuitableStrategy(task);
 
         // wait for traffic control if necessary

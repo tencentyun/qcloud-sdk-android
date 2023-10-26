@@ -31,6 +31,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 27
 
+        // versionCode 6位  versionName最后一段为3位时代表不上Maven的私有版本（目前9结尾用来兼容armeabi）
         versionCode 10541
         versionName "1.5.41"
 

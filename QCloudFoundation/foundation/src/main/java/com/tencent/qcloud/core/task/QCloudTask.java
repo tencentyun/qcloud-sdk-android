@@ -207,10 +207,22 @@ public abstract class QCloudTask<T> implements Callable<T> {
         return tcs.getTask();
     }
 
+
     public void cancel() {
         QCloudLogger.d(TASK_LOG_TAG, "[Call] %s cancel", this);
         if (mCancellationTokenSource != null) {
             mCancellationTokenSource.cancel();
+        }
+    }
+
+    /**
+     * 取消任务
+     * @param now 是否立即取消，true时会即可从taskManager中删除
+     */
+    public void cancel(boolean now) {
+        cancel();
+        if(now){
+            taskManager.remove(this);
         }
     }
 
