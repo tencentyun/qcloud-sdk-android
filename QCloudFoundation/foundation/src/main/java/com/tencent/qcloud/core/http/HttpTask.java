@@ -171,6 +171,16 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
         super.cancel();
     }
 
+    /**
+     * 取消任务
+     * @param now 是否立即取消，true时会即可从taskManager中删除
+     */
+    @Override
+    public void cancel(boolean now) {
+        this.networkProxy.cancel();
+        super.cancel(now);
+    }
+
     private boolean isCompleteMultipartRequest(HttpRequest httpRequest) {
         Set<String> queryKeys = httpRequest.queries.keySet();
         return queryKeys != null && queryKeys.size() == 1 && queryKeys.contains("uploadId");

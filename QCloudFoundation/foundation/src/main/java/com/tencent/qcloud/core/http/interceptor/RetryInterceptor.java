@@ -26,6 +26,8 @@ package com.tencent.qcloud.core.http.interceptor;
 import static com.tencent.qcloud.core.http.HttpConstants.Header.RANGE;
 import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
 
+import androidx.annotation.Nullable;
+
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.HttpConfiguration;
 import com.tencent.qcloud.core.http.HttpConstants;
@@ -136,7 +138,7 @@ public class RetryInterceptor implements Interceptor {
         return processRequest(chain, request, task);
     }
 
-    Response processRequest(Chain chain, Request request, HttpTask task) throws IOException {
+    Response processRequest(Chain chain, Request request, @Nullable HttpTask task) throws IOException {
         Response response = null;
         IOException e;
 

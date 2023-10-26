@@ -324,6 +324,7 @@ public class HttpTaskMetrics {
                 .append("isClockSkewedRetry : ").append(isClockSkewedRetry).append("\n")
                 .append("dns : ").append(remoteAddress != null ? remoteAddress : "null").append("\n")
                 .append("fullTaskTookTime : ").append(fullTaskTookTime()).append("\n")
+                .append("httpTaskTookTime : ").append(httpTaskFullTime()).append("\n")
                 .append("calculateMD5STookTime : ").append(calculateMD5STookTime()).append("\n")
                 .append("signRequestTookTime : ").append(signRequestTookTime()).append("\n")
                 .append("dnsStartTimestamp : ").append(dnsStartTimestamp).append("\n")
