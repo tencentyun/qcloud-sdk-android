@@ -250,11 +250,11 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         }
     }
 
-    private void cancelAllRequest(){
+    private void cancelAllRequest(boolean now){
         HeadObjectRequest tempHeadObjectRequest = headObjectRequest;
-        cosXmlService.cancel(tempHeadObjectRequest);
+        cosXmlService.cancel(tempHeadObjectRequest, now);
         GetObjectRequest tempGetObjectRequest = getObjectRequest;
-        cosXmlService.cancel(tempGetObjectRequest);
+        cosXmlService.cancel(tempGetObjectRequest, now);
     }
 
     private synchronized void save(String absolutePath){
@@ -374,7 +374,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
 
     @Override
     protected void internalFailed() {
-        cancelAllRequest();
+        cancelAllRequest(false);
     }
 
     @Override
@@ -383,12 +383,12 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         if (getObjectRequest != null) {
             BeaconService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
         }
-        cancelAllRequest();
+        cancelAllRequest(false);
     }
 
     @Override
-    protected void internalCancel() {
-        cancelAllRequest();
+    protected void internalCancel(boolean now) {
+        cancelAllRequest(now);
         clear();
     }
 

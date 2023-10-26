@@ -190,6 +190,10 @@ public abstract class COSTransferTask {
         if (mTransferTaskCts != null) mTransferTaskCts.cancel();
     }
 
+    public void cancel(boolean now) {
+        cancel();
+    }
+
     /**
      * 获得本次传输的运行信息
      *

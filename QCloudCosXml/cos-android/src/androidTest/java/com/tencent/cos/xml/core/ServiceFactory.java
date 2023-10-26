@@ -50,13 +50,28 @@ public class ServiceFactory {
                 .setDebuggable(true)
                 .setConnectionTimeout(4000)
                 .setSocketTimeout(4000)
-                .setTransferThreadControl(true)
+                .setTransferThreadControl(false)
                 .setUploadMaxThreadCount(10)
-                .setDownloadMaxThreadCount(6)
+                .setDownloadMaxThreadCount(36)
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
 
         return newService(cosXmlServiceConfig);
+    }
+
+    public CosXmlSimpleService newAnonymousService() {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setConnectionTimeout(4000)
+                .setSocketTimeout(4000)
+                .setTransferThreadControl(false)
+                .setUploadMaxThreadCount(10)
+                .setDownloadMaxThreadCount(6)
+                .setRegion("ap-chengdu")
+                .builder();
+
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig);
     }
 
     public CosXmlSimpleService newTencentcosService() {

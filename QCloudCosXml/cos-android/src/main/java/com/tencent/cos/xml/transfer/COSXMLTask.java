@@ -111,6 +111,9 @@ public abstract class COSXMLTask {
     // 等待超时计时器
     protected Timer waitTimeoutTimer;
 
+    // 是否是取消后立即删除任务
+    private boolean isCancelNow;
+
     /**
      * 设置COS服务
      * @param cosXmlService COS服务类
@@ -202,7 +205,7 @@ public abstract class COSXMLTask {
 
     protected void internalPause(){}
 
-    protected void internalCancel(){}
+    protected void internalCancel(boolean now){}
 
     protected void internalResume(){}
 
@@ -234,6 +237,16 @@ public abstract class COSXMLTask {
      * 取消任务
      */
     public void cancel() {
+        if(IS_EXIT.get())return;
+        else IS_EXIT.set(true);
+        monitor.sendStateMessage(this, TransferState.CANCELED,new CosXmlClientException(ClientErrorCode.USER_CANCELLED.getCode(), "canceled by user"),null, MESSAGE_TASK_MANUAL);
+    }
+
+    /**
+     * 取消任务
+     */
+    public void cancel(boolean now) {
+        isCancelNow = now;
         if(IS_EXIT.get())return;
         else IS_EXIT.set(true);
         monitor.sendStateMessage(this, TransferState.CANCELED,new CosXmlClientException(ClientErrorCode.USER_CANCELLED.getCode(), "canceled by user"),null, MESSAGE_TASK_MANUAL);
@@ -390,7 +403,7 @@ public abstract class COSXMLTask {
                     if(cosXmlResultListener != null){
                         cosXmlResultListener.onFail(buildCOSXMLTaskRequest(), (CosXmlClientException) exception, null);
                     }
-                    internalCancel();
+                    internalCancel(isCancelNow);
                 }
                 break;
             case RESUMED_WAITING:
