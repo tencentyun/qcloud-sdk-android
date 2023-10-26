@@ -1,3 +1,7 @@
+## v5.9.18
+1. 上传下载 task 中增加立即取消的方法 cancel(now)，防止task pool清除过慢
+2. CosXmlService 中增加立即取消的方法 cancel(cosXmlRequest, now)
+
 ## v5.9.17
 1. 完善foundation混淆
 2. 完善connectAddress获取逻辑
