@@ -102,6 +102,15 @@ public class COSDownloadTask extends COSTransferTask {
     }
 
     @Override
+    public void pause(boolean now) {
+        super.pause();
+
+        if (simpleDownloadTask != null) {
+            simpleDownloadTask.cancel(now);
+        }
+    }
+
+    @Override
     public void cancel() {
         super.cancel();
 

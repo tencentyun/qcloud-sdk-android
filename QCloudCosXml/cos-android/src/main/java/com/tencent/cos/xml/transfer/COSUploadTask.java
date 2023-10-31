@@ -133,6 +133,15 @@ public class COSUploadTask extends COSTransferTask {
     }
 
     @Override
+    public void pause(boolean now) {
+        super.pause();
+
+        if (uploadTask != null) {
+            uploadTask.cancel(now);
+        }
+    }
+
+    @Override
     public void cancel() {
         super.cancel();
 
