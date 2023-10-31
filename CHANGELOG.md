@@ -1,3 +1,6 @@
+## v5.9.19
+1. 上传下载 task 中增加立即暂停的方法 pause(now)，防止暂停导致的task pool清除过慢
+
 ## v5.9.18
 1. 上传下载 task 中增加立即取消的方法 cancel(now)，防止task pool清除过慢
 2. CosXmlService 中增加立即取消的方法 cancel(cosXmlRequest, now)
