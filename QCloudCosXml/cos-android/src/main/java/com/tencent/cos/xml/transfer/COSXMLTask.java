@@ -113,6 +113,8 @@ public abstract class COSXMLTask {
 
     // 是否是取消后立即删除任务
     private boolean isCancelNow;
+    // 是否是暂停后立即删除请求任务
+    private boolean isPauseNow;
 
     /**
      * 设置COS服务
@@ -203,7 +205,7 @@ public abstract class COSXMLTask {
 
     protected void internalFailed(){}
 
-    protected void internalPause(){}
+    protected void internalPause(boolean now){}
 
     protected void internalCancel(boolean now){}
 
@@ -228,6 +230,16 @@ public abstract class COSXMLTask {
      * 暂停任务，若是 {@link COSXMLUploadTask} 请调用 {@link COSXMLUploadTask#pauseSafely()} 接口来暂停。
      */
     public void pause() {
+        if(IS_EXIT.get())return;
+        else IS_EXIT.set(true);
+        monitor.sendStateMessage(this, TransferState.PAUSED,null,null, MESSAGE_TASK_MANUAL);
+    }
+
+    /**
+     * 暂停任务，若是 {@link COSXMLUploadTask} 请调用 {@link COSXMLUploadTask#pauseSafely()} 接口来暂停。
+     */
+    public void pause(boolean now) {
+        isPauseNow = now;
         if(IS_EXIT.get())return;
         else IS_EXIT.set(true);
         monitor.sendStateMessage(this, TransferState.PAUSED,null,null, MESSAGE_TASK_MANUAL);
@@ -391,7 +403,7 @@ public abstract class COSXMLTask {
                         || taskState == TransferState.IN_PROGRESS){
                     taskState = TransferState.PAUSED;
                     dispatchStateChange(taskState);
-                    internalPause();
+                    internalPause(isPauseNow);
                 }
                 break;
             case CANCELED:

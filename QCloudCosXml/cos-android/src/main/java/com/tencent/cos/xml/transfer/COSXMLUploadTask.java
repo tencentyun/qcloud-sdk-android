@@ -835,12 +835,11 @@ public final class COSXMLUploadTask extends COSXMLTask {
     }
 
     @Override
-    protected void internalPause() {
-
+    protected void internalPause(boolean now) {
         CosXmlRequest request = buildCOSXMLTaskRequest();
         request.attachMetrics(httpTaskMetrics);
         BeaconService.getInstance().reportUploadTaskSuccess(request);
-        cancelAllRequest(cosXmlService, false);
+        cancelAllRequest(cosXmlService, now);
     }
 
     /**

@@ -165,6 +165,10 @@ public abstract class COSTransferTask {
         if (mTransferTaskCts != null) mTransferTaskCts.cancel();
     }
 
+    public void pause(boolean now) {
+        pause();
+    }
+
     /**
      * 恢复传输
      */

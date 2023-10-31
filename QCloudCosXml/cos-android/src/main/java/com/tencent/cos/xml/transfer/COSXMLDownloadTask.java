@@ -378,12 +378,11 @@ public final class COSXMLDownloadTask extends COSXMLTask{
     }
 
     @Override
-    protected void internalPause() {
-
+    protected void internalPause(boolean now) {
         if (getObjectRequest != null) {
             BeaconService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
         }
-        cancelAllRequest(false);
+        cancelAllRequest(now);
     }
 
     @Override
