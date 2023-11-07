@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 
 import com.tencent.cos.xml.base.BuildConfig;
 import com.tencent.cos.xml.common.ClientErrorCode;
+import com.tencent.cos.xml.common.VersionInfo;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
@@ -292,10 +293,9 @@ public class CosXmlBaseService implements BaseCosXml {
      */
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> QCloudHttpRequest buildHttpRequest
     (T1 cosXmlRequest, T2 cosXmlResult) throws CosXmlClientException {
-
         QCloudHttpRequest.Builder<T2> httpRequestBuilder = new QCloudHttpRequest.Builder<T2>()
                 .method(cosXmlRequest.getMethod())
-                .userAgent(config.getUserAgent())
+                .userAgent(getUserAgent())
                 .tag(tag);
 
         httpRequestBuilder.addNoSignHeaderKeys(config.getNoSignHeaders());
@@ -756,6 +756,28 @@ public class CosXmlBaseService implements BaseCosXml {
 
     public CosXmlServiceConfig getConfig() {
         return config;
+    }
+
+    /**
+     * 获取UserAgent
+     * @return UserAgent
+     */
+    public String getUserAgent() {
+        if(config == null){
+            return VersionInfo.getUserAgent();
+        }
+
+        String userAgent;
+        if(config.isEnableQuic()) {
+            userAgent = VersionInfo.getQuicUserAgent();
+        } else {
+            userAgent = VersionInfo.getUserAgent();
+        }
+        if(TextUtils.isEmpty(config.getUserAgentExtended())){
+            return userAgent;
+        } else {
+            return userAgent + "-" + config.getUserAgentExtended();
+        }
     }
 
     /**
