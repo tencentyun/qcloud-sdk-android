@@ -179,6 +179,26 @@ public class RetryInterceptor implements Interceptor {
                 e = null;
             } catch (IOException exception) {
                 e = exception;
+            } catch (IllegalStateException exception){
+                // 再次处理 okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
+                if(exception.getMessage().startsWith("cannot make a new request because the previous response is still open: please call response.close()")){
+                    if (response != null && response.body() != null) {
+                        response.close();
+                    }
+                    // response.close()后暂停3s
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(3000);
+                    } catch (InterruptedException ex) {
+                    }
+                    if (response != null && response.body() != null) {
+                        response.close();
+                    }
+                    response = executeTaskOnce(chain, request, task);
+                    statusCode = response.code();
+                    e = null;
+                } else {
+                    throw exception;
+                }
             }
             // server date header
             String serverDate = null;
