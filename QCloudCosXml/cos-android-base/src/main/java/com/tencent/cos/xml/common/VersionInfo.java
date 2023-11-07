@@ -22,21 +22,44 @@
 
 package com.tencent.cos.xml.common;
 
+import android.text.TextUtils;
+
 import com.tencent.cos.xml.base.BuildConfig;
 
 /**
  * cos android sdk版本信息
  */
 public class VersionInfo {
-    public static final int version = BuildConfig.VERSION_CODE;
-    public static final String platform = "cos-android-sdk-" + BuildConfig.VERSION_NAME;
-    public static final String platformQuic = "cos-android-quic-sdk-" + BuildConfig.VERSION_NAME;
+    public static String sdkName;
+    public static int versionCode = -1;
+    public static String versionName;
 
     public static String getUserAgent(){
-        return platform;
+        return String.format("%s-android-sdk-%s", getSdkName(), getVersionName());
     }
 
     public static String getQuicUserAgent() {
-        return platformQuic;
+        return String.format("%s-android-quic-sdk-%s", getSdkName(), getVersionName());
+    }
+
+    public static String getSdkName() {
+        if(TextUtils.isEmpty(sdkName)){
+            sdkName = "cos-base";
+        }
+        return sdkName;
+    }
+
+    public static String getVersionName() {
+        if(TextUtils.isEmpty(versionName)){
+            versionName = BuildConfig.VERSION_NAME;
+        }
+        return versionName;
+    }
+
+    public static int getVersionCode() {
+        if(versionCode == -1){
+            versionCode = BuildConfig.VERSION_CODE;
+        }
+        return versionCode;
     }
 }

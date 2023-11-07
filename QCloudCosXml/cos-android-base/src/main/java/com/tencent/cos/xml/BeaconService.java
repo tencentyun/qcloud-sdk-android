@@ -31,6 +31,7 @@ import com.tencent.beacon.core.info.BeaconPubParams;
 import com.tencent.beacon.event.open.BeaconReport;
 import com.tencent.cos.xml.base.BuildConfig;
 import com.tencent.cos.xml.common.ClientErrorCode;
+import com.tencent.cos.xml.common.VersionInfo;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlRequest;
@@ -690,8 +691,8 @@ public class BeaconService {
         BeaconPubParams pubParams = BeaconReport.getInstance().getCommonParams(applicationContext);
         params.put("boundle_id", pubParams.getBoundleId());
         params.put("network_type", pubParams.getNetworkType());
-        params.put("cossdk_version", com.tencent.cos.xml.base.BuildConfig.VERSION_NAME);
-        params.put("cossdk_version_code", String.valueOf(com.tencent.cos.xml.base.BuildConfig.VERSION_CODE));
+        params.put("cossdk_version", VersionInfo.getVersionName());
+        params.put("cossdk_version_code", String.valueOf(VersionInfo.getVersionCode()));
         if(!TextUtils.isEmpty(bridge)) {
             params.put("bridge", bridge);
         }

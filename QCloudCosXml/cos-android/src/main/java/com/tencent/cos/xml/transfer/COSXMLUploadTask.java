@@ -857,6 +857,20 @@ public final class COSXMLUploadTask extends COSXMLTask {
         return true;
     }
 
+    /**
+     * 如果已经发送了 CompleteMultiUpload 请求，则不允许暂停
+     *
+     * @return 是否暂停成功
+     */
+    public boolean pauseSafely(boolean now) {
+        if (sendingCompleteRequest.get()) {
+            return false;
+        }
+
+        pause(now);
+        return true;
+    }
+
 
     @Override
     protected void internalCancel(boolean now) {
