@@ -49,14 +49,10 @@ public class TaskExecutors {
         UPLOAD_THREAD_COUNT = uploadMaxThreadCount;
         DOWNLOAD_THREAD_COUNT = downloadMaxThreadCount;
 
-        UPLOAD_EXECUTOR = new ThreadPoolExecutor(UPLOAD_THREAD_COUNT, UPLOAD_THREAD_COUNT, 5L,
-                TimeUnit.SECONDS, new PriorityBlockingQueue<Runnable>(),
-                new TaskThreadFactory("Upload-", 3));
-        DOWNLOAD_EXECUTOR = new ThreadPoolExecutor(DOWNLOAD_THREAD_COUNT, DOWNLOAD_THREAD_COUNT, 5L,
-                TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(Integer.MAX_VALUE),
-                new TaskThreadFactory("Download-", 3));
-        UPLOAD_EXECUTOR.allowCoreThreadTimeOut(true);
-        DOWNLOAD_EXECUTOR.allowCoreThreadTimeOut(true);
+        UPLOAD_EXECUTOR.setCorePoolSize(UPLOAD_THREAD_COUNT);
+        UPLOAD_EXECUTOR.setMaximumPoolSize(UPLOAD_THREAD_COUNT);
+        DOWNLOAD_EXECUTOR.setCorePoolSize(DOWNLOAD_THREAD_COUNT);
+        DOWNLOAD_EXECUTOR.setMaximumPoolSize(DOWNLOAD_THREAD_COUNT);
     }
 
     static {

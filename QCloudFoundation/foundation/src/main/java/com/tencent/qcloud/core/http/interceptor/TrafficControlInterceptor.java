@@ -229,6 +229,10 @@ public class TrafficControlInterceptor implements Interceptor {
             e = e2.getCause() instanceof IOException ? (IOException) e2.getCause() : new IOException(e2);
         } catch (IOException exception) {
             e = exception;
+        } catch (Exception exception){
+            // 捕获更大范围的异常，但是因为intercept定义只能抛出IOException，这里进行转换
+            // （进度回调中可能有异常）
+            e = new IOException(exception);
         }
 
         if (strategy != null) {
