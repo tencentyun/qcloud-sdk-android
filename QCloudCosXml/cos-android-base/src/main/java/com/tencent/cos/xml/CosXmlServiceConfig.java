@@ -28,7 +28,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import com.tencent.cos.xml.common.VersionInfo;
 import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
 import com.tencent.qcloud.core.task.RetryStrategy;
 import com.tencent.qcloud.core.task.TaskExecutors;
@@ -64,13 +63,7 @@ public class CosXmlServiceConfig implements Parcelable {
     public static final String CI_REGION_HOST_FORMAT = "ci.${region}.myqcloud.com";
     public static final String PIC_HOST_FORMAT = "${bucket}.pic.${region}.myqcloud.com";
 
-    /**
-     * The default user agent header for cos android sdk clients.
-     */
-    public static final String DEFAULT_USER_AGENT = VersionInfo.getUserAgent();
-
     private final String protocol;
-    private final String userAgent;
     private final String userAgentExtended;
 
     private final String region;
@@ -118,7 +111,6 @@ public class CosXmlServiceConfig implements Parcelable {
 
     public CosXmlServiceConfig(Builder builder) {
         this.protocol = builder.protocol;
-        this.userAgent = builder.userAgent;
         this.userAgentExtended = builder.userAgentExtended;
         this.isDebuggable = builder.isDebuggable;
 
@@ -165,18 +157,6 @@ public class CosXmlServiceConfig implements Parcelable {
      */
     public String getProtocol() {
         return protocol;
-    }
-
-    /**
-     * 获取UserAgent
-     * @return UserAgent
-     */
-    public String getUserAgent() {
-        if(TextUtils.isEmpty(userAgentExtended)){
-            return userAgent;
-        } else {
-            return userAgent + "-" + userAgentExtended;
-        }
     }
 
     /**
@@ -546,6 +526,10 @@ public class CosXmlServiceConfig implements Parcelable {
         return isQuic;
     }
 
+    public String getUserAgentExtended() {
+        return userAgentExtended;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -585,7 +569,6 @@ public class CosXmlServiceConfig implements Parcelable {
     public final static class Builder {
 
         private String protocol;
-        private String userAgent;
         private String userAgentExtended;
 
         private String region;
@@ -626,7 +609,6 @@ public class CosXmlServiceConfig implements Parcelable {
 
         public Builder() {
             protocol = HTTPS_PROTOCOL;
-            userAgent = DEFAULT_USER_AGENT;
             isDebuggable = false;
             retryStrategy = RetryStrategy.DEFAULT;
             bucketInPath = false;
@@ -636,7 +618,6 @@ public class CosXmlServiceConfig implements Parcelable {
 
         public Builder(CosXmlServiceConfig config) {
             protocol = config.protocol;
-            userAgent = DEFAULT_USER_AGENT;
 
             region = config.region;
             appid = config.appid;
@@ -923,7 +904,6 @@ public class CosXmlServiceConfig implements Parcelable {
          */
         public Builder enableQuic(boolean isEnable){
             this.isQuic = isEnable;
-            this.userAgent = VersionInfo.getQuicUserAgent();
             return this;
         }
 

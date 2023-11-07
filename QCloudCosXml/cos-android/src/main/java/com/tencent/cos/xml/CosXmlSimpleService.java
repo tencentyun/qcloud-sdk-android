@@ -24,6 +24,7 @@ package com.tencent.cos.xml;
 
 import android.content.Context;
 
+import com.tencent.cos.xml.common.VersionInfo;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
@@ -70,6 +71,12 @@ import com.tencent.qcloud.core.http.HttpTask;
  */
 public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosXml {
     private static final String TAG = "CosXmlSimpleService";
+
+    static {
+        VersionInfo.sdkName = "cos";
+        VersionInfo.versionName = BuildConfig.VERSION_NAME;
+        VersionInfo.versionCode = BuildConfig.VERSION_CODE;
+    }
 
     public CosXmlSimpleService(Context context, CosXmlServiceConfig configuration, QCloudCredentialProvider qCloudCredentialProvider) {
         super(context, configuration, qCloudCredentialProvider);

@@ -24,7 +24,7 @@ package com.tencent.cos.xml.signer;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.common.VersionInfo;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.qcloud.core.auth.COSXmlSignSourceProvider;
 import com.tencent.qcloud.core.auth.COSXmlSigner;
@@ -84,7 +84,7 @@ public class MyQCloudSigner implements QCloudSigner {
                 .host(host)
                 .path(path)
                 .addHeader(HttpConstants.Header.HOST, host)
-                .userAgent(CosXmlServiceConfig.DEFAULT_USER_AGENT)
+                .userAgent(VersionInfo.getUserAgent())
                 .signer("CosXmlSigner", (new COSXmlSignSourceProvider()));
 
         /**
