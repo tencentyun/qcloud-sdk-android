@@ -1,3 +1,9 @@
+## v5.9.20
+1. 上传 task 中增加pauseSafely(now)方法
+2. TrafficControl 扩大异常捕获范围，解决锁释放问题
+3. 优化上传下载线程池初始化配置
+4. 修复 user agent 不准确的问题
+
 ## v5.9.19
 1. 上传下载 task 中增加立即暂停的方法 pause(now)，防止暂停导致的task pool清除过慢
 
