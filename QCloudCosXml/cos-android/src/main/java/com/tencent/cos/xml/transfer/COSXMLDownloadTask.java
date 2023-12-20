@@ -29,7 +29,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -147,7 +147,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 if(request != getObjectRequest){
                     return;
                 }
-                BeaconService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
+                CosTrackService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
 
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
@@ -162,13 +162,14 @@ public final class COSXMLDownloadTask extends COSXMLTask{
 
                 Exception causeException = null;
                 if (clientException != null && taskState != TransferState.PAUSED && taskState != TransferState.CANCELED) {
-                    BeaconService.getInstance().reportDownloadTaskClientException(request, clientException);
+                    CosTrackService.getInstance().reportDownloadTaskClientException(request, clientException);
                     causeException = clientException;
                 }
 
                 if (serviceException != null && taskState != TransferState.PAUSED && taskState != TransferState.CANCELED) {
                     // BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_GET, serviceException);
-                    BeaconService.getInstance().reportDownloadTaskServiceException(request, serviceException);
+                    // CosTrackService.getInstance().reportDownload(region, CosTrackService.EVENT_PARAMS_NODE_GET, serviceException);
+                    CosTrackService.getInstance().reportDownloadTaskServiceException(request, serviceException);
                     causeException = serviceException;
                 }
                 // causeException.printStackTrace();
@@ -380,7 +381,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
     @Override
     protected void internalPause(boolean now) {
         if (getObjectRequest != null) {
-            BeaconService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
+            CosTrackService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
         }
         cancelAllRequest(now);
     }

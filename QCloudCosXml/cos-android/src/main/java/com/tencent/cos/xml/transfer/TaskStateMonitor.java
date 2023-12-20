@@ -28,7 +28,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.MessageQueue;
 
-import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.model.CosXmlResult;
 
 import java.lang.reflect.Constructor;
@@ -134,7 +134,7 @@ final class TaskStateMonitor implements Runnable{
 
     private void setMessageQueueException(Exception e){
         e.printStackTrace();
-        BeaconService.getInstance().reportError(TAG, e);
+        CosTrackService.getInstance().reportError(TAG, e);
     }
 
     private void setMessageQueue() throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException, InvocationTargetException, InstantiationException {
