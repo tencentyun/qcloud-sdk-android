@@ -6,8 +6,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 50918
-        versionName '5.9.18'
+        versionCode 50919
+        versionName '5.9.19'
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -69,6 +69,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
     api project(':foundation')
+    api project(':qcloud-track')
 
     compileOnly files(
             'libs/beacon-android-release-4.2.80.6-official.aar',

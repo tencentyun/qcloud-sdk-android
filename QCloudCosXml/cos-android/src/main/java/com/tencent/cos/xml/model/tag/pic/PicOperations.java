@@ -22,7 +22,7 @@
 
 package com.tencent.cos.xml.model.tag.pic;
 
-import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.CosTrackService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,7 +68,7 @@ public class PicOperations {
             operations.put("rules", rulesArray);
             return operations.toString();
         } catch (JSONException e) {
-            BeaconService.getInstance().reportError(TAG, e);
+            CosTrackService.getInstance().reportError(TAG, e);
             e.printStackTrace();
         }
 
