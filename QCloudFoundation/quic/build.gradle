@@ -71,6 +71,7 @@ dependencies {
 
     compileOnly 'com.android.support:appcompat-v7:27.1.1'
     testCompileOnly 'junit:junit:4.13.2'
+    androidTestCompileOnly project(path: ':quic')
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation project(path: ':foundation')
