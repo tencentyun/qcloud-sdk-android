@@ -56,7 +56,7 @@ public enum ClientErrorCode {
     ETAG_NOT_FOUND(10004, "ETagNotFound"),
     
     /**
-     * 内部错误，例如 xml 格式数据解析失败
+     * 内部错误
      */
     INTERNAL_ERROR(20000, "InternalError"),
     /**

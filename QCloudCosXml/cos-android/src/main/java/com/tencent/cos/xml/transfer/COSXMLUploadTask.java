@@ -29,7 +29,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -372,7 +372,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
                 //BeaconService.getInstance().reportUpload(region, simpleAlreadySendDataLen, TimeUtils.getTookTime(startTime));
-                BeaconService.getInstance().reportUploadTaskSuccess(request);
+                //CosTrackService.getInstance().reportUpload(region, simpleAlreadySendDataLen, TimeUtils.getTookTime(startTime));
+                CosTrackService.getInstance().reportUploadTaskSuccess(request);
                 updateState(TransferState.COMPLETED, null, result, false);
             }
 
@@ -395,10 +396,10 @@ public final class COSXMLUploadTask extends COSXMLTask {
         }
         
         if (clientException != null) {
-            BeaconService.getInstance().reportUploadTaskClientException(request, clientException);
+            CosTrackService.getInstance().reportUploadTaskClientException(request, clientException);
         }
         if (serviceException != null) {
-            BeaconService.getInstance().reportUploadTaskServiceException(request, serviceException);
+            CosTrackService.getInstance().reportUploadTaskServiceException(request, serviceException);
         }
 
     }
@@ -819,7 +820,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         request.attachMetrics(httpTaskMetrics);
         if(IS_EXIT.get())return;
         IS_EXIT.set(true);
-        BeaconService.getInstance().reportUploadTaskSuccess(request);
+        CosTrackService.getInstance().reportUploadTaskSuccess(request);
         multiUploadsStateListenerHandler.onCompleted(request, result);
     }
 
@@ -838,7 +839,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
     protected void internalPause(boolean now) {
         CosXmlRequest request = buildCOSXMLTaskRequest();
         request.attachMetrics(httpTaskMetrics);
-        BeaconService.getInstance().reportUploadTaskSuccess(request);
+        CosTrackService.getInstance().reportUploadTaskSuccess(request);
         cancelAllRequest(cosXmlService, now);
     }
 

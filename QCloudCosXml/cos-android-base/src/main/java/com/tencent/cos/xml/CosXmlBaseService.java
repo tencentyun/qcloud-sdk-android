@@ -100,9 +100,9 @@ public class CosXmlBaseService implements BaseCosXml {
     private static final String TAG = "CosXmlBaseService";
 
     /**
-     * 是否关闭灯塔上报
+     * 是否关闭上报
      */
-    public static boolean IS_CLOSE_BEACON;
+    public static boolean IS_CLOSE_REPORT;
     /**
      * 桥接来源
      */
@@ -147,7 +147,8 @@ public class CosXmlBaseService implements BaseCosXml {
             QCloudLogger.addAdapter(logcatAdapter);
         }
 
-        BeaconService.init(context.getApplicationContext(), IS_CLOSE_BEACON, BRIDGE);
+        CosTrackService.init(context.getApplicationContext(), IS_CLOSE_REPORT, BRIDGE);
+
         appCachePath = context.getApplicationContext().getFilesDir().getPath();
 
         TaskExecutors.initExecutor(configuration.getUploadMaxThreadCount(), configuration.getDownloadMaxThreadCount());
@@ -214,7 +215,7 @@ public class CosXmlBaseService implements BaseCosXml {
                 builder.setNetworkClient((NetworkClient) clazz.newInstance());
             } catch (Exception e) {
                 IllegalStateException illegalStateException = new IllegalStateException(e.getMessage(), e);
-                BeaconService.getInstance().reportError(TAG, illegalStateException);
+                CosTrackService.getInstance().reportError(TAG, illegalStateException);
                 throw illegalStateException;
             }
         }else {
@@ -413,6 +414,10 @@ public class CosXmlBaseService implements BaseCosXml {
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> T2 execute(T1 cosXmlRequest, T2 cosXmlResult)
             throws CosXmlClientException, CosXmlServiceException {
         try {
+            if(TextUtils.isEmpty(cosXmlRequest.getRegion()) && config != null){
+                cosXmlRequest.setRegion(config.getRegion());
+            }
+
             if (cosXmlRequest.getMetrics() == null) {
                 cosXmlRequest.attachMetrics(new HttpTaskMetrics());
             }
@@ -429,15 +434,15 @@ public class CosXmlBaseService implements BaseCosXml {
 
             HttpResult<T2> httpResult = httpTask.executeNow();
 
-            BeaconService.getInstance().reportRequestSuccess(cosXmlRequest);
+            CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest);
 
             logRequestMetrics(cosXmlRequest);
 
             return httpResult != null ? httpResult.content() : null;
         } catch (QCloudServiceException e) {
-            throw BeaconService.getInstance().reportRequestServiceException(cosXmlRequest, e);
+            throw CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, e);
         } catch (QCloudClientException e) {
-            throw BeaconService.getInstance().reportRequestClientException(cosXmlRequest, e);
+            throw CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e);
         }
     }
 
@@ -449,7 +454,7 @@ public class CosXmlBaseService implements BaseCosXml {
         QCloudResultListener<HttpResult<T2>> qCloudResultListener = new QCloudResultListener<HttpResult<T2>>() {
             @Override
             public void onSuccess(HttpResult<T2> result) {
-                BeaconService.getInstance().reportRequestSuccess(cosXmlRequest);
+                CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest);
                 logRequestMetrics(cosXmlRequest);
                 cosXmlResultListener.onSuccess(cosXmlRequest, result.content());
             }
@@ -458,16 +463,20 @@ public class CosXmlBaseService implements BaseCosXml {
             public void onFailure(QCloudClientException clientException, QCloudServiceException serviceException) {
                 logRequestMetrics(cosXmlRequest);
                 if (clientException != null) {
-                    CosXmlClientException xmlClientException = BeaconService.getInstance().reportRequestClientException(cosXmlRequest, clientException);
+                    CosXmlClientException xmlClientException = CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, clientException);
                     cosXmlResultListener.onFail(cosXmlRequest, xmlClientException,null);
                 } else if (serviceException != null) {
-                    CosXmlServiceException xmlServiceException = BeaconService.getInstance().reportRequestServiceException(cosXmlRequest, serviceException);
+                    CosXmlServiceException xmlServiceException = CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, serviceException);
                     cosXmlResultListener.onFail(cosXmlRequest, null, xmlServiceException);
                 }
             }
         };
 
         try {
+            if(TextUtils.isEmpty(cosXmlRequest.getRegion()) && config != null){
+                cosXmlRequest.setRegion(config.getRegion());
+            }
+
             if (cosXmlRequest.getMetrics() == null) {
                 cosXmlRequest.attachMetrics(new HttpTaskMetrics());
             }
@@ -505,7 +514,7 @@ public class CosXmlBaseService implements BaseCosXml {
             }
 
         } catch (QCloudClientException e) {
-            CosXmlClientException clientException = BeaconService.getInstance().reportRequestClientException(cosXmlRequest, e);
+            CosXmlClientException clientException = CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e);
             cosXmlResultListener.onFail(cosXmlRequest, clientException,null);
         }
     }
@@ -550,14 +559,14 @@ public class CosXmlBaseService implements BaseCosXml {
             // host = cosXmlRequest.getHost(config, false);
             host = getRequestHost(cosXmlRequest);
         } catch (CosXmlClientException e) {
-            BeaconService.getInstance().reportError(TAG, e);
+            CosTrackService.getInstance().reportError(TAG, e);
             e.printStackTrace();
         }
         String path = "/";
         try {
             path = URLEncodeUtils.cosPathEncode(cosXmlRequest.getPath(config));
         } catch (CosXmlClientException e) {
-            BeaconService.getInstance().reportError(TAG, e);
+            CosTrackService.getInstance().reportError(TAG, e);
             e.printStackTrace();
         }
         return config.getProtocol() + "://" + host + path;

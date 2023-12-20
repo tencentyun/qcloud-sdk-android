@@ -28,7 +28,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.crypto.COSDirect;
@@ -307,7 +307,7 @@ public abstract class COSTransferTask {
         notifyTransferResultSuccess(cosXmlRequest, cosXmlResult);
 
         // 上报事件
-        BeaconService.getInstance().reportTransferSuccess(cosXmlRequest, transferTaskMetrics, cosDirect.isTransferSecurely());
+        CosTrackService.getInstance().reportTransferSuccess(cosXmlRequest, transferTaskMetrics, cosDirect.isTransferSecurely());
     }
 
     protected void onTransferFailed(CosXmlRequest cosXmlRequest, CosXmlClientException clientException,
@@ -328,9 +328,9 @@ public abstract class COSTransferTask {
 
         // 上报事件
         if (clientException != null) {
-            BeaconService.getInstance().reportTransferClientException(cosXmlRequest, transferTaskMetrics, clientException, cosDirect.isTransferSecurely());
+            CosTrackService.getInstance().reportTransferClientException(cosXmlRequest, transferTaskMetrics, clientException, cosDirect.isTransferSecurely());
         } else if (serviceException != null) {
-            BeaconService.getInstance().reportTransferServiceException(cosXmlRequest, transferTaskMetrics, serviceException, cosDirect.isTransferSecurely());
+            CosTrackService.getInstance().reportTransferServiceException(cosXmlRequest, transferTaskMetrics, serviceException, cosDirect.isTransferSecurely());
         }
     }
 
