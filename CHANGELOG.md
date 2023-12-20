@@ -1,3 +1,6 @@
+## v5.9.21
+1. 增加cls日志上报功能
+
 ## v5.9.20
 1. 上传 task 中增加pauseSafely(now)方法
 2. TrafficControl 扩大异常捕获范围，解决锁释放问题
