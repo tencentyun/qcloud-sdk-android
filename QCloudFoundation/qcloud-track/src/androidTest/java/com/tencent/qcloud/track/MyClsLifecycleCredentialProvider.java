@@ -30,7 +30,7 @@ public class MyClsLifecycleCredentialProvider extends ClsLifecycleCredentialProv
         // 首先从您的临时密钥服务器获取包含了密钥信息的响应
         HttpURLConnection connection = null;
         try {
-            URL url = new URL("http://9.135.33.98:3000/sts/cls");
+            URL url = new URL("http://9.135.00.00:3000/sts/cls");
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.connect();
