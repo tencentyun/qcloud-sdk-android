@@ -27,7 +27,7 @@ import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_MANUAL;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -437,7 +437,7 @@ public abstract class COSXMLTask {
 
             default:
                 IllegalStateException illegalStateException = new IllegalStateException("invalid state: " + newTaskState);
-                BeaconService.getInstance().reportError(TAG ,illegalStateException);
+                CosTrackService.getInstance().reportError(TAG ,illegalStateException);
                 throw illegalStateException;
         }
     }

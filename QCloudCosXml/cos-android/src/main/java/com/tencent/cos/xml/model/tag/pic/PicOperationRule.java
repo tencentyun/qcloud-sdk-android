@@ -24,8 +24,7 @@ package com.tencent.cos.xml.model.tag.pic;
 
 import android.text.TextUtils;
 
-import com.tencent.cos.xml.BeaconService;
-import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+import com.tencent.cos.xml.CosTrackService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -95,7 +94,7 @@ public class PicOperationRule {
             }
             ruleJson.put("rule", rule);
         } catch (JSONException e) {
-            BeaconService.getInstance().reportError(TAG, e);
+            CosTrackService.getInstance().reportError(TAG, e);
             e.printStackTrace();
         }
         return ruleJson;

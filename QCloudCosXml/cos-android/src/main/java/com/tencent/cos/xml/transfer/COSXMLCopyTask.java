@@ -25,7 +25,7 @@ package com.tencent.cos.xml.transfer;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
@@ -123,10 +123,10 @@ public final class COSXMLCopyTask extends COSXMLTask {
     private void reportException(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
 
         if (clientException != null) {
-            BeaconService.getInstance().reportCopyTaskClientException(request, clientException);
+            CosTrackService.getInstance().reportCopyTaskClientException(request, clientException);
         }
         if (serviceException != null) {
-            BeaconService.getInstance().reportCopyTaskServiceException(request, serviceException);
+            CosTrackService.getInstance().reportCopyTaskServiceException(request, serviceException);
         }
     }
 
@@ -184,7 +184,8 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
                 // BeaconService.getInstance().reportCopy(region);
-                BeaconService.getInstance().reportCopyTaskSuccess(request);
+                // CosTrackService.getInstance().reportCopy(region);
+                CosTrackService.getInstance().reportCopyTaskSuccess(request);
                 updateState(TransferState.COMPLETED, null, result, false);
             }
 
@@ -403,8 +404,9 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
                 //BeaconService.getInstance().reportCopy(region);
+                //CosTrackService.getInstance().reportCopy(region);
                 request.attachMetrics(httpTaskMetrics.merge(request.getMetrics()));
-                BeaconService.getInstance().reportCopyTaskSuccess(request);
+                CosTrackService.getInstance().reportCopyTaskSuccess(request);
                 largeCopyStateListenerHandler.onCompleted(request, result);
             }
 
@@ -505,9 +507,10 @@ public final class COSXMLCopyTask extends COSXMLTask {
     @Override
     protected void internalPause(boolean now) {
         // BeaconService.getInstance().reportCopy(region);
+        // CosTrackService.getInstance().reportCopy(region);
         CosXmlRequest request = buildCOSXMLTaskRequest();
         request.attachMetrics(httpTaskMetrics);
-        BeaconService.getInstance().reportUploadTaskSuccess(request);
+        CosTrackService.getInstance().reportCopyTaskSuccess(request);
         cancelAllRequest(cosXmlService, now);
     }
 
