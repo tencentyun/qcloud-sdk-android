@@ -7,8 +7,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 10560
-        versionName "1.5.60"
+        versionCode 10561
+        versionName "1.5.61"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -46,13 +46,6 @@ dependencies {
     testCompileOnly 'org.mockito:mockito-core:1.10.19'
 
     compileOnly 'androidx.appcompat:appcompat:1.0.0'
-
-    compileOnly files(
-            'libs/beacon-android-release-4.2.80.6-official.aar',
-            'libs/qimei-1.2.13.1.aar',
-            'libs/qimei-core-1.2.13.1-normal.aar',
-            'libs/qmsp-oaid2-1.0.4.aar'
-    )
 }
 
 project.extensions.add('artifactId', 'qcloud-foundation')
