@@ -1,30 +1,26 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-5:12
-INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-5:12
-INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-5:12
-INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-5:12
-INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-5:12
-INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-5:12
-INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-5:12
+ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-4:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-4:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-4:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-4:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-4:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-4:12
+INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-4:12
 	package
 		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:3:5-39
 		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml
 		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml
 	android:versionName
 		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml
-		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-5:12
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-4:12
 		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml
 	android:versionCode
 		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml
-		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-5:12
+		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:1-4:12
 		INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml
 	xmlns:android
 		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:2:11-69
-uses-permission#android.permission.ACCESS_NETWORK_STATE
-ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:4:5-79
-	android:name
-		ADDED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml:4:22-76
 uses-sdk
 INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/jordanqin/QCloudAndroid/library/QCloudFoundation/qcloud-track/src/main/AndroidManifest.xml
