@@ -131,7 +131,8 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
             "if-unmodified-since",
             "origin",
             "range",
-            "transfer-encoding"
+            "transfer-encoding",
+            "pic-operations"
     );
 
     @Override
