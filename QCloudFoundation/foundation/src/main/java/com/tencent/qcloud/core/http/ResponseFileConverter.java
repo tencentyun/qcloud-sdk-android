@@ -33,6 +33,7 @@ import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 import com.tencent.qcloud.core.util.QCloudHttpUtils;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -165,20 +166,31 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
             throw new QCloudClientException(new IOException("response body stream is null"));
         }
         RandomAccessFile randomAccessFile = null;
+        FileOutputStream fos = null;
+        BufferedOutputStream bos  = null;
         try {
-            randomAccessFile = new RandomAccessFile(downloadFilePath, "rws");
             //获取上一次已传输的数据长度
             long lastTimeBytes = getBytesTransferred();
             //seek值需要加上lastTimeBytes，因为重试后上一次的lastTimeBytes数据已经下载到文件中
-            if(offset + lastTimeBytes > 0) randomAccessFile.seek(offset + lastTimeBytes);
-            byte[] buffer = new byte[8192];
+            if (offset + lastTimeBytes > 0) {
+                randomAccessFile = new RandomAccessFile(downloadFilePath, "rws");
+                randomAccessFile.seek(offset + lastTimeBytes);
+                fos = new FileOutputStream(randomAccessFile.getFD());
+            } else {
+                fos = new FileOutputStream(downloadFilePath);
+            }
+            bos = new BufferedOutputStream(fos);
+//            byte[] buffer = new byte[8192];
+            byte[] buffer = new byte[1024 * 1024];
             countingSink = new CountingSink(new Buffer(), contentLength, lastTimeBytes, progressListener);
             int len;
             while ((len = inputStream.read(buffer)) != -1) {
-                randomAccessFile.write(buffer, 0, len);
+                bos.write(buffer, 0, len);
                 countingSink.writeBytesInternal(len);
             }
         } finally {
+            if (bos != null) OkhttpInternalUtils.closeQuietly(bos);
+            if (fos != null) OkhttpInternalUtils.closeQuietly(fos);
             if(randomAccessFile != null) OkhttpInternalUtils.closeQuietly(randomAccessFile);
         }
     }
