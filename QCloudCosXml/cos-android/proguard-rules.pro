@@ -29,5 +29,6 @@
 
 #foundation
 -keep class com.tencent.qcloud.core.**{*;}
+-keep class com.tencent.qcloud.qcloudxml.core.**{*;}
 -keep class com.tencent.qcloud.cos.**{*;}
 

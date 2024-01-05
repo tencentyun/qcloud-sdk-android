@@ -32,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.core.NormalServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
+import com.tencent.cos.xml.core.TestLocker;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
@@ -249,17 +250,21 @@ public class OtherObjectTest {
         request.fileId = "/formatConversion";
         PicOperations picOperations = request.getPicOperations();
         Assert.assertNotNull(picOperations);
+        final TestLocker testLocker = new TestLocker();
         cosXmlService.formatConversionAsync(request, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 Assert.assertNotNull(result);
+                testLocker.release();
             }
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
                 Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
             }
         });
+        testLocker.lock();
     }
 
     @Test
