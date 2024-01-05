@@ -428,6 +428,7 @@ public class CosXmlBaseService implements BaseCosXml {
             httpTask.setTransferThreadControl(config.isTransferThreadControl());
             httpTask.setUploadMaxThreadCount(config.getUploadMaxThreadCount());
             httpTask.setDownloadMaxThreadCount(config.getDownloadMaxThreadCount());
+            httpTask.setDomainSwitch(config.isDomainSwitch());
             cosXmlRequest.setTask(httpTask);
 
             setProgressListener(cosXmlRequest, httpTask, false);
@@ -493,7 +494,7 @@ public class CosXmlBaseService implements BaseCosXml {
             httpTask.setTransferThreadControl(config.isTransferThreadControl());
             httpTask.setUploadMaxThreadCount(config.getUploadMaxThreadCount());
             httpTask.setDownloadMaxThreadCount(config.getDownloadMaxThreadCount());
-
+            httpTask.setDomainSwitch(config.isDomainSwitch());
             cosXmlRequest.setTask(httpTask);
 
             setProgressListener(cosXmlRequest, httpTask, true);

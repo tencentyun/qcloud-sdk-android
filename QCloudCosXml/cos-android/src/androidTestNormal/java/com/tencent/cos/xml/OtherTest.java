@@ -67,6 +67,8 @@ public class OtherTest {
         String region = TestConst.PERSIST_BUCKET_REGION;
         String bucket = TestConst.PERSIST_BUCKET;
         String cosPath = "do_not_remove/";
+//        String cosPath = "urlencode/大大大1001@#￥%……&（&￥%@#@￥~：“《？SFDAREEBRTERTU - Trim(1)_20231205T140242823Z/";
+//        String cosPath = "urlencode/~/";
 
         CosXmlService cosXmlService = NormalServiceFactory.INSTANCE.newDefaultService();
 
