@@ -78,6 +78,7 @@ public abstract class QCloudTask<T> implements Callable<T> {
     private boolean enableTraffic = true;
     private int uploadMaxThreadCount;
     private int downloadMaxThreadCount;
+    private boolean domainSwitch;
     private OnRequestWeightListener onRequestWeightListener;
 
     private Executor observerExecutor;
@@ -248,6 +249,14 @@ public abstract class QCloudTask<T> implements Callable<T> {
 
     public void setDownloadMaxThreadCount(int downloadMaxThreadCount) {
         this.downloadMaxThreadCount = downloadMaxThreadCount;
+    }
+
+    public boolean isDomainSwitch() {
+        return domainSwitch;
+    }
+
+    public void setDomainSwitch(boolean domainSwitch) {
+        this.domainSwitch = domainSwitch;
     }
 
     /**

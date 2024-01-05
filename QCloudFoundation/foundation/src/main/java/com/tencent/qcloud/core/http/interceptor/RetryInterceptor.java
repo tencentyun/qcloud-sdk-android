@@ -26,8 +26,11 @@ package com.tencent.qcloud.core.http.interceptor;
 import static com.tencent.qcloud.core.http.HttpConstants.Header.RANGE;
 import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
 
+import android.text.TextUtils;
+
 import androidx.annotation.Nullable;
 
+import com.tencent.qcloud.core.common.DomainSwitchException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.HttpConfiguration;
 import com.tencent.qcloud.core.http.HttpConstants;
@@ -37,6 +40,7 @@ import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.RetryStrategy;
 import com.tencent.qcloud.core.task.TaskManager;
+import com.tencent.qcloud.core.util.DomainSwitchUtils;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -68,7 +72,6 @@ import okio.Buffer;
 import okio.BufferedSource;
 
 public class RetryInterceptor implements Interceptor {
-
     private RetryStrategy retryStrategy;
     private RetryStrategy.WeightAndReliableAddition additionComputer = new RetryStrategy.WeightAndReliableAddition();
 
@@ -146,6 +149,24 @@ public class RetryInterceptor implements Interceptor {
             throw new IOException("CANCELED");
         }
 
+        if(task.isDomainSwitch() && !task.isSelfSigner() && DomainSwitchUtils.isMyqcloudUrl(request.url().host())){
+            try {
+                response = executeTaskOnce(chain, request, task);
+                // 判断响应 状态码非2XX，且没有x-cos-request-id头部
+                if (!response.isSuccessful() && TextUtils.isEmpty(response.header("x-cos-request-id"))) {
+                    throw new DomainSwitchException();
+                }
+            } catch (Exception exception){
+                // 下载convertResponse可能会产生服务端异常，这时候不用切
+                if(exception.getCause() instanceof QCloudServiceException &&
+                        !TextUtils.isEmpty(((QCloudServiceException) exception.getCause()).getRequestId())){
+                } else {
+                    // 没有收到响应
+                    throw new DomainSwitchException();
+                }
+            }
+        }
+
         int attempts = 0;
         long startTime = System.nanoTime();
 
@@ -170,15 +191,23 @@ public class RetryInterceptor implements Interceptor {
             attempts++;
             int statusCode = -1;
             try {
-                //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
-                if (response != null && response.body() != null) {
-                    response.close();
+                if(attempts == 1 && response != null){
+                    // 第一次执行 且response已经有值了，说明尝试成功，则不再重复执行
+                } else {
+                    //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
+                    if (response != null && response.body() != null) {
+                        response.close();
+                    }
+                    response = executeTaskOnce(chain, request, task);
                 }
-                response = executeTaskOnce(chain, request, task);
                 statusCode = response.code();
                 e = null;
             } catch (IOException exception) {
-                e = exception;
+                if(exception instanceof DomainSwitchException){
+                    throw exception;
+                } else {
+                    e = exception;
+                }
             } catch (IllegalStateException exception){
                 // 再次处理 okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
                 if(exception.getMessage().startsWith("cannot make a new request because the previous response is still open: please call response.close()")){

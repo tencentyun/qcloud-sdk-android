@@ -89,6 +89,9 @@ public final class HttpResponse<T> {
         if (!response.isSuccessful()) {
             QCloudServiceException exception = new QCloudServiceException(response.message());
             exception.setStatusCode(response.code());
+            if(response.header("x-cos-request-id") != null) {
+                exception.setRequestId(response.header("x-cos-request-id"));
+            }
             throw exception;
         }
     }

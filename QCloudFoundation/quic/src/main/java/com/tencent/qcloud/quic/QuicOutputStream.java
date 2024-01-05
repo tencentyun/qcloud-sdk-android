@@ -22,16 +22,15 @@
 
 package com.tencent.qcloud.quic;
 
+import com.tencent.tquic.impl.TnetQuicRequest;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
 public class QuicOutputStream extends OutputStream {
+    TnetQuicRequest quicNative;
 
-    private boolean isClose = false;
-
-    QuicNative quicNative;
-
-    public QuicOutputStream(QuicNative quicNative){
+    public QuicOutputStream(TnetQuicRequest quicNative){
         this.quicNative = quicNative;
     }
 
