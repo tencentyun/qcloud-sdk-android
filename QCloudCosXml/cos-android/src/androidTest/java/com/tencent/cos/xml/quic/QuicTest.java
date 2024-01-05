@@ -46,6 +46,9 @@ import com.tencent.cos.xml.transfer.COSXMLUploadTask;
 import com.tencent.cos.xml.transfer.TransferManager;
 import com.tencent.cos.xml.transfer.TransferState;
 import com.tencent.cos.xml.transfer.TransferStateListener;
+import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.quic.QuicClientImpl;
+import com.tencent.tquic.impl.TnetConfig;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,12 +56,10 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.tencent.cos.xml.core.TestUtils.isQuicSupportDevice;
-
 @RunWith(AndroidJUnit4.class)
 public class QuicTest {
 
-    private final boolean testQuic = isQuicSupportDevice() && TestConst.QUIC_TEST;
+    private final boolean testQuic = TestConst.QUIC_TEST;
 
     @Test
     public void testUploadSmallFileByPath() {
@@ -66,6 +67,13 @@ public class QuicTest {
         if (!testQuic) {
             return;
         }
+
+        QuicClientImpl.setTnetConfig(
+                new TnetConfig.Builder()
+//                        .enableCongetionOptimization(true)
+//                        .setTotalTimeoutMillis(1000)
+                        .build()
+        );
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newQuicTransferManager();
         PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.QUIC_BUCKET,
@@ -161,7 +169,12 @@ public class QuicTest {
                 TestUtils.bigFilePath(), null);
 
         final TestLocker testLocker = new TestLocker();
-
+        uploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                QCloudLogger.i("QCloudTest", "transfer progress is %d/%d", complete, target);
+            }
+        });
         uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
@@ -266,6 +279,12 @@ public class QuicTest {
                 getObjectRequest);
 
         final TestLocker testLocker = new TestLocker();
+        downloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                QCloudLogger.i("QCloudTest", "transfer progress is %d/%d", complete, target);
+            }
+        });
         downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {

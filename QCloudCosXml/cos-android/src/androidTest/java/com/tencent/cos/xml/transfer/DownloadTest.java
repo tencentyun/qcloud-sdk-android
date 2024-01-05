@@ -452,4 +452,22 @@ public class DownloadTest {
         }
         Assert.assertTrue(true);
     }
+
+    @Test public void testSmallDownloadToFile() {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                TestUtils.localParentPath());
+        try {
+            cosXmlSimpleService.getObject(getObjectRequest);
+        } catch (CosXmlClientException e) {
+            Assert.fail(e.getMessage());
+            return;
+        } catch (CosXmlServiceException e) {
+            Assert.fail(e.getMessage());
+            return;
+        }
+        Assert.assertTrue(true);
+    }
 }
