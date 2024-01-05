@@ -142,7 +142,8 @@ public class QCloudHttpUtils {
                 if(size > 1 && i == size -1 && "".equals(spaceSegments[i])){
                     break;
                 }
-                encoded.append(URLEncoder.encode(spaceSegments[i], "UTF-8"));
+                // URLEncoder默认会对~进行编码， 但是cos后台不需要
+                encoded.append(URLEncoder.encode(spaceSegments[i], "UTF-8").replace("%7E", "~"));
                 if(i != size -1)encoded.append("%20");
             }
             // cos 后台需要对 * 做转义，而标准的 Java encode 不需要

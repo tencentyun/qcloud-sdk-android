@@ -1,5 +1,8 @@
 package com.tencent.qcloud.track;
 
+import static com.tencent.qcloud.track.BuildConfig.CLS_SECRET_ID;
+import static com.tencent.qcloud.track.BuildConfig.CLS_SECRET_KEY;
+
 import android.content.Context;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -29,16 +32,14 @@ public class ClsCosDataInputTest {
     public void init() {
         Context appContext = InstrumentationRegistry.getInstrumentation().getContext();
 
-        // 固定秘钥
-//        ClsTrackService clsTrackService = new ClsTrackService();
-//        clsTrackService.init(appContext, "9ab664b4-f657-4ef9-8b8c-305b819e477d", "ap-guangzhou.cls.tencentcs.com");
-//        clsTrackService.setSecurityCredential(CLS_SECRET_ID, CLS_SECRET_KEY);
-//        QCloudTrackService.getInstance().addTrackService(EVENT_CODE_QCLOUD_TRACK_COS_SDK, clsTrackService);
 
-        // 临时秘钥
         ClsTrackService clsTrackService = new ClsTrackService();
-        clsTrackService.init(appContext, "9ab664b4-f657-4ef9-8b8c-305b819e477d", "ap-guangzhou.cls.tencentcs.com");
-        clsTrackService.setCredentialProvider(new MyClsLifecycleCredentialProvider());
+//        clsTrackService.init(appContext, "9ab664b4-f657-4ef9-8b8c-305b819e477d", "ap-guangzhou.cls.tencentcs.com");
+        clsTrackService.init(appContext, "5a956e13-ba0d-4941-a81b-103d4212e2a8", "ap-guangzhou.cls.tencentcs.com");
+        // 临时秘钥
+//        clsTrackService.setCredentialProvider(new MyClsLifecycleCredentialProvider());
+        // 固定秘钥
+        clsTrackService.setSecurityCredential(CLS_SECRET_ID, CLS_SECRET_KEY);
         QCloudTrackService.getInstance().addTrackService(EVENT_CODE_QCLOUD_TRACK_COS_SDK, clsTrackService);
 
         QCloudTrackService.getInstance().init(appContext);
@@ -58,7 +59,7 @@ public class ClsCosDataInputTest {
 
     @Test
     public void inputData() {
-        // 每隔10ms上报一次上传、下载、其他基础接口
+        // 每隔100s上报一次上传、下载、其他基础接口
         while (true) {
             try {
                 Thread.sleep(100000);

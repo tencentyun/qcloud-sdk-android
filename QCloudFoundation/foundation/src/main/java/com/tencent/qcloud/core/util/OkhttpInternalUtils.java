@@ -17,6 +17,8 @@ import okhttp3.Response;
  */
 public class OkhttpInternalUtils {
     public static final int HTTP_CONTINUE = 100;
+    public static final int HTTP_TEMP_REDIRECT = 307;
+    public static final int HTTP_PERM_REDIRECT = 308;
 
     /**
      * Closes {@code closeable}, ignoring any checked exceptions. Does nothing if {@code closeable} is
@@ -72,5 +74,18 @@ public class OkhttpInternalUtils {
         } catch (NumberFormatException e) {
             return -1;
         }
+    }
+
+    public static boolean permitsRequestBody(String method) {
+        return !(method.equals("GET") || method.equals("HEAD"));
+    }
+
+    public static boolean redirectsWithBody(String method) {
+        return method.equals("PROPFIND"); // (WebDAV) redirects should also maintain the request body
+    }
+
+    public static boolean redirectsToGet(String method) {
+        // All requests but PROPFIND should redirect to a GET request.
+        return !method.equals("PROPFIND");
     }
 }
