@@ -25,33 +25,19 @@ package com.tencent.qcloud.quic;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
 
 import com.tencent.qcloud.core.http.HttpRequest;
-import com.tencent.qcloud.core.http.HttpResponse;
 import com.tencent.qcloud.core.http.HttpResult;
 import com.tencent.qcloud.core.http.QCloudHttpClient;
 import com.tencent.qcloud.core.http.ResponseFileConverter;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okio.BufferedSink;
 
 @RunWith(AndroidJUnit4.class)
 public class QuicClientTest {
@@ -71,11 +57,6 @@ public class QuicClientTest {
                 .setNetworkClient(clientImpl)
                 .enableDebugLog(true)
                 .build();
-    }
-
-    @After
-    public void teardown() {
-        clientImpl.destroy();
     }
 
     @Test

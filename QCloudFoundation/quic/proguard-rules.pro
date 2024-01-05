@@ -19,3 +19,13 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+# quic
+-dontwarn com.tencent.qcloud.quic.**
+-keep class com.tencent.qcloud.quic.**{*;}
+-dontwarn com.tencent.tquic.impl.**
+-keep class com.tencent.tquic.impl.**{*;}
+
+#foundation
+-keep class com.tencent.qcloud.core.**{*;}
+-keep class com.tencent.qcloud.qcloudxml.core.**{*;}
+-keep class com.tencent.qcloud.cos.**{*;}

@@ -79,7 +79,7 @@ public class QCloudHttpRequest<T> extends HttpRequest<T> {
     }
 
     @Override
-    QCloudSelfSigner getQCloudSelfSigner() throws QCloudClientException {
+    QCloudSelfSigner getQCloudSelfSigner() {
         return selfSigner;
     }
 
