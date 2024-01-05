@@ -22,15 +22,20 @@
 
 package com.tencent.qcloud.quic;
 
-import okhttp3.*;
+import java.io.OutputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okio.Buffer;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
-
-import java.io.OutputStream;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class QuicResponse {
 
@@ -76,7 +81,11 @@ public class QuicResponse {
      * @param request
      * @return
      */
-    public Response covertResponse(Request request){
+    public Response covertResponse(Request request) throws QuicException {
+        if(code == 0 && message == null){
+            throw new QuicException("no response received or response is empty");
+        }
+
         Headers headers = Headers.of(this.headers);
         Response response = new Response.Builder()
                 .request(request)

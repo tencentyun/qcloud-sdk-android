@@ -27,7 +27,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,11 +53,6 @@ public class QuicImplTest {
         quicManager = new QuicManager(true);
     }
 
-    @After
-    public void teardown() {
-        quicManager.destroy();
-    }
-
     @Test
     public void testGet() throws Exception {
 
@@ -74,7 +68,7 @@ public class QuicImplTest {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        QuicRequest quicRequest = new QuicRequest(host, ip, port, tcpPort);
+        QuicRequest quicRequest = new QuicRequest(host, host, ip, port, tcpPort);
         quicRequest.addHeader(":scheme", "https");
         quicRequest.addHeader(":path", "/1.jpg");
         quicRequest.addHeader(":method", "GET");

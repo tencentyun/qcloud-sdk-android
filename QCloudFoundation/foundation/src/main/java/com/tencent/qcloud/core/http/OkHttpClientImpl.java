@@ -23,6 +23,7 @@
 package com.tencent.qcloud.core.http;
 
 import com.tencent.qcloud.core.BuildConfig;
+import com.tencent.qcloud.core.http.interceptor.RedirectInterceptor;
 import com.tencent.qcloud.core.http.interceptor.RetryInterceptor;
 import com.tencent.qcloud.core.http.interceptor.TrafficControlInterceptor;
 
@@ -56,8 +57,9 @@ public class OkHttpClientImpl extends NetworkClient {
             logInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
         }
         OkHttpClient.Builder builder = b.mBuilder;
+        RedirectInterceptor redirectInterceptor = new RedirectInterceptor();
         okHttpClient = builder
-                .followRedirects(true)
+                .followRedirects(false)
                 .followSslRedirects(true)
                 .hostnameVerifier(hostnameVerifier)
                 .dns(dns)
@@ -69,11 +71,9 @@ public class OkHttpClientImpl extends NetworkClient {
                 .addInterceptor(logInterceptor)
                 .addInterceptor(new RetryInterceptor(b.retryStrategy))
                 .addInterceptor(new TrafficControlInterceptor())
+                .addInterceptor(redirectInterceptor)
                 .build();
-
-//        Dispatcher dispatcher = okHttpClient.dispatcher();
-//        dispatcher.setMaxRequests(64); // 设置最大并发请求数
-//        dispatcher.setMaxRequestsPerHost(36); // 设置每个主机的最大并发请求数
+        redirectInterceptor.setClient(okHttpClient);
     }
 
     @Override

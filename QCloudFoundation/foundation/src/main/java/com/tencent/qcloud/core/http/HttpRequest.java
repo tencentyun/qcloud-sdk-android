@@ -200,7 +200,7 @@ public class HttpRequest<T> {
         return null;
     }
     
-    QCloudSelfSigner getQCloudSelfSigner() throws QCloudClientException {
+    QCloudSelfSigner getQCloudSelfSigner() {
         return null;
     }
 

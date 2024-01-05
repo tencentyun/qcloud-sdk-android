@@ -26,9 +26,6 @@ package com.tencent.qcloud.quic;
  * 开启一个线程池跑request
  */
 public class QuicManager {
-
-    private ConnectPool connectPool = new ConnectPool();
-
     public QuicManager() {
         this(false);
     }
@@ -36,16 +33,10 @@ public class QuicManager {
     public QuicManager(boolean isEnableDebugLog) {
         super();
         QLog.isDebug = isEnableDebugLog;
-        connectPool.init(isEnableDebugLog);
     }
 
     public QuicImpl newQuicImpl(QuicRequest quicRequest){
-        QuicImpl quic = new QuicImpl(quicRequest, connectPool);
+        QuicImpl quic = new QuicImpl(quicRequest);
         return quic;
     }
-
-    public void destroy(){
-        connectPool.destroy();
-    }
-
 }
