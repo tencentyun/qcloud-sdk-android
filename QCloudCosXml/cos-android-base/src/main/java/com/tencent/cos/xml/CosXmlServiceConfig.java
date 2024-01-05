@@ -108,6 +108,7 @@ public class CosXmlServiceConfig implements Parcelable {
     private final boolean transferThreadControl;
     private final int uploadMaxThreadCount;
     private final int downloadMaxThreadCount;
+    private final boolean domainSwitch;
 
     public CosXmlServiceConfig(Builder builder) {
         this.protocol = builder.protocol;
@@ -145,6 +146,7 @@ public class CosXmlServiceConfig implements Parcelable {
         this.transferThreadControl = builder.transferThreadControl;
         this.uploadMaxThreadCount = builder.uploadMaxThreadCount;
         this.downloadMaxThreadCount = builder.downloadMaxThreadCount;
+        this.domainSwitch = builder.domainSwitch;
     }
 
     public Builder newBuilder() {
@@ -403,6 +405,10 @@ public class CosXmlServiceConfig implements Parcelable {
         return downloadMaxThreadCount;
     }
 
+    public boolean isDomainSwitch() {
+        return domainSwitch;
+    }
+
     @Deprecated
     public String getEndpointSuffix() {
         return getEndpointSuffix(region, false);
@@ -606,6 +612,7 @@ public class CosXmlServiceConfig implements Parcelable {
         private boolean transferThreadControl = true;
         private int uploadMaxThreadCount;
         private int downloadMaxThreadCount;
+        private boolean domainSwitch;
 
         public Builder() {
             protocol = HTTPS_PROTOCOL;
@@ -614,6 +621,7 @@ public class CosXmlServiceConfig implements Parcelable {
             bucketInPath = false;
             uploadMaxThreadCount = TaskExecutors.UPLOAD_THREAD_COUNT;
             downloadMaxThreadCount = TaskExecutors.DOWNLOAD_THREAD_COUNT;
+            domainSwitch = true;
         }
 
         public Builder(CosXmlServiceConfig config) {
@@ -652,6 +660,7 @@ public class CosXmlServiceConfig implements Parcelable {
             transferThreadControl = config.transferThreadControl;
             uploadMaxThreadCount = config.uploadMaxThreadCount;
             downloadMaxThreadCount = config.downloadMaxThreadCount;
+            domainSwitch = config.domainSwitch;
         }
 
         /**
@@ -700,6 +709,11 @@ public class CosXmlServiceConfig implements Parcelable {
          */
         public Builder setDownloadMaxThreadCount(int downloadMaxThreadCount) {
             this.downloadMaxThreadCount = downloadMaxThreadCount;
+            return this;
+        }
+
+        public Builder setDomainSwitch(boolean domainSwitch) {
+            this.domainSwitch = domainSwitch;
             return this;
         }
 
