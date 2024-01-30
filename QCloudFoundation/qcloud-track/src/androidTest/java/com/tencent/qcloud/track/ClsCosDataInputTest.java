@@ -35,7 +35,7 @@ public class ClsCosDataInputTest {
 
         ClsTrackService clsTrackService = new ClsTrackService();
 //        clsTrackService.init(appContext, "9ab664b4-f657-4ef9-8b8c-305b819e477d", "ap-guangzhou.cls.tencentcs.com");
-        clsTrackService.init(appContext, "5a956e13-ba0d-4941-a81b-103d4212e2a8", "ap-guangzhou.cls.tencentcs.com");
+        clsTrackService.init(appContext, "f8140102-7b5b-4f50-9667-4611a2e23aea", "ap-guangzhou.cls.tencentcs.com");
         // 临时秘钥
 //        clsTrackService.setCredentialProvider(new MyClsLifecycleCredentialProvider());
         // 固定秘钥
