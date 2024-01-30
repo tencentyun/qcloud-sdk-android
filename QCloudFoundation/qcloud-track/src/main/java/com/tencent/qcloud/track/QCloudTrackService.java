@@ -177,15 +177,13 @@ public class QCloudTrackService {
     }
 
     /**
-     * 设置业务参数，便于在数据分析时个性化使用<br/>
+     * 设置业务参数，便于在数据分析时个性化使用
      * 例如 用户id等
+     * 给businessParams key拼接business_前缀，防止与SDK内部参数冲突
      *
-     * @param businessParamsArg 业务参数，不能超过10个
+     * @param businessParamsArg 业务参数
      */
     public void setBusinessParams(Map<String, String> businessParamsArg) {
-        if (businessParamsArg.size() > 10) {
-            throw new IllegalArgumentException("The number of businessParams cannot be greater than 10");
-        }
         // 给businessParams key拼接business_前缀，防止与SDK内部参数冲突
         businessParams = new HashMap<>();
         for (Map.Entry<String, String> entry : businessParamsArg.entrySet()) {

@@ -114,7 +114,7 @@ public class NetworkUtils {
                 case TelephonyManager.NETWORK_TYPE_IWLAN:    // api<25: replace by 18
                 case 19: // LTE_CA
                     return "4G";
-                case TelephonyManager.NETWORK_TYPE_NR:       // api<29: replace by 20
+                case 20:       // api<29: replace by 20
                     return "5G";
                 default:
                     return "?";
