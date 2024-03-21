@@ -89,8 +89,8 @@ android {
     }
 
     // 切换发 normal 或者 slim 包，需要同步修改 pom.artifactId 信息
-//    defaultPublishConfig "normalRelease"
-      defaultPublishConfig  "slimRelease"
+    defaultPublishConfig "normalRelease"
+//      defaultPublishConfig  "slimRelease"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -161,9 +161,9 @@ dependencies {
     api project(':cos-android-base')
     api project(':qcloud-track')
     if(includeBeacon){
-        embed(name: 'beacon-android-release-4.2.80.6-official', ext: 'aar')
-        embed(name: 'qimei-1.2.13.1', ext: 'aar')
-        embed(name: 'qimei-core-1.2.13.1-normal', ext: 'aar')
+        embed(name: 'beacon-android-release-4.2.86.7-hf1-official', ext: 'aar')
+        embed(name: 'qimei-1.2.18.3', ext: 'aar')
+        embed(name: 'qimei-core-1.2.18.3-normal', ext: 'aar')
         embed(name: 'qmsp-oaid2-1.0.4', ext: 'aar')
     }
 

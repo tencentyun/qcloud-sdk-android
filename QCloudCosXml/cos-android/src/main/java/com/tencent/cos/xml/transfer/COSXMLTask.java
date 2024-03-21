@@ -46,6 +46,7 @@ import com.tencent.qcloud.core.http.HttpTaskMetrics;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -81,6 +82,8 @@ public abstract class COSXMLTask {
 
     /** header 属性 */
     protected Map<String, List<String>> headers;
+    /** 不强制签名的header集合 */
+    protected Set<String> noSignHeaders;
     /** 是否需要计算 MD5 */
     protected boolean isNeedMd5 = true;
     /** 进度回调监听器 */
