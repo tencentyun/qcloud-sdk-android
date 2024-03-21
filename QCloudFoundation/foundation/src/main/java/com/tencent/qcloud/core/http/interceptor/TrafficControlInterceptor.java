@@ -206,9 +206,10 @@ public class TrafficControlInterceptor implements Interceptor {
         }
         QCloudLogger.i(HTTP_LOG_TAG, " %s begin to execute", request);
         IOException e;
+        Response response = null;
         try {
             long startNs = System.nanoTime();
-            Response response = processRequest(chain, request);
+            response = processRequest(chain, request);
             // because we want to calculate the whole task duration, including downloading procedure,
             // we put download operation here
             if (task.isDownloadTask()) {
@@ -241,6 +242,10 @@ public class TrafficControlInterceptor implements Interceptor {
             } else {
                 strategy.reportException(request, e);
             }
+        }
+        //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
+        if (response != null && response.body() != null) {
+            response.close();
         }
         throw e;
     }
