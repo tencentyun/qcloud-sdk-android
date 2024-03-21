@@ -424,6 +424,7 @@ public class UploadTest {
         } catch (CosXmlClientException e) {
             e.printStackTrace();
         }
+        putObjectRequest.addNoSignHeader("Host");
 
         File file = new File(putObjectRequest.getSrcPath());
         QCloudLogger.i("QCloudTest", "upload file size is " + file.length());
