@@ -35,7 +35,7 @@ public class ClsCosDataInputTest {
 
         ClsTrackService clsTrackService = new ClsTrackService();
 //        clsTrackService.init(appContext, "9ab664b4-f657-4ef9-8b8c-305b819e477d", "ap-guangzhou.cls.tencentcs.com");
-        clsTrackService.init(appContext, "f8140102-7b5b-4f50-9667-4611a2e23aea", "ap-guangzhou.cls.tencentcs.com");
+        clsTrackService.init(appContext, "d4bb2a4f-99a0-4b42-960b-87249b0f6c33", "ap-guangzhou.cls.tencentcs.com");
         // 临时秘钥
 //        clsTrackService.setCredentialProvider(new MyClsLifecycleCredentialProvider());
         // 固定秘钥
@@ -62,7 +62,7 @@ public class ClsCosDataInputTest {
         // 每隔100s上报一次上传、下载、其他基础接口
         while (true) {
             try {
-                Thread.sleep(100000);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
