@@ -235,6 +235,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
         this.queries = putObjectRequest.getQueryString();
         this.headers = putObjectRequest.getRequestHeaders();
+        this.noSignHeaders = putObjectRequest.getNoSignHeaders();
         this.isNeedMd5 = putObjectRequest.isNeedMD5();
         this.uploadId = uploadId;
         this.priorityLow = putObjectRequest.isPriorityLow();
@@ -337,6 +338,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
         }
         putObjectRequest.setRequestHeaders(headers);
+        putObjectRequest.addNoSignHeader(noSignHeaders);
 
         if(onSignatureListener != null){
             putObjectRequest.setSign(onSignatureListener.onGetSign(putObjectRequest));
@@ -418,6 +420,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         initMultipartUploadRequest.setRegion(region);
 
         initMultipartUploadRequest.setRequestHeaders(headers);
+        initMultipartUploadRequest.addNoSignHeader(noSignHeaders);
 
         if(onSignatureListener != null){
             initMultipartUploadRequest.setSign(onSignatureListener.onGetSign(initMultipartUploadRequest));
@@ -467,6 +470,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         listPartsRequest = new ListPartsRequest(bucket, cosPath, uploadId);
         listPartsRequest.setRegion(region);
         listPartsRequest.setRequestHeaders(headers);
+        listPartsRequest.addNoSignHeader(noSignHeaders);
 
         if(onSignatureListener != null){
             listPartsRequest.setSign(onSignatureListener.onGetSign(listPartsRequest));
@@ -687,6 +691,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                     uploadPartRequest.setNeedMD5(false);
                 }
                 uploadPartRequest.setRequestHeaders(headers);
+                uploadPartRequest.addNoSignHeader(noSignHeaders);
                 uploadPartRequest.setOnRequestWeightListener(new CosXmlRequest.OnRequestWeightListener() {
                     @Override
                     public int onWeight() {
@@ -766,6 +771,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
         completeMultiUploadRequest.setNeedMD5(isNeedMd5);
         completeMultiUploadRequest.setRequestHeaders(getCustomCompleteHeaders(headers));
+        completeMultiUploadRequest.addNoSignHeader(noSignHeaders);
 
         if(onSignatureListener != null){
             completeMultiUploadRequest.setSign(onSignatureListener.onGetSign(completeMultiUploadRequest));

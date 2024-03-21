@@ -91,6 +91,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 getObjectRequest.getPath(cosXmlService.getConfig()), getObjectRequest.getSavePath(), getObjectRequest.getSaveFileName());
         this.queries = getObjectRequest.getQueryString();
         this.headers = getObjectRequest.getRequestHeaders();
+        this.noSignHeaders = getObjectRequest.getNoSignHeaders();
         this.isNeedMd5 = getObjectRequest.isNeedMD5();
         //需要取出range字段
         if(this.headers != null && this.headers.containsKey(COSRequestHeaderKey.RANGE)){
@@ -121,6 +122,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         getObjectRequest.setFileOffset(fileOffset);
         getObjectRequest.setQueryParameters(queries);
         getObjectRequest.setRequestHeaders(headers);
+        getObjectRequest.addNoSignHeader(noSignHeaders);
         if(rangeEnd > 0 || rangeStart > 0){
             getObjectRequest.setRange(rangeStart, rangeEnd);
             //下载重试时会改变request的range，因此不能让range参与签名
@@ -296,6 +298,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
 
         headObjectRequest = new HeadObjectRequest(bucket, cosPath);
         headObjectRequest.setRequestHeaders(headers);
+        headObjectRequest.addNoSignHeader(noSignHeaders);
         headObjectRequest.setQueryParameters(queries);
         headObjectRequest.setRegion(region);
         final String downloadPath = getDownloadPath();
