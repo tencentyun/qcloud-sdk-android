@@ -68,6 +68,12 @@ public class DownloadTest {
                 TestUtils.localParentPath());
        // getObjectRequest.setRange(100, 200);
 
+        try {
+            getObjectRequest.setRequestHeaders("test", "value", false);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        }
+
         /// getObjectRequest.addNoSignHeader("Range");
         COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
                 getObjectRequest);

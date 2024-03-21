@@ -189,6 +189,15 @@ public abstract class CosXmlRequest{
         }
     }
 
+    /**
+     * 添加不强制签名的header键
+     */
+    public void addNoSignHeader(Set<String> keys) {
+        if (keys != null) {
+            noSignHeaders.addAll(keys);
+        }
+    }
+
     public void addNoSignParams(String key) {
         if (!TextUtils.isEmpty(key)) {
             noSignParams.add(key);
