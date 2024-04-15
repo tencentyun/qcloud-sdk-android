@@ -27,6 +27,12 @@ import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.CosXmlSimpleService;
+import com.tencent.cos.xml.core.ServiceFactory;
+import com.tencent.cos.xml.core.TestConst;
+import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
 import com.tencent.qcloud.core.task.RetryStrategy;
 
@@ -85,6 +91,59 @@ public class CosXmlConfigTest {
 
         String headerHost = config.getHeaderHost(Region.AP_Beijing.getRegion(),"bucket-1250000000");
         Assert.assertEquals("", headerHost);
+    }
+
+    @Test
+    public void multipleConfigTest() {
+        HeadObjectRequest headObjectRequest1 = new HeadObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+        CosXmlServiceConfig cosXmlServiceConfig1 = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .addHeader("testkey1", "testvalue1")
+                .setConnectionTimeout(4000)
+                .setSocketTimeout(4000)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .builder();
+        CosXmlSimpleService service1 = ServiceFactory.INSTANCE.newService(cosXmlServiceConfig1);
+        try {
+            service1.addCustomerDNS("mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com", new String[]{"183.47.104.187"});
+        } catch (CosXmlClientException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            service1.headObject(headObjectRequest1);
+        } catch (CosXmlClientException e) {
+        } catch (CosXmlServiceException e) {
+        }
+
+        HeadObjectRequest headObjectRequest2 = new HeadObjectRequest(TestConst.ASR_BUCKET, TestConst.ASR_OBJECT_LONG);
+        CosXmlServiceConfig cosXmlServiceConfig2 = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .addHeader("testkey2", "testvalue2")
+                .setConnectionTimeout(4000)
+                .setSocketTimeout(4000)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .builder();
+        CosXmlSimpleService service2 = ServiceFactory.INSTANCE.newService(cosXmlServiceConfig2);
+        try {
+            service2.addCustomerDNS("ci-auditing-sample-1253960454.cos.ap-guangzhou.myqcloud.com", new String[]{"127.0.0.1"});
+            service2.addCustomerDNS("ci-auditing-sample-1253960454.cos.ap-guangzhou.tencentcos.cn", new String[]{"127.0.0.1"});
+            service1.addCustomerDNS("mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com", new String[]{"127.0.0.1"});
+        } catch (CosXmlClientException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            service2.headObject(headObjectRequest2);
+        } catch (CosXmlClientException e) {
+        } catch (CosXmlServiceException e) {
+        }
+
+        try {
+            service1.headObject(headObjectRequest1);
+        } catch (CosXmlClientException e) {
+        } catch (CosXmlServiceException e) {
+        }
     }
 
     @Test
