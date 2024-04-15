@@ -70,6 +70,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -83,6 +84,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 上传传输任务
@@ -466,6 +468,53 @@ public final class COSXMLUploadTask extends COSXMLTask {
         });
     }
 
+    public void listAllPartsAsync(CosXmlSimpleService cosXmlService, CosXmlResultListener cosXmlResultListener) {
+        // 初始化分页标记
+        AtomicReference<String> nextPartNumberMarker = new AtomicReference<>(null);
+        ArrayList<ListParts.Part> allParts = new ArrayList<>();
+        // 创建一个处理结果的方法
+        Runnable handleResult = new Runnable() {
+            @Override
+            public void run() {
+                // 设置分页标记
+                if (nextPartNumberMarker.get() != null && !nextPartNumberMarker.get().isEmpty()) {
+                    listPartsRequest.setPartNumberMarker(nextPartNumberMarker.get());
+                }
+
+                // 发送请求
+                cosXmlService.listPartsAsync(listPartsRequest, new CosXmlResultListener() {
+                    @Override
+                    public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                        ListPartsResult listPartsResult = (ListPartsResult) result;
+                        if(listPartsResult.listParts.parts != null && listPartsResult.listParts.parts.size() > 0){
+                            allParts.addAll(listPartsResult.listParts.parts);
+                        }
+
+                        // 更新分页标记
+                        nextPartNumberMarker.set(listPartsResult.listParts.nextPartNumberMarker);
+                        // 如果还有更多的分块，再次调用 handleResult
+                        if (nextPartNumberMarker.get() != null && !nextPartNumberMarker.get().isEmpty()) {
+                            run();
+                        } else {
+                            // 所有的操作都完成了
+                            listPartsResult.listParts.parts = allParts;
+                            cosXmlResultListener.onSuccess(request, listPartsResult);
+                        }
+                    }
+
+                    @Override
+                    public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                        // 处理错误
+                        cosXmlResultListener.onFail(request, clientException, serviceException);
+                    }
+                });
+            }
+        };
+
+        // 开始处理
+        handleResult.run();
+    }
+
     private void listMultiUpload(CosXmlSimpleService cosXmlService){
         listPartsRequest = new ListPartsRequest(bucket, cosPath, uploadId);
         listPartsRequest.setRegion(region);
@@ -486,7 +535,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
             }
         });
 
-        cosXmlService.listPartsAsync(listPartsRequest, new CosXmlResultListener() {
+        listAllPartsAsync(cosXmlService, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, final CosXmlResult result) {
                 if(request != listPartsRequest){
