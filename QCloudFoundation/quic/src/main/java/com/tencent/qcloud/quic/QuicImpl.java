@@ -401,14 +401,18 @@ public class QuicImpl extends TnetQuicRequest.Callback implements java.util.conc
      * 取消链接
      */
     public void cancelConnect(){
-        realQuicCall.CancelRequest();
+        if (realQuicCall != null) {
+            realQuicCall.CancelRequest();
+        }
     }
 
     /**
      * 清除资源
      */
     public void clear(){
-        realQuicCall.Destroy();
+        if (realQuicCall != null) {
+            realQuicCall.Destroy();
+        }
     }
 
     @Override
