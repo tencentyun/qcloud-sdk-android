@@ -430,7 +430,7 @@ public class ServiceFactory {
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
-    private CosXmlSimpleService newService(CosXmlServiceConfig cosXmlServiceConfig) {
+    public CosXmlSimpleService newService(CosXmlServiceConfig cosXmlServiceConfig) {
         return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
 
