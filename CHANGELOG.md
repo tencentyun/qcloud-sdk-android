@@ -1,3 +1,8 @@
+## v5.9.26
+1. CosXmlService和网络client示例对应关系优化
+2. 上传续传分块拉取逻辑完善
+3. quic请求取消时逻辑完善
+
 ## v5.9.25
 1. 升级灯塔版本
 2. 高级传输支持addNoSignHeader
