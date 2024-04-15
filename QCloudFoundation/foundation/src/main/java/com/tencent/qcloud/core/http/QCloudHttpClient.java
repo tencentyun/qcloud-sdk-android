@@ -57,6 +57,8 @@ public final class QCloudHttpClient {
    // private NetworkClient networkClient;
     private String networkClientType = OkHttpClientImpl.class.getName();
     private static Map<Integer, NetworkClient> networkClientMap = new ConcurrentHashMap<>(2);
+    private static OkHttpClient.Builder okHttpClientBuilder;
+    private OkHttpClientImpl okhttpNetworkClient;
     private final TaskManager taskManager;
     private final HttpLogger httpLogger;
 
@@ -214,10 +216,17 @@ public final class QCloudHttpClient {
             networkClient = new OkHttpClientImpl();
         }
         networkClientType = networkClient.getClass().getName();
-        int hashCode = networkClientType.hashCode();
-        if(!networkClientMap.containsKey(hashCode)){
-            networkClient.init(b, hostnameVerifier(), mDns, httpLogger);
-            networkClientMap.put(hashCode, networkClient);
+        if(OkHttpClientImpl.class.getName().equals(networkClientType) && networkClient instanceof OkHttpClientImpl){
+            // 如果是默认的okhttp 则不缓存 支持外部各service不同配置
+            this.okhttpNetworkClient = (OkHttpClientImpl) networkClient;
+            this.okhttpNetworkClient.init(b, hostnameVerifier(), mDns, httpLogger);
+        } else {
+            // 如果不是okhttp，例如quic，由于资源消耗问题，进行缓存，不支持外部各service不同配置
+            int hashCode = networkClientType.hashCode();
+            if(!networkClientMap.containsKey(hashCode)){
+                networkClient.init(b, hostnameVerifier(), mDns, httpLogger);
+                networkClientMap.put(hashCode, networkClient);
+            }
         }
         connectionRepository.addPrefetchHosts(b.prefetchHost);
         connectionRepository.init(); // 启动 dns 缓存
@@ -226,13 +235,19 @@ public final class QCloudHttpClient {
     public void setNetworkClientType(Builder b){
         NetworkClient networkClient = b.networkClient;
         if(networkClient != null){
-            String name = networkClient.getClass().getName();
-            int hashCode = name.hashCode();
-            if(!networkClientMap.containsKey(hashCode)){
-                networkClient.init(b, hostnameVerifier(), mDns, httpLogger);
-                networkClientMap.put(hashCode, networkClient);
+            networkClientType = networkClient.getClass().getName();
+            if(OkHttpClientImpl.class.getName().equals(networkClientType) && networkClient instanceof OkHttpClientImpl){
+                // 如果是默认的okhttp 则不缓存 支持外部各service不同配置
+                this.okhttpNetworkClient = (OkHttpClientImpl) networkClient;
+                this.okhttpNetworkClient.init(b, hostnameVerifier(), mDns, httpLogger);
+            } else {
+                // 如果不是okhttp，例如quic，由于资源消耗问题，进行缓存，不支持外部各service不同配置
+                int hashCode = networkClientType.hashCode();
+                if(!networkClientMap.containsKey(hashCode)){
+                    networkClient.init(b, hostnameVerifier(), mDns, httpLogger);
+                    networkClientMap.put(hashCode, networkClient);
+                }
             }
-            this.networkClientType = name;
         }
     }
 
@@ -268,7 +283,11 @@ public final class QCloudHttpClient {
 
     private <T> HttpTask<T> handleRequest(HttpRequest<T> request,
                                             QCloudCredentialProvider credentialProvider) {
-        return new HttpTask<T>(request, credentialProvider, networkClientMap.get(networkClientType.hashCode()));
+        if(OkHttpClientImpl.class.getName().equals(networkClientType)){
+            return new HttpTask<T>(request, credentialProvider, this.okhttpNetworkClient);
+        } else {
+            return new HttpTask<T>(request, credentialProvider, networkClientMap.get(networkClientType.hashCode()));
+        }
     }
 
     /**
@@ -357,7 +376,11 @@ public final class QCloudHttpClient {
                 retryStrategy.setRetryHandler(qCloudHttpRetryHandler);
             }
             if (mBuilder == null) {
-                mBuilder = new OkHttpClient.Builder();
+                // 复用okhttp底层资源（线程池、连接池等）
+                if(QCloudHttpClient.okHttpClientBuilder == null){
+                    QCloudHttpClient.okHttpClientBuilder = new OkHttpClient.Builder();
+                }
+                mBuilder = QCloudHttpClient.okHttpClientBuilder;
             }
 
             return new QCloudHttpClient(this);
