@@ -68,7 +68,7 @@ final public class ListPartsRequest extends BaseMultipartUploadRequest {
             queryParameters.put("max-parts",maxParts);
         }
         if(partNumberMarker != null){
-            queryParameters.put("part-number-marker",maxParts);
+            queryParameters.put("part-number-marker",partNumberMarker);
         }
         if(encodingType != null){
             queryParameters.put("Encoding-type",encodingType);
@@ -131,6 +131,14 @@ final public class ListPartsRequest extends BaseMultipartUploadRequest {
      */
     public void setPartNumberMarker(int partNumberMarker) {
         this.partNumberMarker = String.valueOf(partNumberMarker);
+    }
+
+    /**
+     * 设置列出分片的起点。
+     * @param partNumberMarker 列出分片的起点，可从ListPartsResult中读取。
+     */
+    public void setPartNumberMarker(String partNumberMarker) {
+        this.partNumberMarker = partNumberMarker;
     }
 
     /**
