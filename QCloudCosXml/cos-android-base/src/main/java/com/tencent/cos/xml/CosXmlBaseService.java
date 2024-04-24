@@ -413,6 +413,13 @@ public class CosXmlBaseService implements BaseCosXml {
      */
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> T2 execute(T1 cosXmlRequest, T2 cosXmlResult)
             throws CosXmlClientException, CosXmlServiceException {
+        return this.execute(cosXmlRequest, cosXmlResult, false);
+    }
+    /**
+     * 同步执行
+     */
+    protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> T2 execute(T1 cosXmlRequest, T2 cosXmlResult, boolean internal)
+            throws CosXmlClientException, CosXmlServiceException {
         try {
             if(TextUtils.isEmpty(cosXmlRequest.getRegion()) && config != null){
                 cosXmlRequest.setRegion(config.getRegion());
@@ -435,27 +442,30 @@ public class CosXmlBaseService implements BaseCosXml {
 
             HttpResult<T2> httpResult = httpTask.executeNow();
 
-            CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest);
-
+            CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest, internal);
             logRequestMetrics(cosXmlRequest);
 
             return httpResult != null ? httpResult.content() : null;
         } catch (QCloudServiceException e) {
-            throw CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, e);
+            throw CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, e, internal);
         } catch (QCloudClientException e) {
-            throw CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e);
+            throw CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e, internal);
         }
     }
 
+    protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> void schedule(final T1 cosXmlRequest, T2 cosXmlResult,
+                                                                                final CosXmlResultListener cosXmlResultListener) {
+        this.schedule(cosXmlRequest, cosXmlResult, cosXmlResultListener, false);
+    }
     /**
      * 异步执行
      */
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> void schedule(final T1 cosXmlRequest, T2 cosXmlResult,
-                                                                                final CosXmlResultListener cosXmlResultListener) {
+                                                                                final CosXmlResultListener cosXmlResultListener, boolean internal) {
         QCloudResultListener<HttpResult<T2>> qCloudResultListener = new QCloudResultListener<HttpResult<T2>>() {
             @Override
             public void onSuccess(HttpResult<T2> result) {
-                CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest);
+                CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest, internal);
                 logRequestMetrics(cosXmlRequest);
                 cosXmlResultListener.onSuccess(cosXmlRequest, result.content());
             }
@@ -464,10 +474,10 @@ public class CosXmlBaseService implements BaseCosXml {
             public void onFailure(QCloudClientException clientException, QCloudServiceException serviceException) {
                 logRequestMetrics(cosXmlRequest);
                 if (clientException != null) {
-                    CosXmlClientException xmlClientException = CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, clientException);
+                    CosXmlClientException xmlClientException = CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, clientException, internal);
                     cosXmlResultListener.onFail(cosXmlRequest, xmlClientException,null);
                 } else if (serviceException != null) {
-                    CosXmlServiceException xmlServiceException = CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, serviceException);
+                    CosXmlServiceException xmlServiceException = CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, serviceException, internal);
                     cosXmlResultListener.onFail(cosXmlRequest, null, xmlServiceException);
                 }
             }
@@ -515,7 +525,7 @@ public class CosXmlBaseService implements BaseCosXml {
             }
 
         } catch (QCloudClientException e) {
-            CosXmlClientException clientException = CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e);
+            CosXmlClientException clientException = CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e, internal);
             cosXmlResultListener.onFail(cosXmlRequest, clientException,null);
         }
     }
@@ -633,6 +643,13 @@ public class CosXmlBaseService implements BaseCosXml {
     @Override
     public void getObjectAsync(GetObjectRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetObjectResult(), cosXmlResultListener);
+    }
+
+    public GetObjectResult internalGetObject(GetObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetObjectResult(), true);
+    }
+    public void internalGetObjectAsync(GetObjectRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new GetObjectResult(), cosXmlResultListener, true);
     }
 
     /**
