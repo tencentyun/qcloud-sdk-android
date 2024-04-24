@@ -1,3 +1,7 @@
+## v5.9.27
+1. 完善cls日志上报逻辑（对齐各端）
+2. CosXmlService和网络client示例对应关系优化
+
 ## v5.9.26
 1. CosXmlService和网络client示例对应关系优化
 2. 上传续传分块拉取逻辑完善
