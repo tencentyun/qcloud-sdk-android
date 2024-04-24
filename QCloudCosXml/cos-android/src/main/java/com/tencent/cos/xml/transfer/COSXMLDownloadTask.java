@@ -143,7 +143,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 }
             }
         });
-        cosXmlService.getObjectAsync(getObjectRequest, new CosXmlResultListener() {
+        cosXmlService.internalGetObjectAsync(getObjectRequest, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 if(request != getObjectRequest){
