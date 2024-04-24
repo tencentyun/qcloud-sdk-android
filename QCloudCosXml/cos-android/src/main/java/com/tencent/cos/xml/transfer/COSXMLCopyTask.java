@@ -178,7 +178,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
 
         getHttpMetrics(copyObjectRequest, "CopyObjectRequest");
 
-        cosXmlService.copyObjectAsync(copyObjectRequest, new CosXmlResultListener() {
+        cosXmlService.internalCopyObjectAsync(copyObjectRequest, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 if(request != copyObjectRequest){
@@ -236,7 +236,6 @@ public final class COSXMLCopyTask extends COSXMLTask {
                     return;
                 }
                 if(IS_EXIT.get())return;
-                httpTaskMetrics = httpTaskMetrics.merge(request.getMetrics());
                 uploadId = ((InitMultipartUploadResult)result).initMultipartUpload.uploadId;
                 largeCopyStateListenerHandler.onInit();
             }
@@ -294,7 +293,6 @@ public final class COSXMLCopyTask extends COSXMLTask {
                     return;
                 }
                 if(IS_EXIT.get())return;
-                httpTaskMetrics = httpTaskMetrics.merge(request.getMetrics());
                 updateSlicePart((ListPartsResult)result);
                 largeCopyStateListenerHandler.onListParts();
             }
@@ -356,7 +354,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
                             return;
                         }
                         if(IS_EXIT.get())return;
-                        httpTaskMetrics = httpTaskMetrics.merge(request.getMetrics());
+                        httpTaskMetrics.merge(request.getMetrics());
                         copyPartStruct.eTag = ((UploadPartCopyResult)result).copyObject.eTag;
                         copyPartStruct.isAlreadyUpload = true;
                         synchronized (SYNC_UPLOAD_PART){
@@ -412,7 +410,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 IS_EXIT.set(true);
                 //BeaconService.getInstance().reportCopy(region);
                 //CosTrackService.getInstance().reportCopy(region);
-                request.attachMetrics(httpTaskMetrics.merge(request.getMetrics()));
+                request.attachMetrics(httpTaskMetrics);
                 CosTrackService.getInstance().reportCopyTaskSuccess(request);
                 largeCopyStateListenerHandler.onCompleted(request, result);
             }

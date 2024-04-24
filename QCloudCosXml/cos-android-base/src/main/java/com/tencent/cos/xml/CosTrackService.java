@@ -32,6 +32,9 @@ import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlRequest;
+import com.tencent.cos.xml.model.object.BasePutObjectRequest;
+import com.tencent.cos.xml.model.object.GetObjectBytesRequest;
+import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.ObjectRequest;
 import com.tencent.cos.xml.transfer.TransferTaskMetrics;
 import com.tencent.cos.xml.utils.ThrowableUtils;
@@ -231,21 +234,54 @@ public class CosTrackService {
      * @param request request
      */
     public void reportRequestSuccess(CosXmlRequest request) {
-        reportRequestSuccess(request, null);
+        reportRequestSuccess(request, false);
+    }
+    public void reportRequestSuccess(CosXmlRequest request, boolean internal) {
+        Map<String, String> extra = null;
+        if(request instanceof BasePutObjectRequest){
+            extra = Collections.singletonMap("request_name", "UploadTask");
+        } else if(request instanceof GetObjectRequest || request instanceof GetObjectBytesRequest){
+            extra = Collections.singletonMap("request_name", "DownloadTask");
+        } else if("CopyObjectRequest".equalsIgnoreCase(request.getClass().getSimpleName())){
+            extra = Collections.singletonMap("request_name", "CopyTask");
+        }
+        reportRequestSuccess(request, extra, internal);
     }
 
     /**
      * 上报base_service事件 ClientException
      */
     public CosXmlClientException reportRequestClientException(CosXmlRequest request, QCloudClientException clientException) {
-        return reportClientException(request, clientException, null);
+        return reportRequestClientException(request, clientException, false);
+    }
+    public CosXmlClientException reportRequestClientException(CosXmlRequest request, QCloudClientException clientException, boolean internal) {
+        Map<String, String> extra = null;
+        if(request instanceof BasePutObjectRequest){
+            extra = Collections.singletonMap("request_name", "UploadTask");
+        } else if(request instanceof GetObjectRequest || request instanceof GetObjectBytesRequest){
+            extra = Collections.singletonMap("request_name", "DownloadTask");
+        } else if("CopyObjectRequest".equalsIgnoreCase(request.getClass().getSimpleName())){
+            extra = Collections.singletonMap("request_name", "CopyTask");
+        }
+        return reportClientException(request, clientException, extra, internal);
     }
 
     /**
      * 上报base_service事件 ServiceException
      */
     public CosXmlServiceException reportRequestServiceException(CosXmlRequest request, QCloudServiceException serviceException) {
-        return reportServiceException(request, serviceException, null);
+        return reportRequestServiceException(request, serviceException, false);
+    }
+    public CosXmlServiceException reportRequestServiceException(CosXmlRequest request, QCloudServiceException serviceException, boolean internal) {
+        Map<String, String> extra = null;
+        if(request instanceof BasePutObjectRequest){
+            extra = Collections.singletonMap("request_name", "UploadTask");
+        } else if(request instanceof GetObjectRequest || request instanceof GetObjectBytesRequest){
+            extra = Collections.singletonMap("request_name", "DownloadTask");
+        } else if("CopyObjectRequest".equalsIgnoreCase(request.getClass().getSimpleName())){
+            extra = Collections.singletonMap("request_name", "CopyTask");
+        }
+        return reportServiceException(request, serviceException, extra, internal);
     }
 
     /**
@@ -256,7 +292,7 @@ public class CosTrackService {
     public void reportUploadTaskSuccess(CosXmlRequest request) {
         // 只需要一个 PutObjectRequest 壳，带上 HttpTaskMetrics 信息
         reportRequestSuccess(request,
-                Collections.singletonMap("request_name", "UploadTask"));
+                Collections.singletonMap("request_name", "UploadTask"), false);
     }
 
     /**
@@ -264,7 +300,7 @@ public class CosTrackService {
      */
     public void reportUploadTaskClientException(CosXmlRequest request, QCloudClientException clientException) {
         reportClientException(request, clientException,
-                createTransferExtra("UploadTask", request));
+                createTransferExtra("UploadTask", request), false);
     }
 
     /**
@@ -272,7 +308,7 @@ public class CosTrackService {
      */
     public void reportUploadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException) {
         reportServiceException(request, serviceException,
-                createTransferExtra("UploadTask", request));
+                createTransferExtra("UploadTask", request), false);
     }
 
     /**
@@ -283,7 +319,7 @@ public class CosTrackService {
     public void reportDownloadTaskSuccess(CosXmlRequest request) {
         // 只需要一个 GetObjectRequest 壳，带上 HttpTaskMetrics 信息
         reportRequestSuccess(request,
-                Collections.singletonMap("request_name", "DownloadTask"));
+                Collections.singletonMap("request_name", "DownloadTask"), false);
     }
 
     /**
@@ -291,7 +327,7 @@ public class CosTrackService {
      */
     public void reportDownloadTaskClientException(CosXmlRequest request, QCloudClientException clientException) {
         reportClientException(request, clientException,
-                createTransferExtra("DownloadTask", request));
+                createTransferExtra("DownloadTask", request), false);
     }
 
     /**
@@ -299,7 +335,7 @@ public class CosTrackService {
      */
     public void reportDownloadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException) {
         reportServiceException(request, serviceException,
-                createTransferExtra("DownloadTask", request));
+                createTransferExtra("DownloadTask", request), false);
     }
 
     /**
@@ -310,7 +346,7 @@ public class CosTrackService {
     public void reportCopyTaskSuccess(CosXmlRequest request) {
         // 只需要一个 CopyObjectRequest 壳，带上 HttpTaskMetrics 信息
         reportRequestSuccess(request,
-                Collections.singletonMap("request_name", "CopyTask"));
+                Collections.singletonMap("request_name", "CopyTask"), false);
     }
 
     /**
@@ -318,7 +354,7 @@ public class CosTrackService {
      */
     public void reportCopyTaskClientException(CosXmlRequest request, CosXmlClientException clientException) {
         reportClientException(request, clientException,
-                createTransferExtra("CopyTask", request));
+                createTransferExtra("CopyTask", request), false);
     }
 
     /**
@@ -326,13 +362,13 @@ public class CosTrackService {
      */
     public void reportCopyTaskServiceException(CosXmlRequest request, CosXmlServiceException serviceException) {
         reportServiceException(request, serviceException,
-                createTransferExtra("CopyTask", request));
+                createTransferExtra("CopyTask", request), false);
     }
 
     /**
      * 单个请求，整体任务 成功
      */
-    private void reportRequestSuccess(CosXmlRequest request, @Nullable Map<String, String> extra) {
+    private void reportRequestSuccess(CosXmlRequest request, @Nullable Map<String, String> extra, boolean internal) {
         try {
             HttpTaskMetrics taskMetrics = request.getMetrics();
 
@@ -340,8 +376,6 @@ public class CosTrackService {
             Map<String, String> params = parseCosXmlRequestParams(request);
             // 添加基础参数
             params.putAll(getCommonParams());
-            // 添加性能参数
-            params.putAll(parseHttpTaskMetricsParams(taskMetrics));
             // 添加服务名称
             if (extra == null || !extra.containsKey("request_name")) {
                 params.put("request_name", request.getClass().getSimpleName());
@@ -352,7 +386,11 @@ public class CosTrackService {
             if (extra != null) {
                 params.putAll(extra);
             }
-            QCloudTrackService.getInstance().report(EVENT_CODE_QCLOUD_TRACK_COS_SDK, params);
+            // 添加性能参数
+            params.putAll(parseHttpTaskMetricsParams(taskMetrics, params.get("request_name")));
+            if(!internal) {
+                QCloudTrackService.getInstance().report(EVENT_CODE_QCLOUD_TRACK_COS_SDK, params);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -361,7 +399,7 @@ public class CosTrackService {
     /**
      * 上报客户端异常 单个请求，整体任务
      */
-    private CosXmlClientException reportClientException(CosXmlRequest request, QCloudClientException clientException, @Nullable Map<String, String> extra) {
+    private CosXmlClientException reportClientException(CosXmlRequest request, QCloudClientException clientException, @Nullable Map<String, String> extra, boolean internal) {
         ReturnClientException returnClientException = getClientExceptionParams(clientException);
         try {
             if (isReport(returnClientException.exception)) {
@@ -373,8 +411,6 @@ public class CosTrackService {
                 params.putAll(getCommonParams());
                 // 添加错误信息
                 params.putAll(returnClientException.params);
-                // 添加性能参数
-                params.putAll(parseHttpTaskMetricsParams(taskMetrics));
                 // 添加服务名称
                 if (extra == null || !extra.containsKey("request_name")) {
                     params.put("request_name", request.getClass().getSimpleName());
@@ -386,7 +422,11 @@ public class CosTrackService {
                 if (extra != null) {
                     params.putAll(extra);
                 }
-                QCloudTrackService.getInstance().report(EVENT_CODE_QCLOUD_TRACK_COS_SDK, params);
+                // 添加性能参数
+                params.putAll(parseHttpTaskMetricsParams(taskMetrics, params.get("request_name")));
+                if(!internal) {
+                    QCloudTrackService.getInstance().report(EVENT_CODE_QCLOUD_TRACK_COS_SDK, params);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -397,7 +437,7 @@ public class CosTrackService {
     /**
      * 上报服务端异常 单个请求，整体任务
      */
-    private CosXmlServiceException reportServiceException(CosXmlRequest request, QCloudServiceException serviceException, @Nullable Map<String, String> extra) {
+    private CosXmlServiceException reportServiceException(CosXmlRequest request, QCloudServiceException serviceException, @Nullable Map<String, String> extra, boolean internal) {
         ReturnServiceException returnServiceException = getServiceExceptionParams(serviceException);
         try {
             if (isReport(returnServiceException.exception)) {
@@ -407,8 +447,6 @@ public class CosTrackService {
                 params.putAll(getCommonParams());
                 // 添加错误信息
                 params.putAll(returnServiceException.params);
-                // 添加性能参数
-                params.putAll(parseHttpTaskMetricsParams(request.getMetrics()));
                 // 添加服务名称
                 if (extra == null || !extra.containsKey("request_name")) {
                     params.put("request_name", request.getClass().getSimpleName());
@@ -420,7 +458,11 @@ public class CosTrackService {
                 if (extra != null) {
                     params.putAll(extra);
                 }
-                QCloudTrackService.getInstance().report(EVENT_CODE_QCLOUD_TRACK_COS_SDK, params);
+                // 添加性能参数
+                params.putAll(parseHttpTaskMetricsParams(request.getMetrics(), params.get("request_name")));
+                if(!internal) {
+                    QCloudTrackService.getInstance().report(EVENT_CODE_QCLOUD_TRACK_COS_SDK, params);
+                }
             }
         } catch (Exception e){
             e.printStackTrace();
@@ -431,7 +473,7 @@ public class CosTrackService {
     /**
      * 获取http性能数据字段
      */
-    private Map<String, String> parseHttpTaskMetricsParams(@Nullable HttpTaskMetrics taskMetrics) {
+    private Map<String, String> parseHttpTaskMetricsParams(@Nullable HttpTaskMetrics taskMetrics, String requestName) {
         Map<String, String> params = new HashMap<>();
 
         if (taskMetrics == null) {
@@ -449,13 +491,23 @@ public class CosTrackService {
         params.put("http_write_header", String.valueOf(taskMetrics.writeRequestHeaderTookTime()));
         params.put("http_write_body", String.valueOf(taskMetrics.writeRequestBodyTookTime()));
         params.put("http_full_time", String.valueOf(taskMetrics.fullTaskTookTime()));
-        params.put("http_size", String.valueOf(taskMetrics.requestBodyByteCount() + taskMetrics.responseBodyByteCount()));
+        if("UploadTask".equalsIgnoreCase(requestName) || "CopyTask".equalsIgnoreCase(requestName)){
+            params.put("http_size", String.valueOf(taskMetrics.requestBodyByteCount()));
+            // 速度 每秒传输的数据大小 kb为单位
+            params.put("http_speed", String.valueOf((taskMetrics.requestBodyByteCount()/1024d) / taskMetrics.httpTaskFullTime()));
+        } else if("DownloadTask".equalsIgnoreCase(requestName)){
+            params.put("http_size", String.valueOf(taskMetrics.responseBodyByteCount()));
+            // 速度 每秒传输的数据大小 kb为单位
+            params.put("http_speed", String.valueOf((taskMetrics.responseBodyByteCount()/1024d) / taskMetrics.httpTaskFullTime()));
+        } else {
+            params.put("http_size", String.valueOf(taskMetrics.requestBodyByteCount() + taskMetrics.responseBodyByteCount()));
+            // 速度 每秒传输的数据大小 kb为单位
+            params.put("http_speed", String.valueOf(((taskMetrics.requestBodyByteCount() + taskMetrics.responseBodyByteCount())/1024d) / taskMetrics.httpTaskFullTime()));
+        }
         params.put("http_retry_times", String.valueOf(taskMetrics.getRetryCount()));
         params.put("http_domain", taskMetrics.getDomainName() != null ? taskMetrics.getDomainName() : "null");
         params.put("http_connect_ip", taskMetrics.getConnectAddress() != null ? taskMetrics.getConnectAddress().getHostAddress() : "null");
         params.put("http_dns_ips", taskMetrics.getRemoteAddress() != null ? taskMetrics.getRemoteAddress().toString() : "null");
-        // 速度 每秒传输的数据大小 kb为单位
-        params.put("http_speed", String.valueOf(((taskMetrics.requestBodyByteCount() + taskMetrics.responseBodyByteCount())/1024d) / taskMetrics.httpTaskFullTime()));
         return params;
     }
 

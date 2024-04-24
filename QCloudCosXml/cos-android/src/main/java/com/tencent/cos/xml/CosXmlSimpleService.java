@@ -139,6 +139,17 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
         schedule(request, putObjectResult, cosXmlResultListener);
     }
 
+    public PutObjectResult internalPutObject(PutObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
+        PutObjectResult putObjectResult = new PutObjectResult();
+        putObjectResult.accessUrl = getAccessUrl(request);
+        return execute(request, putObjectResult, true);
+    }
+    public void internalPutObjectAsync(PutObjectRequest request, CosXmlResultListener cosXmlResultListener) {
+        PutObjectResult putObjectResult = new PutObjectResult();
+        putObjectResult.accessUrl = getAccessUrl(request);
+        schedule(request, putObjectResult, cosXmlResultListener, true);
+    }
+
     /**
      * <p>
      * 以网页表单的形式上传文件的同步方法.&nbsp;
@@ -231,6 +242,13 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     @Override
     public void copyObjectAsync(CopyObjectRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new CopyObjectResult(), cosXmlResultListener);
+    }
+
+    public CopyObjectResult internalCopyObject(CopyObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new CopyObjectResult(), true);
+    }
+    public void internalCopyObjectAsync(CopyObjectRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new CopyObjectResult(), cosXmlResultListener, true);
     }
 
     /**

@@ -367,7 +367,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
             putObjectRequest.setPriorityLow();
         }
 
-        cosXmlService.putObjectAsync(putObjectRequest, new CosXmlResultListener() {
+        cosXmlService.internalPutObjectAsync(putObjectRequest, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 if(request != putObjectRequest){
