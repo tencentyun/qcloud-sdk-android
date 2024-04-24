@@ -57,6 +57,7 @@ public class OkHttpClientImpl extends NetworkClient {
             logInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
         }
         OkHttpClient.Builder builder = b.mBuilder;
+        builder.interceptors().clear();
         RedirectInterceptor redirectInterceptor = new RedirectInterceptor();
         okHttpClient = builder
                 .followRedirects(false)
