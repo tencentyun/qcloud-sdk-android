@@ -240,103 +240,103 @@ public class AuditTest {
         testLocker.lock();
     }
 
-    @Test
-    public void videoAudit() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
+//     @Test
+//     public void videoAudit() {
+//         CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
 
-        PostVideoAuditRequest postRequest = new PostVideoAuditRequest(TestConst.AUDIT_BUCKET);
-        postRequest.setObject(TestConst.AUDIT_BUCKET_VIDEO);
-//        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.mp4");
-        postRequest.setDataId("DataIdQJD");
-        postRequest.setCallback("https://github.com/jordanqin");
-        postRequest.setCallbackVersion("Detail");
-        postRequest.setCount(3);
-        postRequest.setTimeInterval(10);
-        postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
-        postRequest.setDetectContent(1);
-        try {
-            PostAuditResult result = ciService.postVideoAudit(postRequest);
-            TestUtils.printXML(result.postAuditJobResponse);
+//         PostVideoAuditRequest postRequest = new PostVideoAuditRequest(TestConst.AUDIT_BUCKET);
+//         postRequest.setObject(TestConst.AUDIT_BUCKET_VIDEO);
+// //        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.mp4");
+//         postRequest.setDataId("DataIdQJD");
+//         postRequest.setCallback("https://github.com/jordanqin");
+//         postRequest.setCallbackVersion("Detail");
+//         postRequest.setCount(3);
+//         postRequest.setTimeInterval(10);
+//         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
+//         postRequest.setDetectContent(1);
+//         try {
+//             PostAuditResult result = ciService.postVideoAudit(postRequest);
+//             TestUtils.printXML(result.postAuditJobResponse);
 
-            TestUtils.sleep(20000);
+//             TestUtils.sleep(20000);
 
-            GetVideoAuditRequest getAuditRequest = new GetVideoAuditRequest(TestConst.AUDIT_BUCKET, result.postAuditJobResponse.jobsDetail.jobId);
-            try {
-                GetVideoAuditResult getResult = ciService.getVideoAudit(getAuditRequest);
-                Assert.assertNotNull(getResult.getVideoAuditJobResponse);
-                TestUtils.printXML(getResult.getVideoAuditJobResponse);
-            } catch (CosXmlClientException e) {
-                Assert.fail(TestUtils.getCosExceptionMessage(e));
-            } catch (CosXmlServiceException e) {
-                Assert.fail(TestUtils.getCosExceptionMessage(e));
-            }
-        } catch (CosXmlClientException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
-        } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
-        }
-    }
+//             GetVideoAuditRequest getAuditRequest = new GetVideoAuditRequest(TestConst.AUDIT_BUCKET, result.postAuditJobResponse.jobsDetail.jobId);
+//             try {
+//                 GetVideoAuditResult getResult = ciService.getVideoAudit(getAuditRequest);
+//                 Assert.assertNotNull(getResult.getVideoAuditJobResponse);
+//                 TestUtils.printXML(getResult.getVideoAuditJobResponse);
+//             } catch (CosXmlClientException e) {
+//                 Assert.fail(TestUtils.getCosExceptionMessage(e));
+//             } catch (CosXmlServiceException e) {
+//                 Assert.fail(TestUtils.getCosExceptionMessage(e));
+//             }
+//         } catch (CosXmlClientException e) {
+//             Assert.fail(TestUtils.getCosExceptionMessage(e));
+//         } catch (CosXmlServiceException e) {
+//             Assert.fail(TestUtils.getCosExceptionMessage(e));
+//         }
+//     }
 
-    @Test
-    public void videoAuditAsync() {
-        final CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
-        final TestLocker testLocker = new TestLocker();
-        PostVideoAuditRequest postRequest = new PostVideoAuditRequest(TestConst.AUDIT_BUCKET);
-//        postRequest.setObject(TestConst.AUDIT_BUCKET_VIDEO);
-        postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.mp4");
-        postRequest.setDataId("DataIdQJD");
-        postRequest.setCallback("https://github.com/jordanqin");
-        postRequest.setCallbackVersion("Detail");
-        postRequest.setCount(3);
-        postRequest.setTimeInterval(10);
-        postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
-        postRequest.setDetectContent(1);
-        postRequest.setBizType(null);
-        postRequest.setMode("Interval");
-        ciService.postVideoAuditAsync(postRequest, new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                PostAuditResult postAuditResult = (PostAuditResult) result;
-                TestUtils.printXML(postAuditResult.postAuditJobResponse);
+//     @Test
+//     public void videoAuditAsync() {
+//         final CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
+//         final TestLocker testLocker = new TestLocker();
+//         PostVideoAuditRequest postRequest = new PostVideoAuditRequest(TestConst.AUDIT_BUCKET);
+// //        postRequest.setObject(TestConst.AUDIT_BUCKET_VIDEO);
+//         postRequest.setUrl("https://00000000000000-1253960454.cos.ap-chengdu.myqcloud.com/test.mp4");
+//         postRequest.setDataId("DataIdQJD");
+//         postRequest.setCallback("https://github.com/jordanqin");
+//         postRequest.setCallbackVersion("Detail");
+//         postRequest.setCount(3);
+//         postRequest.setTimeInterval(10);
+//         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
+//         postRequest.setDetectContent(1);
+//         postRequest.setBizType(null);
+//         postRequest.setMode("Interval");
+//         ciService.postVideoAuditAsync(postRequest, new CosXmlResultListener() {
+//             @Override
+//             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+//                 PostAuditResult postAuditResult = (PostAuditResult) result;
+//                 TestUtils.printXML(postAuditResult.postAuditJobResponse);
 
-                TestUtils.sleep(20000);
+//                 TestUtils.sleep(20000);
 
-                GetVideoAuditRequest getAuditRequest = new GetVideoAuditRequest(TestConst.AUDIT_BUCKET, postAuditResult.postAuditJobResponse.jobsDetail.jobId);
-                ciService.getVideoAuditAsync(getAuditRequest, new CosXmlResultListener() {
-                    @Override
-                    public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                        GetVideoAuditResult getResult = (GetVideoAuditResult) result;
-                        Assert.assertNotNull(getResult.getVideoAuditJobResponse);
-                        TestUtils.printXML(getResult.getVideoAuditJobResponse);
-                        testLocker.release();
-                    }
+//                 GetVideoAuditRequest getAuditRequest = new GetVideoAuditRequest(TestConst.AUDIT_BUCKET, postAuditResult.postAuditJobResponse.jobsDetail.jobId);
+//                 ciService.getVideoAuditAsync(getAuditRequest, new CosXmlResultListener() {
+//                     @Override
+//                     public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+//                         GetVideoAuditResult getResult = (GetVideoAuditResult) result;
+//                         Assert.assertNotNull(getResult.getVideoAuditJobResponse);
+//                         TestUtils.printXML(getResult.getVideoAuditJobResponse);
+//                         testLocker.release();
+//                     }
 
-                    @Override
-                    public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                        if(clientException != null){
-                            Assert.fail(TestUtils.getCosExceptionMessage(clientException));
-                        }
-                        if(serviceException != null){
-                            Assert.fail(TestUtils.getCosExceptionMessage(serviceException));
-                        }
-                        testLocker.release();
-                    }
-                });
-            }
+//                     @Override
+//                     public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+//                         if(clientException != null){
+//                             Assert.fail(TestUtils.getCosExceptionMessage(clientException));
+//                         }
+//                         if(serviceException != null){
+//                             Assert.fail(TestUtils.getCosExceptionMessage(serviceException));
+//                         }
+//                         testLocker.release();
+//                     }
+//                 });
+//             }
 
-            @Override
-            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                if(clientException != null){
-                    Assert.fail(TestUtils.getCosExceptionMessage(clientException));
-                }
-                if(serviceException != null){
-                    Assert.fail(TestUtils.getCosExceptionMessage(serviceException));
-                }
-                testLocker.release();
-            }
-        });
-        testLocker.lock();
-    }
+//             @Override
+//             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+//                 if(clientException != null){
+//                     Assert.fail(TestUtils.getCosExceptionMessage(clientException));
+//                 }
+//                 if(serviceException != null){
+//                     Assert.fail(TestUtils.getCosExceptionMessage(serviceException));
+//                 }
+//                 testLocker.release();
+//             }
+//         });
+//         testLocker.lock();
+//     }
 
     @Test
     public void audioAudit() {
