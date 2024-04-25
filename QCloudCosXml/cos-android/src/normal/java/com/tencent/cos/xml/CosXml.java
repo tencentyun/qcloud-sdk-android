@@ -126,6 +126,10 @@ import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlRequest;
 import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlResult;
 import com.tencent.cos.xml.model.ci.PreviewDocumentRequest;
 import com.tencent.cos.xml.model.ci.PreviewDocumentResult;
+import com.tencent.cos.xml.model.ci.media.GetPrivateM3U8Request;
+import com.tencent.cos.xml.model.ci.media.GetPrivateM3U8Result;
+import com.tencent.cos.xml.model.ci.media.GetWorkflowDetailRequest;
+import com.tencent.cos.xml.model.ci.media.GetWorkflowDetailResult;
 import com.tencent.cos.xml.model.object.AppendObjectRequest;
 import com.tencent.cos.xml.model.object.AppendObjectResult;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
@@ -218,7 +222,7 @@ public interface CosXml extends SimpleCosXml {
      * <p>
      * 追加上传对象的同步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/31929">https://cloud.tencent.com/document/product/436/31929.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/7741">https://cloud.tencent.com/document/product/436/7741.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E6.9F.A5.E8.AF.A2.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99.E9.85.8D.E7.BD.AE">追加上传对象示例</a>
@@ -234,7 +238,7 @@ public interface CosXml extends SimpleCosXml {
      * <p>
      * 追加上传对象的异步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/31929">https://cloud.tencent.com/document/product/436/31929.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/7741">https://cloud.tencent.com/document/product/436/7741.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E6.9F.A5.E8.AF.A2.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99.E9.85.8D.E7.BD.AE">追加上传对象示例</a>
@@ -701,8 +705,6 @@ public interface CosXml extends SimpleCosXml {
 //    void headObjectAsync(HeadObjectRequest request, final CosXmlResultListener cosXmlResultListener);
 //
 
-    //todo jordan 补充SDK示例url
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41912#.E8.AE.BE.E7.BD.AE.E5.AF.B9.E8.B1.A1-acl">获取对象标签示例</a>
     /**
      * <p>
      * 获取对象标签的同步方法.&nbsp;
@@ -718,8 +720,6 @@ public interface CosXml extends SimpleCosXml {
      */
     GetObjectTaggingResult getObjectTagging(GetObjectTaggingRequest request)throws CosXmlClientException, CosXmlServiceException;
 
-    //todo jordan 补充SDK示例url
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41912#.E8.AE.BE.E7.BD.AE.E5.AF.B9.E8.B1.A1-acl">获取对象标签示例</a>
     /**
      * <p>
      * 获取对象标签的异步方法.&nbsp;
@@ -734,8 +734,6 @@ public interface CosXml extends SimpleCosXml {
     void getObjectTaggingAsync(GetObjectTaggingRequest request, CosXmlResultListener cosXmlResultListener);
 
 
-    //todo jordan 修改示例url
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41912#.E8.AE.BE.E7.BD.AE.E5.AF.B9.E8.B1.A1-acl">设置对象标签示例</a>
     /**
      * <p>
      * 设置对象标签的同步方法.&nbsp;
@@ -752,8 +750,6 @@ public interface CosXml extends SimpleCosXml {
     PutObjectTaggingResult putObjectTagging(PutObjectTaggingRequest request)throws CosXmlClientException, CosXmlServiceException;
 
 
-    //todo jordan 修改示例url
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41912#.E8.AE.BE.E7.BD.AE.E5.AF.B9.E8.B1.A1-acl">设置对象标签示例</a>
     /**
      * <p>
      * 设置对象标签的异步方法.&nbsp;
@@ -768,8 +764,6 @@ public interface CosXml extends SimpleCosXml {
     void putObjectTaggingAsync(PutObjectTaggingRequest request, CosXmlResultListener cosXmlResultListener);
 
 
-    //todo jordan 修改示例url
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41912#.E8.AE.BE.E7.BD.AE.E5.AF.B9.E8.B1.A1-acl">删除对象标签示例</a>
     /**
      * <p>
      * 删除对象标签的同步方法.&nbsp;
@@ -786,8 +780,6 @@ public interface CosXml extends SimpleCosXml {
     DeleteObjectTaggingResult deleteObjectTagging(DeleteObjectTaggingRequest request)throws CosXmlClientException, CosXmlServiceException;
 
 
-    //todo jordan 修改示例url
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41912#.E8.AE.BE.E7.BD.AE.E5.AF.B9.E8.B1.A1-acl">删除对象标签示例</a>
     /**
      * <p>
      * 删除对象标签的异步方法.&nbsp;
@@ -1439,8 +1431,6 @@ public interface CosXml extends SimpleCosXml {
 
     void putBucketAccelerateAsync(PutBucketAccelerateRequest request, CosXmlResultListener cosXmlResultListener);
 
-    //todo jordan 缺少该示例文档
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41904#.E6.9F.A5.E8.AF.A2.E7.94.9F.E5.91.BD.E5.91.A8.E6.9C.9F">获取存储桶地域示例</a>
     /**
      * <p>
      * 获取存储桶（Bucket) 所在的地域信息的同步方法.&nbsp;
@@ -1458,8 +1448,6 @@ public interface CosXml extends SimpleCosXml {
     GetBucketLocationResult getBucketLocation(GetBucketLocationRequest request) throws CosXmlClientException, CosXmlServiceException;
 
 
-    //todo jordan 缺少该示例文档
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41904#.E6.9F.A5.E8.AF.A2.E7.94.9F.E5.91.BD.E5.91.A8.E6.9C.9F">获取存储桶地域示例</a>
     /**
      * <p>
      * 获取存储桶（Bucket) 所在的地域信息的异步方法.&nbsp;
@@ -1731,8 +1719,6 @@ public interface CosXml extends SimpleCosXml {
      */
     void deleteBucketReplicationAsync(DeleteBucketReplicationRequest request, CosXmlResultListener cosXmlResultListener);
 
-    //todo jordan 需要补充此示例吗？ 改方法在SDK中废弃了吗?
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41902#.E5.88.A0.E9.99.A4.E8.B7.A8.E5.9C.B0.E5.9F.9F.E5.A4.8D.E5.88.B6">获取存储桶对象版本信息示例</a>
     /**
      * <p>
      * 获取存储桶（Bucket）所有或者部分对象的版本信息的同步方法.&nbsp;
@@ -1750,8 +1736,6 @@ public interface CosXml extends SimpleCosXml {
     ListBucketVersionsResult listBucketVersions(ListBucketVersionsRequest request) throws CosXmlClientException, CosXmlServiceException;
 
 
-    //todo jordan 需要补充此示例吗？ 改方法在SDK中废弃了吗?
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41902#.E5.88.A0.E9.99.A4.E8.B7.A8.E5.9C.B0.E5.9F.9F.E5.A4.8D.E5.88.B6">获取存储桶对象版本信息示例</a>
     /**
      * <p>
      * 获取存储桶（Bucket）所有或者部分对象的版本信息的异步方法.&nbsp;
@@ -2117,8 +2101,6 @@ public interface CosXml extends SimpleCosXml {
      */
     void deleteBucketInventoryAsync(DeleteBucketInventoryRequest request, CosXmlResultListener cosXmlResultListener);
 
-    //todo jordan 无此示例 待补充
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41911#.E5.88.A0.E9.99.A4.E6.B8.85.E5.8D.95.E4.BB.BB.E5.8A.A1">查询所有清单任务示例</a>
     /**
      * <p>
      * 查询存储桶中所有清单任务的同步方法.&nbsp;
@@ -2135,8 +2117,6 @@ public interface CosXml extends SimpleCosXml {
     ListBucketInventoryResult listBucketInventory(ListBucketInventoryRequest request) throws CosXmlClientException, CosXmlServiceException;
 
 
-    //todo jordan 无此示例 待补充
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41911#.E5.88.A0.E9.99.A4.E6.B8.85.E5.8D.95.E4.BB.BB.E5.8A.A1">查询所有清单任务示例</a>
     /**
      * <p>
      * 查询存储桶中所有清单任务的异步方法.&nbsp;
@@ -2372,8 +2352,6 @@ public interface CosXml extends SimpleCosXml {
      */
     void deleteBucketPolicyAsync(DeleteBucketPolicyRequest request,  CosXmlResultListener cosXmlResultListener);
 
-    //todo jordan 缺少示例
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">结构化查询对象示例</a>
     /**
      * <p>
      * 使用结构化查询语句从指定对象（CSV 格式或者 JSON 格式）中检索内容的同步方法.&nbsp;
@@ -2388,8 +2366,6 @@ public interface CosXml extends SimpleCosXml {
     SelectObjectContentResult selectObjectContent(SelectObjectContentRequest request) throws CosXmlClientException, CosXmlServiceException;
 
 
-    //todo jordan 缺少示例
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">结构化查询对象示例</a>
     /**
      * <p>
      * 使用结构化查询语句从指定对象（CSV 格式或者 JSON 格式）中检索内容的异步方法.&nbsp;
@@ -2401,8 +2377,6 @@ public interface CosXml extends SimpleCosXml {
      */
     void selectObjectContentAsync(SelectObjectContentRequest request, CosXmlResultListener cosXmlResultListener);
 
-    //todo jordan 缺少示例
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">获取所有对象及历史版本示例</a>
     /**
      * <p>
      * 拉取存储桶内的所有对象及其历史版本信息的同步方法.&nbsp;
@@ -2418,8 +2392,6 @@ public interface CosXml extends SimpleCosXml {
      */
     GetBucketObjectVersionsResult getBucketObjectVersions(GetBucketObjectVersionsRequest request) throws CosXmlClientException, CosXmlServiceException;
 
-    //todo jordan 缺少示例
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">获取所有对象及历史版本示例</a>
     /**
      * <p>
      * 拉取存储桶内的所有对象及其历史版本信息的异步方法.&nbsp;
@@ -2433,8 +2405,6 @@ public interface CosXml extends SimpleCosXml {
      */
     void getBucketObjectVersionsAsync(GetBucketObjectVersionsRequest request, CosXmlResultListener cosXmlResultListener);
 
-    //todo rickenwang 缺少示例和 API 接口
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">获取所有对象及历史版本示例</a>
     /**
      * <p>
      * 启用存储桶智能分层存储配置能力的同步方法.&nbsp;
@@ -2450,8 +2420,6 @@ public interface CosXml extends SimpleCosXml {
      */
     PutBucketIntelligentTieringResult putBucketIntelligentTiering(PutBucketIntelligentTieringRequest request) throws CosXmlClientException, CosXmlServiceException;
 
-    //todo rickenwang 缺少示例和 API 接口
-    //SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41910#.E6.9F.A5.E8.AF.A2.E8.87.AA.E5.AE.9A.E4.B9.89.E5.9F.9F.E5.90.8D">获取所有对象及历史版本示例</a>
     /**
      * <p>
      * 启用存储桶智能分层存储配置能力的异步方法.&nbsp;
@@ -2609,10 +2577,10 @@ public interface CosXml extends SimpleCosXml {
      * <p>
      * 获取媒体文件信息的同步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/31929">https://cloud.tencent.com/document/product/436/31929.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/55672">https://cloud.tencent.com/document/product/436/55672.</a>
      * <br>
      * <p>
-     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E6.9F.A5.E8.AF.A2.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99.E9.85.8D.E7.BD.AE">获取媒体文件信息的示例</a>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/64879#.E6.9F.A5.E8.AF.A2.E6.96.87.E4.BB.B6.E4.BF.A1.E6.81.AF">获取媒体文件信息的示例</a>
      *
      * @param request 获取媒体文件信息的请求 {@link GetMediaInfoRequest}
      * @return 获取媒体文件信息的返回结果 {@link GetMediaInfoResult}
@@ -2625,10 +2593,10 @@ public interface CosXml extends SimpleCosXml {
      * <p>
      * 获取媒体文件信息的异步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/31929">https://cloud.tencent.com/document/product/436/31929.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/55672">https://cloud.tencent.com/document/product/436/55672.</a>
      * <br>
      * <p>
-     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E6.9F.A5.E8.AF.A2.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99.E9.85.8D.E7.BD.AE">获取媒体文件信息的示例</a>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/64879#.E6.9F.A5.E8.AF.A2.E6.96.87.E4.BB.B6.E4.BF.A1.E6.81.AF">获取媒体文件信息的示例</a>
      *
      * @param request 获取媒体文件信息的请求 {@link GetMediaInfoRequest}
      * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
@@ -2639,10 +2607,10 @@ public interface CosXml extends SimpleCosXml {
      * <p>
      * 查询已经开通媒体处理功能的存储桶的同步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/31929">https://cloud.tencent.com/document/product/436/31929.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/48988">https://cloud.tencent.com/document/product/436/48988.</a>
      * <br>
      * <p>
-     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E6.9F.A5.E8.AF.A2.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99.E9.85.8D.E7.BD.AE">查询已经开通媒体处理功能存储桶的示例</a>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/64878#.E6.9F.A5.E8.AF.A2.E5.AA.92.E4.BD.93.E5.A4.84.E7.90.86.E5.BC.80.E9.80.9A.E6.83.85.E5.86.B5">查询已经开通媒体处理功能存储桶的示例</a>
      *
      * @param request 获取存储桶防盗链配置的请求 {@link GetDescribeMediaBucketsRequest}
      * @return 获取存储桶防盗链配置的返回结果 {@link GetDescribeMediaBucketsResult}
@@ -2655,10 +2623,10 @@ public interface CosXml extends SimpleCosXml {
      * <p>
      * 查询已经开通媒体处理功能的存储桶的异步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/31929">https://cloud.tencent.com/document/product/436/31929.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/48988">https://cloud.tencent.com/document/product/436/48988.</a>
      * <br>
      * <p>
-     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E6.9F.A5.E8.AF.A2.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99.E9.85.8D.E7.BD.AE">查询已经开通媒体处理功能存储桶的示例</a>
+     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/64878#.E6.9F.A5.E8.AF.A2.E5.AA.92.E4.BD.93.E5.A4.84.E7.90.86.E5.BC.80.E9.80.9A.E6.83.85.E5.86.B5">查询已经开通媒体处理功能存储桶的示例</a>
      *
      * @param request 查询已经开通媒体处理功能的存储桶的请求 {@link GetDescribeMediaBucketsRequest}
      * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
@@ -2828,4 +2796,53 @@ public interface CosXml extends SimpleCosXml {
      * @param booleanListener 结果回调函数
      */
     void updateObjectMetaDataAsync(String bucketName, String objectName, COSMetaData metaData, final CosXmlBooleanListener booleanListener);
+
+    /**
+     * <p>
+     * GetPrivateM3U8 接口用于获取私有 M3U8 ts 资源的下载授权。（此方式通过对象存储转发请求至数据万象）的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/63740">https://cloud.tencent.com/document/product/436/63740</a>
+     *
+     * @param request GetPrivateM3U8 接口用于获取私有 M3U8 ts 资源的下载授权。（此方式通过对象存储转发请求至数据万象）请求 {@link GetPrivateM3U8Request}
+     * @return GetPrivateM3U8 接口用于获取私有 M3U8 ts 资源的下载授权。（此方式通过对象存储转发请求至数据万象）返回结果 {@link GetPrivateM3U8Result}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetPrivateM3U8Result getPrivateM3U8(GetPrivateM3U8Request request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * GetPrivateM3U8 接口用于获取私有 M3U8 ts 资源的下载授权。（此方式通过对象存储转发请求至数据万象）的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/63740">https://cloud.tencent.com/document/product/436/63740</a>
+     *
+     * @param request GetPrivateM3U8 接口用于获取私有 M3U8 ts 资源的下载授权。（此方式通过对象存储转发请求至数据万象）请求 {@link GetPrivateM3U8Request}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void getPrivateM3U8Async(GetPrivateM3U8Request request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 获取工作流实例详情的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/80044">https://cloud.tencent.com/document/product/460/80044</a>
+     *
+     * @param request 获取工作流实例详情请求 {@link GetWorkflowDetailRequest}
+     * @return 获取工作流实例详情返回结果 {@link GetWorkflowDetailResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetWorkflowDetailResult getWorkflowDetail(GetWorkflowDetailRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 获取工作流实例详情的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/80044">https://cloud.tencent.com/document/product/460/80044</a>
+     *
+     * @param request 获取工作流实例详情请求 {@link GetWorkflowDetailRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void getWorkflowDetailAsync(GetWorkflowDetailRequest request, CosXmlResultListener cosXmlResultListener);
+
 }

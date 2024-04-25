@@ -30,7 +30,7 @@ import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.COSACL;
 import com.tencent.cos.xml.common.COSStorageClass;
@@ -503,10 +503,10 @@ public class SimpleOtherObjectTest {
     }
 
     @Test
-    public void testBeaconReportError() {
+    public void testReportError() {
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
         try {
-            BeaconService.getInstance().reportError("UT_Test", new IllegalStateException());
+            CosTrackService.getInstance().reportError("UT_Test", new IllegalStateException());
             Assert.assertTrue(true);
         } catch (Exception e){
             Assert.fail(e.getMessage());
@@ -514,7 +514,7 @@ public class SimpleOtherObjectTest {
     }
 
     @Test
-    public void testBeaconFlatInetAddressList() {
+    public void testFlatInetAddressList() {
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
         String[] ipAddress = new String[]{"10.1.1.1", "10.1.1.2"};
         try {

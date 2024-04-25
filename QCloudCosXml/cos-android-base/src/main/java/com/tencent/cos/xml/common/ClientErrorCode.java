@@ -56,7 +56,7 @@ public enum ClientErrorCode {
     ETAG_NOT_FOUND(10004, "ETagNotFound"),
     
     /**
-     * 内部错误，例如 xml 格式数据解析失败
+     * 内部错误
      */
     INTERNAL_ERROR(20000, "InternalError"),
     /**
@@ -71,10 +71,6 @@ public enum ClientErrorCode {
      * 网络出现异常，例如网络不可用，DNS 解析失败等
      */
     POOR_NETWORK(20003, "NetworkError"),
-    /**
-     * 网络断开连接
-     */
-    NETWORK_NOT_CONNECTED(20004, "NetworkNotConnected"),
 
     /**
      * 用户已取消了请求

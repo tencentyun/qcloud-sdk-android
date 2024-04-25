@@ -28,9 +28,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import com.tencent.cos.xml.common.VersionInfo;
 import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
 import com.tencent.qcloud.core.task.RetryStrategy;
+import com.tencent.qcloud.core.task.TaskExecutors;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,59 +63,55 @@ public class CosXmlServiceConfig implements Parcelable {
     public static final String CI_REGION_HOST_FORMAT = "ci.${region}.myqcloud.com";
     public static final String PIC_HOST_FORMAT = "${bucket}.pic.${region}.myqcloud.com";
 
-    /**
-     * The default user agent header for cos android sdk clients.
-     */
-    public static final String DEFAULT_USER_AGENT = VersionInfo.getUserAgent();
+    private final String protocol;
+    private final String userAgentExtended;
 
-    private String protocol;
-    private String userAgent;
-    private String userAgentExtended;
+    private final String region;
+    private final String appid;
 
-    private String region;
-    private String appid;
+    private final String host;
+    private final int port;
+    private final String endpointSuffix;
 
-    private String host;
-    private int port;
-    private String endpointSuffix;
+    private final boolean isDebuggable;
 
-    private boolean isDebuggable;
+    private final RetryStrategy retryStrategy;
+    private final QCloudHttpRetryHandler qCloudHttpRetryHandler;
 
-    private RetryStrategy retryStrategy;
-    private QCloudHttpRetryHandler qCloudHttpRetryHandler;
+    private final int connectionTimeout;
+    private final int socketTimeout;
 
-    private int connectionTimeout;
-    private int socketTimeout;
+    private final Executor executor;
 
-    private Executor executor;
+    private final Executor observeExecutor;
 
-    private Executor observeExecutor;
-
-    private boolean isQuic;
+    private final boolean isQuic;
 
     private List<String> prefetchHosts;
 
-    private Map<String, List<String>> commonHeaders;
+    private final Map<String, List<String>> commonHeaders;
 
-    private Set<String> noSignHeaders;
+    private final Set<String> noSignHeaders;
 
-    private boolean dnsCache;
+    private final boolean dnsCache;
 
     private String hostFormat = DEFAULT_HOST_FORMAT;
 
     private String hostHeaderFormat = null;
 
-    private boolean bucketInPath; // path style
+    private final boolean bucketInPath; // path style
 
-    private boolean accelerate; //
+    private final boolean accelerate; //
 
-    private boolean signInUrl; //
+    private final boolean signInUrl; //
 
-    private boolean transferThreadControl = true;
+    private final boolean transferThreadControl;
+    private final int uploadMaxThreadCount;
+    private final int downloadMaxThreadCount;
+    private final boolean domainSwitch;
 
     public CosXmlServiceConfig(Builder builder) {
         this.protocol = builder.protocol;
-        this.userAgent = builder.userAgent;
         this.userAgentExtended = builder.userAgentExtended;
         this.isDebuggable = builder.isDebuggable;
 
@@ -148,6 +144,9 @@ public class CosXmlServiceConfig implements Parcelable {
         this.dnsCache = builder.dnsCache;
         this.signInUrl = builder.signInUrl;
         this.transferThreadControl = builder.transferThreadControl;
+        this.uploadMaxThreadCount = builder.uploadMaxThreadCount;
+        this.downloadMaxThreadCount = builder.downloadMaxThreadCount;
+        this.domainSwitch = builder.domainSwitch;
     }
 
     public Builder newBuilder() {
@@ -160,18 +159,6 @@ public class CosXmlServiceConfig implements Parcelable {
      */
     public String getProtocol() {
         return protocol;
-    }
-
-    /**
-     * 获取UserAgent
-     * @return UserAgent
-     */
-    public String getUserAgent() {
-        if(TextUtils.isEmpty(userAgentExtended)){
-            return userAgent;
-        } else {
-            return userAgent + "-" + userAgentExtended;
-        }
     }
 
     /**
@@ -410,6 +397,18 @@ public class CosXmlServiceConfig implements Parcelable {
         return transferThreadControl;
     }
 
+    public int getUploadMaxThreadCount() {
+        return uploadMaxThreadCount;
+    }
+
+    public int getDownloadMaxThreadCount() {
+        return downloadMaxThreadCount;
+    }
+
+    public boolean isDomainSwitch() {
+        return domainSwitch;
+    }
+
     @Deprecated
     public String getEndpointSuffix() {
         return getEndpointSuffix(region, false);
@@ -533,6 +532,10 @@ public class CosXmlServiceConfig implements Parcelable {
         return isQuic;
     }
 
+    public String getUserAgentExtended() {
+        return userAgentExtended;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -572,7 +575,6 @@ public class CosXmlServiceConfig implements Parcelable {
     public final static class Builder {
 
         private String protocol;
-        private String userAgent;
         private String userAgentExtended;
 
         private String region;
@@ -608,18 +610,22 @@ public class CosXmlServiceConfig implements Parcelable {
         private boolean signInUrl;
         
         private boolean transferThreadControl = true;
+        private int uploadMaxThreadCount;
+        private int downloadMaxThreadCount;
+        private boolean domainSwitch;
 
         public Builder() {
             protocol = HTTPS_PROTOCOL;
-            userAgent = DEFAULT_USER_AGENT;
             isDebuggable = false;
             retryStrategy = RetryStrategy.DEFAULT;
             bucketInPath = false;
+            uploadMaxThreadCount = TaskExecutors.UPLOAD_THREAD_COUNT;
+            downloadMaxThreadCount = TaskExecutors.DOWNLOAD_THREAD_COUNT;
+            domainSwitch = true;
         }
 
         public Builder(CosXmlServiceConfig config) {
             protocol = config.protocol;
-            userAgent = DEFAULT_USER_AGENT;
 
             region = config.region;
             appid = config.appid;
@@ -652,6 +658,9 @@ public class CosXmlServiceConfig implements Parcelable {
 
             signInUrl = config.signInUrl;
             transferThreadControl = config.transferThreadControl;
+            uploadMaxThreadCount = config.uploadMaxThreadCount;
+            downloadMaxThreadCount = config.downloadMaxThreadCount;
+            domainSwitch = config.domainSwitch;
         }
 
         /**
@@ -676,11 +685,37 @@ public class CosXmlServiceConfig implements Parcelable {
             return this;
         }
 
+        /**
+         * 设置传输时是否进行线程并发控制
+         * @param transferThreadControl 是否进行线程并发控制
+         */
         public Builder setTransferThreadControl(boolean transferThreadControl) {
             this.transferThreadControl = transferThreadControl;
             return this;
         }
 
+        /**
+         * 设置上传时线程并发的最大值
+         * @param uploadMaxThreadCount 线程并发的最大值
+         */
+        public Builder setUploadMaxThreadCount(int uploadMaxThreadCount) {
+            this.uploadMaxThreadCount = uploadMaxThreadCount;
+            return this;
+        }
+
+        /**
+         * 设置下载时线程并发的最大值
+         * @param downloadMaxThreadCount 线程并发的最大值
+         */
+        public Builder setDownloadMaxThreadCount(int downloadMaxThreadCount) {
+            this.downloadMaxThreadCount = downloadMaxThreadCount;
+            return this;
+        }
+
+        public Builder setDomainSwitch(boolean domainSwitch) {
+            this.domainSwitch = domainSwitch;
+            return this;
+        }
 
         /**
          * 设置是否 Https 协议，默认为 Https
@@ -701,8 +736,6 @@ public class CosXmlServiceConfig implements Parcelable {
          * 设置 Host 的格式化字符串，sdk 会将 ${bucket} 替换为真正的 bucket，${region} 替换为真正的 region，
          * 比如将 hostFormat 设置为  ${bucket}.${region}.tencent.com，并且您的存储桶和地域分别为 bucket-1250000000
          * 和 ap-shanghai，那么最终的请求地址为 bucket-1250000000.ap-shanghai.tencent.com
-         *
-         * </>
          * 注意，这个设置不会影响 GetService 请求，GetService 请求 Host 通过 {@link CosXmlBaseService#setDomain(String)} 设置
          *
          * @param hostFormat host 格式化字符串
@@ -885,7 +918,6 @@ public class CosXmlServiceConfig implements Parcelable {
          */
         public Builder enableQuic(boolean isEnable){
             this.isQuic = isEnable;
-            this.userAgent = VersionInfo.getQuicUserAgent();
             return this;
         }
 

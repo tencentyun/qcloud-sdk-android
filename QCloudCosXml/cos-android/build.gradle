@@ -9,7 +9,7 @@ def compileQuic() {
 }
 
 //是否包含灯塔
-def includeBeacon = false
+def includeBeacon = true
 
 repositories {
     flatDir {
@@ -22,8 +22,9 @@ android {
     compileSdkVersion 28
 
     defaultConfig {
-
-        minSdkVersion 15
+//        minSdkVersion 15
+        // 跑单测用19 因为依赖cls sdk
+        minSdkVersion 19
         targetSdkVersion 28
 
         versionCode cosSdkVersionCode
@@ -39,7 +40,7 @@ android {
     buildTypes {
 
         debug {
-            testCoverageEnabled = true
+//            testCoverageEnabled = true
 //            it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
 //            it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
             it.buildConfigField 'String', 'OWNER_UIN', quotWrapper(System.getenv("OWNER_UIN"))
@@ -62,6 +63,9 @@ android {
             it.buildConfigField 'String', 'PERSIST_BUCKET_REPLICATION_REGION', quotWrapper(System.getenv("PERSIST_BUCKET_REPLICATION_REGION"))
             it.buildConfigField 'String', 'UT_DNS_ID', quotWrapper(System.getenv("UT_DNS_ID"))
             it.buildConfigField 'String', 'UT_DNS_KEY', quotWrapper(System.getenv("UT_DNS_KEY"))
+
+            it.buildConfigField 'String', 'CLS_SECRET_ID', quotWrapper(System.getenv("CLS_SECRET_ID"))
+            it.buildConfigField 'String', 'CLS_SECRET_KEY', quotWrapper(System.getenv("CLS_SECRET_KEY"))
         }
 
         release {
@@ -85,8 +89,8 @@ android {
     }
 
     // 切换发 normal 或者 slim 包，需要同步修改 pom.artifactId 信息
-    defaultPublishConfig "normalRelease"
-//      defaultPublishConfig  "slimRelease"
+//    defaultPublishConfig "normalRelease"
+      defaultPublishConfig  "slimRelease"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -142,6 +146,9 @@ dependencies {
 //    androidTestImplementation 'android.arch.persistence.room:rxjava2:2.1.1'
     androidTestImplementation "androidx.room:room-rxjava2:2.5.1"
 
+    androidTestImplementation 'com.tencentcloudapi.cls:tencentcloud-cls-sdk-android:1.0.5'
+    androidTestImplementation 'com.google.guava:guava:27.0.1-android'
+
 //    if (compileQuic() && false) {
 //        api project(path: ':quic')
 //    }
@@ -151,19 +158,13 @@ dependencies {
     annotationProcessor project(':xmlCompiler')
 
     api project(':foundation')
-    embed project(':cos-android-base')
+    api project(':cos-android-base')
+    api project(':qcloud-track')
     if(includeBeacon){
-        embed(name: 'beacon-android-release-4.2.80.6-official', ext: 'aar')
-        embed(name: 'qimei-1.2.13.1', ext: 'aar')
-        embed(name: 'qimei-core-1.2.13.1-normal', ext: 'aar')
+        embed(name: 'beacon-android-release-4.2.86.7-hf1-official', ext: 'aar')
+        embed(name: 'qimei-1.2.18.3', ext: 'aar')
+        embed(name: 'qimei-core-1.2.18.3-normal', ext: 'aar')
         embed(name: 'qmsp-oaid2-1.0.4', ext: 'aar')
-    } else {
-        compileOnly files(
-                'libs/beacon-android-release-4.2.80.6-official.aar',
-                'libs/qimei-1.2.13.1.aar',
-                'libs/qimei-core-1.2.13.1-normal.aar',
-                'libs/qmsp-oaid2-1.0.4.aar'
-        )
     }
 
     // kms 加密
@@ -212,7 +213,6 @@ if (android.defaultPublishConfig.contains("slim")){
 apply from: '../../publishMavenCentral.gradle'
 
 //发布本地repo
-//执行uploadArchives先设置includeBeacon为false
 apply plugin: 'maven'
 uploadArchives {
     repositories.mavenDeployer {

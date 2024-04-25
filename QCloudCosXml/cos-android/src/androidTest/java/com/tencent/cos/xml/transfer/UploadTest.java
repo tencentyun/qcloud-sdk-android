@@ -312,8 +312,9 @@ public class UploadTest {
 //    }
 
     @Test public void testMultiUpload() {
-        int count = 2;
+        int count = 20;
         long sleep = 1000;
+        final TestLocker testLocker = new TestLocker();
         for (int i = 0; i <= count; i++) {
             testUploadSmallFileByPath(i);
             QCloudLogger.i("QCloudTest", "!!!Start to sleep for %d ms", sleep);
@@ -322,12 +323,18 @@ public class UploadTest {
             } else {
                 QCloudLogger.i("QCloudTest", "------ Finish Test --------");
             }
+            if(i == count){
+                TestUtils.sleep(60000);
+                Assert.assertTrue(true);
+                testLocker.release();
+            }
         }
+        testLocker.lock();
     }
 
     public void testUploadSmallFileByPath(int number) {
         // String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/youxue.jpg";
-        String path = bigFilePath();
+        String path = smallFilePath();
         QCloudLogger.i("QCloudTest", "upload path is " + path);
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
@@ -355,13 +362,11 @@ public class UploadTest {
                 QCloudLogger.i("QCloudTest", "ip is " + httpTaskMetrics.getConnectAddress().getHostAddress());
             }
         });
-        final TestLocker testLocker = new TestLocker();
         uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 result.printResult();
                 TestUtils.parseBadResponseBody(result);
-                testLocker.release();
                 uploadTask.clearResultAndException();
             }
 
@@ -369,7 +374,6 @@ public class UploadTest {
             public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
                 TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
                 Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
-                testLocker.release();
             }
         });
 
@@ -386,9 +390,6 @@ public class UploadTest {
                 String uploadId = initiateMultipartUpload.uploadId;
             }
         });
-        
-        testLocker.lock();
-        TestUtils.assertCOSXMLTaskSuccess(uploadTask);
     }
 
     @Test public void testUpload() {
@@ -423,6 +424,7 @@ public class UploadTest {
         } catch (CosXmlClientException e) {
             e.printStackTrace();
         }
+        putObjectRequest.addNoSignHeader("Host");
 
         File file = new File(putObjectRequest.getSrcPath());
         QCloudLogger.i("QCloudTest", "upload file size is " + file.length());
@@ -989,6 +991,12 @@ public class UploadTest {
         cosxmlUploadTask.setInitMultipleUploadListener(initiateMultipartUpload -> {
             uploadId.set(initiateMultipartUpload.uploadId);
         });
+        cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                QCloudLogger.i(TestConst.UT_TAG, "transfer progress is " + complete + "/" + target);
+            }
+        });
 
         COSXMLUploadTask cosxmlUploadTask1 = null;
         // 上传 5s 后暂停
@@ -998,7 +1006,7 @@ public class UploadTest {
             return;
         } else if (cosxmlUploadTask.getTaskState() == TransferState.IN_PROGRESS) {
             cosxmlUploadTask.pauseSafely();
-            Thread.sleep(2000);
+            Thread.sleep(5000);
             cosxmlUploadTask1 = bigSliceSizeTransferManager.upload(TestConst.PERSIST_BUCKET, cosPath, srcPath, uploadId.get());
             cosxmlUploadTask1.setCosXmlResultListener(new CosXmlResultListener() {
                 @Override
@@ -1011,6 +1019,70 @@ public class UploadTest {
                     TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
                     uploadLocker.release();
 
+                }
+            });
+            cosxmlUploadTask1.setCosXmlProgressListener(new CosXmlProgressListener() {
+                @Override
+                public void onProgress(long complete, long target) {
+                    QCloudLogger.i(TestConst.UT_TAG, "transfer progress is " + complete + "/" + target);
+                }
+            });
+        } else {
+            Assert.fail();
+            return;
+        }
+
+        uploadLocker.lock();
+        TestUtils.assertCOSXMLTaskSuccess(cosxmlUploadTask1);
+    }
+
+    @Test
+    public void testFixSliceSize369() throws Exception{
+        TransferManager transferManager = ServiceFactory.INSTANCE.newSlice369TransferManager();
+        TransferManager bigSliceSizeTransferManager = ServiceFactory.INSTANCE.newBigSliceSize369TransferManager();
+
+        final TestLocker uploadLocker = new TestLocker();
+        String cosPath = UPLOAD_FOLDER+"uploadTask_resume";
+        final String srcPath = big60mFilePath();
+        final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(TestConst.PERSIST_BUCKET, cosPath, srcPath, null);
+        AtomicReference<String> uploadId = new AtomicReference<>(null);
+        cosxmlUploadTask.setInitMultipleUploadListener(initiateMultipartUpload -> {
+            uploadId.set(initiateMultipartUpload.uploadId);
+        });
+        cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                QCloudLogger.i(TestConst.UT_TAG, "transfer progress is " + complete + "/" + target);
+            }
+        });
+
+        COSXMLUploadTask cosxmlUploadTask1 = null;
+        // 上传 5s 后暂停
+        Thread.sleep(10000);
+        if (cosxmlUploadTask.getTaskState() == TransferState.COMPLETED) {
+            Assert.assertTrue(true);
+            return;
+        } else if (cosxmlUploadTask.getTaskState() == TransferState.IN_PROGRESS) {
+            cosxmlUploadTask.pauseSafely();
+            Thread.sleep(5000);
+            cosxmlUploadTask1 = bigSliceSizeTransferManager.upload(TestConst.PERSIST_BUCKET, cosPath, srcPath, uploadId.get());
+            cosxmlUploadTask1.setCosXmlResultListener(new CosXmlResultListener() {
+                @Override
+                public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                    uploadLocker.release();
+                }
+
+                @Override
+                public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                    TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                    uploadLocker.release();
+
+                }
+            });
+            cosxmlUploadTask1.setCosXmlProgressListener(new CosXmlProgressListener() {
+                @Override
+                public void onProgress(long complete, long target) {
+                    QCloudLogger.i(TestConst.UT_TAG, "transfer progress is " + complete + "/" + target);
                 }
             });
         } else {

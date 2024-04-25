@@ -29,7 +29,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -70,6 +70,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -83,6 +84,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 上传传输任务
@@ -235,6 +237,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
         this.queries = putObjectRequest.getQueryString();
         this.headers = putObjectRequest.getRequestHeaders();
+        this.noSignHeaders = putObjectRequest.getNoSignHeaders();
         this.isNeedMd5 = putObjectRequest.isNeedMD5();
         this.uploadId = uploadId;
         this.priorityLow = putObjectRequest.isPriorityLow();
@@ -337,6 +340,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
         }
         putObjectRequest.setRequestHeaders(headers);
+        putObjectRequest.addNoSignHeader(noSignHeaders);
 
         if(onSignatureListener != null){
             putObjectRequest.setSign(onSignatureListener.onGetSign(putObjectRequest));
@@ -363,7 +367,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
             putObjectRequest.setPriorityLow();
         }
 
-        cosXmlService.putObjectAsync(putObjectRequest, new CosXmlResultListener() {
+        cosXmlService.internalPutObjectAsync(putObjectRequest, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 if(request != putObjectRequest){
@@ -372,7 +376,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
                 //BeaconService.getInstance().reportUpload(region, simpleAlreadySendDataLen, TimeUtils.getTookTime(startTime));
-                BeaconService.getInstance().reportUploadTaskSuccess(request);
+                //CosTrackService.getInstance().reportUpload(region, simpleAlreadySendDataLen, TimeUtils.getTookTime(startTime));
+                CosTrackService.getInstance().reportUploadTaskSuccess(request);
                 updateState(TransferState.COMPLETED, null, result, false);
             }
 
@@ -395,10 +400,10 @@ public final class COSXMLUploadTask extends COSXMLTask {
         }
         
         if (clientException != null) {
-            BeaconService.getInstance().reportUploadTaskClientException(request, clientException);
+            CosTrackService.getInstance().reportUploadTaskClientException(request, clientException);
         }
         if (serviceException != null) {
-            BeaconService.getInstance().reportUploadTaskServiceException(request, serviceException);
+            CosTrackService.getInstance().reportUploadTaskServiceException(request, serviceException);
         }
 
     }
@@ -417,6 +422,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         initMultipartUploadRequest.setRegion(region);
 
         initMultipartUploadRequest.setRequestHeaders(headers);
+        initMultipartUploadRequest.addNoSignHeader(noSignHeaders);
 
         if(onSignatureListener != null){
             initMultipartUploadRequest.setSign(onSignatureListener.onGetSign(initMultipartUploadRequest));
@@ -462,10 +468,58 @@ public final class COSXMLUploadTask extends COSXMLTask {
         });
     }
 
+    public void listAllPartsAsync(CosXmlSimpleService cosXmlService, CosXmlResultListener cosXmlResultListener) {
+        // 初始化分页标记
+        AtomicReference<String> nextPartNumberMarker = new AtomicReference<>(null);
+        ArrayList<ListParts.Part> allParts = new ArrayList<>();
+        // 创建一个处理结果的方法
+        Runnable handleResult = new Runnable() {
+            @Override
+            public void run() {
+                // 设置分页标记
+                if (nextPartNumberMarker.get() != null && !nextPartNumberMarker.get().isEmpty()) {
+                    listPartsRequest.setPartNumberMarker(nextPartNumberMarker.get());
+                }
+
+                // 发送请求
+                cosXmlService.listPartsAsync(listPartsRequest, new CosXmlResultListener() {
+                    @Override
+                    public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                        ListPartsResult listPartsResult = (ListPartsResult) result;
+                        if(listPartsResult.listParts.parts != null && listPartsResult.listParts.parts.size() > 0){
+                            allParts.addAll(listPartsResult.listParts.parts);
+                        }
+
+                        // 更新分页标记
+                        nextPartNumberMarker.set(listPartsResult.listParts.nextPartNumberMarker);
+                        // 如果还有更多的分块，再次调用 handleResult
+                        if (nextPartNumberMarker.get() != null && !nextPartNumberMarker.get().isEmpty()) {
+                            run();
+                        } else {
+                            // 所有的操作都完成了
+                            listPartsResult.listParts.parts = allParts;
+                            cosXmlResultListener.onSuccess(request, listPartsResult);
+                        }
+                    }
+
+                    @Override
+                    public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                        // 处理错误
+                        cosXmlResultListener.onFail(request, clientException, serviceException);
+                    }
+                });
+            }
+        };
+
+        // 开始处理
+        handleResult.run();
+    }
+
     private void listMultiUpload(CosXmlSimpleService cosXmlService){
         listPartsRequest = new ListPartsRequest(bucket, cosPath, uploadId);
         listPartsRequest.setRegion(region);
         listPartsRequest.setRequestHeaders(headers);
+        listPartsRequest.addNoSignHeader(noSignHeaders);
 
         if(onSignatureListener != null){
             listPartsRequest.setSign(onSignatureListener.onGetSign(listPartsRequest));
@@ -481,7 +535,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
             }
         });
 
-        cosXmlService.listPartsAsync(listPartsRequest, new CosXmlResultListener() {
+        listAllPartsAsync(cosXmlService, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, final CosXmlResult result) {
                 if(request != listPartsRequest){
@@ -686,6 +740,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                     uploadPartRequest.setNeedMD5(false);
                 }
                 uploadPartRequest.setRequestHeaders(headers);
+                uploadPartRequest.addNoSignHeader(noSignHeaders);
                 uploadPartRequest.setOnRequestWeightListener(new CosXmlRequest.OnRequestWeightListener() {
                     @Override
                     public int onWeight() {
@@ -765,6 +820,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
         completeMultiUploadRequest.setNeedMD5(isNeedMd5);
         completeMultiUploadRequest.setRequestHeaders(getCustomCompleteHeaders(headers));
+        completeMultiUploadRequest.addNoSignHeader(noSignHeaders);
 
         if(onSignatureListener != null){
             completeMultiUploadRequest.setSign(onSignatureListener.onGetSign(completeMultiUploadRequest));
@@ -819,7 +875,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         request.attachMetrics(httpTaskMetrics);
         if(IS_EXIT.get())return;
         IS_EXIT.set(true);
-        BeaconService.getInstance().reportUploadTaskSuccess(request);
+        CosTrackService.getInstance().reportUploadTaskSuccess(request);
         multiUploadsStateListenerHandler.onCompleted(request, result);
     }
 
@@ -831,16 +887,15 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     @Override
     protected void internalFailed() {
-        cancelAllRequest(cosXmlService);
+        cancelAllRequest(cosXmlService, false);
     }
 
     @Override
-    protected void internalPause() {
-
+    protected void internalPause(boolean now) {
         CosXmlRequest request = buildCOSXMLTaskRequest();
         request.attachMetrics(httpTaskMetrics);
-        BeaconService.getInstance().reportUploadTaskSuccess(request);
-        cancelAllRequest(cosXmlService);
+        CosTrackService.getInstance().reportUploadTaskSuccess(request);
+        cancelAllRequest(cosXmlService, now);
     }
 
     /**
@@ -858,10 +913,24 @@ public final class COSXMLUploadTask extends COSXMLTask {
         return true;
     }
 
+    /**
+     * 如果已经发送了 CompleteMultiUpload 请求，则不允许暂停
+     *
+     * @return 是否暂停成功
+     */
+    public boolean pauseSafely(boolean now) {
+        if (sendingCompleteRequest.get()) {
+            return false;
+        }
+
+        pause(now);
+        return true;
+    }
+
 
     @Override
-    protected void internalCancel() {
-        cancelAllRequest(cosXmlService);
+    protected void internalCancel(boolean now) {
+        cancelAllRequest(cosXmlService, now);
         if(isSliceUpload)abortMultiUpload(cosXmlService);
         clear();
     }
@@ -882,37 +951,37 @@ public final class COSXMLUploadTask extends COSXMLTask {
     }
 
 
-    void cancelAllRequest(CosXmlSimpleService cosXmlService){
+    void cancelAllRequest(CosXmlSimpleService cosXmlService, boolean now){
 
         HeadObjectRequest tempHeadObjectRequest = headObjectRequest;
         if (tempHeadObjectRequest != null) {
-            cosXmlService.cancel(tempHeadObjectRequest);
+            cosXmlService.cancel(tempHeadObjectRequest, now);
         }
 
         PutObjectRequest tempPutObjectRequest = putObjectRequest;
         if(tempPutObjectRequest != null){
-            cosXmlService.cancel(tempPutObjectRequest);
+            cosXmlService.cancel(tempPutObjectRequest, now);
         }
         InitMultipartUploadRequest tempInitMultipartUploadRequest = initMultipartUploadRequest;
         if(tempInitMultipartUploadRequest != null){
-            cosXmlService.cancel(tempInitMultipartUploadRequest);
+            cosXmlService.cancel(tempInitMultipartUploadRequest, now);
         }
         ListPartsRequest tempListPartsRequest = listPartsRequest;
         if(tempListPartsRequest != null){
-            cosXmlService.cancel(tempListPartsRequest);
+            cosXmlService.cancel(tempListPartsRequest, now);
         }
 
         if(uploadPartRequestLongMap != null){
             Set<UploadPartRequest> set = uploadPartRequestLongMap.keySet();
             Iterator<UploadPartRequest> iterator = set.iterator();
             while(iterator.hasNext()){
-                cosXmlService.cancel(iterator.next());
+                cosXmlService.cancel(iterator.next(), now);
             }
         }
 
         CompleteMultiUploadRequest tempCompleteMultiUploadRequest = completeMultiUploadRequest;
         if(tempCompleteMultiUploadRequest != null){
-            cosXmlService.cancel(tempCompleteMultiUploadRequest);
+            cosXmlService.cancel(tempCompleteMultiUploadRequest, now);
         }
 
     }
@@ -961,20 +1030,19 @@ public final class COSXMLUploadTask extends COSXMLTask {
     @Override
     protected CosXmlResult buildCOSXMLTaskResult(CosXmlResult sourceResult) {
         COSXMLUploadTaskResult cosxmlUploadTaskResult = new COSXMLUploadTaskResult();
-        if(sourceResult != null && sourceResult instanceof PutObjectResult){
+        if(sourceResult != null){
+            cosxmlUploadTaskResult.httpCode = sourceResult.httpCode;
+            cosxmlUploadTaskResult.httpMessage = sourceResult.httpMessage;
+            cosxmlUploadTaskResult.headers = sourceResult.headers;
+            cosxmlUploadTaskResult.accessUrl = sourceResult.accessUrl;
+        }
+
+        if(sourceResult instanceof PutObjectResult){
             PutObjectResult putObjectResult = (PutObjectResult) sourceResult;
-            cosxmlUploadTaskResult.httpCode = putObjectResult.httpCode;
-            cosxmlUploadTaskResult.httpMessage = putObjectResult.httpMessage;
-            cosxmlUploadTaskResult.headers = putObjectResult.headers;
             cosxmlUploadTaskResult.eTag = putObjectResult.eTag;
-            cosxmlUploadTaskResult.accessUrl = putObjectResult.accessUrl;
             cosxmlUploadTaskResult.picUploadResult = putObjectResult.picUploadResult();
-        }else if(sourceResult != null && sourceResult instanceof CompleteMultiUploadResult){
+        } else if(sourceResult instanceof CompleteMultiUploadResult){
             CompleteMultiUploadResult completeMultiUploadResult = (CompleteMultiUploadResult) sourceResult;
-            cosxmlUploadTaskResult.httpCode = completeMultiUploadResult.httpCode;
-            cosxmlUploadTaskResult.httpMessage = completeMultiUploadResult.httpMessage;
-            cosxmlUploadTaskResult.headers = completeMultiUploadResult.headers;
-            cosxmlUploadTaskResult.accessUrl = completeMultiUploadResult.accessUrl;
             if(completeMultiUploadResult.completeMultipartUpload != null){
                 cosxmlUploadTaskResult.eTag = completeMultiUploadResult.completeMultipartUpload.eTag;
                 PicUploadResult picUploadResult = new PicUploadResult();
@@ -982,6 +1050,9 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 picUploadResult.processResults = completeMultiUploadResult.completeMultipartUpload.processResults;
                 cosxmlUploadTaskResult.picUploadResult = picUploadResult;
             }
+        } else if(sourceResult instanceof HeadObjectResult){
+            HeadObjectResult headObjectResult = (HeadObjectResult) sourceResult;
+            cosxmlUploadTaskResult.eTag = headObjectResult.eTag;
         }
         return cosxmlUploadTaskResult;
     }

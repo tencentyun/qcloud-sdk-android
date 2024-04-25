@@ -24,6 +24,7 @@ package com.tencent.cos.xml;
 
 import android.content.Context;
 
+import com.tencent.cos.xml.common.VersionInfo;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
@@ -71,6 +72,12 @@ import com.tencent.qcloud.core.http.HttpTask;
 public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosXml {
     private static final String TAG = "CosXmlSimpleService";
 
+    static {
+        VersionInfo.sdkName = "cos";
+        VersionInfo.versionName = BuildConfig.VERSION_NAME;
+        VersionInfo.versionCode = BuildConfig.VERSION_CODE;
+    }
+
     public CosXmlSimpleService(Context context, CosXmlServiceConfig configuration, QCloudCredentialProvider qCloudCredentialProvider) {
         super(context, configuration, qCloudCredentialProvider);
     }
@@ -109,9 +116,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 简单上传的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#putObject(PutObjectRequest)}
      * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#putObject(PutObjectRequest)}
      */
     @Override
     public PutObjectResult putObject(PutObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -123,9 +129,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 简单上传的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#putObjectAsync(PutObjectRequest, CosXmlResultListener)}
      * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#putObjectAsync(PutObjectRequest, CosXmlResultListener)}
      */
     @Override
     public void putObjectAsync(PutObjectRequest request, CosXmlResultListener cosXmlResultListener) {
@@ -134,10 +139,21 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
         schedule(request, putObjectResult, cosXmlResultListener);
     }
 
+    public PutObjectResult internalPutObject(PutObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
+        PutObjectResult putObjectResult = new PutObjectResult();
+        putObjectResult.accessUrl = getAccessUrl(request);
+        return execute(request, putObjectResult, true);
+    }
+    public void internalPutObjectAsync(PutObjectRequest request, CosXmlResultListener cosXmlResultListener) {
+        PutObjectResult putObjectResult = new PutObjectResult();
+        putObjectResult.accessUrl = getAccessUrl(request);
+        schedule(request, putObjectResult, cosXmlResultListener, true);
+    }
+
     /**
      * <p>
      * 以网页表单的形式上传文件的同步方法.&nbsp;
-     * <p>
+     * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#postObject(PostObjectRequest)}
      */
     @Override
@@ -149,7 +165,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 以网页表单的形式上传文件的异步方法.&nbsp;
-     * <p>
+     * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#postObjectAsync(PostObjectRequest, CosXmlResultListener)}
      */
     @Override
@@ -161,9 +177,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 删除 COS 上单个对象的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#deleteObject(DeleteObjectRequest)}
      * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#deleteObject(DeleteObjectRequest)}
      */
     @Override
     public DeleteObjectResult deleteObject(DeleteObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -173,9 +188,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 删除 COS 上单个对象的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#deleteObjectAsync(DeleteObjectRequest, CosXmlResultListener)}
      * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#deleteObjectAsync(DeleteObjectRequest, CosXmlResultListener)}
      */
     @Override
     public void deleteObjectAsync(DeleteObjectRequest request, CosXmlResultListener cosXmlResultListener) {
@@ -185,29 +199,33 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 获取 COS 对象的元数据的同步方法.&nbsp;
-     * <p>
+     * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#headObject(HeadObjectRequest)}
      */
     @Override
     public HeadObjectResult headObject(HeadObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new HeadObjectResult());
+        HeadObjectResult headObjectResult = new HeadObjectResult();
+        headObjectResult.accessUrl = getAccessUrl(request);
+        return execute(request, headObjectResult);
     }
 
     /**
      * <p>
      * 获取 COS 对象的元数据的异步方法.&nbsp;
-     * <p>
+     * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#headObjectAsync(HeadObjectRequest, CosXmlResultListener)}
      */
     @Override
     public void headObjectAsync(HeadObjectRequest request, CosXmlResultListener cosXmlResultListener) {
-        schedule(request, new HeadObjectResult(), cosXmlResultListener);
+        HeadObjectResult headObjectResult = new HeadObjectResult();
+        headObjectResult.accessUrl = getAccessUrl(request);
+        schedule(request, headObjectResult, cosXmlResultListener);
     }
 
     /**
      * <p>
      * 拷贝对象的同步方法.&nbsp;
-     * <p>
+     * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#copyObject(CopyObjectRequest)}
      */
     @Override
@@ -218,7 +236,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 拷贝对象的异步方法.&nbsp;
-     * <p>
+     * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#copyObjectAsync(CopyObjectRequest, CosXmlResultListener)}
      */
     @Override
@@ -226,10 +244,17 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
         schedule(request, new CopyObjectResult(), cosXmlResultListener);
     }
 
+    public CopyObjectResult internalCopyObject(CopyObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new CopyObjectResult(), true);
+    }
+    public void internalCopyObjectAsync(CopyObjectRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new CopyObjectResult(), cosXmlResultListener, true);
+    }
+
     /**
      * <p>
      * 拷贝对象的同步方法.&nbsp;
-     * <p>
+     * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#copyObject(UploadPartCopyRequest)}
      */
     @Override
@@ -240,7 +265,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 拷贝对象的异步方法.&nbsp;
-     * <p>
+     * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#copyObjectAsync(UploadPartCopyRequest, CosXmlResultListener)}
      */
     @Override
@@ -251,9 +276,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 初始化分块上传的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#initMultipartUpload(InitMultipartUploadRequest)}
      * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#initMultipartUpload(InitMultipartUploadRequest)}
      */
     @Override
     public InitMultipartUploadResult initMultipartUpload(InitMultipartUploadRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -263,9 +287,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 初始化分块上传的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#initMultipartUploadAsync(InitMultipartUploadRequest, CosXmlResultListener)}
      * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#initMultipartUploadAsync(InitMultipartUploadRequest, CosXmlResultListener)}
      */
     @Override
     public void initMultipartUploadAsync(InitMultipartUploadRequest request, CosXmlResultListener cosXmlResultListener) {
@@ -275,9 +298,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 查询特定分块上传中的已上传的块的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#listParts(ListPartsRequest)}
      * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#listParts(ListPartsRequest)}
      */
     @Override
     public ListPartsResult listParts(ListPartsRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -287,9 +309,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 查询特定分块上传中的已上传的块的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#listPartsAsync(ListPartsRequest, CosXmlResultListener)}
      * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#listPartsAsync(ListPartsRequest, CosXmlResultListener)}
      */
     @Override
     public void listPartsAsync(ListPartsRequest request, CosXmlResultListener cosXmlResultListener) {
@@ -299,9 +320,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 舍弃一个分块上传且删除已上传的分片块的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#abortMultiUpload(AbortMultiUploadRequest)}
      * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#abortMultiUpload(AbortMultiUploadRequest)}
      */
     @Override
     public AbortMultiUploadResult abortMultiUpload(AbortMultiUploadRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -311,9 +331,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 舍弃一个分块上传且删除已上传的分片块的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#abortMultiUploadAsync(AbortMultiUploadRequest, CosXmlResultListener)}
      * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#abortMultiUploadAsync(AbortMultiUploadRequest, CosXmlResultListener)}
      */
     @Override
     public void abortMultiUploadAsync(AbortMultiUploadRequest request, CosXmlResultListener cosXmlResultListener) {
@@ -323,9 +342,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 完成整个分块上传的同步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#completeMultiUpload(CompleteMultiUploadRequest)}
      * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#completeMultiUpload(CompleteMultiUploadRequest)}
      */
     @Override
     public CompleteMultiUploadResult completeMultiUpload(CompleteMultiUploadRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -337,9 +355,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 完成整个分块上传的异步方法.&nbsp;
-     * <p>
-     * 详细介绍，请查看:{@link  SimpleCosXml#completeMultiUploadAsync(CompleteMultiUploadRequest, CosXmlResultListener)}
      * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#completeMultiUploadAsync(CompleteMultiUploadRequest, CosXmlResultListener)}
      */
     @Override
     public void completeMultiUploadAsync(CompleteMultiUploadRequest request, CosXmlResultListener cosXmlResultListener) {
@@ -395,9 +412,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 查询存储桶（Bucket）中正在进行中的分块上传对象的同步方法.&nbsp;
-     *
+     * </p>
      * 详细介绍，请查看:{@link  CosXml#listMultiUploads(ListMultiUploadsRequest request)}
-     *</p>
      */
     @Override
     public ListMultiUploadsResult listMultiUploads(ListMultiUploadsRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -407,9 +423,8 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     /**
      * <p>
      * 查询存储桶（Bucket）中正在进行中的分块上传对象的异步方法.&nbsp;
-     *
+     * </p>
      * 详细介绍，请查看:{@link  CosXml#listMultiUploadsAsync(ListMultiUploadsRequest request, CosXmlResultListener cosXmlResultListener)}
-     *</p>
      */
     @Override
     public void listMultiUploadsAsync(ListMultiUploadsRequest request, CosXmlResultListener cosXmlResultListener) {

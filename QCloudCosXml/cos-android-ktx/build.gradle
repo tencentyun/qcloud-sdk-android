@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 29
-        versionCode 50701
-        versionName "5.7.1"
+        versionCode 50702
+        versionName "5.7.2"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -42,14 +42,8 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.4"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.4"
 
-    compile project(':foundation')
-    compile (project(configuration: 'default', path: ':cos-android'))
-    compileOnly project(':xmlAnnoation')
-    compileOnly 'com.tencent.qcloud:beacon-android-release:4.1.13'
-    // kms 加密
-    compileOnly 'com.tencentcloudapi:tencentcloud-sdk-java-kms:3.1.213'
-    compileOnly 'xerces:xercesImpl:2.12.0'
-
+//    compileOnly (project(configuration: 'default', path: ':cos-android'))
+    compileOnly 'com.qcloud.cos:cos-android:5.9.15'
 
     androidTestImplementation 'junit:junit:4.13.2'
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.4"

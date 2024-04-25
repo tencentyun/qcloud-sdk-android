@@ -29,7 +29,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -91,6 +91,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 getObjectRequest.getPath(cosXmlService.getConfig()), getObjectRequest.getSavePath(), getObjectRequest.getSaveFileName());
         this.queries = getObjectRequest.getQueryString();
         this.headers = getObjectRequest.getRequestHeaders();
+        this.noSignHeaders = getObjectRequest.getNoSignHeaders();
         this.isNeedMd5 = getObjectRequest.isNeedMD5();
         //需要取出range字段
         if(this.headers != null && this.headers.containsKey(COSRequestHeaderKey.RANGE)){
@@ -121,6 +122,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         getObjectRequest.setFileOffset(fileOffset);
         getObjectRequest.setQueryParameters(queries);
         getObjectRequest.setRequestHeaders(headers);
+        getObjectRequest.addNoSignHeader(noSignHeaders);
         if(rangeEnd > 0 || rangeStart > 0){
             getObjectRequest.setRange(rangeStart, rangeEnd);
             //下载重试时会改变request的range，因此不能让range参与签名
@@ -141,13 +143,13 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 }
             }
         });
-        cosXmlService.getObjectAsync(getObjectRequest, new CosXmlResultListener() {
+        cosXmlService.internalGetObjectAsync(getObjectRequest, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 if(request != getObjectRequest){
                     return;
                 }
-                BeaconService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
+                CosTrackService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
 
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
@@ -162,13 +164,14 @@ public final class COSXMLDownloadTask extends COSXMLTask{
 
                 Exception causeException = null;
                 if (clientException != null && taskState != TransferState.PAUSED && taskState != TransferState.CANCELED) {
-                    BeaconService.getInstance().reportDownloadTaskClientException(request, clientException);
+                    CosTrackService.getInstance().reportDownloadTaskClientException(request, clientException);
                     causeException = clientException;
                 }
 
                 if (serviceException != null && taskState != TransferState.PAUSED && taskState != TransferState.CANCELED) {
                     // BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_GET, serviceException);
-                    BeaconService.getInstance().reportDownloadTaskServiceException(request, serviceException);
+                    // CosTrackService.getInstance().reportDownload(region, CosTrackService.EVENT_PARAMS_NODE_GET, serviceException);
+                    CosTrackService.getInstance().reportDownloadTaskServiceException(request, serviceException);
                     causeException = serviceException;
                 }
                 // causeException.printStackTrace();
@@ -250,11 +253,11 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         }
     }
 
-    private void cancelAllRequest(){
+    private void cancelAllRequest(boolean now){
         HeadObjectRequest tempHeadObjectRequest = headObjectRequest;
-        cosXmlService.cancel(tempHeadObjectRequest);
+        cosXmlService.cancel(tempHeadObjectRequest, now);
         GetObjectRequest tempGetObjectRequest = getObjectRequest;
-        cosXmlService.cancel(tempGetObjectRequest);
+        cosXmlService.cancel(tempGetObjectRequest, now);
     }
 
     private synchronized void save(String absolutePath){
@@ -295,6 +298,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
 
         headObjectRequest = new HeadObjectRequest(bucket, cosPath);
         headObjectRequest.setRequestHeaders(headers);
+        headObjectRequest.addNoSignHeader(noSignHeaders);
         headObjectRequest.setQueryParameters(queries);
         headObjectRequest.setRegion(region);
         final String downloadPath = getDownloadPath();
@@ -374,21 +378,20 @@ public final class COSXMLDownloadTask extends COSXMLTask{
 
     @Override
     protected void internalFailed() {
-        cancelAllRequest();
+        cancelAllRequest(false);
     }
 
     @Override
-    protected void internalPause() {
-
+    protected void internalPause(boolean now) {
         if (getObjectRequest != null) {
-            BeaconService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
+            CosTrackService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
         }
-        cancelAllRequest();
+        cancelAllRequest(now);
     }
 
     @Override
-    protected void internalCancel() {
-        cancelAllRequest();
+    protected void internalCancel(boolean now) {
+        cancelAllRequest(now);
         clear();
     }
 

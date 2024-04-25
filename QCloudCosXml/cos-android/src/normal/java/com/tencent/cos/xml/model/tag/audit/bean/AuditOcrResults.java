@@ -38,6 +38,10 @@ public class AuditOcrResults{
      */
     public String keywords;
     /**
+     * 该字段表示审核命中的具体子标签。注意：该字段可能返回空。
+     */
+    public String subLabel;
+    /**
      * 该参数用于返回 OCR 检测框在图片中的位置（左上角 xy 坐标、长宽、旋转角度），以方便快速定位识别文字的相关信息。
      */
     public AuditOcrLocation location;

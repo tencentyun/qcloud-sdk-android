@@ -25,6 +25,9 @@ public class SensitiveContentRecognitionRequest extends BucketRequest {
     private final Set<String> types = new HashSet<>();
     private String bizType;
     private boolean largeImageDetect;
+    private boolean async;
+    private String callback;
+    private String dataid;
 
     /**
      * 图片同步审核请求
@@ -127,6 +130,27 @@ public class SensitiveContentRecognitionRequest extends BucketRequest {
         this.largeImageDetect = largeImageDetect;
     }
 
+    /**
+     * 是否异步进行审核，取值 false：同步返回结果，true：异步进行审核，默认为false。
+     */
+    public void setAsync(boolean async) {
+        this.async = async;
+    }
+
+    /**
+     * 审核结果（Detail版本）以回调形式发送至您的回调地址，异步审核时生效，支持以 http:// 或者 https:// 开头的地址，例如http://www.callback.com。
+     */
+    public void setCallback(String callback) {
+        this.callback = callback;
+    }
+
+    /**
+     * 图片标识，该字段在结果中返回原始内容，长度限制为512字节。
+     */
+    public void setDataid(String dataid) {
+        this.dataid = dataid;
+    }
+
     @Override
     public String getMethod() {
         return RequestMethod.GET;
@@ -180,6 +204,13 @@ public class SensitiveContentRecognitionRequest extends BucketRequest {
             queryParameters.put("max-frames", String.valueOf(this.maxFrames));
         }
         queryParameters.put("large-image-detect", this.largeImageDetect ? "1" : "0");
+        queryParameters.put("async", this.async ? "1" : "0");
+        if(!TextUtils.isEmpty(this.callback)) {
+            queryParameters.put("callback", this.callback);
+        }
+        if(!TextUtils.isEmpty(this.dataid)) {
+            queryParameters.put("dataid", this.dataid);
+        }
         queryParameters.put("detect-type", typeStr.toString());
     }
 

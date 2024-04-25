@@ -51,10 +51,27 @@ public class ServiceFactory {
                 .setConnectionTimeout(4000)
                 .setSocketTimeout(4000)
                 .setTransferThreadControl(false)
+                .setUploadMaxThreadCount(10)
+                .setDownloadMaxThreadCount(36)
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
 
         return newService(cosXmlServiceConfig);
+    }
+
+    public CosXmlSimpleService newAnonymousService() {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setConnectionTimeout(4000)
+                .setSocketTimeout(4000)
+                .setTransferThreadControl(false)
+                .setUploadMaxThreadCount(10)
+                .setDownloadMaxThreadCount(6)
+                .setRegion("ap-chengdu")
+                .builder();
+
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig);
     }
 
     public CosXmlSimpleService newTencentcosService() {
@@ -214,6 +231,18 @@ public class ServiceFactory {
         return new TransferManager(newDefaultService(), transferConfig);
     }
 
+    public TransferManager newSlice369TransferManager() {
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .setDivisionForUpload(2 * 1024 * 1024)
+                .setSliceSizeForUpload((1024 * 1024)+369)
+                .setVerifyCRC64(true)
+                .setSliceSizeForCopy(5242880)
+                .setDividsionForCopy(5242880)
+                .build();
+        Log.d(TestConst.UT_TAG, String.valueOf(transferConfig.getDivisionForCopy()));
+        return new TransferManager(newDefaultService(), transferConfig);
+    }
+
     public TransferManager newTencentcosTransferManager() {
         TransferConfig transferConfig = new TransferConfig.Builder()
                 .setDivisionForUpload(2 * 1024 * 1024)
@@ -263,6 +292,30 @@ public class ServiceFactory {
         TransferConfig transferConfig = new TransferConfig.Builder()
                 .setDivisionForUpload(2 * 1024 * 1024)
                 .setSliceSizeForUpload(1024 * 1024)
+                .build();
+        return new TransferService(newDefaultService(), transferConfig);
+    }
+
+    public TransferService newBigSliceSizeTransferService() {
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .setDivisionForUpload(2 * 1024 * 1024)
+                .setSliceSizeForUpload(2 * 1024 * 1024)
+                .build();
+        return new TransferService(newDefaultService(), transferConfig);
+    }
+
+    public TransferService newSlice369TransferService() {
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .setDivisionForUpload(2 * 1024 * 1024)
+                .setSliceSizeForUpload((1024 * 1024)+369)
+                .build();
+        return new TransferService(newDefaultService(), transferConfig);
+    }
+
+    public TransferService newBigSliceSize369TransferService() {
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .setDivisionForUpload(4 * 1024 * 1024)
+                .setSliceSizeForUpload((2 * 1024 * 1024)+369)
                 .build();
         return new TransferService(newDefaultService(), transferConfig);
     }
@@ -356,6 +409,18 @@ public class ServiceFactory {
         return new TransferManager(newDefaultService(), transferConfig);
     }
 
+    public TransferManager newBigSliceSize369TransferManager() {
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .setDivisionForUpload(4 * 1024 * 1024)
+                .setSliceSizeForUpload((2 * 1024 * 1024)+369)
+                .setVerifyCRC64(true)
+                .setSliceSizeForCopy(5242880)
+                .setDividsionForCopy(5242880)
+                .build();
+        Log.d(TestConst.UT_TAG, String.valueOf(transferConfig.getDivisionForCopy()));
+        return new TransferManager(newDefaultService(), transferConfig);
+    }
+
 
     private CosXmlSimpleService newServiceBySessionCredentials(CosXmlServiceConfig cosXmlServiceConfig) {
 //        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
@@ -365,7 +430,7 @@ public class ServiceFactory {
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
-    private CosXmlSimpleService newService(CosXmlServiceConfig cosXmlServiceConfig) {
+    public CosXmlSimpleService newService(CosXmlServiceConfig cosXmlServiceConfig) {
         return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
 

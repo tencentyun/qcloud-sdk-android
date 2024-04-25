@@ -23,6 +23,8 @@
 package com.tencent.cos.xml.common;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.os.Environment;
 
@@ -42,6 +44,7 @@ import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.util.DomainSwitchUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -275,5 +278,25 @@ public class OtherTest {
             }
         }
         Assert.assertTrue(true);
+    }
+
+    @Test
+    public void testIsMyqcloudUrl(){
+        String[] testUrls = {
+                "ut-1257101689.cos.ap-chengdu.myqcloud.com",
+                "ut-1257101689.cos.ap-guangzhou.myqcloud.com",
+                "examplebucket-1250000000.file.myqcloud.com",
+                "ut-1257101689.cos.accelerate.myqcloud.com",
+                "service.cos.myqcloud.com",
+                "cos.ap-guangzhou.myqcloud.com",
+                "exampledomain.com"
+        };
+        assertTrue(DomainSwitchUtils.isMyqcloudUrl(testUrls[0]));
+        assertTrue(DomainSwitchUtils.isMyqcloudUrl(testUrls[1]));
+        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[2]));
+        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[3]));
+        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[4]));
+        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[5]));
+        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[6]));
     }
 }

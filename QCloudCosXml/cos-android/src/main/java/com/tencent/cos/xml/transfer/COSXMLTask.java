@@ -27,7 +27,7 @@ import static com.tencent.cos.xml.transfer.TaskStateMonitor.MESSAGE_TASK_MANUAL;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -46,6 +46,7 @@ import com.tencent.qcloud.core.http.HttpTaskMetrics;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -81,6 +82,8 @@ public abstract class COSXMLTask {
 
     /** header 属性 */
     protected Map<String, List<String>> headers;
+    /** 不强制签名的header集合 */
+    protected Set<String> noSignHeaders;
     /** 是否需要计算 MD5 */
     protected boolean isNeedMd5 = true;
     /** 进度回调监听器 */
@@ -110,6 +113,11 @@ public abstract class COSXMLTask {
 
     // 等待超时计时器
     protected Timer waitTimeoutTimer;
+
+    // 是否是取消后立即删除任务
+    private boolean isCancelNow;
+    // 是否是暂停后立即删除请求任务
+    private boolean isPauseNow;
 
     /**
      * 设置COS服务
@@ -200,9 +208,9 @@ public abstract class COSXMLTask {
 
     protected void internalFailed(){}
 
-    protected void internalPause(){}
+    protected void internalPause(boolean now){}
 
-    protected void internalCancel(){}
+    protected void internalCancel(boolean now){}
 
     protected void internalResume(){}
 
@@ -231,9 +239,29 @@ public abstract class COSXMLTask {
     }
 
     /**
+     * 暂停任务，若是 {@link COSXMLUploadTask} 请调用 {@link COSXMLUploadTask#pauseSafely()} 接口来暂停。
+     */
+    public void pause(boolean now) {
+        isPauseNow = now;
+        if(IS_EXIT.get())return;
+        else IS_EXIT.set(true);
+        monitor.sendStateMessage(this, TransferState.PAUSED,null,null, MESSAGE_TASK_MANUAL);
+    }
+
+    /**
      * 取消任务
      */
     public void cancel() {
+        if(IS_EXIT.get())return;
+        else IS_EXIT.set(true);
+        monitor.sendStateMessage(this, TransferState.CANCELED,new CosXmlClientException(ClientErrorCode.USER_CANCELLED.getCode(), "canceled by user"),null, MESSAGE_TASK_MANUAL);
+    }
+
+    /**
+     * 取消任务
+     */
+    public void cancel(boolean now) {
+        isCancelNow = now;
         if(IS_EXIT.get())return;
         else IS_EXIT.set(true);
         monitor.sendStateMessage(this, TransferState.CANCELED,new CosXmlClientException(ClientErrorCode.USER_CANCELLED.getCode(), "canceled by user"),null, MESSAGE_TASK_MANUAL);
@@ -378,7 +406,7 @@ public abstract class COSXMLTask {
                         || taskState == TransferState.IN_PROGRESS){
                     taskState = TransferState.PAUSED;
                     dispatchStateChange(taskState);
-                    internalPause();
+                    internalPause(isPauseNow);
                 }
                 break;
             case CANCELED:
@@ -390,7 +418,7 @@ public abstract class COSXMLTask {
                     if(cosXmlResultListener != null){
                         cosXmlResultListener.onFail(buildCOSXMLTaskRequest(), (CosXmlClientException) exception, null);
                     }
-                    internalCancel();
+                    internalCancel(isCancelNow);
                 }
                 break;
             case RESUMED_WAITING:
@@ -412,7 +440,7 @@ public abstract class COSXMLTask {
 
             default:
                 IllegalStateException illegalStateException = new IllegalStateException("invalid state: " + newTaskState);
-                BeaconService.getInstance().reportError(TAG ,illegalStateException);
+                CosTrackService.getInstance().reportError(TAG ,illegalStateException);
                 throw illegalStateException;
         }
     }

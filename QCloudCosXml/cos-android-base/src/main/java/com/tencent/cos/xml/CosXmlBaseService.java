@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 
 import com.tencent.cos.xml.base.BuildConfig;
 import com.tencent.cos.xml.common.ClientErrorCode;
+import com.tencent.cos.xml.common.VersionInfo;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
@@ -49,9 +50,10 @@ import com.tencent.cos.xml.transfer.ResponseXmlS3BodySerializer;
 import com.tencent.cos.xml.utils.StringUtils;
 import com.tencent.cos.xml.utils.URLEncodeUtils;
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
-import com.tencent.qcloud.core.auth.QCloudLifecycleCredentials;
+import com.tencent.qcloud.core.auth.QCloudCredentials;
 import com.tencent.qcloud.core.auth.QCloudSelfSigner;
 import com.tencent.qcloud.core.auth.QCloudSigner;
+import com.tencent.qcloud.core.auth.ScopeLimitCredentialProvider;
 import com.tencent.qcloud.core.auth.SignerFactory;
 import com.tencent.qcloud.core.auth.StaticCredentialProvider;
 import com.tencent.qcloud.core.common.QCloudClientException;
@@ -98,9 +100,9 @@ public class CosXmlBaseService implements BaseCosXml {
     private static final String TAG = "CosXmlBaseService";
 
     /**
-     * 是否关闭灯塔上报
+     * 是否关闭上报
      */
-    public static boolean IS_CLOSE_BEACON;
+    public static boolean IS_CLOSE_REPORT;
     /**
      * 桥接来源
      */
@@ -145,8 +147,11 @@ public class CosXmlBaseService implements BaseCosXml {
             QCloudLogger.addAdapter(logcatAdapter);
         }
 
-        BeaconService.init(context.getApplicationContext(), IS_CLOSE_BEACON, BRIDGE);
+        CosTrackService.init(context.getApplicationContext(), IS_CLOSE_REPORT, BRIDGE);
+
         appCachePath = context.getApplicationContext().getFilesDir().getPath();
+
+        TaskExecutors.initExecutor(configuration.getUploadMaxThreadCount(), configuration.getDownloadMaxThreadCount());
 
         setNetworkClient(configuration);
         ContextHolder.setContext(context);
@@ -210,7 +215,7 @@ public class CosXmlBaseService implements BaseCosXml {
                 builder.setNetworkClient((NetworkClient) clazz.newInstance());
             } catch (Exception e) {
                 IllegalStateException illegalStateException = new IllegalStateException(e.getMessage(), e);
-                BeaconService.getInstance().reportError(TAG, illegalStateException);
+                CosTrackService.getInstance().reportError(TAG, illegalStateException);
                 throw illegalStateException;
             }
         }else {
@@ -289,10 +294,9 @@ public class CosXmlBaseService implements BaseCosXml {
      */
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> QCloudHttpRequest buildHttpRequest
     (T1 cosXmlRequest, T2 cosXmlResult) throws CosXmlClientException {
-
         QCloudHttpRequest.Builder<T2> httpRequestBuilder = new QCloudHttpRequest.Builder<T2>()
                 .method(cosXmlRequest.getMethod())
-                .userAgent(config.getUserAgent())
+                .userAgent(getUserAgent())
                 .tag(tag);
 
         httpRequestBuilder.addNoSignHeaderKeys(config.getNoSignHeaders());
@@ -409,7 +413,18 @@ public class CosXmlBaseService implements BaseCosXml {
      */
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> T2 execute(T1 cosXmlRequest, T2 cosXmlResult)
             throws CosXmlClientException, CosXmlServiceException {
+        return this.execute(cosXmlRequest, cosXmlResult, false);
+    }
+    /**
+     * 同步执行
+     */
+    protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> T2 execute(T1 cosXmlRequest, T2 cosXmlResult, boolean internal)
+            throws CosXmlClientException, CosXmlServiceException {
         try {
+            if(TextUtils.isEmpty(cosXmlRequest.getRegion()) && config != null){
+                cosXmlRequest.setRegion(config.getRegion());
+            }
+
             if (cosXmlRequest.getMetrics() == null) {
                 cosXmlRequest.attachMetrics(new HttpTaskMetrics());
             }
@@ -418,33 +433,39 @@ public class CosXmlBaseService implements BaseCosXml {
 
             httpTask = client.resolveRequest(httpRequest, credentialProvider);
             httpTask.setTransferThreadControl(config.isTransferThreadControl());
+            httpTask.setUploadMaxThreadCount(config.getUploadMaxThreadCount());
+            httpTask.setDownloadMaxThreadCount(config.getDownloadMaxThreadCount());
+            httpTask.setDomainSwitch(config.isDomainSwitch());
             cosXmlRequest.setTask(httpTask);
 
             setProgressListener(cosXmlRequest, httpTask, false);
 
             HttpResult<T2> httpResult = httpTask.executeNow();
 
-            BeaconService.getInstance().reportRequestSuccess(cosXmlRequest);
-
+            CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest, internal);
             logRequestMetrics(cosXmlRequest);
 
             return httpResult != null ? httpResult.content() : null;
         } catch (QCloudServiceException e) {
-            throw BeaconService.getInstance().reportRequestServiceException(cosXmlRequest, e);
+            throw CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, e, internal);
         } catch (QCloudClientException e) {
-            throw BeaconService.getInstance().reportRequestClientException(cosXmlRequest, e);
+            throw CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e, internal);
         }
     }
 
+    protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> void schedule(final T1 cosXmlRequest, T2 cosXmlResult,
+                                                                                final CosXmlResultListener cosXmlResultListener) {
+        this.schedule(cosXmlRequest, cosXmlResult, cosXmlResultListener, false);
+    }
     /**
      * 异步执行
      */
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> void schedule(final T1 cosXmlRequest, T2 cosXmlResult,
-                                                                                final CosXmlResultListener cosXmlResultListener) {
+                                                                                final CosXmlResultListener cosXmlResultListener, boolean internal) {
         QCloudResultListener<HttpResult<T2>> qCloudResultListener = new QCloudResultListener<HttpResult<T2>>() {
             @Override
             public void onSuccess(HttpResult<T2> result) {
-                BeaconService.getInstance().reportRequestSuccess(cosXmlRequest);
+                CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest, internal);
                 logRequestMetrics(cosXmlRequest);
                 cosXmlResultListener.onSuccess(cosXmlRequest, result.content());
             }
@@ -453,16 +474,20 @@ public class CosXmlBaseService implements BaseCosXml {
             public void onFailure(QCloudClientException clientException, QCloudServiceException serviceException) {
                 logRequestMetrics(cosXmlRequest);
                 if (clientException != null) {
-                    CosXmlClientException xmlClientException = BeaconService.getInstance().reportRequestClientException(cosXmlRequest, clientException);
+                    CosXmlClientException xmlClientException = CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, clientException, internal);
                     cosXmlResultListener.onFail(cosXmlRequest, xmlClientException,null);
                 } else if (serviceException != null) {
-                    CosXmlServiceException xmlServiceException = BeaconService.getInstance().reportRequestServiceException(cosXmlRequest, serviceException);
+                    CosXmlServiceException xmlServiceException = CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, serviceException, internal);
                     cosXmlResultListener.onFail(cosXmlRequest, null, xmlServiceException);
                 }
             }
         };
 
         try {
+            if(TextUtils.isEmpty(cosXmlRequest.getRegion()) && config != null){
+                cosXmlRequest.setRegion(config.getRegion());
+            }
+
             if (cosXmlRequest.getMetrics() == null) {
                 cosXmlRequest.attachMetrics(new HttpTaskMetrics());
             }
@@ -477,7 +502,9 @@ public class CosXmlBaseService implements BaseCosXml {
             httpTask = client.resolveRequest(httpRequest, credentialProvider);
             
             httpTask.setTransferThreadControl(config.isTransferThreadControl());
-
+            httpTask.setUploadMaxThreadCount(config.getUploadMaxThreadCount());
+            httpTask.setDownloadMaxThreadCount(config.getDownloadMaxThreadCount());
+            httpTask.setDomainSwitch(config.isDomainSwitch());
             cosXmlRequest.setTask(httpTask);
 
             setProgressListener(cosXmlRequest, httpTask, true);
@@ -498,7 +525,7 @@ public class CosXmlBaseService implements BaseCosXml {
             }
 
         } catch (QCloudClientException e) {
-            CosXmlClientException clientException = BeaconService.getInstance().reportRequestClientException(cosXmlRequest, e);
+            CosXmlClientException clientException = CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e, internal);
             cosXmlResultListener.onFail(cosXmlRequest, clientException,null);
         }
     }
@@ -543,14 +570,14 @@ public class CosXmlBaseService implements BaseCosXml {
             // host = cosXmlRequest.getHost(config, false);
             host = getRequestHost(cosXmlRequest);
         } catch (CosXmlClientException e) {
-            BeaconService.getInstance().reportError(TAG, e);
+            CosTrackService.getInstance().reportError(TAG, e);
             e.printStackTrace();
         }
         String path = "/";
         try {
             path = URLEncodeUtils.cosPathEncode(cosXmlRequest.getPath(config));
         } catch (CosXmlClientException e) {
-            BeaconService.getInstance().reportError(TAG, e);
+            CosTrackService.getInstance().reportError(TAG, e);
             e.printStackTrace();
         }
         return config.getProtocol() + "://" + host + path;
@@ -566,11 +593,19 @@ public class CosXmlBaseService implements BaseCosXml {
     public String getPresignedURL(CosXmlRequest cosXmlRequest) throws CosXmlClientException {
         try {
             //step1: obtain sign, contain token if it exist.
-            QCloudLifecycleCredentials qCloudLifecycleCredentials = (QCloudLifecycleCredentials) credentialProvider.getCredentials();
+            // 根据 provider 类型判断是否需要传入 credential scope
+            QCloudCredentials credentials;
+            if (credentialProvider instanceof ScopeLimitCredentialProvider) {
+                credentials = ((ScopeLimitCredentialProvider) credentialProvider).getCredentials(
+                        cosXmlRequest.getSTSCredentialScope(config));
+            } else {
+                credentials = credentialProvider.getCredentials();
+            }
+
             QCloudSigner signer = SignerFactory.getSigner(signerTypeCompat(signerType, cosXmlRequest));
 
             QCloudHttpRequest request = buildHttpRequest(cosXmlRequest, null);
-            signer.sign(request, qCloudLifecycleCredentials);
+            signer.sign(request, credentials);
             String sign = request.header(HttpConstants.Header.AUTHORIZATION);
             String token = request.header("x-cos-security-token");
             if(!TextUtils.isEmpty(token)){
@@ -593,7 +628,6 @@ public class CosXmlBaseService implements BaseCosXml {
      * 获取 COS 对象的同步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#getObject(GetObjectRequest)}
-     * </p>
      */
     @Override
     public GetObjectResult getObject(GetObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -605,11 +639,17 @@ public class CosXmlBaseService implements BaseCosXml {
      * 获取 COS 对象的异步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#getObjectAsync(GetObjectRequest, CosXmlResultListener)}
-     * </p>
      */
     @Override
     public void getObjectAsync(GetObjectRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetObjectResult(), cosXmlResultListener);
+    }
+
+    public GetObjectResult internalGetObject(GetObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetObjectResult(), true);
+    }
+    public void internalGetObjectAsync(GetObjectRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new GetObjectResult(), cosXmlResultListener, true);
     }
 
     /**
@@ -631,7 +671,6 @@ public class CosXmlBaseService implements BaseCosXml {
      * 基础简单上传的同步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#basePutObject(BasePutObjectRequest)}
-     * </p>
      */
     @Override
     public BasePutObjectResult basePutObject(BasePutObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -645,7 +684,6 @@ public class CosXmlBaseService implements BaseCosXml {
      * 基础简单上传的异步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#basePutObjectAsync(BasePutObjectRequest, CosXmlResultListener)}
-     * </p>
      */
     @Override
     public void basePutObjectAsync(BasePutObjectRequest request, CosXmlResultListener cosXmlResultListener) {
@@ -659,7 +697,6 @@ public class CosXmlBaseService implements BaseCosXml {
      * 上传一个对象某个分片块的同步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#uploadPart(UploadPartRequest)}
-     * </p>
      */
     @Override
     public UploadPartResult uploadPart(UploadPartRequest request) throws CosXmlClientException, CosXmlServiceException {
@@ -671,7 +708,6 @@ public class CosXmlBaseService implements BaseCosXml {
      * 上传一个对象某个分片块的异步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#uploadPartAsync(UploadPartRequest, CosXmlResultListener)}
-     * </p>
      */
     @Override
     public void uploadPartAsync(UploadPartRequest request, CosXmlResultListener cosXmlResultListener) {
@@ -693,6 +729,17 @@ public class CosXmlBaseService implements BaseCosXml {
     public void cancel(CosXmlRequest cosXmlRequest) {
         if (cosXmlRequest != null && cosXmlRequest.getHttpTask() != null) {
             cosXmlRequest.getHttpTask().cancel();
+        }
+    }
+
+    /**
+     * 取消请求任务.&nbsp;
+     * 详细介绍，请查看:{@link  BaseCosXml#cancel(CosXmlRequest)}
+     */
+    @Override
+    public void cancel(CosXmlRequest cosXmlRequest, boolean now) {
+        if (cosXmlRequest != null && cosXmlRequest.getHttpTask() != null) {
+            cosXmlRequest.getHttpTask().cancel(now);
         }
     }
 
@@ -736,6 +783,28 @@ public class CosXmlBaseService implements BaseCosXml {
 
     public CosXmlServiceConfig getConfig() {
         return config;
+    }
+
+    /**
+     * 获取UserAgent
+     * @return UserAgent
+     */
+    public String getUserAgent() {
+        if(config == null){
+            return VersionInfo.getUserAgent();
+        }
+
+        String userAgent;
+        if(config.isEnableQuic()) {
+            userAgent = VersionInfo.getQuicUserAgent();
+        } else {
+            userAgent = VersionInfo.getUserAgent();
+        }
+        if(TextUtils.isEmpty(config.getUserAgentExtended())){
+            return userAgent;
+        } else {
+            return userAgent + "-" + config.getUserAgentExtended();
+        }
     }
 
     /**

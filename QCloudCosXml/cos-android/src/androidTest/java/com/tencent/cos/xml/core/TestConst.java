@@ -57,6 +57,11 @@ public class TestConst {
     public static final String ASR_OBJECT_LONG = "asr/aaa.m4a";
     public static final String ASR_OBJECT_OUTPUT = "asr/output.txt";
 
+    public static final String MEDIA_BUCKET_VIDEO = "media/video.mp4";
+    public static final String MEDIA_BUCKET_IMAGE = "media/test.jpg";
+    public static final String MEDIA_BUCKET_M3U8 = "media/playlist.m3u8";
+    public static final String MEDIA_BUCKET_JOB_RESULT = "media/job_result/";
+
     //分词
     public static final String WORDS_GENERALIZE_BUCKET_REGION = "ap-chongqing";
     public static final String WORDS_GENERALIZE_BUCKET = "tinna-media-1253960454";

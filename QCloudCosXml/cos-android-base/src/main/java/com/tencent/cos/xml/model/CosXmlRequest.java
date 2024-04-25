@@ -189,6 +189,15 @@ public abstract class CosXmlRequest{
         }
     }
 
+    /**
+     * 添加不强制签名的header键
+     */
+    public void addNoSignHeader(Set<String> keys) {
+        if (keys != null) {
+            noSignHeaders.addAll(keys);
+        }
+    }
+
     public void addNoSignParams(String key) {
         if (!TextUtils.isEmpty(key)) {
             noSignParams.add(key);
@@ -436,8 +445,11 @@ public abstract class CosXmlRequest{
      */
     public STSCredentialScope[] getSTSCredentialScope(CosXmlServiceConfig config) {
         String action = "name/cos:" + getClass().getSimpleName().replace("Request", "");
-        STSCredentialScope scope = new STSCredentialScope(action, config.getBucket(bucket),
-                config.getRegion(), getPath(config));
+        STSCredentialScope scope = new STSCredentialScope(
+                action,
+                config.getBucket(bucket),
+                this.getRegion() == null ? config.getRegion() : this.getRegion(),
+                getPath(config));
         return scope.toArray();
     }
 

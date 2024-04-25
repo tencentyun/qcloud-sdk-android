@@ -28,11 +28,7 @@
 -keep class com.tencent.cos.xml.**{*;}
 
 #foundation
+-keep class com.tencent.qcloud.core.**{*;}
+-keep class com.tencent.qcloud.qcloudxml.core.**{*;}
 -keep class com.tencent.qcloud.cos.**{*;}
-
-# beacon
--keep class com.tencent**qimei.** { *;}
--keep class com.tencent.qmsp.oaid2.** {*;}
--keep class com.tencent.beacon.** { *;}
-
 

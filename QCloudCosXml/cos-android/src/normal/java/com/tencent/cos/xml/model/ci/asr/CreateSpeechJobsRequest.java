@@ -276,10 +276,6 @@ public class CreateSpeechJobsRequest extends BucketRequest {
             throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "input must be non-empty");
         }
 
-        if(TextUtils.isEmpty(createSpeechJobs.queueId)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "queueId must be non-empty");
-        }
-
         if(TextUtils.isEmpty(createSpeechJobs.operation.output.region) ||
                 TextUtils.isEmpty(createSpeechJobs.operation.output.bucket) ||
                 TextUtils.isEmpty(createSpeechJobs.operation.output.object)){

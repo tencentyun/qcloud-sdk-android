@@ -133,6 +133,15 @@ public class COSUploadTask extends COSTransferTask {
     }
 
     @Override
+    public void pause(boolean now) {
+        super.pause();
+
+        if (uploadTask != null) {
+            uploadTask.cancel(now);
+        }
+    }
+
+    @Override
     public void cancel() {
         super.cancel();
 
@@ -140,6 +149,19 @@ public class COSUploadTask extends COSTransferTask {
             uploadTask.cancel();
         }
         
+        if (uploadTask instanceof MultipartUploadTask) {
+            ((MultipartUploadTask) uploadTask).abort();
+        }
+    }
+
+    @Override
+    public void cancel(boolean now) {
+        super.cancel();
+
+        if (uploadTask != null) {
+            uploadTask.cancel(now);
+        }
+
         if (uploadTask instanceof MultipartUploadTask) {
             ((MultipartUploadTask) uploadTask).abort();
         }
@@ -351,6 +373,8 @@ public class COSUploadTask extends COSTransferTask {
 
         abstract public void cancel();
 
+        abstract public void cancel(boolean now);
+
         protected abstract CosXmlResult upload(PutObjectRequest putObjectRequest) throws Exception;
     }
 
@@ -366,6 +390,11 @@ public class COSUploadTask extends COSTransferTask {
         @Override
         public void cancel() {
             cosDirect.cancel(putObjectRequest);
+        }
+
+        @Override
+        public void cancel(boolean now) {
+            cosDirect.cancel(putObjectRequest, now);
         }
 
         @Override
@@ -488,6 +517,26 @@ public class COSUploadTask extends COSTransferTask {
             }
             if (uploadPartsTask != null) {
                 uploadPartsTask.cancel();
+            }
+        }
+
+        @Override
+        public void cancel(boolean now) {
+
+            if (listMultiUploadsRequest != null) {
+                cosDirect.cancel(listMultiUploadsRequest, now);
+            }
+            if (initMultipartUploadRequest != null) {
+                cosDirect.cancel(initMultipartUploadRequest, now);
+            }
+            if (listPartsRequest != null) {
+                cosDirect.cancel(listPartsRequest, now);
+            }
+            if (completeMultiUploadRequest != null) {
+                cosDirect.cancel(completeMultiUploadRequest, now);
+            }
+            if (uploadPartsTask != null) {
+                uploadPartsTask.cancel(now);
             }
         }
 

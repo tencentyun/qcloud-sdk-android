@@ -150,28 +150,38 @@ public class DigestUtils {
     }
 
     @Nullable public static String getCOSMd5(InputStream inputStream, long skip, long size) throws IOException {
-        try{
-            long skipNumber = inputStream.skip(skip);
-            if (skipNumber != skip) {
-                return "";
+        try {
+            long skipped = 0L;
+            while (skipped < skip) {
+                long result = inputStream.skip(skip - skipped);
+                if (result == 0) {
+                    throw new IOException("Failed to skip requested bytes");
+                }
+                skipped += result;
             }
+
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");
             byte[] buff = new byte[8 * 1024];
             int readLen;
             long remainLength = size >= 0 ? size : Long.MAX_VALUE;
-            int needSize = (int) Math.min(remainLength, buff.length);
-            while (remainLength > 0L && (readLen = inputStream.read(buff, 0, needSize))!= -1){
-                if (readLen < needSize) {
-                    return "";
+
+            while (remainLength > 0L) {
+                int needSize = (int) Math.min(remainLength, buff.length);
+                readLen = 0;
+                while (readLen < needSize) {
+                    int result = inputStream.read(buff, readLen, needSize - readLen);
+                    if (result == -1) {
+                        throw new IOException("Unexpected end of stream");
+                    }
+                    readLen += result;
                 }
                 messageDigest.update(buff, 0, readLen);
                 remainLength -= readLen;
             }
+
             return "\"" + StringUtils.toHexString(messageDigest.digest()) + "\"";
-        } catch (IOException e) {
-            throw e;
         } catch (NoSuchAlgorithmException e) {
-            throw new IOException("unSupport Md5 algorithm", e);
+            throw new IOException("Unsupported MD5 algorithm", e);
         }
     }
 

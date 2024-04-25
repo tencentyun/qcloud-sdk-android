@@ -158,12 +158,6 @@ public class CosXmlSimpleService implements SimpleCosXml {
     }
 
 //    private CosXmlClientException convertClientException(QCloudClientException clientException) {
-//        //网络未连接的情况
-//        if (!TextUtils.isEmpty(clientException.getMessage()) &&
-//                clientException.getMessage().contains("NetworkNotConnected")) {
-//            return new CosXmlClientException(ClientErrorCode.NETWORK_NOT_CONNECTED.code, clientException);
-//        }
-//
 //        CosXmlClientException xmlClientException;
 //        if (clientException instanceof CosXmlClientException) {
 //            xmlClientException = (CosXmlClientException) clientException;

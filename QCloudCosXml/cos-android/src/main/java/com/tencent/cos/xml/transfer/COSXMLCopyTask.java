@@ -25,7 +25,7 @@ package com.tencent.cos.xml.transfer;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.BeaconService;
+import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
@@ -123,10 +123,10 @@ public final class COSXMLCopyTask extends COSXMLTask {
     private void reportException(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
 
         if (clientException != null) {
-            BeaconService.getInstance().reportCopyTaskClientException(request, clientException);
+            CosTrackService.getInstance().reportCopyTaskClientException(request, clientException);
         }
         if (serviceException != null) {
-            BeaconService.getInstance().reportCopyTaskServiceException(request, serviceException);
+            CosTrackService.getInstance().reportCopyTaskServiceException(request, serviceException);
         }
     }
 
@@ -144,6 +144,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 copyObjectRequest.getCopySource());
         this.queries = copyObjectRequest.getQueryString();
         this.headers = copyObjectRequest.getRequestHeaders();
+        this.noSignHeaders = copyObjectRequest.getNoSignHeaders();
         this.isNeedMd5 = copyObjectRequest.isNeedMD5();
     }
 
@@ -152,6 +153,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 copyObjectRequest.getCopySource());
         this.queries = copyObjectRequest.getQueryString();
         this.headers = copyObjectRequest.getRequestHeaders();
+        this.noSignHeaders = copyObjectRequest.getNoSignHeaders();
         this.isNeedMd5 = copyObjectRequest.isNeedMD5();
         this.uploadId = uploadId;
     }
@@ -168,6 +170,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         copyObjectRequest.setRegion(region);
 
         copyObjectRequest.setRequestHeaders(headers);
+        copyObjectRequest.addNoSignHeader(noSignHeaders);
 
         if(onSignatureListener != null){
             copyObjectRequest.setSign(onSignatureListener.onGetSign(copyObjectRequest));
@@ -175,7 +178,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
 
         getHttpMetrics(copyObjectRequest, "CopyObjectRequest");
 
-        cosXmlService.copyObjectAsync(copyObjectRequest, new CosXmlResultListener() {
+        cosXmlService.internalCopyObjectAsync(copyObjectRequest, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 if(request != copyObjectRequest){
@@ -184,7 +187,8 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
                 // BeaconService.getInstance().reportCopy(region);
-                BeaconService.getInstance().reportCopyTaskSuccess(request);
+                // CosTrackService.getInstance().reportCopy(region);
+                CosTrackService.getInstance().reportCopyTaskSuccess(request);
                 updateState(TransferState.COMPLETED, null, result, false);
             }
 
@@ -216,6 +220,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         initMultipartUploadRequest.setRegion(region);
 
         initMultipartUploadRequest.setRequestHeaders(headers);
+        initMultipartUploadRequest.addNoSignHeader(noSignHeaders);
 
         if(onSignatureListener != null){
             initMultipartUploadRequest.setSign(onSignatureListener.onGetSign(initMultipartUploadRequest));
@@ -231,7 +236,6 @@ public final class COSXMLCopyTask extends COSXMLTask {
                     return;
                 }
                 if(IS_EXIT.get())return;
-                httpTaskMetrics = httpTaskMetrics.merge(request.getMetrics());
                 uploadId = ((InitMultipartUploadResult)result).initMultipartUpload.uploadId;
                 largeCopyStateListenerHandler.onInit();
             }
@@ -273,6 +277,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         listPartsRequest = new ListPartsRequest(bucket, cosPath, uploadId);
 
         listPartsRequest.setRequestHeaders(headers);
+        listPartsRequest.addNoSignHeader(noSignHeaders);
 
         if(onSignatureListener != null){
             listPartsRequest.setSign(onSignatureListener.onGetSign(listPartsRequest));
@@ -288,7 +293,6 @@ public final class COSXMLCopyTask extends COSXMLTask {
                     return;
                 }
                 if(IS_EXIT.get())return;
-                httpTaskMetrics = httpTaskMetrics.merge(request.getMetrics());
                 updateSlicePart((ListPartsResult)result);
                 largeCopyStateListenerHandler.onListParts();
             }
@@ -333,6 +337,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 uploadPartCopyRequest.setRegion(region);
 
                 uploadPartCopyRequest.setRequestHeaders(headers);
+                uploadPartCopyRequest.addNoSignHeader(noSignHeaders);
 
                 if(onSignatureListener != null){
                     uploadPartCopyRequest.setSign(onSignatureListener.onGetSign(uploadPartCopyRequest));
@@ -349,7 +354,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
                             return;
                         }
                         if(IS_EXIT.get())return;
-                        httpTaskMetrics = httpTaskMetrics.merge(request.getMetrics());
+                        httpTaskMetrics.merge(request.getMetrics());
                         copyPartStruct.eTag = ((UploadPartCopyResult)result).copyObject.eTag;
                         copyPartStruct.isAlreadyUpload = true;
                         synchronized (SYNC_UPLOAD_PART){
@@ -387,6 +392,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
 
         completeMultiUploadRequest.setNeedMD5(isNeedMd5);
         completeMultiUploadRequest.setRequestHeaders(headers);
+        completeMultiUploadRequest.addNoSignHeader(noSignHeaders);
 
         if(onSignatureListener != null){
             completeMultiUploadRequest.setSign(onSignatureListener.onGetSign(completeMultiUploadRequest));
@@ -403,8 +409,9 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
                 //BeaconService.getInstance().reportCopy(region);
-                request.attachMetrics(httpTaskMetrics.merge(request.getMetrics()));
-                BeaconService.getInstance().reportCopyTaskSuccess(request);
+                //CosTrackService.getInstance().reportCopy(region);
+                request.attachMetrics(httpTaskMetrics);
+                CosTrackService.getInstance().reportCopyTaskSuccess(request);
                 largeCopyStateListenerHandler.onCompleted(request, result);
             }
 
@@ -424,32 +431,32 @@ public final class COSXMLCopyTask extends COSXMLTask {
      *  暂停、失败、取消调用
      * @param cosXmlService cosXmlSimpleService
      */
-    private void cancelAllRequest(CosXmlSimpleService cosXmlService){
+    private void cancelAllRequest(CosXmlSimpleService cosXmlService, boolean now){
         HeadObjectRequest tempHeadObjectRequest = headObjectRequest;
         if(tempHeadObjectRequest != null){
-            cosXmlService.cancel(tempHeadObjectRequest);
+            cosXmlService.cancel(tempHeadObjectRequest, now);
         }
         CopyObjectRequest tempCopyObjectRequest = copyObjectRequest;
         if(tempCopyObjectRequest != null){
-            cosXmlService.cancel(tempCopyObjectRequest);
+            cosXmlService.cancel(tempCopyObjectRequest, now);
         }
         InitMultipartUploadRequest tempInitMultipartRequest = initMultipartUploadRequest;
         if(tempInitMultipartRequest != null){
-            cosXmlService.cancel(tempInitMultipartRequest);
+            cosXmlService.cancel(tempInitMultipartRequest, now);
         }
         ListPartsRequest tempListPartsRequest = listPartsRequest;
         if(tempListPartsRequest != null){
-            cosXmlService.cancel(tempListPartsRequest);
+            cosXmlService.cancel(tempListPartsRequest, now);
         }
         if(uploadPartCopyRequestList != null) {
             Iterator<UploadPartCopyRequest> iterator = uploadPartCopyRequestList.iterator();
             while (iterator.hasNext()){
-                cosXmlService.cancel(iterator.next());
+                cosXmlService.cancel(iterator.next(), now);
             }
         }
         CompleteMultiUploadRequest tempCompleteMultiUploadRequest = completeMultiUploadRequest;
         if(tempCompleteMultiUploadRequest != null){
-            cosXmlService.cancel(tempCompleteMultiUploadRequest);
+            cosXmlService.cancel(tempCompleteMultiUploadRequest, now);
         }
     }
 
@@ -499,21 +506,22 @@ public final class COSXMLCopyTask extends COSXMLTask {
 
     @Override
     protected void internalFailed() {
-        cancelAllRequest(cosXmlService);
+        cancelAllRequest(cosXmlService, false);
     }
 
     @Override
-    protected void internalPause() {
+    protected void internalPause(boolean now) {
         // BeaconService.getInstance().reportCopy(region);
+        // CosTrackService.getInstance().reportCopy(region);
         CosXmlRequest request = buildCOSXMLTaskRequest();
         request.attachMetrics(httpTaskMetrics);
-        BeaconService.getInstance().reportUploadTaskSuccess(request);
-        cancelAllRequest(cosXmlService);
+        CosTrackService.getInstance().reportCopyTaskSuccess(request);
+        cancelAllRequest(cosXmlService, now);
     }
 
     @Override
-    protected void internalCancel() {
-        cancelAllRequest(cosXmlService);
+    protected void internalCancel(boolean now) {
+        cancelAllRequest(cosXmlService, now);
         if(isLargeCopy)abortMultiUpload(cosXmlService);
     }
 
