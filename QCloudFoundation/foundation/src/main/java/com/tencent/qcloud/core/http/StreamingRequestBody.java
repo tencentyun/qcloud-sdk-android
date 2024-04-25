@@ -29,6 +29,7 @@ import com.tencent.qcloud.core.common.QCloudDigistListener;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.util.Base64Utils;
+import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 import com.tencent.qcloud.core.util.QCloudUtils;
 
 import java.io.ByteArrayInputStream;
@@ -44,7 +45,6 @@ import java.security.NoSuchAlgorithmException;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
-import okhttp3.internal.Util;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
@@ -143,7 +143,7 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
     }
 
     boolean isLargeData() {
-        return file != null || stream != null;
+        return file != null || uri != null || stream != null;
     }
 
     @Override
@@ -158,13 +158,20 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
     @Override
     public long contentLength() throws IOException {
         long contentMaxLength = getContentRawLength();
+        long contentLength;
         if (contentMaxLength <= 0) {
-            return Math.max(requiredLength, -1);
+            contentLength = Math.max(requiredLength, -1);
         } else if (requiredLength <= 0) {
-            return Math.max(contentMaxLength - offset, -1);
+            contentLength = Math.max(contentMaxLength - offset, -1);
         } else {
-            return Math.min(contentMaxLength - offset, requiredLength);
+            contentLength = Math.min(contentMaxLength - offset, requiredLength);
         }
+
+        // 此处考虑文件被修改，大小发生变化，contentMaxLength - offset为负数的情况，会导致400 Bad Request
+        if(contentLength < 0){
+            contentLength = -1;
+        }
+        return contentLength;
     }
 
     protected long getContentRawLength() throws IOException {
@@ -191,7 +198,7 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
             try {
                 saveInputStreamToTmpFile(stream, file);
             } finally {
-                if(stream != null) Util.closeQuietly(stream);
+                if(stream != null) OkhttpInternalUtils.closeQuietly(stream);
                 stream = null;
                 offset = 0;
             }
@@ -238,7 +245,7 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
             }
             fos.flush();
         } finally {
-            if(fos != null) Util.closeQuietly(fos);
+            if(fos != null) OkhttpInternalUtils.closeQuietly(fos);
         }
     }
 
@@ -264,9 +271,9 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
             }
 
         } finally {
-            if(inputStream != null) Util.closeQuietly(inputStream);
-            if(source != null) Util.closeQuietly(source);
-            if(countingSink != null) Util.closeQuietly(countingSink);
+            if(inputStream != null) OkhttpInternalUtils.closeQuietly(inputStream);
+            if(source != null) OkhttpInternalUtils.closeQuietly(source);
+            if(countingSink != null) OkhttpInternalUtils.closeQuietly(countingSink);
         }
     }
 
@@ -294,7 +301,7 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
         } catch (NoSuchAlgorithmException e) {
             throw new IOException("unSupport Md5 algorithm", e);
         } finally {
-            if(inputStream != null)Util.closeQuietly(inputStream);
+            if(inputStream != null)OkhttpInternalUtils.closeQuietly(inputStream);
         }
     }
 

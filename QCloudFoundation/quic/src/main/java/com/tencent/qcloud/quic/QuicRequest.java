@@ -22,12 +22,13 @@
 
 package com.tencent.qcloud.quic;
 
-import okhttp3.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class QuicRequest {
+import okhttp3.RequestBody;
 
+public class QuicRequest {
+    protected String url;
     protected String host;
     protected String ip;
     protected int port;
@@ -37,7 +38,8 @@ public class QuicRequest {
 
     protected RequestBody requestBody;
 
-    public QuicRequest(String host, String ip, int port, int tcpPort){
+    public QuicRequest(String url, String host, String ip, int port, int tcpPort){
+        this.url = url;
         this.host = host;
         this.ip = ip;
         this.port = port;

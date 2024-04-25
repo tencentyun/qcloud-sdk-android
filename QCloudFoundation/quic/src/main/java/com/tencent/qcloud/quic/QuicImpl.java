@@ -25,6 +25,7 @@ package com.tencent.qcloud.quic;
 import com.tencent.qcloud.core.http.CallMetricsListener;
 import com.tencent.qcloud.core.http.QCloudHttpClient;
 import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.tquic.impl.TnetQuicRequest;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -39,21 +40,13 @@ import java.util.concurrent.CountDownLatch;
 import okio.BufferedSink;
 import okio.Okio;
 
-import static com.tencent.qcloud.quic.QuicNative.CLIENT_FAILED;
-import static com.tencent.qcloud.quic.QuicNative.COMPLETED;
-import static com.tencent.qcloud.quic.QuicNative.CONNECTED;
-import static com.tencent.qcloud.quic.QuicNative.NetworkCallback;
-import static com.tencent.qcloud.quic.QuicNative.SERVER_FAILED;
-import static com.tencent.qcloud.quic.QuicNative.readableState;
-
-public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<QuicResponse>{
+public class QuicImpl extends TnetQuicRequest.Callback implements java.util.concurrent.Callable<QuicResponse>{
 
     private QuicRequest quicRequest;
     private QuicResponse quicResponse;
     private QuicException exception;
 
-    private ConnectPool connectPool;
-    private QuicNative realQuicCall;
+    private TnetQuicRequest realQuicCall;
 
     // Quic 通过 onDataReceive 回调来返回响应数据，首先返回 Header，然后返回 Body
     // 是否已经接收了 Header 数据
@@ -78,13 +71,10 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
 
     private static final CallMetricsListener emptyCallMetricsListener = new CallMetricsListener(null);
 
-    private String handleId;
-
     private CountDownLatch latch = new CountDownLatch(1);
 
-    public QuicImpl(QuicRequest quicRequest, ConnectPool connectPool){
+    public QuicImpl(QuicRequest quicRequest){
         this.quicRequest = quicRequest;
-        this.connectPool = connectPool;
         this.quicResponse = new QuicResponse();
         this.callMetricsListener = emptyCallMetricsListener;
     }
@@ -103,48 +93,50 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
 
     /**
      * 成功建立链接
-     * @param handleId
-     * @param code
      */
     @Override
-    public void onConnect(int handleId, int code) {
+    public void onConnect(int error_code) {
         onInternalConnect();
     }
 
+    @Override
+    public void onNetworkLinked() {
+
+    }
+
     /**
-     * 接收响应包
-     * @param handleId
-     * @param data
-     * @param len
+     * 接收响应包 Header
      */
     @Override
-    public void onDataReceive(int handleId, byte[] data, int len) {
-        onInternalReceiveResponse(data, len);
+    public void onHeaderRecv(String header) {
+        onInternalReceiveHeaderResponse(header);
+    }
+
+    /**
+     * 接收响应包 Body
+     */
+    @Override
+    public void onDataRecv(byte[] body) {
+        onInternalReceiveBodyResponse(body, body.length);
     }
 
     /**
      * 响应包已接收完
-     * @param handleId
      */
     @Override
-    public void onCompleted(int handleId, int code) {
-        onInternalComplete(handleId, code);
+    public void onComplete(int stream_error) {
+        onInternalComplete();
     }
 
     /**
      * 底层链接 close
-     * @param handleId
-     * @param code
-     * @param desc
      */
     @Override
-    public void onClose(int handleId, int code, String desc) {
-        onInternalClose(handleId, code, desc);
+    public void onClose(int error_code, String error_str) {
+        onInternalClose();
     }
 
     private void onInternalClientFailed(Exception clientException) {
-
-        connectPool.updateQuicNativeState(realQuicCall, CLIENT_FAILED);
         reportException = true;
         exception = new QuicException(clientException);
         latch.countDown();
@@ -152,12 +144,24 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
     }
 
     private void onInternalConnect() {
-        connectPool.updateQuicNativeState(realQuicCall, CONNECTED);
         isOver = false;
         sendData();
     }
 
-    private void onInternalReceiveResponse(byte[] data, int len){
+    private void onInternalReceiveHeaderResponse(String header){
+        // quic 并不会走到这里
+//        parseResponseHeader(header);
+//        callMetricsListener.responseHeadersEnd(null, null);
+//        receivedHeader = true;
+//        callMetricsListener.responseBodyStart(null);
+//        receivedResponse = true;
+    }
+
+    private void onInternalReceiveBodyResponse(byte[] data, int len){
+//        parseBody(data, len);
+//        callMetricsListener.responseBodyEnd(null, -1L);
+//        receivedResponse = true;
+
         if (!receivedHeader) {
             parseResponseHeader(data, len);
             callMetricsListener.responseHeadersEnd(null, null);
@@ -170,21 +174,17 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
         receivedResponse = true;
     }
 
-    private void onInternalComplete(int handleId, int code) {
-
+    private void onInternalComplete() {
         isCompleted = true;
-        connectPool.updateQuicNativeState(realQuicCall, COMPLETED);
         latch.countDown();
         quitSafely();
     }
 
-    private void onInternalClose(int handleId, int code, String desc) {
+    private void onInternalClose() {
 
         if(isOver) {
             return; //cancel by user
         }
-
-        connectPool.updateQuicNativeState(realQuicCall, SERVER_FAILED);
         reportException = true;
         latch.countDown();
         quitSafely();
@@ -196,7 +196,7 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
      */
     private void startConnect(){
         callMetricsListener.connectStart(null, null, null);
-        realQuicCall.connect(quicRequest.host, quicRequest.ip, quicRequest.port, quicRequest.tcpPort);
+        realQuicCall.connect(quicRequest.url, quicRequest.ip);
     }
 
     /**
@@ -208,7 +208,7 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
             callMetricsListener.requestHeadersStart(null);
             //发送 header
             for(Map.Entry<String, String> header : quicRequest.headers.entrySet()){
-                realQuicCall.addHeader(header.getKey(), header.getValue());
+                realQuicCall.addHeaders(header.getKey(), header.getValue());
             }
             callMetricsListener.requestHeadersEnd(null, null);
             callMetricsListener.requestBodyStart(null);
@@ -232,8 +232,6 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
             onInternalClientFailed(e);
         }
     }
-
-
 
     /**
      * 解析头部字段
@@ -403,22 +401,25 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
      * 取消链接
      */
     public void cancelConnect(){
-        realQuicCall.cancelRequest();
+        if (realQuicCall != null) {
+            realQuicCall.CancelRequest();
+        }
     }
 
     /**
      * 清除资源
      */
     public void clear(){
-        realQuicCall.clear();
+        if (realQuicCall != null) {
+            realQuicCall.Destroy();
+        }
     }
 
     @Override
     public QuicResponse call() throws QuicException {
 
         QCloudLogger.d(QCloudHttpClient.QUIC_LOG_TAG, "create new QuicNative object");
-        realQuicCall = ConnectPool.createNewQuicNative(quicRequest.host, quicRequest.ip, quicRequest.port, quicRequest.tcpPort);
-        realQuicCall.setCallback(this);
+        realQuicCall = new TnetQuicRequest(this, QuicClientImpl.getQuicConfig(), 0);
 
         QCloudLogger.d(QCloudHttpClient.QUIC_LOG_TAG, "start connect " + realQuicCall.toString());
 
@@ -431,7 +432,8 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
             e.printStackTrace();
         }
 
-        QCloudLogger.d(QCloudHttpClient.QUIC_LOG_TAG, "finish call(handleId = " + getHandleId() + "),  state is " + readableState(realQuicCall.currentState));
+        QCloudLogger.d(QCloudHttpClient.QUIC_LOG_TAG, "finish call(handleId = " + getHandleId() + ")");
+//        QCloudLogger.d(QCloudHttpClient.QUIC_LOG_TAG, "finish call(handleId = " + getHandleId() + "),  state is " + readableState(realQuicCall.currentState));
 
         if(exception != null){
             throw exception;
@@ -442,7 +444,7 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
     private int getHandleId() {
 
         if (realQuicCall != null) {
-            return realQuicCall.handleId;
+            return realQuicCall.hashCode();
         }
         return -1;
     }
@@ -465,7 +467,5 @@ public class QuicImpl implements NetworkCallback, java.util.concurrent.Callable<
         if (isCompleted) {
             finish();
         }
-        connectPool.updateQuicNativeState(realQuicCall, COMPLETED);
     }
-
 }

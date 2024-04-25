@@ -29,6 +29,7 @@ import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.http.HttpUtil;
 import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.task.TaskExecutors;
 import com.tencent.qcloud.core.task.TaskManager;
 
 import java.io.IOException;
@@ -41,9 +42,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class TrafficControlInterceptor implements Interceptor {
-    // TODO: 2022/5/12 maxConcurrent为多少比较合适？
-    private TrafficStrategy uploadTrafficStrategy = new ModerateTrafficStrategy("UploadStrategy-", 2);
-    private TrafficStrategy downloadTrafficStrategy = new AggressiveTrafficStrategy("DownloadStrategy-", 3);
+    private TrafficStrategy uploadTrafficStrategy = new ModerateTrafficStrategy("UploadStrategy-", TaskExecutors.UPLOAD_THREAD_COUNT);
+    private TrafficStrategy downloadTrafficStrategy = new AggressiveTrafficStrategy("DownloadStrategy-", TaskExecutors.DOWNLOAD_THREAD_COUNT);
 
     private static class ResizableSemaphore extends Semaphore {
 
@@ -172,7 +172,13 @@ public class TrafficControlInterceptor implements Interceptor {
         if (!task.isEnableTraffic()) {
             return null;
         }
-        return task.isDownloadTask() ? downloadTrafficStrategy : task.isUploadTask() ? uploadTrafficStrategy : null;
+        if(task.isDownloadTask()){
+            return downloadTrafficStrategy;
+        } else if(task.isUploadTask()){
+            return uploadTrafficStrategy;
+        } else {
+            return null;
+        }
     }
 
     private double getAverageStreamingSpeed(HttpTask task, long networkMillsTook) {
@@ -187,6 +193,11 @@ public class TrafficControlInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         HttpTask task = (HttpTask) TaskManager.getInstance().get((String) request.tag());
+
+        if (task == null || task.isCanceled()) {
+            throw new IOException("CANCELED");
+        }
+
         TrafficStrategy strategy = getSuitableStrategy(task);
 
         // wait for traffic control if necessary
@@ -195,9 +206,10 @@ public class TrafficControlInterceptor implements Interceptor {
         }
         QCloudLogger.i(HTTP_LOG_TAG, " %s begin to execute", request);
         IOException e;
+        Response response = null;
         try {
             long startNs = System.nanoTime();
-            Response response = processRequest(chain, request);
+            response = processRequest(chain, request);
             // because we want to calculate the whole task duration, including downloading procedure,
             // we put download operation here
             if (task.isDownloadTask()) {
@@ -218,6 +230,10 @@ public class TrafficControlInterceptor implements Interceptor {
             e = e2.getCause() instanceof IOException ? (IOException) e2.getCause() : new IOException(e2);
         } catch (IOException exception) {
             e = exception;
+        } catch (Exception exception){
+            // 捕获更大范围的异常，但是因为intercept定义只能抛出IOException，这里进行转换
+            // （进度回调中可能有异常）
+            e = new IOException(exception);
         }
 
         if (strategy != null) {
@@ -226,6 +242,10 @@ public class TrafficControlInterceptor implements Interceptor {
             } else {
                 strategy.reportException(request, e);
             }
+        }
+        //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
+        if (response != null && response.body() != null) {
+            response.close();
         }
         throw e;
     }

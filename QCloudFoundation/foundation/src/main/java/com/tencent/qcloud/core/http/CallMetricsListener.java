@@ -69,10 +69,8 @@ public class CallMetricsListener extends EventListener {
     private long readResponseBodyStartTime;
     private long readResponseBodyTookTime;
 
-    /**
-     * domainName inetAddressList connectAddress 都可能是空值
-     */
-    private List<InetAddress> inetAddressList;
+    private List<InetAddress> dnsInetAddressList;
+    private InetAddress connectAddress;
 
     private long requestBodyByteCount;
     private long responseBodyByteCount;
@@ -100,7 +98,7 @@ public class CallMetricsListener extends EventListener {
         ipList.append("}");
         QCloudLogger.i(QCloudHttpClient.HTTP_LOG_TAG, "dns: " + domainName + ":" + ipList.toString());
         dnsLookupTookTime += System.nanoTime() - dnsStartTime;
-        this.inetAddressList = inetAddressList;
+        this.dnsInetAddressList = inetAddressList;
     }
 
     @Override
@@ -114,12 +112,18 @@ public class CallMetricsListener extends EventListener {
     public void connectEnd(Call call, InetSocketAddress inetSocketAddress, Proxy proxy, Protocol protocol) {
         super.connectEnd(call, inetSocketAddress, proxy, protocol);
         connectTookTime += System.nanoTime() - connectStartTime;
+        if(inetSocketAddress != null) {
+            connectAddress = inetSocketAddress.getAddress();
+        }
     }
 
     @Override
     public void connectFailed(Call call, InetSocketAddress inetSocketAddress, Proxy proxy, Protocol protocol, IOException ioe) {
         super.connectFailed(call, inetSocketAddress, proxy, protocol, ioe);
         connectTookTime += System.nanoTime() - connectStartTime;
+        if(inetSocketAddress != null) {
+            connectAddress = inetSocketAddress.getAddress();
+        }
     }
 
     @Override
@@ -190,7 +194,8 @@ public class CallMetricsListener extends EventListener {
     }
 
     public void dumpMetrics(HttpTaskMetrics metrics) {
-        metrics.remoteAddress = inetAddressList;
+        metrics.recordConnectAddress(connectAddress);
+        metrics.remoteAddress = dnsInetAddressList;
         metrics.dnsStartTimestamp += dnsStartTimestamp;
         metrics.dnsLookupTookTime += dnsLookupTookTime;
         metrics.connectStartTimestamp += connectStartTimestamp;
@@ -210,7 +215,7 @@ public class CallMetricsListener extends EventListener {
     }
 
     public List<InetAddress> dumpDns() {
-        return inetAddressList;
+        return dnsInetAddressList;
     }
 
     @NonNull
@@ -231,7 +236,8 @@ public class CallMetricsListener extends EventListener {
                 ", readResponseHeaderTookTime=" + readResponseHeaderTookTime +
                 ", readResponseBodyTimestamp=" + readResponseBodyStartTimestamp +
                 ", readResponseBodyTookTime=" + readResponseBodyTookTime +
-                ", inetAddressList=" + inetAddressList +
+                ", inetAddressList=" + dnsInetAddressList +
+                ", connectAddress=" + connectAddress +
                 ", requestBodyByteCount=" + requestBodyByteCount +
                 ", responseBodyByteCount=" + responseBodyByteCount +
                 '}';

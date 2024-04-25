@@ -26,16 +26,15 @@ import com.tencent.qcloud.core.http.HttpLogger;
 import com.tencent.qcloud.core.http.NetworkClient;
 import com.tencent.qcloud.core.http.NetworkProxy;
 import com.tencent.qcloud.core.http.QCloudHttpClient;
-import com.tencent.qcloud.core.task.RetryStrategy;
+import com.tencent.tquic.impl.TnetConfig;
+
+import javax.net.ssl.HostnameVerifier;
 
 import okhttp3.Dns;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSocketFactory;
-
 public class QuicClientImpl extends NetworkClient {
-
     private QuicManager quicManager;
+    private static TnetConfig quicConfig;
 
     @Override
     public void init(QCloudHttpClient.Builder b, HostnameVerifier hostnameVerifier,
@@ -52,7 +51,22 @@ public class QuicClientImpl extends NetworkClient {
         return quicProxy;
     }
 
-    public void destroy() {
-        quicManager.destroy();
+    /**
+     * 设置quic配置
+     * @param quicConfig quic配置
+     */
+    public static void setTnetConfig(TnetConfig quicConfig) {
+        QuicClientImpl.quicConfig = quicConfig;
+    }
+
+    /**
+     * 获取quic配置
+     * @return quic配置
+     */
+    public static TnetConfig getQuicConfig() {
+        if(QuicClientImpl.quicConfig == null){
+            QuicClientImpl.quicConfig = new TnetConfig.Builder().build();
+        }
+        return QuicClientImpl.quicConfig;
     }
 }

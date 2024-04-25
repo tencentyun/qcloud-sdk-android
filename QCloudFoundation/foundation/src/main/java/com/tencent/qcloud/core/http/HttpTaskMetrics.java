@@ -319,10 +319,12 @@ public class HttpTaskMetrics {
     public String toString() {
         return new StringBuilder().append("Http Metrics: \n")
                 .append("domain : ").append(domainName).append("\n")
+                .append("connectAddress : ").append(connectAddress != null ? connectAddress.getHostAddress() : "null").append("\n")
                 .append("retryCount : ").append(retryCount).append("\n")
                 .append("isClockSkewedRetry : ").append(isClockSkewedRetry).append("\n")
-                .append("dns : ").append(connectAddress != null ? connectAddress.getHostAddress() : "null").append("\n")
+                .append("dns : ").append(remoteAddress != null ? remoteAddress : "null").append("\n")
                 .append("fullTaskTookTime : ").append(fullTaskTookTime()).append("\n")
+                .append("httpTaskTookTime : ").append(httpTaskFullTime()).append("\n")
                 .append("calculateMD5STookTime : ").append(calculateMD5STookTime()).append("\n")
                 .append("signRequestTookTime : ").append(signRequestTookTime()).append("\n")
                 .append("dnsStartTimestamp : ").append(dnsStartTimestamp).append("\n")

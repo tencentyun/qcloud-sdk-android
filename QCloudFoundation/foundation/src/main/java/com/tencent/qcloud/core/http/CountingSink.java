@@ -75,6 +75,10 @@ class CountingSink extends ForwardingSink {
         return bytesWritten + lastTimeBytesWritten;
     }
 
+    long getBytesWritten() {
+        return bytesWritten;
+    }
+
     @Override
     public void write(Buffer source, long byteCount) throws IOException {
         super.write(source, byteCount);

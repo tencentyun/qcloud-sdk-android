@@ -22,6 +22,9 @@
 
 package com.tencent.qcloud.quic;
 
+import static com.tencent.qcloud.core.http.QCloudHttpClient.QUIC_LOG_TAG;
+import static com.tencent.qcloud.core.task.QCloudTask.WEIGHT_LOW;
+
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.common.QCloudServiceException;
@@ -36,11 +39,17 @@ import com.tencent.qcloud.core.http.OkHttpLoggingUtils;
 import com.tencent.qcloud.core.http.ResponseBodyConverter;
 import com.tencent.qcloud.core.http.ResponseFileConverter;
 import com.tencent.qcloud.core.http.SelfCloseConverter;
+import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.RetryStrategy;
+import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 
 import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Dns;
@@ -50,7 +59,6 @@ import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.internal.Util;
 
 
 public class QuicProxy<T> extends NetworkProxy<T> {
@@ -60,6 +68,10 @@ public class QuicProxy<T> extends NetworkProxy<T> {
     private RetryStrategy retryStrategy;
     private Dns dns;
     private HttpLogger httpLogger;
+
+    private final RetryStrategy.WeightAndReliableAddition additionComputer = new RetryStrategy.WeightAndReliableAddition();
+
+    private static final Map<String, HostReliable> hostReliables = new HashMap<>();
 
     public QuicProxy(QuicManager quicManager, Dns dns, HttpLogger httpLogger, RetryStrategy retryStrategy){
         this.quicManager = quicManager;
@@ -72,16 +84,6 @@ public class QuicProxy<T> extends NetworkProxy<T> {
     public void cancel(){
         if(quic != null){
             quic.cancelConnect();
-        }
-    }
-
-    public static void setTnetConfig(QuicConfig quicConfig) {
-        if (quicConfig != null) {
-            QuicNative.setTnetConfigRaceType(quicConfig.raceType);
-            QuicNative.setTnetConfigIsCustomProtocol(quicConfig.isCustomProtocol);
-            if (quicConfig.getTotalTimeoutSec() > 0) {
-                QuicNative.setTnetConfigTotalTimeoutSec(quicConfig.getTotalTimeoutSec());
-            }
         }
     }
 
@@ -126,7 +128,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
 
                 String method = okHttpRequest.method().toUpperCase(Locale.ROOT);
 
-                QuicRequest quicRequest = new QuicRequest(host, ip, port, tcpPort);
+                QuicRequest quicRequest = new QuicRequest(url, host, ip, port, tcpPort);
                 quicRequest.addHeader(":scheme", isHttps? "https" :"http");
                 quicRequest.addHeader(":method", method);
                 quicRequest.addHeader(":path",  path);
@@ -215,7 +217,11 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                     break;
                 }else{
                     //是否需要重试
-                    if(retryStrategy.shouldRetry(attempt++, System.nanoTime() - startTime, 0)){
+                    int reliable = getHostReliable(httpRequest.url().getHost());
+                    int retryAddition = additionComputer.getRetryAddition(WEIGHT_LOW, reliable);
+                    if(retryStrategy.shouldRetry(attempt++, System.nanoTime() - startTime, retryAddition)){
+                        QCloudLogger.i(QUIC_LOG_TAG, String.format(Locale.ENGLISH, "attempts = %d, weight = %d, reliable = %d, addition = %d",
+                                attempt, WEIGHT_LOW, reliable, retryAddition));
                         // QLog.d("%s failed for %s, %d", httpRequest.url().toString(), e.getMessage(), attempt);
                     }else {
                         if (e.getCause() instanceof QCloudClientException) {
@@ -228,7 +234,7 @@ public class QuicProxy<T> extends NetworkProxy<T> {
                 }
             }finally {
                 if(response != null && !selfCloseConverter) {
-                    Util.closeQuietly(response);
+                    OkhttpInternalUtils.closeQuietly(response);
                 }
             }
         }
@@ -250,5 +256,87 @@ public class QuicProxy<T> extends NetworkProxy<T> {
         return new HttpResult<>(httpResponse, content);
     }
 
+    private void increaseHostReliable(String host) {
 
+        HostReliable hostReliable = hostReliables.get(host);
+
+        if (hostReliable != null) {
+            hostReliable.increaseReliable();
+        } else {
+            hostReliables.put(host, new HostReliable(host));
+        }
+    }
+
+    // @UnThreadSafe
+    private void decreaseHostAccess(String host) {
+
+        HostReliable hostReliable = hostReliables.get(host);
+        if (hostReliable != null) {
+            hostReliable.decreaseReliable();
+        } else {
+            hostReliables.put(host, new HostReliable(host));
+        }
+    }
+
+    // @UnThreadSafe
+    private int getHostReliable(String host) {
+
+        HostReliable hostReliable = hostReliables.get(host);
+        if (hostReliable != null) {
+            return hostReliable.getReliable();
+        } else {
+            return HostReliable.defaultReliable;
+        }
+    }
+
+    // 线程安全
+    private static class HostReliable {
+
+        private final int maxReliable = 4;
+        private final int minReliable = 0;
+        private static final int defaultReliable = 2;
+        private final long resetPeriod = 1000 * 60 * 5;
+
+        private final String host;
+        private int reliable;
+
+        private HostReliable(String host) {
+
+            this.host = host;
+            reliable = defaultReliable;
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+
+                }
+            };
+            new Timer(host + "reliable").schedule(timerTask, resetPeriod, resetPeriod);
+        }
+
+        synchronized private void increaseReliable() {
+
+            if (reliable < maxReliable) {
+                reliable += 1;
+            }
+        }
+
+        synchronized private void decreaseReliable() {
+
+            if (reliable > minReliable) {
+                reliable -= 1;
+            }
+        }
+
+        synchronized private int getReliable() {
+            return reliable;
+        }
+
+        synchronized private void zeroReliable() {
+            reliable = 0;
+        }
+
+        synchronized private void resetReliable() {
+            reliable = defaultReliable;
+        }
+    }
 }

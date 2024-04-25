@@ -23,7 +23,7 @@
 package com.tencent.qcloud.core.http;
 
 import com.tencent.qcloud.core.BuildConfig;
-import com.tencent.qcloud.core.http.interceptor.HttpMetricsInterceptor;
+import com.tencent.qcloud.core.http.interceptor.RedirectInterceptor;
 import com.tencent.qcloud.core.http.interceptor.RetryInterceptor;
 import com.tencent.qcloud.core.http.interceptor.TrafficControlInterceptor;
 
@@ -57,8 +57,10 @@ public class OkHttpClientImpl extends NetworkClient {
             logInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
         }
         OkHttpClient.Builder builder = b.mBuilder;
+        builder.interceptors().clear();
+        RedirectInterceptor redirectInterceptor = new RedirectInterceptor();
         okHttpClient = builder
-                .followRedirects(true)
+                .followRedirects(false)
                 .followSslRedirects(true)
                 .hostnameVerifier(hostnameVerifier)
                 .dns(dns)
@@ -66,11 +68,13 @@ public class OkHttpClientImpl extends NetworkClient {
                 .readTimeout(b.socketTimeout, TimeUnit.MILLISECONDS)
                 .writeTimeout(b.socketTimeout, TimeUnit.MILLISECONDS)
                 .eventListenerFactory(mEventListenerFactory)
-                .addNetworkInterceptor(new HttpMetricsInterceptor())
+//                .addNetworkInterceptor(new HttpMetricsInterceptor())
                 .addInterceptor(logInterceptor)
                 .addInterceptor(new RetryInterceptor(b.retryStrategy))
                 .addInterceptor(new TrafficControlInterceptor())
+                .addInterceptor(redirectInterceptor)
                 .build();
+        redirectInterceptor.setClient(okHttpClient);
     }
 
     @Override

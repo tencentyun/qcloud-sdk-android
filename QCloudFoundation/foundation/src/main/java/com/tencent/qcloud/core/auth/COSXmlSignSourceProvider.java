@@ -131,7 +131,8 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
             "if-unmodified-since",
             "origin",
             "range",
-            "transfer-encoding"
+            "transfer-encoding",
+            "pic-operations"
     );
 
     @Override
@@ -167,7 +168,7 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
         // 默认URL参数字段参与计算，需要减去设置的不需要签名的 params
         if (parametersRequiredToSign.size() < 1) {
             Map<String, List<String>> queryNameValues = QCloudHttpUtils.getQueryPair(request.url());
-            for (String noSignParam : request.getNoSignHeaders()) {
+            for (String noSignParam : request.getNoSignParams()) {
                 queryNameValues.remove(QCloudHttpUtils.urlDecodeString(noSignParam));
             }
             parametersRequiredToSign.addAll(queryNameValues.keySet());

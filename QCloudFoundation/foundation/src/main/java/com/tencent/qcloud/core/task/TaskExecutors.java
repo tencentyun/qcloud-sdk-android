@@ -32,23 +32,37 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskExecutors {
+    // 上传线程数
+    public static int UPLOAD_THREAD_COUNT = 4;
+    // 下载线程数
+    public static int DOWNLOAD_THREAD_COUNT = 6;
 
     public static final ThreadPoolExecutor COMMAND_EXECUTOR;
 
-    public static final ThreadPoolExecutor UPLOAD_EXECUTOR;
+    public static ThreadPoolExecutor UPLOAD_EXECUTOR;
 
-    public static final ThreadPoolExecutor DOWNLOAD_EXECUTOR;
+    public static ThreadPoolExecutor DOWNLOAD_EXECUTOR;
 
     public static final UIThreadExecutor UI_THREAD_EXECUTOR;
+
+    public static void initExecutor(int uploadMaxThreadCount, int downloadMaxThreadCount){
+        UPLOAD_THREAD_COUNT = uploadMaxThreadCount;
+        DOWNLOAD_THREAD_COUNT = downloadMaxThreadCount;
+
+        UPLOAD_EXECUTOR.setCorePoolSize(UPLOAD_THREAD_COUNT);
+        UPLOAD_EXECUTOR.setMaximumPoolSize(UPLOAD_THREAD_COUNT);
+        DOWNLOAD_EXECUTOR.setCorePoolSize(DOWNLOAD_THREAD_COUNT);
+        DOWNLOAD_EXECUTOR.setMaximumPoolSize(DOWNLOAD_THREAD_COUNT);
+    }
 
     static {
         COMMAND_EXECUTOR = new ThreadPoolExecutor(5, 5, 5L,
                 TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(Integer.MAX_VALUE),
                 new TaskThreadFactory("Command-", 8));
-        UPLOAD_EXECUTOR = new ThreadPoolExecutor(2, 2, 5L,
+        UPLOAD_EXECUTOR = new ThreadPoolExecutor(UPLOAD_THREAD_COUNT, UPLOAD_THREAD_COUNT, 5L,
                 TimeUnit.SECONDS, new PriorityBlockingQueue<Runnable>(),
                 new TaskThreadFactory("Upload-", 3));
-        DOWNLOAD_EXECUTOR = new ThreadPoolExecutor(3, 3, 5L,
+        DOWNLOAD_EXECUTOR = new ThreadPoolExecutor(DOWNLOAD_THREAD_COUNT, DOWNLOAD_THREAD_COUNT, 5L,
                 TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(Integer.MAX_VALUE),
                 new TaskThreadFactory("Download-", 3));
         UI_THREAD_EXECUTOR = new UIThreadExecutor();
@@ -56,6 +70,7 @@ public class TaskExecutors {
         UPLOAD_EXECUTOR.allowCoreThreadTimeOut(true);
         COMMAND_EXECUTOR.allowCoreThreadTimeOut(true);
         DOWNLOAD_EXECUTOR.allowCoreThreadTimeOut(true);
+
     }
 
     static final class TaskThreadFactory implements ThreadFactory {

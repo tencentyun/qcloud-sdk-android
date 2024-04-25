@@ -21,28 +21,15 @@
  */
 package com.tencent.qcloud.core.http;
 
-import java.io.EOFException;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Connection;
-import okhttp3.Headers;
 import okhttp3.Interceptor;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okhttp3.internal.http.HttpHeaders;
-import okhttp3.internal.platform.Platform;
-import okio.Buffer;
-import okio.BufferedSource;
-
-import static okhttp3.internal.platform.Platform.INFO;
 
 /**
  * An OkHttp interceptor which logs request and response information. Can be applied as an
@@ -54,8 +41,6 @@ import static okhttp3.internal.platform.Platform.INFO;
  * fork from okhttp3.logging.
  */
 final public class HttpLoggingInterceptor implements Interceptor {
-    private static final Charset UTF8 = Charset.forName("UTF-8");
-
     public enum Level {
         /**
          * No logs.
@@ -118,30 +103,6 @@ final public class HttpLoggingInterceptor implements Interceptor {
         void logRequest(String message);
         void logResponse(Response response, String message);
         void logException(Exception exception, String message);
-
-        /**
-         * A {@link Logger} defaults output appropriate for the current platform.
-         */
-        Logger DEFAULT = new Logger() {
-            @Override
-            public void logRequest(String message) {
-                Platform.get().log(INFO, message, null);
-            }
-
-            @Override
-            public void logResponse(Response response, String message) {
-                Platform.get().log(INFO, message, null);
-            }
-
-            @Override
-            public void logException(Exception exception, String message) {
-                Platform.get().log(INFO, message, null);
-            }
-        };
-    }
-
-    public HttpLoggingInterceptor() {
-        this(Logger.DEFAULT);
     }
 
     public HttpLoggingInterceptor(Logger logger) {

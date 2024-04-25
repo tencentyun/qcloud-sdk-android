@@ -26,7 +26,11 @@ package com.tencent.qcloud.core.http.interceptor;
 import static com.tencent.qcloud.core.http.HttpConstants.Header.RANGE;
 import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
 
-import com.tencent.qcloud.core.common.QCloudClientException;
+import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
+
+import com.tencent.qcloud.core.common.DomainSwitchException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.HttpConfiguration;
 import com.tencent.qcloud.core.http.HttpConstants;
@@ -36,7 +40,7 @@ import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.RetryStrategy;
 import com.tencent.qcloud.core.task.TaskManager;
-import com.tencent.qcloud.core.util.QCloudUtils;
+import com.tencent.qcloud.core.util.DomainSwitchUtils;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -68,14 +72,12 @@ import okio.Buffer;
 import okio.BufferedSource;
 
 public class RetryInterceptor implements Interceptor {
-
     private RetryStrategy retryStrategy;
     private RetryStrategy.WeightAndReliableAddition additionComputer = new RetryStrategy.WeightAndReliableAddition();
 
     private volatile static Map<String, HostReliable> hostReliables = new HashMap<>();
 
     private static final int MIN_CLOCK_SKEWED_OFFSET = 600;
-    private static final int NETWORK_DETECT_RETRY_DELAY = 3000; // ms
 
     // 线程安全
     private static class HostReliable {
@@ -139,12 +141,30 @@ public class RetryInterceptor implements Interceptor {
         return processRequest(chain, request, task);
     }
 
-    Response processRequest(Chain chain, Request request, HttpTask task) throws IOException {
+    Response processRequest(Chain chain, Request request, @Nullable HttpTask task) throws IOException {
         Response response = null;
         IOException e;
 
         if (task == null || task.isCanceled()) {
             throw new IOException("CANCELED");
+        }
+
+        if(task.isDomainSwitch() && !task.isSelfSigner() && DomainSwitchUtils.isMyqcloudUrl(request.url().host())){
+            try {
+                response = executeTaskOnce(chain, request, task);
+                // 判断响应 状态码非2XX，且没有x-cos-request-id头部
+                if (!response.isSuccessful() && TextUtils.isEmpty(response.header("x-cos-request-id"))) {
+                    throw new DomainSwitchException();
+                }
+            } catch (Exception exception){
+                // 下载convertResponse可能会产生服务端异常，这时候不用切
+                if(exception.getCause() instanceof QCloudServiceException &&
+                        !TextUtils.isEmpty(((QCloudServiceException) exception.getCause()).getRequestId())){
+                } else {
+                    // 没有收到响应
+                    throw new DomainSwitchException();
+                }
+            }
         }
 
         int attempts = 0;
@@ -160,19 +180,6 @@ public class RetryInterceptor implements Interceptor {
                 }
             }
 
-            // avoid useless retry
-            if (!QCloudUtils.isNetworkConnected()) {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(NETWORK_DETECT_RETRY_DELAY);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-
-                if (!QCloudUtils.isNetworkConnected()) {
-                    e = new IOException(new QCloudClientException("NetworkNotConnected"));
-                    break;
-                }
-            }
             QCloudLogger.i(HTTP_LOG_TAG, "%s start to execute, attempts is %d", request, attempts);
 
             //记录重试次数
@@ -184,18 +191,54 @@ public class RetryInterceptor implements Interceptor {
             attempts++;
             int statusCode = -1;
             try {
-                //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
-                if (response != null && response.body() != null) {
-                    response.close();
+                if(attempts == 1 && response != null){
+                    // 第一次执行 且response已经有值了，说明尝试成功，则不再重复执行
+                } else {
+                    //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
+                    if (response != null && response.body() != null) {
+                        response.close();
+                    }
+                    response = executeTaskOnce(chain, request, task);
                 }
-                response = executeTaskOnce(chain, request, task);
                 statusCode = response.code();
                 e = null;
             } catch (IOException exception) {
-                e = exception;
+                if(exception instanceof DomainSwitchException){
+                    throw exception;
+                } else {
+                    e = exception;
+                }
+            } catch (IllegalStateException exception){
+                // 再次处理 okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
+                if(exception.getMessage().startsWith("cannot make a new request because the previous response is still open: please call response.close()")){
+                    if (response != null && response.body() != null) {
+                        response.close();
+                    }
+                    // response.close()后暂停3s
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(3000);
+                    } catch (InterruptedException ex) {
+                    }
+                    if (response != null && response.body() != null) {
+                        response.close();
+                    }
+                    response = executeTaskOnce(chain, request, task);
+                    statusCode = response.code();
+                    e = null;
+                } else {
+                    throw exception;
+                }
             }
             // server date header
-            String serverDate = response != null ? response.header(HttpConstants.Header.DATE) : null;
+            String serverDate = null;
+            if(response != null){
+                // 增加cos服务端响应校验 防止cdn等其他服务端响应的date不准确
+                String server = response.header(HttpConstants.Header.SERVER);
+                if(HttpConstants.TENCENT_COS_SERVER.equals(server)){
+                    serverDate = response.header(HttpConstants.Header.DATE);
+                    QCloudLogger.i(HTTP_LOG_TAG, "serverDate is %s", serverDate);
+                }
+            }
 
             if ((e == null && response.isSuccessful())) {
                 if (serverDate != null) {

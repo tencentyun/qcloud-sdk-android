@@ -24,28 +24,16 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 27
-
-
-
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 27
 
-        versionCode 10540
-        versionName "1.5.40"
+        // versionCode 6位  versionName最后一段为3位时代表不上Maven的私有版本（目前9结尾用来兼容armeabi）
+        versionCode 10544
+        versionName "1.5.44"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-
-        // 设置 cmake 构建参数
-        externalNativeBuild {
-            cmake {
-                cppFlags "-frtti -fexceptions" // 指定 c++ compiler with exception and support C++ RTTI
-                // abiFilters "armeabi-v7a"//, "x86_64"//指定 abi = armeabi-v7a
-                abiFilters "armeabi-v7a" , "arm64-v8a"
-            }
-        }
-
+        consumerProguardFiles 'proguard-rules.pro'
     }
 
     buildTypes {
@@ -54,15 +42,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
-    // 指定 cmake 构建脚本
-    externalNativeBuild {
-        cmake {
-            path file('CMakeLists.txt')
-        }
-    }
     buildToolsVersion = '29.0.0'
-
 }
 
 dependencies {
@@ -70,9 +50,12 @@ dependencies {
 
     compileOnly 'com.android.support:appcompat-v7:27.1.1'
     testCompileOnly 'junit:junit:4.13.2'
+    androidTestCompileOnly project(path: ':quic')
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation project(path: ':foundation')
+    // 依赖固定的foundation库，有需要的时候再更新
+//    implementation project(path: ':foundation')
+    implementation 'com.qcloud.cos:qcloud-foundation:1.5.60'
 }
 
 project.extensions.add('packageType', 'aar')

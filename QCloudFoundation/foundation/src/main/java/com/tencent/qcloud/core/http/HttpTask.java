@@ -28,6 +28,7 @@ import com.tencent.qcloud.core.auth.QCloudCredentials;
 import com.tencent.qcloud.core.auth.QCloudSelfSigner;
 import com.tencent.qcloud.core.auth.QCloudSigner;
 import com.tencent.qcloud.core.auth.ScopeLimitCredentialProvider;
+import com.tencent.qcloud.core.common.DomainSwitchException;
 import com.tencent.qcloud.core.common.QCloudAuthenticationException;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudDigistListener;
@@ -35,8 +36,11 @@ import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.task.TaskExecutors;
+import com.tencent.qcloud.core.util.DomainSwitchUtils;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -165,10 +169,27 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
         return 0;
     }
 
+    /**
+     * 是否是自签名
+     */
+    public boolean isSelfSigner(){
+        return httpRequest.getQCloudSelfSigner() != null;
+    }
+
     @Override
     public void cancel() {
         this.networkProxy.cancel();
         super.cancel();
+    }
+
+    /**
+     * 取消任务
+     * @param now 是否立即取消，true时会即可从taskManager中删除
+     */
+    @Override
+    public void cancel(boolean now) {
+        this.networkProxy.cancel();
+        super.cancel(now);
     }
 
     private boolean isCompleteMultipartRequest(HttpRequest httpRequest) {
@@ -240,6 +261,27 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
                 return httpResult;
             } else {
                 throw serviceException;
+            }
+        } catch (QCloudClientException clientException) {
+            if (clientException.getCause() instanceof DomainSwitchException && isDomainSwitch() && (signer != null && selfSigner == null)) {
+                String urlString = httpRequest.url.toString().replace(DomainSwitchUtils.DOMAIN_MYQCLOUD, DomainSwitchUtils.DOMAIN_TENCENTCOS);
+                httpRequest.setUrl(urlString);
+                try {
+                    URL url = new URL(urlString);
+                    httpRequest.addOrReplaceHeader(HttpConstants.Header.HOST, url.getHost());
+                } catch (MalformedURLException ignored) {
+                }
+                //重签名
+                metrics.onSignRequestStart();
+                signRequest(signer, (QCloudHttpRequest) httpRequest);
+                metrics.onSignRequestEnd();
+                // 重试
+                metrics.onHttpTaskStart();
+                httpResult = networkProxy.executeHttpRequest(httpRequest);
+                metrics.onHttpTaskEnd();
+                return httpResult;
+            } else {
+                throw clientException;
             }
         } finally {
             if (httpRequest.getRequestBody() instanceof ReactiveBody){
