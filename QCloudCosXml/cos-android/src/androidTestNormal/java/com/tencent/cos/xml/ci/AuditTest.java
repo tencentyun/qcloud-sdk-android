@@ -1,59 +1,59 @@
-package com.tencent.cos.xml.ci;
+// package com.tencent.cos.xml.ci;
 
-import static com.tencent.cos.xml.core.TestConst.AUDIT_BUCKET_PORN_IMAGE;
+// import static com.tencent.cos.xml.core.TestConst.AUDIT_BUCKET_PORN_IMAGE;
 
-import android.util.Base64;
+// import android.util.Base64;
 
-import androidx.annotation.Nullable;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+// import androidx.annotation.Nullable;
+// import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.tencent.cos.xml.CIService;
-import com.tencent.cos.xml.core.NormalServiceFactory;
-import com.tencent.cos.xml.core.TestConst;
-import com.tencent.cos.xml.core.TestLocker;
-import com.tencent.cos.xml.core.TestUtils;
-import com.tencent.cos.xml.exception.CosXmlClientException;
-import com.tencent.cos.xml.exception.CosXmlServiceException;
-import com.tencent.cos.xml.listener.CosXmlResultListener;
-import com.tencent.cos.xml.model.CosXmlRequest;
-import com.tencent.cos.xml.model.CosXmlResult;
-import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionRequest;
-import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionResult;
-import com.tencent.cos.xml.model.ci.audit.GetAudioAuditRequest;
-import com.tencent.cos.xml.model.ci.audit.GetAudioAuditResult;
-import com.tencent.cos.xml.model.ci.audit.GetDocumentAuditRequest;
-import com.tencent.cos.xml.model.ci.audit.GetDocumentAuditResult;
-import com.tencent.cos.xml.model.ci.audit.GetImageAuditRequest;
-import com.tencent.cos.xml.model.ci.audit.GetImageAuditResult;
-import com.tencent.cos.xml.model.ci.audit.GetTextAuditRequest;
-import com.tencent.cos.xml.model.ci.audit.GetVideoAuditRequest;
-import com.tencent.cos.xml.model.ci.audit.GetVideoAuditResult;
-import com.tencent.cos.xml.model.ci.audit.GetWebPageAuditRequest;
-import com.tencent.cos.xml.model.ci.audit.GetWebPageAuditResult;
-import com.tencent.cos.xml.model.ci.audit.PostAudioAuditRequest;
-import com.tencent.cos.xml.model.ci.audit.PostAuditResult;
-import com.tencent.cos.xml.model.ci.audit.PostDocumentAuditRequest;
-import com.tencent.cos.xml.model.ci.audit.PostImagesAuditRequest;
-import com.tencent.cos.xml.model.ci.audit.PostImagesAuditResult;
-import com.tencent.cos.xml.model.ci.audit.PostTextAuditRequest;
-import com.tencent.cos.xml.model.ci.audit.PostVideoAuditRequest;
-import com.tencent.cos.xml.model.ci.audit.PostWebPageAuditRequest;
-import com.tencent.cos.xml.model.ci.audit.TextAuditResult;
-import com.tencent.cos.xml.model.tag.audit.post.PostImagesAudit;
+// import com.tencent.cos.xml.CIService;
+// import com.tencent.cos.xml.core.NormalServiceFactory;
+// import com.tencent.cos.xml.core.TestConst;
+// import com.tencent.cos.xml.core.TestLocker;
+// import com.tencent.cos.xml.core.TestUtils;
+// import com.tencent.cos.xml.exception.CosXmlClientException;
+// import com.tencent.cos.xml.exception.CosXmlServiceException;
+// import com.tencent.cos.xml.listener.CosXmlResultListener;
+// import com.tencent.cos.xml.model.CosXmlRequest;
+// import com.tencent.cos.xml.model.CosXmlResult;
+// import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionRequest;
+// import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionResult;
+// import com.tencent.cos.xml.model.ci.audit.GetAudioAuditRequest;
+// import com.tencent.cos.xml.model.ci.audit.GetAudioAuditResult;
+// import com.tencent.cos.xml.model.ci.audit.GetDocumentAuditRequest;
+// import com.tencent.cos.xml.model.ci.audit.GetDocumentAuditResult;
+// import com.tencent.cos.xml.model.ci.audit.GetImageAuditRequest;
+// import com.tencent.cos.xml.model.ci.audit.GetImageAuditResult;
+// import com.tencent.cos.xml.model.ci.audit.GetTextAuditRequest;
+// import com.tencent.cos.xml.model.ci.audit.GetVideoAuditRequest;
+// import com.tencent.cos.xml.model.ci.audit.GetVideoAuditResult;
+// import com.tencent.cos.xml.model.ci.audit.GetWebPageAuditRequest;
+// import com.tencent.cos.xml.model.ci.audit.GetWebPageAuditResult;
+// import com.tencent.cos.xml.model.ci.audit.PostAudioAuditRequest;
+// import com.tencent.cos.xml.model.ci.audit.PostAuditResult;
+// import com.tencent.cos.xml.model.ci.audit.PostDocumentAuditRequest;
+// import com.tencent.cos.xml.model.ci.audit.PostImagesAuditRequest;
+// import com.tencent.cos.xml.model.ci.audit.PostImagesAuditResult;
+// import com.tencent.cos.xml.model.ci.audit.PostTextAuditRequest;
+// import com.tencent.cos.xml.model.ci.audit.PostVideoAuditRequest;
+// import com.tencent.cos.xml.model.ci.audit.PostWebPageAuditRequest;
+// import com.tencent.cos.xml.model.ci.audit.TextAuditResult;
+// import com.tencent.cos.xml.model.tag.audit.post.PostImagesAudit;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+// import org.junit.Assert;
+// import org.junit.Test;
+// import org.junit.runner.RunWith;
 
-import java.nio.charset.Charset;
+// import java.nio.charset.Charset;
 
 /**
  * <p>
  * Created by jordanqin on 2023/2/21 14:34.
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
-@RunWith(AndroidJUnit4.class)
-public class AuditTest {
+// @RunWith(AndroidJUnit4.class)
+// public class AuditTest {
 //     @Test
 //     public void testSensitiveContentRecognition() {
 //         CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
@@ -671,4 +671,4 @@ public class AuditTest {
 //         });
 //         testLocker.lock();
 //     }
-}
+// }
