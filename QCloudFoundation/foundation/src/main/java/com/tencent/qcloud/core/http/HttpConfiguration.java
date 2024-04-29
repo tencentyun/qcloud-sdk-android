@@ -22,8 +22,6 @@
 
 package com.tencent.qcloud.core.http;
 
-import android.util.Log;
-
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import java.text.ParseException;
@@ -31,7 +29,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class HttpConfiguration {
@@ -62,8 +59,10 @@ public class HttpConfiguration {
     }
 
     public static long getDeviceTimeWithOffset() {
-        long current = System.currentTimeMillis() / 1000 + GLOBAL_TIME_OFFSET.get();
-        return current;
+//        long current = System.currentTimeMillis() / 1000 + GLOBAL_TIME_OFFSET.get();
+//        return current;
+        // 去掉本地时间校准（有一些Tencent Server返回的date并不准确）
+        return System.currentTimeMillis() / 1000;
     }
 
     public static String getGMTDate(Date date) {
