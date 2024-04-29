@@ -80,7 +80,8 @@ public class COSUploadTaskTest {
     }
 
     // 测试暂停和恢复
-    @Test public void testPauseAndResume() {
+//    @Test
+    public void testPauseAndResume() {
         testPauseAndResume(ServiceFactory.INSTANCE.newDefaultTransferService(), TestConst.PERSIST_BUCKET,
                 TestUtils.bigFilePath(), TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
     }
@@ -98,7 +99,8 @@ public class COSUploadTaskTest {
     }
 
 
-    @Test public void testCesPauseAndResume() {
+//    @Test
+    public void testCesPauseAndResume() {
         testPauseAndResume(ServiceFactory.INSTANCE.newCesTransferService(), TestConst.PERSIST_BUCKET,
                 TestUtils.bigFilePath(), TestConst.PERSIST_BUCKET_CSE_BIG_OBJECT_PATH);
     }

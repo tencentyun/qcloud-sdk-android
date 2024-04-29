@@ -34,6 +34,11 @@ public class TemplatePicProcess {
     public String tag = "PicProcess";
 
     /**
+     * 模板名称，仅支持中文、英文、数字、_、-和*，长度不超过 64
+     */
+    public String name;
+
+    /**
      *图片处理参数;是否必传：是;限制：无;
      */
     public PicProcess picProcess;

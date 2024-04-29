@@ -35,16 +35,17 @@ public class TestConst {
     public static final String PERSIST_BUCKET_REPLICATION = BuildConfig.PERSIST_BUCKET_REPLICATION;
     public static final String PERSIST_BUCKET_REPLICATION_REGION = BuildConfig.PERSIST_BUCKET_REPLICATION_REGION;
 
+    public static final String CI_BUCKET_REGION = "ap-beijing";
+    public static final String CI_BUCKET = "cos-sdk-citest-1253960454";
+
     //审核
-    public static final String AUDIT_BUCKET_REGION = "ap-chengdu";
-    public static final String AUDIT_BUCKET = "00000000000000-1253960454";
-    public static final String AUDIT_BUCKET_PORN_IMAGE = "porn/IMG_6507.JPG";
+    public static final String AUDIT_BUCKET_PORN_IMAGE = "logotest1.jpg";
     public static final String AUDIT_BUCKET_IMAGE = " %dimage.jpg";
     public static final String AUDIT_BUCKET_IMAGE_GIF = "image_gif_%d.gif";
-    public static final String AUDIT_BUCKET_VIDEO = "test.mp4";
-    public static final String AUDIT_BUCKET_AUDIO = "16k_ch_and_en.mp3";
+    public static final String AUDIT_BUCKET_VIDEO = "example.mp4";
+    public static final String AUDIT_BUCKET_AUDIO = "example1672060469857.mp3";
     public static final String AUDIT_BUCKET_TEXT = "test.txt";
-    public static final String AUDIT_BUCKET_DOCUMENT = "03_路由.pdf";
+    public static final String AUDIT_BUCKET_DOCUMENT = "student.ppt";
     public static final String AUDIT_WEBPAGE = "https://tech.meituan.com/2021/06/10/react-native-hybrid-practice-dsl-in-meituan.html";
 
     //声音识别

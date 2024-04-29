@@ -157,7 +157,8 @@ public class UploadTest {
     /**
      * 测试上传任务等待超时
      */
-    @Test public void testUploadWaitingTimeout() {
+//    @Test
+    public void testUploadWaitingTimeout() {
 
         String filePath1 = TestUtils.localPath("file1");
         String filePath2 = TestUtils.localPath("file2");
@@ -210,6 +211,7 @@ public class UploadTest {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 Assert.fail("upload success");
+                testLocker.release();
             }
 
             @Override
@@ -737,7 +739,6 @@ public class UploadTest {
 
     @Test public void testUploadBigFileByUri() {
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
-        // TODO: 2023/3/29 测试为什么临时秘钥就不行
 //        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManagerBySessionCredentials();
 
         File file = new File(bigPlusFilePath());

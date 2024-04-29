@@ -42,7 +42,6 @@ public class TestUtils {
 
 
     public static void assertCOSXMLTaskSuccess(COSXMLTask cosxmlTask) {
-
         Assert.assertTrue(cosxmlTask.getException() == null?cosxmlTask.getTaskState().name():getCosExceptionMessage(cosxmlTask.getException()),
                 cosxmlTask.getTaskState() == TransferState.COMPLETED);
     }

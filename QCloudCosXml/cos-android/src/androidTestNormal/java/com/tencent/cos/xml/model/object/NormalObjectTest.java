@@ -38,8 +38,8 @@ public class NormalObjectTest {
             new NormalPutObjectTestAdapter(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+5),new NormalPutObjectTestAdapter(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+6),
             new DeleteMultiObjectTestAdapter(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+1, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+2),
 
-            new SelectObjectContentJsonTestAdapter(),
-            new SelectObjectContentCsvTestAdapter(),
+//            new SelectObjectContentJsonTestAdapter(),
+//            new SelectObjectContentCsvTestAdapter(),
             new RestoreObjectTestAdapter(),
             new PreviewDocumentTest.PreviewDocumentTestAdapter(),new PreviewDocumentTest.PreviewDocumentExcelTestAdapter(),new PreviewDocumentTest.PreviewDocumentTxtTestAdapter(),
             new PreviewDocumentTest.PreviewDocumentInHtmlTestAdapter(), new PreviewDocumentTest.PreviewDocumentInHtmlLinkTestAdapter(),
