@@ -644,10 +644,6 @@ public class CosXmlBaseService implements BaseCosXml {
     public void getObjectAsync(GetObjectRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetObjectResult(), cosXmlResultListener);
     }
-
-    public GetObjectResult internalGetObject(GetObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new GetObjectResult(), true);
-    }
     public void internalGetObjectAsync(GetObjectRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetObjectResult(), cosXmlResultListener, true);
     }

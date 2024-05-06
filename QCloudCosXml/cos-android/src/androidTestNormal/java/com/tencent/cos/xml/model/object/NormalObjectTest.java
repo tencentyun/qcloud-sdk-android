@@ -14,7 +14,9 @@ import com.tencent.cos.xml.model.ci.PutBucketDPStateRequest;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 import org.junit.runner.RunWith;
 
 /**
@@ -25,6 +27,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class NormalObjectTest {
+    @Rule
+    public ErrorCollector collector = new ErrorCollector();
     /**
      * 简单测试
      */
@@ -38,8 +42,6 @@ public class NormalObjectTest {
             new NormalPutObjectTestAdapter(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+5),new NormalPutObjectTestAdapter(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+6),
             new DeleteMultiObjectTestAdapter(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+1, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+2),
 
-//            new SelectObjectContentJsonTestAdapter(),
-//            new SelectObjectContentCsvTestAdapter(),
             new RestoreObjectTestAdapter(),
             new PreviewDocumentTest.PreviewDocumentTestAdapter(),new PreviewDocumentTest.PreviewDocumentExcelTestAdapter(),new PreviewDocumentTest.PreviewDocumentTxtTestAdapter(),
             new PreviewDocumentTest.PreviewDocumentInHtmlTestAdapter(), new PreviewDocumentTest.PreviewDocumentInHtmlLinkTestAdapter(),
@@ -52,6 +54,13 @@ public class NormalObjectTest {
             new AppendObjectTestAdapter.DeleteAppendObjectTestAdapter()
     };
 
+    @Before
+    public void setCollector(){
+        for (NormalRequestTestAdapter adapter : simpleTestAdapters) {
+            adapter.setCollector(collector);
+        }
+    }
+
     @Test
     public void testAsync() {
         for (NormalRequestTestAdapter adapter : simpleTestAdapters) {
@@ -62,6 +71,30 @@ public class NormalObjectTest {
 
     @Test public void testSync() {
         for (NormalRequestTestAdapter adapter : simpleTestAdapters) {
+            adapter.testSyncRequest();
+        }
+    }
+
+    @Test
+    public void selectObjectContentTestAsync() {
+        NormalRequestTestAdapter[] simpleTestAdapters = new NormalRequestTestAdapter[] {
+                new SelectObjectContentJsonTestAdapter(),
+                new SelectObjectContentCsvTestAdapter(),
+        };
+        for (NormalRequestTestAdapter adapter : simpleTestAdapters) {
+            adapter.setCollector(collector);
+            adapter.testAsyncRequest();
+        }
+    }
+
+
+    @Test public void selectObjectContentTestSync() {
+        NormalRequestTestAdapter[] simpleTestAdapters = new NormalRequestTestAdapter[] {
+                new SelectObjectContentJsonTestAdapter(),
+                new SelectObjectContentCsvTestAdapter(),
+        };
+        for (NormalRequestTestAdapter adapter : simpleTestAdapters) {
+            adapter.setCollector(collector);
             adapter.testSyncRequest();
         }
     }

@@ -1,5 +1,7 @@
 package com.tencent.cos.xml.model;
 
+import static org.hamcrest.CoreMatchers.is;
+
 import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
@@ -11,6 +13,7 @@ import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 
 import org.junit.Assert;
+import org.junit.rules.ErrorCollector;
 
 /**
  * <p>
@@ -18,6 +21,10 @@ import org.junit.Assert;
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
 public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosXmlResult> {
+    private ErrorCollector collector;
+    public void setCollector(ErrorCollector collector) {
+        this.collector = collector;
+    }
 
     private int retry = 3;
     private void recoveryRetry(){
@@ -102,13 +109,20 @@ public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosX
     protected void assertResult(S result) {
         TestUtils.print(result.printResult());
         TestUtils.printXML(result);
-        Assert.assertTrue(result.httpCode >= 200 && result.httpCode < 300);
+        if(this.collector != null) {
+            this.collector.checkThat(result.httpCode >= 200 && result.httpCode < 300, is(true));
+        } else {
+            Assert.assertTrue(result.httpCode >= 200 && result.httpCode < 300);
+        }
     }
 
     protected void assertException(@Nullable CosXmlClientException clientException,
                                    @Nullable CosXmlServiceException serviceException) {
-
-        Assert.fail(TestUtils.getCosExceptionMessage(this.getClass().getSimpleName(), clientException, serviceException));
+        if(this.collector != null) {
+            this.collector.addError(new AssertionError(TestUtils.getCosExceptionMessage(this.getClass().getSimpleName(), clientException, serviceException)));
+        } else {
+            Assert.fail(TestUtils.getCosExceptionMessage(this.getClass().getSimpleName(), clientException, serviceException));
+        }
     }
 
     static class COSResult {
@@ -126,13 +140,29 @@ public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosX
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
         try {
             S result = exeSync(newRequestInstance(), cosXmlService);
-            Assert.assertTrue(true);
+            if(this.collector != null) {
+                this.collector.checkThat(true, is(true));
+            } else {
+                Assert.assertTrue(true);
+            }
         } catch (CosXmlClientException clientException) {
-            Assert.assertTrue(true);
+            if(this.collector != null) {
+                this.collector.checkThat(true, is(true));
+            } else  {
+                Assert.assertTrue(true);
+            }
         } catch (CosXmlServiceException serviceException) {
-            Assert.assertTrue(true);
+            if(this.collector != null) {
+                this.collector.checkThat(true, is(true));
+            } else {
+                Assert.assertTrue(true);
+            }
         } catch (Exception e){
-            Assert.assertTrue(true);
+            if(this.collector != null) {
+                this.collector.checkThat(true, is(true));
+            } else {
+                Assert.assertTrue(true);
+            }
         }
     }
 
@@ -158,6 +188,10 @@ public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosX
         });
         locker.lock();
 
-        Assert.assertTrue(true);
+        if(this.collector != null) {
+            this.collector.checkThat(true, is(true));
+        } else {
+            Assert.assertTrue(true);
+        }
     }
 }

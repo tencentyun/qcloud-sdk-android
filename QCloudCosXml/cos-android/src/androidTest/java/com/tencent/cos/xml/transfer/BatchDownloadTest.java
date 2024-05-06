@@ -298,7 +298,7 @@ public class BatchDownloadTest {
     /**
      * 批量文件下载取消
      */
-//    @Test
+    @Test
     public void testBatchSmallDownloadCancel() {
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();;
         int count = 3;

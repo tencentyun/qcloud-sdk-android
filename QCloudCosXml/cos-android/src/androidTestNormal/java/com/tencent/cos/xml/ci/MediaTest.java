@@ -16,6 +16,8 @@ import com.tencent.cos.xml.model.ci.common.DigitalWatermark;
 import com.tencent.cos.xml.model.ci.common.PicProcess;
 import com.tencent.cos.xml.model.ci.media.GetPrivateM3U8Request;
 import com.tencent.cos.xml.model.ci.media.GetPrivateM3U8Result;
+import com.tencent.cos.xml.model.ci.media.GetWorkflowDetailRequest;
+import com.tencent.cos.xml.model.ci.media.GetWorkflowDetailResult;
 import com.tencent.cos.xml.model.ci.media.GetWorkflowListRequest;
 import com.tencent.cos.xml.model.ci.media.GetWorkflowListResult;
 import com.tencent.cos.xml.model.ci.media.OperationVideoTag;
@@ -1414,8 +1416,6 @@ public class MediaTest {
     String workflowId;
     @Test
     public void stage4_triggerWorkflow() {
-        if(workflowId == null) return;
-
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         TriggerWorkflowRequest request = new TriggerWorkflowRequest(
                 TestConst.ASR_BUCKET,
@@ -1436,8 +1436,6 @@ public class MediaTest {
 
     @Test
     public void stage4_triggerWorkflowAsync() {
-        if(workflowId == null) return;
-
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         TriggerWorkflowRequest request = new TriggerWorkflowRequest(
                 TestConst.ASR_BUCKET,
@@ -1464,41 +1462,41 @@ public class MediaTest {
         testLocker.lock();
     }
 
-//    @Test
-//    public void stage5_GetWorkflowDetail() {
-//        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-//        GetWorkflowDetailRequest request = new GetWorkflowDetailRequest(TestConst.ASR_BUCKET, workflowId);
-//        try {
-//            GetWorkflowDetailResult result = ciService.getWorkflowDetail(request);
-//            Assert.assertNotNull(result.response);
-//            TestUtils.printXML(result.response);
-//        } catch (CosXmlClientException e) {
-//            Assert.fail(TestUtils.getCosExceptionMessage(e));
-//        } catch (CosXmlServiceException e) {
-//            Assert.fail(TestUtils.getCosExceptionMessage(e));
-//        }
-//    }
-//
-//    @Test
-//    public void stage5_GetWorkflowDetailAsync() {
-//        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-//        GetWorkflowDetailRequest request = new GetWorkflowDetailRequest(TestConst.ASR_BUCKET, workflowId);
-//        final TestLocker testLocker = new TestLocker();
-//        ciService.getWorkflowDetailAsync(request, new CosXmlResultListener() {
-//            @Override
-//            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-//                GetWorkflowDetailResult GetWorkflowDetailResult = (GetWorkflowDetailResult)result;
-//                Assert.assertNotNull(GetWorkflowDetailResult.response);
-//                TestUtils.printXML(GetWorkflowDetailResult.response);
-//                testLocker.release();
-//            }
-//
-//            @Override
-//            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-//                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
-//                testLocker.release();
-//            }
-//        });
-//        testLocker.lock();
-//    }
+    @Test
+    public void stage5_GetWorkflowDetail() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        GetWorkflowDetailRequest request = new GetWorkflowDetailRequest(TestConst.ASR_BUCKET, workflowId);
+        try {
+            GetWorkflowDetailResult result = ciService.getWorkflowDetail(request);
+            Assert.assertNotNull(result.response);
+            TestUtils.printXML(result.response);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void stage5_GetWorkflowDetailAsync() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        GetWorkflowDetailRequest request = new GetWorkflowDetailRequest(TestConst.ASR_BUCKET, workflowId);
+        final TestLocker testLocker = new TestLocker();
+        ciService.getWorkflowDetailAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                GetWorkflowDetailResult GetWorkflowDetailResult = (GetWorkflowDetailResult)result;
+                Assert.assertNotNull(GetWorkflowDetailResult.response);
+                TestUtils.printXML(GetWorkflowDetailResult.response);
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+    }
 }

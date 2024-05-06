@@ -1,6 +1,8 @@
 package com.tencent.cos.xml.model.object;
 
+import com.tencent.cos.xml.CIService;
 import com.tencent.cos.xml.CosXmlService;
+import com.tencent.cos.xml.core.NormalServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -36,6 +38,8 @@ public class SelectObjectContentJsonTestAdapter extends NormalRequestTestAdapter
         jsonOutput = new JSONOutput("\n");
         Assert.assertEquals(jsonOutput.getRecordDelimiter().toString(), "\n");
 
+//        JSONOutput jsonOutput = new JSONOutput(",");
+
         InputSerialization inputSerialization = new InputSerialization(CompressionType.NONE, jsonInput);
         inputSerialization.withJson(jsonInput).setJson(jsonInput);
         inputSerialization = new InputSerialization(CompressionType.NONE.toString(), jsonInput);
@@ -44,8 +48,8 @@ public class SelectObjectContentJsonTestAdapter extends NormalRequestTestAdapter
         outputSerialization.withJson(jsonOutput).setJson(jsonOutput);
 
         SelectObjectContentRequest selectObjectContentRequest = new SelectObjectContentRequest(
-                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SELECT_JSON_PATH,
-                "Select s.name from COSObject s", true,
+                TestConst.CI_BUCKET, TestConst.PERSIST_BUCKET_SELECT_JSON_PATH,
+                "Select * from COSObject", false,
                 inputSerialization, outputSerialization
         );
 
@@ -56,6 +60,7 @@ public class SelectObjectContentJsonTestAdapter extends NormalRequestTestAdapter
             e.printStackTrace();
         }
         selectObjectContentRequest.setSelectResponseFilePath(localPath);
+        selectObjectContentRequest.setNeedMD5(false);
         selectObjectContentRequest.setSelectObjectContentProgressListener(new SelectObjectContentListener() {
             @Override
             public void onProcess(SelectObjectContentEvent event) {
@@ -68,11 +73,13 @@ public class SelectObjectContentJsonTestAdapter extends NormalRequestTestAdapter
 
     @Override
     protected SelectObjectContentResult exeSync(SelectObjectContentRequest request, CosXmlService cosXmlService) throws CosXmlClientException, CosXmlServiceException {
-        return cosXmlService.selectObjectContent(request);
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
+        return ciService.selectObjectContent(request);
     }
 
     @Override
     protected void exeAsync(SelectObjectContentRequest request, CosXmlService cosXmlService, CosXmlResultListener resultListener) {
-        cosXmlService.selectObjectContentAsync(request, resultListener);
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
+        ciService.selectObjectContentAsync(request, resultListener);
     }
 }

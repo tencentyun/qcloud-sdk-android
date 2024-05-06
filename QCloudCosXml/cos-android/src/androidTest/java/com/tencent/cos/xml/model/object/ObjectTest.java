@@ -4,7 +4,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.model.RequestTestAdapter;
 
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 import org.junit.runner.RunWith;
 
 /**
@@ -15,16 +18,13 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class ObjectTest {
+    @Rule
+    public ErrorCollector collector = new ErrorCollector();
 
     /**
      * 简单测试
      */
     private RequestTestAdapter[] simpleTestAdapters = new RequestTestAdapter[] {
-            // TODO: 2023/2/22 单测todo
-//            new PostObjectTestAdapter.PostObjectByteTestAdapter(),
-//            new PostObjectTestAdapter.PostObjectSrcPathTestAdapter(),
-//            new PostObjectTestAdapter.PostObjectStreamTestAdapter(),
-
             new PutObjectTestAdapter.PutObjectSrcPathTestAdapter(),
             new PutObjectTestAdapter.PutObjectByteTestAdapter(),
             new PutObjectTestAdapter.PutObjectSbTestAdapter(),
@@ -46,6 +46,16 @@ public class ObjectTest {
             new PostObjectTestAdapter.PostObjectSrcPathTestAdapter(),
             new PostObjectTestAdapter.PostObjectStreamTestAdapter(),
     };
+
+    @Before
+    public void setCollector(){
+        for (RequestTestAdapter adapter : simpleTestAdapters) {
+            adapter.setCollector(collector);
+        }
+        for (RequestTestAdapter adapter : postTestAdapters) {
+            adapter.setCollector(collector);
+        }
+    }
 
     @Test
     public void testAsync() {
