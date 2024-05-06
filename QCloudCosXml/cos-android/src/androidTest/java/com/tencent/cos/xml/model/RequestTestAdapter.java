@@ -15,6 +15,11 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import org.junit.Assert;
 import org.junit.rules.ErrorCollector;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * Created by rickenwang on 2020/10/16.
@@ -108,6 +113,10 @@ public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosX
 
     protected void assertResult(S result) {
         TestUtils.print(result.printResult());
+
+        setResultPublicFieldNull(result);
+        result.printResult();
+
         TestUtils.printXML(result);
         if(this.collector != null) {
             this.collector.checkThat(result.httpCode >= 200 && result.httpCode < 300, is(true));
@@ -132,6 +141,30 @@ public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosX
         CosXmlClientException clientException;
 
         CosXmlServiceException serviceException;
+    }
+
+    private void setResultPublicFieldNull(S result) {
+        if (result == null) {
+            return;
+        }
+
+        Field[] fields = result.getClass().getDeclaredFields();
+        List<Field> publicFields = new ArrayList<>();
+
+        for (Field field : fields) {
+            if (Modifier.isPublic(field.getModifiers())) {
+                publicFields.add(field);
+            }
+        }
+
+        if (publicFields.size() == 1) {
+            Field publicField = publicFields.get(0);
+            try {
+                publicField.set(result, null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     // TODO: 2023/3/30 Post待删除

@@ -113,7 +113,7 @@ public class AuditTest {
         request.addType("ads");
         request.setInterval(2);
         request.setMaxFrames(5);
-        request.setLargeImageDetect(true);
+        request.setLargeImageDetect(false);
         request.setBizType("");
         request.setDataid("asdasdasdasd");
         request.setAsync(true);

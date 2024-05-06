@@ -81,6 +81,7 @@ public class TestConst {
 
     public static final String TEMP_BUCKET_REGION = BuildConfig.TEMP_BUCKET_REGION;
     public static final String TEMP_BUCKET = BuildConfig.TEMP_BUCKET;
+    public static final String TEMP_BUCKET_MAZ = "mobile-ut-temp-maz-1253960454";
 
     public static final Boolean WEAK_NETWORK_TEST = BuildConfig.WEAK_NETWORK_TEST;
 
@@ -96,4 +97,5 @@ public class TestConst {
     public static final String PERSIST_BUCKET_CDN_PIC_PATH = "do_not_remove/cdn/image.png";
     public static final String PERSIST_BUCKET_CDN_SMALL_OBJECT_URL = "https://mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com/do_not_remove/cdn/small_object";
     public static final String PERSIST_BUCKET_CDN_BIG_OBJECT_URL = "https://mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com/do_not_remove/cdn/big_object";
+    public static final String PERSIST_BUCKET_QR_URL = "https://mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com/do_not_remove/qr.png";
 }

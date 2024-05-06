@@ -2,7 +2,6 @@ package com.tencent.cos.xml.model.ci;
 
 import android.net.Uri;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.model.tag.pic.PicOperationRule;
 import com.tencent.cos.xml.model.tag.pic.PicOperations;
@@ -43,10 +42,6 @@ public class QRCodeUploadRequest extends ImageUploadRequest {
         super(bucket, cosPath, data);
     }
 
-    public QRCodeUploadRequest(String bucket, String cosPath, StringBuilder stringBuilder) {
-        super(bucket, cosPath, stringBuilder);
-    }
-
     public QRCodeUploadRequest(String bucket, String cosPath, InputStream inputStream) {
         super(bucket, cosPath, inputStream);
     }
@@ -55,9 +50,7 @@ public class QRCodeUploadRequest extends ImageUploadRequest {
         super(bucket, cosPath, url);
     }
 
-    protected QRCodeUploadRequest(String bucket, String cosPath) {
-        super(bucket, cosPath);
-    }
+    protected QRCodeUploadRequest(String bucket, String cosPath) {super(bucket, cosPath);}
 
     @Override
     public PicOperations getPicOperations() {
@@ -82,8 +75,6 @@ public class QRCodeUploadRequest extends ImageUploadRequest {
         super.checkParameters();
         
         if (cover != 0 && cover != 1) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), 
-                    "cover can not be " + cover);
         }
     }
 }

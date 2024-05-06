@@ -108,7 +108,6 @@ public class PutBucketRefererRequest extends BucketRequest {
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
         if(refererConfiguration.domainList == null || refererConfiguration.domainList.size() <= 0){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "DomainList must not be null");
         }
     }
 

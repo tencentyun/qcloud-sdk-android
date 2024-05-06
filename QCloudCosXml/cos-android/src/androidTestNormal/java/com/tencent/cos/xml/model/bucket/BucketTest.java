@@ -17,9 +17,9 @@ public class BucketTest {
     @Rule
     public ErrorCollector collector = new ErrorCollector();
     private NormalRequestTestAdapter[] adapters = new NormalRequestTestAdapter[] {
-            new PutBucketTestAdapter(), new HeadBucketTestAdapter(),
+            new PutBucketTestAdapter(), new PutBucketMazTestAdapter(), new HeadBucketTestAdapter(),
             new PutBucketIntelligentTieringTestAdapter(), new GetBucketIntelligentTieringTestAdapter(),
-            new GetBucketTestAdapter(), new DeleteBucketTestAdapter(),
+            new GetBucketTestAdapter(), new DeleteBucketTestAdapter(), new DeleteBucketMazTestAdapter(),
 
             new PutBucketACLTestAdapter.PutBucketACL1TestAdapter(), new PutBucketACLTestAdapter.PutBucketACL2TestAdapter(), new GetBucketACLTestAdapter(),
             new PutBucketLoggingTestAdapter(), new GetBucketLoggingTestAdapter(),

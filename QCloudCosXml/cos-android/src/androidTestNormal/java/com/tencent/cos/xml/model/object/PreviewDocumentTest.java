@@ -89,6 +89,8 @@ public class PreviewDocumentTest {
             Assert.assertTrue(result.getTotalPage() > 0);
             result.getContentType();
 //        Assert.assertNotNull(result.getContentType());
+            result.getTotalSheet();
+            result.getSheetName();
             Assert.assertNull(result.getErrNo());
             Assert.assertNotNull(result.getPreviewFilePath());
         }
@@ -137,11 +139,16 @@ public class PreviewDocumentTest {
             PreviewDocumentInHtmlRequest request = new PreviewDocumentInHtmlRequest(TestConst.PERSIST_BUCKET,
                     TestConst.PERSIST_BUCKET_DOCUMENT_PATH, TestUtils.localParentPath());
             request.setSrcType("docx");
+            request.setCopyable(false);
             request.setCopyable(true);
             request.setHtmlParams("{ commonOptions: { isShowTopArea: true, isShowHeader: true } }");
-            request.setWatermark("Test");
-            request.setWatermarkColor("rgba(192,192,192,0.6)");
-            request.setWatermarkFont("bold 20px Serif");
+            try {
+                request.setWatermark("Test");
+                request.setWatermarkColor("rgba(192,192,192,0.6)");
+                request.setWatermarkFont("bold 20px Serif");
+            } catch (CosXmlClientException e) {
+                e.printStackTrace();
+            }
             request.setWatermarkRotate(300);
             request.setWatermarkHorizontal(60);
             request.setWatermarkVertical(90);
@@ -171,11 +178,16 @@ public class PreviewDocumentTest {
             PreviewDocumentInHtmlLinkRequest request = new PreviewDocumentInHtmlLinkRequest(TestConst.PERSIST_BUCKET,
                     TestConst.PERSIST_BUCKET_DOCUMENT_PATH);
             request.setSrcType("docx");
+            request.setCopyable(false);
             request.setCopyable(true);
             request.setHtmlParams("{ commonOptions: { isShowTopArea: true, isShowHeader: true } }");
-            request.setWatermark("Test");
-            request.setWatermarkColor("rgba(192,192,192,0.6)");
-            request.setWatermarkFont("bold 20px Serif");
+            try {
+                request.setWatermark("Test");
+                request.setWatermarkColor("rgba(192,192,192,0.6)");
+                request.setWatermarkFont("bold 20px Serif");
+            } catch (CosXmlClientException e) {
+                e.printStackTrace();
+            }
             request.setWatermarkRotate(300);
             request.setWatermarkHorizontal(60);
             request.setWatermarkVertical(90);

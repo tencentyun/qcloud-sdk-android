@@ -25,7 +25,6 @@ package com.tencent.cos.xml.model.bucket;
 import android.text.TextUtils;
 
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
@@ -170,23 +169,16 @@ public class PutBucketInventoryRequest extends BucketRequest {
     @Override
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
-        if(inventoryConfiguration.id == null) throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "inventoryId == null");
         Matcher matcher = pattern.matcher(inventoryConfiguration.id);
         if(!matcher.find()){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(),
-                    "inventoryId must be in [a-zA-Z0-9-_.]");
         }
         if(inventoryConfiguration.includedObjectVersions == null){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "includedObjectVersions == null");
         }
         if(inventoryConfiguration.schedule.frequency == null){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "schedule.frequency == null");
         }
         if(inventoryConfiguration.destination.cosBucketDestination.bucket == null){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "cosBucketDestination.bucket == null");
         }
         if(inventoryConfiguration.destination.cosBucketDestination.format == null){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "cosBucketDestination.format == null");
         }
 
     }
