@@ -23,9 +23,7 @@
 package com.tencent.cos.xml.model.object;
 
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
-import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.RestoreConfigure;
 import com.tencent.cos.xml.transfer.XmlBuilder;
@@ -90,5 +88,9 @@ public class RestoreRequest extends ObjectRequest {
         if(tier != null){
             restoreConfigure.casJobParameters.tier = tier.getTier();
         }
+    }
+
+    public RestoreConfigure getRestoreConfigure() {
+        return restoreConfigure;
     }
 }

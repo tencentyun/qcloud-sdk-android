@@ -3,6 +3,8 @@ package com.tencent.cos.xml.model.bucket;
 
 import static com.tencent.cos.xml.core.TestConst.TEMP_BUCKET_REGION;
 
+import static org.hamcrest.CoreMatchers.is;
+
 import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.CosXmlService;
@@ -21,20 +23,24 @@ public class PutBucketMazTestAdapter extends NormalRequestTestAdapter<PutBucketR
     @Override
     protected PutBucketRequest newRequestInstance() {
         PutBucketRequest request = new PutBucketRequest(TestConst.TEMP_BUCKET_MAZ);
-        request.enableMAZ(false);
         request.enableMAZ(true);
         request.setRegion(TEMP_BUCKET_REGION);
-        request.setXCOSACL("default");
         request.setXCOSACL(COSACL.DEFAULT);
         ACLAccount aclAccount = new ACLAccount();
         aclAccount.addAccount(TestConst.OWNER_UIN);
         aclAccount.addAccount(TestConst.OWNER_UIN, TestConst.OWNER_UIN);
-        request.setXCOSGrantRead("default");
         request.setXCOSGrantRead(aclAccount);
-        request.setXCOSGrantWrite("default");
         request.setXCOSGrantWrite(aclAccount);
-        request.setXCOSReadWrite("default");
         request.setXCOSReadWrite(aclAccount);
+
+
+        PutBucketRequest request1 = new PutBucketRequest(TestConst.TEMP_BUCKET_MAZ);
+        request1.setRegion(TEMP_BUCKET_REGION);
+        request1.setXCOSACL("default");
+        request1.setXCOSGrantRead("default");
+        request1.setXCOSGrantWrite("default");
+        request1.setXCOSReadWrite("default");
+
         return request;
     }
 
@@ -52,7 +58,11 @@ public class PutBucketMazTestAdapter extends NormalRequestTestAdapter<PutBucketR
     protected void assertException(@Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
 
         if (serviceException != null && "BucketAlreadyOwnedByYou".equalsIgnoreCase(serviceException.getErrorCode())) {
-            Assert.assertTrue(true);
+            if(super.collector != null) {
+                this.collector.checkThat(true, is(true));
+            } else  {
+                Assert.assertTrue(true);
+            }
         } else {
             super.assertException(clientException, serviceException);
         }

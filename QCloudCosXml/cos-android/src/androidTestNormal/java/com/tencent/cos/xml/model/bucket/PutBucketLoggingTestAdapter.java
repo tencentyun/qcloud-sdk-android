@@ -15,6 +15,10 @@ public class PutBucketLoggingTestAdapter extends NormalRequestTestAdapter<PutBuc
         PutBucketLoggingRequest putBucketLoggingRequest = new PutBucketLoggingRequest(TestConst.PERSIST_BUCKET);
         putBucketLoggingRequest.setTargetBucket(TestConst.PERSIST_BUCKET);
         putBucketLoggingRequest.setTargetPrefix("objectPrefix/");
+
+        PutBucketLoggingRequest putBucketLoggingRequest1 = new PutBucketLoggingRequest(TestConst.PERSIST_BUCKET);
+        putBucketLoggingRequest1.setTargetPrefix("objectPrefix/");
+        putBucketLoggingRequest1.setTargetBucket(TestConst.PERSIST_BUCKET);
         return putBucketLoggingRequest;
     }
 

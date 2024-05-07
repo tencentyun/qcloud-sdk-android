@@ -201,7 +201,7 @@ public class AIWordsGeneralizeTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
         final TestLocker locker = new TestLocker();
         DescribeWordsGeneralizeJobRequest request = new DescribeWordsGeneralizeJobRequest(
-                TestConst.WORDS_GENERALIZE_BUCKET, AIWordsGeneralizeTest.jobId);
+                TestConst.WORDS_GENERALIZE_BUCKET, TestConst.WORDS_GENERALIZE_BUCKET_REGION, AIWordsGeneralizeTest.jobId);
         ciService.describeWordsGeneralizeJobAsync(request, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult cosResult) {

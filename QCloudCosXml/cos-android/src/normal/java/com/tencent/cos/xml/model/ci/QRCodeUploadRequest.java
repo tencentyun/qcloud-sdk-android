@@ -50,8 +50,6 @@ public class QRCodeUploadRequest extends ImageUploadRequest {
         super(bucket, cosPath, url);
     }
 
-    protected QRCodeUploadRequest(String bucket, String cosPath) {super(bucket, cosPath);}
-
     @Override
     public PicOperations getPicOperations() {
         PicOperationRule rule = new PicOperationRule("QRcode/cover/" + cover);
@@ -73,8 +71,5 @@ public class QRCodeUploadRequest extends ImageUploadRequest {
     @Override
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
-        
-        if (cover != 0 && cover != 1) {
-        }
     }
 }

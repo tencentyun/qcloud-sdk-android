@@ -1,5 +1,7 @@
 package com.tencent.cos.xml.model.object;
 
+import static org.hamcrest.CoreMatchers.is;
+
 import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.CosXmlService;
@@ -41,7 +43,11 @@ public class OptionObjectTestAdapter extends NormalRequestTestAdapter<OptionObje
     protected void assertException(@Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
 
         if (serviceException != null && "AccessForbidden".equalsIgnoreCase(serviceException.getErrorCode())) {
-            Assert.assertTrue(true);
+            if(super.collector != null) {
+                this.collector.checkThat(true, is(true));
+            } else  {
+                Assert.assertTrue(true);
+            }
         } else {
             super.assertException(clientException, serviceException);
         }

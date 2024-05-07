@@ -35,9 +35,7 @@ abstract public class ImageUploadRequest extends PutObjectRequest implements Pic
         super(bucket, cosPath, data);
     }
 
-    public ImageUploadRequest(String bucket, String cosPath, StringBuilder stringBuilder) {
-        super(bucket, cosPath, stringBuilder);
-    }
+    public ImageUploadRequest(String bucket, String cosPath, StringBuilder stringBuilder) {super(bucket, cosPath, stringBuilder);}
 
     public ImageUploadRequest(String bucket, String cosPath, InputStream inputStream) {
         super(bucket, cosPath, inputStream);

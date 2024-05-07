@@ -29,8 +29,7 @@ public class PutBucketACLTestAdapter {
             putBucketACLRequest.setXCOSReadFullControl(aclAccount);
 //            putBucketACLRequest.setXCOSReadWrite(aclAccount);
 //            putBucketACLRequest.setXCOSReadWrite(null);
-            putBucketACLRequest.setXCOSACL("private");
-            putBucketACLRequest.setXCOSACL(COSACL.PRIVATE.getAcl());
+//            putBucketACLRequest.setXCOSACL(COSACL.PRIVATE.getAcl());
             putBucketACLRequest.setXCOSACL(COSACL.PRIVATE);
             return putBucketACLRequest;
         }
@@ -66,6 +65,7 @@ public class PutBucketACLTestAdapter {
             accessControlList.grants = grants;
             accessControlPolicy.accessControlList = accessControlList;
             putBucketACLRequest.setAccessControlPolicy(accessControlPolicy);
+            putBucketACLRequest.setXCOSACL("private");
             return putBucketACLRequest;
         }
 

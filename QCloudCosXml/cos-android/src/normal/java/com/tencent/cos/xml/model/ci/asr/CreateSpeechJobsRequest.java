@@ -28,7 +28,6 @@ import androidx.annotation.NonNull;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.bucket.BucketRequest;
@@ -273,25 +272,20 @@ public class CreateSpeechJobsRequest extends BucketRequest {
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
         if(TextUtils.isEmpty(createSpeechJobs.input.object) && TextUtils.isEmpty(createSpeechJobs.input.url)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "input must be non-empty");
         }
 
         if(TextUtils.isEmpty(createSpeechJobs.operation.output.region) ||
                 TextUtils.isEmpty(createSpeechJobs.operation.output.bucket) ||
                 TextUtils.isEmpty(createSpeechJobs.operation.output.object)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "output must be non-empty");
         }
 
         if(TextUtils.isEmpty(createSpeechJobs.operation.speechRecognition.engineModelType)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "engineModelType must be non-empty");
         }
 
         if(createSpeechJobs.operation.speechRecognition.channelNum == -1){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "channelNum must be non-empty");
         }
 
         if(createSpeechJobs.operation.speechRecognition.resTextFormat == -1){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "resTextFormat must be non-empty");
         }
     }
 

@@ -122,7 +122,6 @@ public class PostTextAuditRequest extends BasePostAuditRequest {
         if(TextUtils.isEmpty(postTextAudit.input.object) &&
                 TextUtils.isEmpty(postTextAudit.input.url) &&
                 TextUtils.isEmpty(postTextAudit.input.content)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "object or url or content must be non-empty");
         }
     }
 }

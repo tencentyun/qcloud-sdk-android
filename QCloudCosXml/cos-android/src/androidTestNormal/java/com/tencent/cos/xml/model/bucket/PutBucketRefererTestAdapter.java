@@ -27,8 +27,11 @@ public class PutBucketRefererTestAdapter extends NormalRequestTestAdapter<PutBuc
         PutBucketRefererRequest putBucketRefererRequest = new PutBucketRefererRequest(
                 TestConst.PERSIST_BUCKET, enabled, refererType);
         putBucketRefererRequest.setRefererType(refererType);
+        putBucketRefererRequest.getRefererType();
         putBucketRefererRequest.setEnabled(enabled);
+        putBucketRefererRequest.getEnabled();
         putBucketRefererRequest.setAllowEmptyRefer(allowEmptyRefer);
+        putBucketRefererRequest.getAllowEmptyRefer();
         ArrayList<RefererConfiguration.Domain> domainList = new ArrayList<>();
         domainList.add(new RefererConfiguration.Domain("*.qq.com"));
         domainList.add(new RefererConfiguration.Domain("*.qcloud.com"));

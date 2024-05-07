@@ -84,7 +84,11 @@ import com.tencent.cos.xml.model.ci.audit.UpdateStrategyResult;
 import com.tencent.cos.xml.model.tag.audit.bean.AuditConf;
 import com.tencent.cos.xml.model.tag.audit.bean.AuditEncryption;
 import com.tencent.cos.xml.model.tag.audit.bean.AuditUserInfo;
+import com.tencent.cos.xml.model.tag.audit.post.PostAudioAudit;
 import com.tencent.cos.xml.model.tag.audit.post.PostImagesAudit;
+import com.tencent.cos.xml.model.tag.audit.post.PostTextAudit;
+import com.tencent.cos.xml.model.tag.audit.post.PostVideoAudit;
+import com.tencent.cos.xml.model.tag.audit.post.PostWebPageAudit;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -220,6 +224,8 @@ public class AuditTest {
         postRequest.setDetectType("Porn,Terrorism");
         postRequest.setAsync(1);
         postRequest.setCallback("https://www.callback.com");
+        postRequest.setBizType("");
+        postRequest.setConfig(new AuditConf());
         AuditConf.Freeze freeze = new AuditConf.Freeze();
         freeze.pornScore = 80;
         freeze.adsScore = 90;
@@ -322,6 +328,8 @@ public class AuditTest {
         postRequest.setTimeInterval(10);
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
         postRequest.setDetectContent(1);
+        postRequest.setBizType("");
+        postRequest.setConfig(new PostVideoAudit.VideoAuditConf());
         try {
             PostAuditResult result = ciService.postVideoAudit(postRequest);
             TestUtils.printXML(result.postAuditJobResponse);
@@ -417,6 +425,8 @@ public class AuditTest {
         postRequest.setCallback("https://github.com/jordanqin");
         postRequest.setCallbackVersion("Detail");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
+        postRequest.setBizType("");
+        postRequest.setConfig(new PostAudioAudit.AudioAuditConf());
         try {
             PostAuditResult result = ciService.postAudioAudit(postRequest);
             TestUtils.printXML(result.postAuditJobResponse);
@@ -501,6 +511,8 @@ public class AuditTest {
         postRequest.setCallback("https://github.com/jordanqin");
         postRequest.setCallbackVersion("Detail");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
+        postRequest.setBizType("");
+        postRequest.setConfig(new PostTextAudit.TextAuditConf());
         try {
             TextAuditResult result = ciService.postTextAudit(postRequest);
             TestUtils.printXML(result.textAuditJobResponse);
@@ -583,6 +595,8 @@ public class AuditTest {
         postRequest.setDataId("DataIdQJD");
         postRequest.setCallback("https://github.com/jordanqin");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
+        postRequest.setBizType("");
+        postRequest.setConfig(new AuditConf());
         try {
             PostAuditResult result = ciService.postDocumentAudit(postRequest);
             TestUtils.printXML(result.postAuditJobResponse);
@@ -663,6 +677,7 @@ public class AuditTest {
         postRequest.setCallback("https://github.com/jordanqin");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
         postRequest.setReturnHighlightHtml(true);
+        postRequest.setConfig(new PostWebPageAudit.WebPageAuditConf());
         try {
             PostAuditResult result = ciService.postWebPageAudit(postRequest);
             TestUtils.printXML(result.postAuditJobResponse);
@@ -750,7 +765,7 @@ public class AuditTest {
         input.dataId = "dataId";
         postLiveVideoAudit.input = input;
         PostLiveVideoAudit.PostLiveVideoAuditConf conf = new PostLiveVideoAudit.PostLiveVideoAuditConf();
-        conf.bizType = "b81d45f94b91a683255e9a9506f45a11";
+        conf.bizType = "94b92c470c4a11efa10c525400b75156";
         conf.callback = "https://github.com/jordanqin";
         conf.callbackType = 1;
         postLiveVideoAudit.conf = conf;
@@ -836,6 +851,49 @@ public class AuditTest {
                         testLocker.release();
                     }
                 });
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+                if(clientException != null){
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException));
+                }
+                if(serviceException != null){
+                    Assert.fail(TestUtils.getCosExceptionMessage(serviceException));
+                }
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+    }
+
+    @Test
+    public void getLiveVideoAudit() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
+        GetLiveVideoAuditRequest getAuditRequest = new GetLiveVideoAuditRequest(TestConst.CI_BUCKET, "jobId");
+        try {
+            GetLiveVideoAuditResult getResult = ciService.getLiveVideoAudit(getAuditRequest);
+            Assert.assertNotNull(getResult.response);
+            TestUtils.printXML(getResult.response);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void getLiveVideoAuditAsync() {
+        final CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
+        final TestLocker testLocker = new TestLocker();
+        GetLiveVideoAuditRequest getAuditRequest = new GetLiveVideoAuditRequest(TestConst.CI_BUCKET, "jobId");
+        ciService.getLiveVideoAuditAsync(getAuditRequest, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                GetLiveVideoAuditResult getResult = (GetLiveVideoAuditResult)result;
+                Assert.assertNotNull(getResult.response);
+                TestUtils.printXML(getResult.response);
+                testLocker.release();
             }
 
             @Override
@@ -989,6 +1047,7 @@ public class AuditTest {
 
     @Test
     public void stage1_createStrategy() {
+        TestUtils.sleep(2000);
         CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
 
         CreateStrategyRequest request = new CreateStrategyRequest(TestConst.CI_BUCKET, "Text");
@@ -1016,8 +1075,38 @@ public class AuditTest {
         }
     }
 
+//    @Test
+//    public void stage1_createStrategy1() {
+//        CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
+//
+//        CreateStrategyRequest request = new CreateStrategyRequest(TestConst.CI_BUCKET, "Live");
+//        CreateStrategy createStrategy = new CreateStrategy();
+//        createStrategy.name = "TestLiveVideoStrategy";
+////        createStrategy.textLibs = new ArrayList<String>(){};
+//        CreateStrategy.Labels labels = new CreateStrategy.Labels();
+//        CreateStrategy.LabelInfo labelInfo = new CreateStrategy.LabelInfo();
+//        labelInfo.porn = new ArrayList<>();
+//        labelInfo.porn.add("ObsceneBehaviour");
+//        labelInfo.porn.add("SexProducts");
+//        labelInfo.politics = new ArrayList<>();
+//        labelInfo.politics.add("NegativeFigure");
+//        labelInfo.politics.add("Building");
+//        labels.image = labelInfo;
+//        createStrategy.labels = labels;
+//        request.setStrategy(createStrategy);
+//        try {
+//            CreateStrategyResult result = ciService.createAuditStrategy(request);
+//            TestUtils.printXML(result.response);
+//        } catch (CosXmlClientException e) {
+//            Assert.fail(TestUtils.getCosExceptionMessage(e));
+//        } catch (CosXmlServiceException e) {
+//            Assert.fail(TestUtils.getCosExceptionMessage(e));
+//        }
+//    }
+
     @Test
     public void stage1_createStrategyAsync() {
+        TestUtils.sleep(2000);
         CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
         final TestLocker testLocker = new TestLocker();
 
@@ -1189,6 +1278,7 @@ public class AuditTest {
 
     @Test
     public void textlib() {
+        TestUtils.sleep(2000);
         CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
         CreateAuditTextlibRequest createAuditTextlibRequest = new CreateAuditTextlibRequest(TestConst.CI_BUCKET);
         CreateAuditTextlib createAuditTextlib = new CreateAuditTextlib();
@@ -1228,6 +1318,14 @@ public class AuditTest {
                 GetAuditTextlibKeywordListResult getAuditTextlibKeywordListResult = ciService.getAuditTextlibKeywordList(getAuditTextlibKeywordListRequest);
                 TestUtils.printXML(getAuditTextlibKeywordListResult.response);
 
+                GetAuditTextlibKeywordListRequest getAuditTextlibKeywordListRequest1 = new GetAuditTextlibKeywordListRequest(TestConst.CI_BUCKET, lib.libID);
+                getAuditTextlibKeywordListRequest1.content = "test";
+                getAuditTextlibKeywordListRequest1.label = "test";
+                getAuditTextlibKeywordListRequest1.offset = 1;
+                getAuditTextlibKeywordListRequest1.limit = 10;
+                GetAuditTextlibKeywordListResult getAuditTextlibKeywordListResult1 = ciService.getAuditTextlibKeywordList(getAuditTextlibKeywordListRequest1);
+                TestUtils.printXML(getAuditTextlibKeywordListResult1.response);
+
                 if(getAuditTextlibKeywordListResult.response.keywords.size() > 0){
                     DeleteAuditTextlibKeywordRequest deleteAuditTextlibKeywordRequest = new DeleteAuditTextlibKeywordRequest(TestConst.CI_BUCKET, lib.libID);
                     deleteAuditTextlibKeywordRequest.addKeywordID(getAuditTextlibKeywordListResult.response.keywords.get(0).keywordID);
@@ -1256,6 +1354,7 @@ public class AuditTest {
 
     @Test
     public void textlibAsync() {
+        TestUtils.sleep(2000);
         CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
         CreateAuditTextlibRequest createAuditTextlibRequest = new CreateAuditTextlibRequest(TestConst.CI_BUCKET);
         CreateAuditTextlib createAuditTextlib = new CreateAuditTextlib();

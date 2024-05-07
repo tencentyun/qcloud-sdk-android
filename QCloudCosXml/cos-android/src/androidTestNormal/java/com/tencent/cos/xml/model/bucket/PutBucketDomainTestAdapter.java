@@ -1,6 +1,8 @@
  
 package com.tencent.cos.xml.model.bucket;
 
+import static org.hamcrest.CoreMatchers.is;
+
 import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.CosXmlService;
@@ -47,7 +49,11 @@ public class PutBucketDomainTestAdapter extends NormalRequestTestAdapter<PutBuck
     protected void assertException(@Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
 
         if (serviceException != null && "DNSRecordVerifyFailed".equalsIgnoreCase(serviceException.getErrorCode())) {
-            Assert.assertTrue(true);
+            if(super.collector != null) {
+                this.collector.checkThat(true, is(true));
+            } else  {
+                Assert.assertTrue(true);
+            }
         } else {
             super.assertException(clientException, serviceException);
         }

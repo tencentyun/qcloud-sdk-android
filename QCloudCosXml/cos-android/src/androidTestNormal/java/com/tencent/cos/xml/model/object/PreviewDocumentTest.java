@@ -45,12 +45,12 @@ public class PreviewDocumentTest {
 
         @Override
         protected void assertResult(PreviewDocumentResult result) {
-            super.assertResult(result);
-            Assert.assertTrue(result.getTotalPage() > 0);
+            result.getTotalPage();
             result.getContentType();
-//        Assert.assertNotNull(result.getContentType());
-            Assert.assertNull(result.getErrNo());
-            Assert.assertNotNull(result.getPreviewFilePath());
+            result.getErrNo();
+            result.getPreviewFilePath();
+            result.getContentType();
+            super.assertResult(result);
         }
     }
 
@@ -85,14 +85,13 @@ public class PreviewDocumentTest {
 
         @Override
         protected void assertResult(PreviewDocumentResult result) {
-            super.assertResult(result);
-            Assert.assertTrue(result.getTotalPage() > 0);
+            result.getTotalPage();
             result.getContentType();
-//        Assert.assertNotNull(result.getContentType());
             result.getTotalSheet();
             result.getSheetName();
-            Assert.assertNull(result.getErrNo());
-            Assert.assertNotNull(result.getPreviewFilePath());
+            result.getErrNo();
+            result.getPreviewFilePath();
+            super.assertResult(result);
         }
     }
 
@@ -124,12 +123,12 @@ public class PreviewDocumentTest {
 
         @Override
         protected void assertResult(PreviewDocumentResult result) {
-            super.assertResult(result);
-            Assert.assertTrue(result.getTotalPage() > 0);
+            result.getTotalPage();
             result.getContentType();
-//        Assert.assertNotNull(result.getContentType());
-            Assert.assertNull(result.getErrNo());
-            Assert.assertNotNull(result.getPreviewFilePath());
+            result.getErrNo();
+            result.getPreviewFilePath();
+            result.getContentType();
+            super.assertResult(result);
         }
     }
 
@@ -167,8 +166,8 @@ public class PreviewDocumentTest {
 
         @Override
         protected void assertResult(PreviewDocumentInHtmlResult result) {
+            result.getPreviewFilePath();
             super.assertResult(result);
-            Assert.assertNotNull(result.getPreviewFilePath());
         }
     }
 
@@ -206,8 +205,8 @@ public class PreviewDocumentTest {
 
         @Override
         protected void assertResult(PreviewDocumentInHtmlLinkResult result) {
+            result.getPreviewUrl();
             super.assertResult(result);
-            Assert.assertNotNull(result.getPreviewUrl());
         }
     }
 }

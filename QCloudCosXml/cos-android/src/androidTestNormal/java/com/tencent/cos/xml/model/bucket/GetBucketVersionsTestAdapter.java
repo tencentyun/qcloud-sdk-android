@@ -13,9 +13,9 @@ public class GetBucketVersionsTestAdapter extends NormalRequestTestAdapter<ListB
     protected ListBucketVersionsRequest newRequestInstance() {
         ListBucketVersionsRequest request = new ListBucketVersionsRequest(TestConst.PERSIST_BUCKET);
         request.setPrefix("do_not_remove/");
-        request.setKeyMarker("Marker");
+        request.setKeyMarker(TestConst.PERSIST_BUCKET_PIC_PATH);
         request.setKeyMarker(null);
-        request.setVersionIdMarker("Marker");
+        request.setVersionIdMarker("MTg0NDUwNjE0NjU4NzY1NzAzMjI");
         request.setVersionIdMarker(null);
         request.setDelimiter("/");
         request.setEncodingType("url");

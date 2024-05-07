@@ -26,7 +26,7 @@ import java.util.List;
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
 public abstract class RequestTestAdapter<R extends CosXmlRequest, S extends CosXmlResult> {
-    private ErrorCollector collector;
+    protected ErrorCollector collector;
     public void setCollector(ErrorCollector collector) {
         this.collector = collector;
     }

@@ -55,6 +55,7 @@ public class TestConst {
     public static final String ASR_OBJECT_FF_2C = "asr/ff-16b-2c-44100hz.aac";
     public static final String ASR_OBJECT_GS_1C = "asr/gs-16b-1c-8000hz.amr";
     public static final String ASR_OBJECT_GS_2C = "asr/gs-16b-2c-44100hz.aac";
+    public static final String ASR_OBJECT_GS_2C_URL = "https://ci-auditing-sample-1253960454.cos.ap-guangzhou.myqcloud.com/asr/gs-16b-2c-44100hz.aac";
     public static final String ASR_OBJECT_LONG = "asr/aaa.m4a";
     public static final String ASR_OBJECT_OUTPUT = "asr/output.txt";
 
