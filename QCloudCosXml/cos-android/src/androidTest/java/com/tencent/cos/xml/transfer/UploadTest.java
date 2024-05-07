@@ -69,6 +69,7 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -83,75 +84,75 @@ public class UploadTest {
 
     private final String UPLOAD_FOLDER="/upload/";
 
-//    /**
-//     * 测试任务优先级
-//     *
-//     */
-//    @Test public void testUploadPriority() {
-//
-//        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
-//        final int lowPriorityTaskCount = 5;
-//        final int normalPriorityTaskCount = 5;
-//        final TestLocker testLocker = new TestLocker(lowPriorityTaskCount + normalPriorityTaskCount);
-//        final AtomicInteger uploadSuccessCount = new AtomicInteger();
-//        for (int i = 0; i < lowPriorityTaskCount; i++) {
-//            String filePath = TestUtils.localPath("lowPriorityFile" + i);
-//            try {
-//                TestUtils.createFile(filePath, 10 * 1024 * 1024);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            PutObjectRequest putObjectRequest= new PutObjectRequest(TestConst.PERSIST_BUCKET,
-//                    TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH + "low" + i, filePath);
-//            putObjectRequest.setPriorityLow();
-//            final COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
-//            uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
-//                @Override
-//                public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-//                    QCloudLogger.i("QCloudTest", "upload success low ");
-//                    int count = uploadSuccessCount.addAndGet(1);
-//                    if (count <= lowPriorityTaskCount) {
-//                        Assert.fail("upload low priority task success, but count is " + count);
-//                    }
-//                    testLocker.release();
-//                }
-//
-//                @Override
-//                public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
-//                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
-//                    testLocker.release();
-//                }
-//            });
-//        }
-//
-//        for (int i = 0; i < normalPriorityTaskCount; i++) {
-//            String filePath = TestUtils.localPath("normalPriorityFile" + i);
-//            try {
-//                TestUtils.createFile(filePath, 10 * 1024 * 1024);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            PutObjectRequest putObjectRequest= new PutObjectRequest(TestConst.PERSIST_BUCKET,
-//                    TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH + "normal" + i, filePath);
-//            final COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
-//            uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
-//                @Override
-//                public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-//                    uploadSuccessCount.addAndGet(1);
-//                    QCloudLogger.i("QCloudTest", "upload success normal ");
-//                    testLocker.release();
-//                }
-//
-//                @Override
-//                public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
-//                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
-//                    testLocker.release();
-//                }
-//            });
-//        }
-//
-//        testLocker.lock();
-//    }
+    /**
+     * 测试任务优先级
+     *
+     */
+    @Test public void testUploadPriority() {
+
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+        final int lowPriorityTaskCount = 5;
+        final int normalPriorityTaskCount = 5;
+        final TestLocker testLocker = new TestLocker(lowPriorityTaskCount + normalPriorityTaskCount);
+        final AtomicInteger uploadSuccessCount = new AtomicInteger();
+        for (int i = 0; i < lowPriorityTaskCount; i++) {
+            String filePath = TestUtils.localPath("lowPriorityFile" + i);
+            try {
+                TestUtils.createFile(filePath, 10 * 1024 * 1024);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            PutObjectRequest putObjectRequest= new PutObjectRequest(TestConst.PERSIST_BUCKET,
+                    TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH + "low" + i, filePath);
+            putObjectRequest.setPriorityLow();
+            final COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
+            uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+                @Override
+                public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                    QCloudLogger.i("QCloudTest", "upload success low ");
+                    int count = uploadSuccessCount.addAndGet(1);
+                    if (count <= lowPriorityTaskCount) {
+                        Assert.fail("upload low priority task success, but count is " + count);
+                    }
+                    testLocker.release();
+                }
+
+                @Override
+                public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                    testLocker.release();
+                }
+            });
+        }
+
+        for (int i = 0; i < normalPriorityTaskCount; i++) {
+            String filePath = TestUtils.localPath("normalPriorityFile" + i);
+            try {
+                TestUtils.createFile(filePath, 10 * 1024 * 1024);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            PutObjectRequest putObjectRequest= new PutObjectRequest(TestConst.PERSIST_BUCKET,
+                    TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH + "normal" + i, filePath);
+            final COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
+            uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+                @Override
+                public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                    uploadSuccessCount.addAndGet(1);
+                    QCloudLogger.i("QCloudTest", "upload success normal ");
+                    testLocker.release();
+                }
+
+                @Override
+                public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                    testLocker.release();
+                }
+            });
+        }
+
+        testLocker.lock();
+    }
 
 
     /**
@@ -1001,8 +1002,9 @@ public class UploadTest {
 
         final TestLocker uploadLocker = new TestLocker();
         String cosPath = UPLOAD_FOLDER+"uploadTask_resume";
+        InputStream inputStream = Files.newInputStream(new File(bigFilePath()).toPath());
         final COSXMLUploadTask cosxmlUploadTask = transferManager.upload(TestConst.PERSIST_BUCKET,
-                cosPath, Files.newInputStream(new File(bigFilePath()).toPath()));
+                cosPath, inputStream);
 
         cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
             @Override
@@ -1011,29 +1013,35 @@ public class UploadTest {
             }
         });
 
-        cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+        cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
             @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                uploadLocker.release();
-            }
-
-            @Override
-            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
-                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
-                uploadLocker.release();
-
+            public void onProgress(long complete, long target) {
+                QCloudLogger.i(TestConst.UT_TAG, "transfer progress is " + complete + "/" + target);
             }
         });
 
         // 上传 5s 后暂停
-        Thread.sleep(10000);
+        Thread.sleep(3000);
         if (cosxmlUploadTask.getTaskState() == TransferState.COMPLETED) {
             Assert.assertTrue(true);
             return;
         } else if (cosxmlUploadTask.getTaskState() == TransferState.IN_PROGRESS) {
 
             cosxmlUploadTask.pauseSafely();
-            Thread.sleep(2000);
+            Thread.sleep(3000);
+            cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+                @Override
+                public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                    uploadLocker.release();
+                }
+
+                @Override
+                public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                    TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                    uploadLocker.release();
+
+                }
+            });
             cosxmlUploadTask.resume();
         } else {
             Assert.fail();
@@ -1041,7 +1049,7 @@ public class UploadTest {
         }
 
         uploadLocker.lock();
-        TestUtils.assertCOSXMLTaskSuccess(cosxmlUploadTask);
+        Assert.assertSame(cosxmlUploadTask.getTaskState(), TransferState.FAILED);
     }
 
     @Test
@@ -1066,13 +1074,14 @@ public class UploadTest {
 
         COSXMLUploadTask cosxmlUploadTask1 = null;
         // 上传 5s 后暂停
-        Thread.sleep(10000);
+//        Thread.sleep(6000);
+        uploadLocker.lock(3000);
         if (cosxmlUploadTask.getTaskState() == TransferState.COMPLETED) {
             Assert.assertTrue(true);
             return;
         } else if (cosxmlUploadTask.getTaskState() == TransferState.IN_PROGRESS) {
             cosxmlUploadTask.pauseSafely();
-            Thread.sleep(5000);
+            Thread.sleep(3000);
             cosxmlUploadTask1 = bigSliceSizeTransferManager.upload(TestConst.PERSIST_BUCKET, cosPath, srcPath, uploadId.get());
             cosxmlUploadTask1.setCosXmlResultListener(new CosXmlResultListener() {
                 @Override
@@ -1124,13 +1133,13 @@ public class UploadTest {
 
         COSXMLUploadTask cosxmlUploadTask1 = null;
         // 上传 5s 后暂停
-        Thread.sleep(10000);
+        Thread.sleep(3000);
         if (cosxmlUploadTask.getTaskState() == TransferState.COMPLETED) {
             Assert.assertTrue(true);
             return;
         } else if (cosxmlUploadTask.getTaskState() == TransferState.IN_PROGRESS) {
             cosxmlUploadTask.pauseSafely();
-            Thread.sleep(5000);
+            Thread.sleep(3000);
             cosxmlUploadTask1 = bigSliceSizeTransferManager.upload(TestConst.PERSIST_BUCKET, cosPath, srcPath, uploadId.get());
             cosxmlUploadTask1.setCosXmlResultListener(new CosXmlResultListener() {
                 @Override

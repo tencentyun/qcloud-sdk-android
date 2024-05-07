@@ -1079,7 +1079,7 @@ public class AuditTest {
 //    public void stage1_createStrategy1() {
 //        CIService ciService = NormalServiceFactory.INSTANCE.newCIAuditService();
 //
-//        CreateStrategyRequest request = new CreateStrategyRequest(TestConst.CI_BUCKET, "Live");
+//        CreateStrategyRequest request = new CreateStrategyRequest(TestConst.CI_BUCKET, "LiveVideo");
 //        CreateStrategy createStrategy = new CreateStrategy();
 //        createStrategy.name = "TestLiveVideoStrategy";
 ////        createStrategy.textLibs = new ArrayList<String>(){};

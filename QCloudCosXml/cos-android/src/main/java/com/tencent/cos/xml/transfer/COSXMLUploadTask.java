@@ -1243,8 +1243,6 @@ public final class COSXMLUploadTask extends COSXMLTask {
     @Override
     public void resume() {
         if(inputStream != null){
-            if(IS_EXIT.get())return;
-            IS_EXIT.set(true);
             multiUploadsStateListenerHandler.onFailed(buildCOSXMLTaskRequest(),
                     new CosXmlClientException(ClientErrorCode.SINK_SOURCE_NOT_FOUND.getCode(), "inputStream closed"), null);
             return;
