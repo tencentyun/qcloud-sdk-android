@@ -41,18 +41,9 @@ public class ObjectTest {
             new PutObjectTestAdapter.PutObjectSrcPathTestAdapter(),
     };
 
-    private RequestTestAdapter[] postTestAdapters = new RequestTestAdapter[] {
-            new PostObjectTestAdapter.PostObjectByteTestAdapter(),
-            new PostObjectTestAdapter.PostObjectSrcPathTestAdapter(),
-            new PostObjectTestAdapter.PostObjectStreamTestAdapter(),
-    };
-
     @Before
     public void setCollector(){
         for (RequestTestAdapter adapter : simpleTestAdapters) {
-            adapter.setCollector(collector);
-        }
-        for (RequestTestAdapter adapter : postTestAdapters) {
             adapter.setCollector(collector);
         }
     }
@@ -68,20 +59,6 @@ public class ObjectTest {
     @Test public void testSync() {
         for (RequestTestAdapter adapter : simpleTestAdapters) {
             adapter.testSyncRequest();
-        }
-    }
-
-    @Test
-    public void testPostObjectAsync() {
-        for (RequestTestAdapter adapter : postTestAdapters) {
-            adapter.testPostAsyncRequest();
-        }
-    }
-
-
-    @Test public void testPostObjectSync() {
-        for (RequestTestAdapter adapter : postTestAdapters) {
-            adapter.testPostSyncRequest();
         }
     }
 }

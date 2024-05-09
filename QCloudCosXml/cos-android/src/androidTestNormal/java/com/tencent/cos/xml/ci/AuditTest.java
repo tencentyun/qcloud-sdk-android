@@ -329,7 +329,9 @@ public class AuditTest {
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
         postRequest.setDetectContent(1);
         postRequest.setBizType("");
-        postRequest.setConfig(new PostVideoAudit.VideoAuditConf());
+        PostVideoAudit.VideoAuditConf conf = new PostVideoAudit.VideoAuditConf();
+        conf.snapshot.count = 2;
+        postRequest.setConfig(conf);
         try {
             PostAuditResult result = ciService.postVideoAudit(postRequest);
             TestUtils.printXML(result.postAuditJobResponse);
@@ -1320,7 +1322,6 @@ public class AuditTest {
 
                 GetAuditTextlibKeywordListRequest getAuditTextlibKeywordListRequest1 = new GetAuditTextlibKeywordListRequest(TestConst.CI_BUCKET, lib.libID);
                 getAuditTextlibKeywordListRequest1.content = "test";
-                getAuditTextlibKeywordListRequest1.label = "test";
                 getAuditTextlibKeywordListRequest1.offset = 1;
                 getAuditTextlibKeywordListRequest1.limit = 10;
                 GetAuditTextlibKeywordListResult getAuditTextlibKeywordListResult1 = ciService.getAuditTextlibKeywordList(getAuditTextlibKeywordListRequest1);

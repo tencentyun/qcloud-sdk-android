@@ -313,8 +313,7 @@ public class OtherObjectTest {
         } catch (CosXmlClientException e) {
             Assert.fail();
         } catch (CosXmlServiceException e) {
-            Assert.assertEquals("InternalError", e.getErrorCode());
-//            Assert.assertEquals("NoSuchKey", e.getErrorCode());
+            Assert.assertEquals("NoSuchKey", e.getErrorCode());
         }
     }
 }  

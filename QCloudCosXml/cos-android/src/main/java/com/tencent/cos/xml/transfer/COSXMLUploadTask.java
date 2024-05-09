@@ -939,6 +939,15 @@ public final class COSXMLUploadTask extends COSXMLTask {
     protected void internalResume() {
         taskState = TransferState.WAITING;
         IS_EXIT.set(false); //初始化
+
+        // inputStream不支持resume
+        if(inputStream != null){
+            IS_EXIT.set(true);
+            multiUploadsStateListenerHandler.onFailed(buildCOSXMLTaskRequest(),
+                    new CosXmlClientException(ClientErrorCode.SINK_SOURCE_NOT_FOUND.getCode(), "inputStream closed"), null);
+            return;
+        }
+
         upload();
     }
 
@@ -1238,16 +1247,6 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
         uploadId = null;
         startUpload();
-    }
-
-    @Override
-    public void resume() {
-        if(inputStream != null){
-            multiUploadsStateListenerHandler.onFailed(buildCOSXMLTaskRequest(),
-                    new CosXmlClientException(ClientErrorCode.SINK_SOURCE_NOT_FOUND.getCode(), "inputStream closed"), null);
-            return;
-        }
-        super.resume();
     }
 
     private static class SlicePartStruct{

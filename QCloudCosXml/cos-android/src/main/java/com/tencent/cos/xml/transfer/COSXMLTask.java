@@ -387,7 +387,7 @@ public abstract class COSXMLTask {
                 break;
             case FAILED:
                 if(taskState == TransferState.WAITING
-                        || taskState == TransferState.IN_PROGRESS || taskState == TransferState.PAUSED){
+                        || taskState == TransferState.IN_PROGRESS){
                     taskState = TransferState.FAILED;
                     mException = exception;
                     if(cosXmlResultListener != null){
