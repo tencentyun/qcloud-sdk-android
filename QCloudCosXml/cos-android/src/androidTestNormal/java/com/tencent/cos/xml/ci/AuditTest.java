@@ -1328,10 +1328,16 @@ public class AuditTest {
                 TestUtils.printXML(getAuditTextlibKeywordListResult1.response);
 
                 if(getAuditTextlibKeywordListResult.response.keywords.size() > 0){
-                    DeleteAuditTextlibKeywordRequest deleteAuditTextlibKeywordRequest = new DeleteAuditTextlibKeywordRequest(TestConst.CI_BUCKET, lib.libID);
-                    deleteAuditTextlibKeywordRequest.addKeywordID(getAuditTextlibKeywordListResult.response.keywords.get(0).keywordID);
-                    DeleteAuditTextlibKeywordResult deleteAuditTextlibKeywordResult = ciService.deleteAuditTextlibKeyword(deleteAuditTextlibKeywordRequest);
-                    TestUtils.printXML(deleteAuditTextlibKeywordResult.response);
+                    try {
+                        DeleteAuditTextlibKeywordRequest deleteAuditTextlibKeywordRequest = new DeleteAuditTextlibKeywordRequest(TestConst.CI_BUCKET, lib.libID);
+                        deleteAuditTextlibKeywordRequest.addKeywordID(getAuditTextlibKeywordListResult.response.keywords.get(0).keywordID);
+                        DeleteAuditTextlibKeywordResult deleteAuditTextlibKeywordResult = ciService.deleteAuditTextlibKeyword(deleteAuditTextlibKeywordRequest);
+                        TestUtils.printXML(deleteAuditTextlibKeywordResult.response);
+                    } catch (CosXmlClientException e) {
+                        e.printStackTrace();
+                    } catch (CosXmlServiceException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 UpdateAuditTextlibRequest updateAuditTextlibRequest = new UpdateAuditTextlibRequest(TestConst.CI_BUCKET, lib.libID);
