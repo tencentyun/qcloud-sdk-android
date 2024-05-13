@@ -116,7 +116,7 @@ public class CosXmlConfigTest {
         } catch (CosXmlServiceException e) {
         }
 
-        HeadObjectRequest headObjectRequest2 = new HeadObjectRequest(TestConst.ASR_BUCKET, TestConst.ASR_OBJECT_LONG);
+        HeadObjectRequest headObjectRequest2 = new HeadObjectRequest(TestConst.CI_BUCKET, TestConst.ASR_OBJECT_LONG);
         CosXmlServiceConfig cosXmlServiceConfig2 = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setDebuggable(true)

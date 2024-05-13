@@ -494,11 +494,6 @@ public class CosXmlBaseService implements BaseCosXml {
             QCloudHttpRequest<T2> httpRequest = buildHttpRequest(cosXmlRequest, cosXmlResult);
 
             HttpTask<T2> httpTask;
-//            if (cosXmlRequest instanceof PostObjectRequest) {
-//                httpTask = client.resolveRequest(httpRequest, null);
-//            } else {
-//                httpTask = client.resolveRequest(httpRequest, credentialProvider);
-//            }
             httpTask = client.resolveRequest(httpRequest, credentialProvider);
             
             httpTask.setTransferThreadControl(config.isTransferThreadControl());
@@ -643,10 +638,6 @@ public class CosXmlBaseService implements BaseCosXml {
     @Override
     public void getObjectAsync(GetObjectRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetObjectResult(), cosXmlResultListener);
-    }
-
-    public GetObjectResult internalGetObject(GetObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new GetObjectResult(), true);
     }
     public void internalGetObjectAsync(GetObjectRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetObjectResult(), cosXmlResultListener, true);

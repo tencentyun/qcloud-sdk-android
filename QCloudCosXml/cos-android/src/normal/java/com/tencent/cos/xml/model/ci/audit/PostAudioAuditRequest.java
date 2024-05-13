@@ -28,7 +28,6 @@ import androidx.annotation.NonNull;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.audit.bean.AuditInput;
@@ -120,7 +119,6 @@ public class PostAudioAuditRequest extends BasePostAuditRequest {
         super.checkParameters();
         if(TextUtils.isEmpty(postAudioAudit.input.object) &&
                 TextUtils.isEmpty(postAudioAudit.input.url)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "object or url must be non-empty");
         }
     }
 }

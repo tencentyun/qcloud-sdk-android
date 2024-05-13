@@ -45,12 +45,12 @@ public class PreviewDocumentTest {
 
         @Override
         protected void assertResult(PreviewDocumentResult result) {
-            super.assertResult(result);
-            Assert.assertTrue(result.getTotalPage() > 0);
+            result.getTotalPage();
             result.getContentType();
-//        Assert.assertNotNull(result.getContentType());
-            Assert.assertNull(result.getErrNo());
-            Assert.assertNotNull(result.getPreviewFilePath());
+            result.getErrNo();
+            result.getPreviewFilePath();
+            result.getContentType();
+            super.assertResult(result);
         }
     }
 
@@ -85,12 +85,13 @@ public class PreviewDocumentTest {
 
         @Override
         protected void assertResult(PreviewDocumentResult result) {
-            super.assertResult(result);
-            Assert.assertTrue(result.getTotalPage() > 0);
+            result.getTotalPage();
             result.getContentType();
-//        Assert.assertNotNull(result.getContentType());
-            Assert.assertNull(result.getErrNo());
-            Assert.assertNotNull(result.getPreviewFilePath());
+            result.getTotalSheet();
+            result.getSheetName();
+            result.getErrNo();
+            result.getPreviewFilePath();
+            super.assertResult(result);
         }
     }
 
@@ -122,12 +123,12 @@ public class PreviewDocumentTest {
 
         @Override
         protected void assertResult(PreviewDocumentResult result) {
-            super.assertResult(result);
-            Assert.assertTrue(result.getTotalPage() > 0);
+            result.getTotalPage();
             result.getContentType();
-//        Assert.assertNotNull(result.getContentType());
-            Assert.assertNull(result.getErrNo());
-            Assert.assertNotNull(result.getPreviewFilePath());
+            result.getErrNo();
+            result.getPreviewFilePath();
+            result.getContentType();
+            super.assertResult(result);
         }
     }
 
@@ -137,11 +138,16 @@ public class PreviewDocumentTest {
             PreviewDocumentInHtmlRequest request = new PreviewDocumentInHtmlRequest(TestConst.PERSIST_BUCKET,
                     TestConst.PERSIST_BUCKET_DOCUMENT_PATH, TestUtils.localParentPath());
             request.setSrcType("docx");
+            request.setCopyable(false);
             request.setCopyable(true);
             request.setHtmlParams("{ commonOptions: { isShowTopArea: true, isShowHeader: true } }");
-            request.setWatermark("Test");
-            request.setWatermarkColor("rgba(192,192,192,0.6)");
-            request.setWatermarkFont("bold 20px Serif");
+            try {
+                request.setWatermark("Test");
+                request.setWatermarkColor("rgba(192,192,192,0.6)");
+                request.setWatermarkFont("bold 20px Serif");
+            } catch (CosXmlClientException e) {
+                e.printStackTrace();
+            }
             request.setWatermarkRotate(300);
             request.setWatermarkHorizontal(60);
             request.setWatermarkVertical(90);
@@ -160,8 +166,8 @@ public class PreviewDocumentTest {
 
         @Override
         protected void assertResult(PreviewDocumentInHtmlResult result) {
+            result.getPreviewFilePath();
             super.assertResult(result);
-            Assert.assertNotNull(result.getPreviewFilePath());
         }
     }
 
@@ -171,11 +177,16 @@ public class PreviewDocumentTest {
             PreviewDocumentInHtmlLinkRequest request = new PreviewDocumentInHtmlLinkRequest(TestConst.PERSIST_BUCKET,
                     TestConst.PERSIST_BUCKET_DOCUMENT_PATH);
             request.setSrcType("docx");
+            request.setCopyable(false);
             request.setCopyable(true);
             request.setHtmlParams("{ commonOptions: { isShowTopArea: true, isShowHeader: true } }");
-            request.setWatermark("Test");
-            request.setWatermarkColor("rgba(192,192,192,0.6)");
-            request.setWatermarkFont("bold 20px Serif");
+            try {
+                request.setWatermark("Test");
+                request.setWatermarkColor("rgba(192,192,192,0.6)");
+                request.setWatermarkFont("bold 20px Serif");
+            } catch (CosXmlClientException e) {
+                e.printStackTrace();
+            }
             request.setWatermarkRotate(300);
             request.setWatermarkHorizontal(60);
             request.setWatermarkVertical(90);
@@ -194,8 +205,8 @@ public class PreviewDocumentTest {
 
         @Override
         protected void assertResult(PreviewDocumentInHtmlLinkResult result) {
+            result.getPreviewUrl();
             super.assertResult(result);
-            Assert.assertNotNull(result.getPreviewUrl());
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.tencent.cos.xml.model.object;
 
+import static org.hamcrest.CoreMatchers.is;
+
 import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.CosXmlService;
@@ -18,6 +20,7 @@ public class RestoreObjectTestAdapter extends NormalRequestTestAdapter<RestoreRe
         RestoreRequest request = new RestoreRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_DEEP_ARCHIVE_OBJECT_PATH);
         request.setExpireDays(1);
         request.setTier(RestoreConfigure.Tier.Expedited);
+        request.getRestoreConfigure().toString();
         return request;
     }
 
@@ -35,7 +38,11 @@ public class RestoreObjectTestAdapter extends NormalRequestTestAdapter<RestoreRe
     protected void assertException(@Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
 
         if (serviceException != null && "RestoreAlreadyInProgress".equalsIgnoreCase(serviceException.getErrorCode())) {
-            Assert.assertTrue(true);
+            if(super.collector != null) {
+                this.collector.checkThat(true, is(true));
+            } else  {
+                Assert.assertTrue(true);
+            }
         } else {
             super.assertException(clientException, serviceException);
         }

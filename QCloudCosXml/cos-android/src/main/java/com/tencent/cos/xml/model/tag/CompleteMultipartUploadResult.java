@@ -56,6 +56,9 @@ public class CompleteMultipartUploadResult {
     @XmlElement(name = "ProcessResults")
     public List<PicObject> processResults;
 
+    @XmlElement(name = "CallbackResult")
+    public CallbackResult callbackResult;
+
     public PicOriginalInfo getOriginInfo() {
         PicOriginalInfo originalInfo = new PicOriginalInfo();
         originalInfo.location = location;

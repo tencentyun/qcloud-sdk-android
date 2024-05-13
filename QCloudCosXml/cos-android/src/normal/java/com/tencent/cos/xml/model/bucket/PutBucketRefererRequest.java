@@ -25,7 +25,6 @@ package com.tencent.cos.xml.model.bucket;
 import androidx.annotation.NonNull;
 
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
@@ -63,6 +62,10 @@ public class PutBucketRefererRequest extends BucketRequest {
         refererConfiguration.setEnabled(enabled);
     }
 
+    public boolean getEnabled(){
+        return refererConfiguration.getEnabled();
+    }
+
     /**
      * 设置防盗链类型(黑名单、白名单)
      * @param refererType 防盗链类型
@@ -71,12 +74,20 @@ public class PutBucketRefererRequest extends BucketRequest {
         refererConfiguration.setRefererType(refererType);
     }
 
+    public RefererConfiguration.RefererType getRefererType(){
+        return refererConfiguration.getRefererType();
+    }
+
     /**
      * 设置是否允许空 Referer 访问
      * @param allowEmptyRefer 是否允许
      */
     public void setAllowEmptyRefer(boolean allowEmptyRefer){
         refererConfiguration.setAllowEmptyRefer(allowEmptyRefer);
+    }
+
+    public boolean getAllowEmptyRefer(){
+        return refererConfiguration.getAllowEmptyRefer();
     }
 
     /**
@@ -108,7 +119,6 @@ public class PutBucketRefererRequest extends BucketRequest {
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
         if(refererConfiguration.domainList == null || refererConfiguration.domainList.size() <= 0){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "DomainList must not be null");
         }
     }
 

@@ -204,15 +204,15 @@ public abstract class COSXMLTask {
         }
     }
 
-    protected void internalCompleted(){}
+    protected abstract void internalCompleted();
 
-    protected void internalFailed(){}
+    protected abstract void internalFailed();
 
-    protected void internalPause(boolean now){}
+    protected abstract void internalPause(boolean now);
 
-    protected void internalCancel(boolean now){}
+    protected abstract void internalCancel(boolean now);
 
-    protected void internalResume(){}
+    protected abstract void internalResume();
 
     abstract protected void encounterError(@Nullable CosXmlRequest cosXmlRequest, CosXmlClientException clientException, CosXmlServiceException serviceException);
 

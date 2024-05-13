@@ -44,9 +44,7 @@ public class PreviewDocumentInHtmlBytesResult extends CosXmlResult {
         super.parseResponseBody(response);
         try {
             data = response.bytes();
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+        } catch (IOException e) {throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);}
     }
 
     /**

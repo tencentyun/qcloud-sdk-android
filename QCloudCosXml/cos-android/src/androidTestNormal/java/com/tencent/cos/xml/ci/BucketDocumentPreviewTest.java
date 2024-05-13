@@ -120,7 +120,7 @@ public class BucketDocumentPreviewTest {
     @Test
     public void stage5_getBucketDocumentPreviewStateAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        DescribeDocProcessBucketsRequest request = new DescribeDocProcessBucketsRequest();
+        DescribeDocProcessBucketsRequest request = new DescribeDocProcessBucketsRequest(TestConst.PERSIST_BUCKET_REGION);
         request.setPageNumber(1);
         request.setPageSize(20);
 //        request.setRegions("ap-chongqing,ap-beijing");
@@ -186,7 +186,7 @@ public class BucketDocumentPreviewTest {
     @Test
     public void stage7_deleteBucketDocumentPreviewStateAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        DeleteBucketDPStateRequest request = new DeleteBucketDPStateRequest(TestConst.PERSIST_BUCKET);
+        DeleteBucketDPStateRequest request = new DeleteBucketDPStateRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION);
         final TestLocker testLocker = new TestLocker();
         ciService.deleteBucketDocumentPreviewStateAsync(request, new CosXmlResultListener() {
             @Override

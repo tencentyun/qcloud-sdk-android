@@ -91,12 +91,8 @@ public class PreviewDocumentInHtmlBytesRequest extends ObjectRequest {
      *
      * @param watermark 水印文字
      */
-    public PreviewDocumentInHtmlBytesRequest setWatermark(String watermark) {
-        try {
-            queryParameters.put("htmlwaterword", DigestUtils.getSecurityBase64(watermark));
-        } catch (CosXmlClientException e) {
-            e.printStackTrace();
-        }
+    public PreviewDocumentInHtmlBytesRequest setWatermark(String watermark) throws CosXmlClientException {
+        queryParameters.put("htmlwaterword", DigestUtils.getSecurityBase64(watermark));
         return this;
     }
 
@@ -106,12 +102,8 @@ public class PreviewDocumentInHtmlBytesRequest extends ObjectRequest {
      *
      * @param htmlfillstyle 水印 RGBA（颜色和透明度）
      */
-    public PreviewDocumentInHtmlBytesRequest setWatermarkColor(String htmlfillstyle) {
-        try {
-            queryParameters.put("htmlfillstyle", DigestUtils.getSecurityBase64(htmlfillstyle));
-        } catch (CosXmlClientException e) {
-            e.printStackTrace();
-        }
+    public PreviewDocumentInHtmlBytesRequest setWatermarkColor(String htmlfillstyle) throws CosXmlClientException {
+        queryParameters.put("htmlfillstyle", DigestUtils.getSecurityBase64(htmlfillstyle));
         return this;
     }
 
@@ -121,12 +113,8 @@ public class PreviewDocumentInHtmlBytesRequest extends ObjectRequest {
      *
      * @param font 水印文字样式
      */
-    public PreviewDocumentInHtmlBytesRequest setWatermarkFont(String font) {
-        try {
-            queryParameters.put("htmlfront", DigestUtils.getSecurityBase64(font));
-        } catch (CosXmlClientException e) {
-            e.printStackTrace();
-        }
+    public PreviewDocumentInHtmlBytesRequest setWatermarkFont(String font) throws CosXmlClientException {
+        queryParameters.put("htmlfront", DigestUtils.getSecurityBase64(font));
         return this;
     }
 

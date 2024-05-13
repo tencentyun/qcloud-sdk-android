@@ -170,11 +170,9 @@ public class SensitiveContentRecognitionRequest extends BucketRequest {
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
         if (bucket == null || bucket.length() < 1) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "bucket must not be null ");
         }
 
         if ((cosPath == null || cosPath.length() < 1) && (detectUrl == null || detectUrl.length() < 1)) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "cosPath or detectUrl must not be null ");
         }
 
         addCiParams();

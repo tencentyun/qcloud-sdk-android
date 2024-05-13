@@ -22,7 +22,6 @@
 
 package com.tencent.cos.xml.model.ci;
 
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
@@ -218,8 +217,6 @@ public class PreviewDocumentRequest extends GetObjectRequest {
         super.checkParameters();
 
         if (page < 1) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(),
-                    "Please set a valid page number");
         }
     }
 

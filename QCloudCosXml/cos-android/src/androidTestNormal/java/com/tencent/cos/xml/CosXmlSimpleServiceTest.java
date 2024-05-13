@@ -32,6 +32,7 @@ import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.cos.xml.model.object.HeadObjectResult;
+import com.tencent.cos.xml.model.service.GetServiceRequest;
 import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
 import com.tencent.qcloud.core.logger.FileLogAdapter;
 import com.tencent.qcloud.core.logger.QCloudLogger;
@@ -94,5 +95,19 @@ public class CosXmlSimpleServiceTest {
             cosXmlService.cancelAll();
             cosXmlService.release();
         }
+    }
+
+    @Test
+    public void getServiceTest(){
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .builder();
+        CosXmlService cosXmlService = new CosXmlService(getContext(), cosXmlServiceConfig,
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,600) );
+        String host = TestConst.PERSIST_BUCKET + ".cos." + TestConst.PERSIST_BUCKET_REGION + ".myqcloud.com";
+        cosXmlService.setServiceDomain(host);
+        Assert.assertNotNull(cosXmlService.getAccessUrl(new GetServiceRequest()));
     }
 }

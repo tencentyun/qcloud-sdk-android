@@ -660,7 +660,8 @@ public class XmlBuilder extends XmlSlimBuilder {
         XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
         XmlSerializer xmlSerializer = xmlPullParserFactory.newSerializer();
         xmlSerializer.setOutput(xmlContent);
-        xmlSerializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
+        // select object content api加了\r\n检测，不允许body中有\r\n
+//        xmlSerializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
         xmlSerializer.startDocument("UTF-8", null);
 
         xmlSerializer.startTag("", "SelectRequest");

@@ -40,7 +40,7 @@ android {
     buildTypes {
 
         debug {
-//            testCoverageEnabled = true
+            testCoverageEnabled = true
 //            it.buildConfigField "int", "VERSION_CODE", "${defaultConfig.versionCode}"
 //            it.buildConfigField "String","VERSION_NAME","\"${defaultConfig.versionName}\""
             it.buildConfigField 'String', 'OWNER_UIN', quotWrapper(System.getenv("OWNER_UIN"))
@@ -66,6 +66,9 @@ android {
 
             it.buildConfigField 'String', 'CLS_SECRET_ID', quotWrapper(System.getenv("CLS_SECRET_ID"))
             it.buildConfigField 'String', 'CLS_SECRET_KEY', quotWrapper(System.getenv("CLS_SECRET_KEY"))
+
+            it.buildConfigField 'String', 'CALLBACK_SECRET_ID', quotWrapper(System.getenv("CALLBACK_SECRET_ID"))
+            it.buildConfigField 'String', 'CALLBACK_SECRET_KEY', quotWrapper(System.getenv("CALLBACK_SECRET_KEY"))
         }
 
         release {
@@ -89,8 +92,8 @@ android {
     }
 
     // 切换发 normal 或者 slim 包，需要同步修改 pom.artifactId 信息
-//    defaultPublishConfig "normalRelease"
-      defaultPublishConfig  "slimRelease"
+    defaultPublishConfig "normalRelease"
+//      defaultPublishConfig  "slimRelease"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -140,7 +143,9 @@ dependencies {
     androidTestImplementation 'com.tencentcloudapi:tencentcloud-sdk-java-kms:3.1.213'
     androidTestImplementation 'xerces:xercesImpl:2.12.0'
 
-    androidTestImplementation project(path: ':quic')
+    androidTestImplementation(project(path: ':quic')) {
+        exclude group: 'com.qcloud.cos', module: 'qcloud-foundation'
+    }
     //tencent http dns
     androidTestImplementation "io.github.dnspod:httpdns-sdk:4.3.0"
 //    androidTestImplementation 'android.arch.persistence.room:rxjava2:2.1.1'

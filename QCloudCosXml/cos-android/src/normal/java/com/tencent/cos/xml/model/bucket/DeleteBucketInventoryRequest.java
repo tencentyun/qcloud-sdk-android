@@ -71,8 +71,5 @@ public class DeleteBucketInventoryRequest extends BucketRequest {
     @Override
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
-        if(inventoryId == null){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "inventoryId == null");
-        }
     }
 }

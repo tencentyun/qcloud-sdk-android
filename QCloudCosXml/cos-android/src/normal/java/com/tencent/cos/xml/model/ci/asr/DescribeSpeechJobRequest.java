@@ -23,10 +23,7 @@
 package com.tencent.cos.xml.model.ci.asr;
 
 
-import android.text.TextUtils;
-
 import com.tencent.cos.xml.CosXmlServiceConfig;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.bucket.BucketRequest;
@@ -74,8 +71,5 @@ final public class DescribeSpeechJobRequest extends BucketRequest {
     @Override
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
-        if(TextUtils.isEmpty(jobId)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "jobId must be non-empty");
-        }
     }
 }

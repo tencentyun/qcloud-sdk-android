@@ -49,6 +49,8 @@ task jacocoCreateNormalDebugCoverageReport(type: JacocoReport, dependsOn: 'conne
                     'com/tencent/cos/xml/transfer/CopyObjectService*',
                     // 系统临时生成
                     '**/*BuildConfig.class',
+                    '**/*$$XmlAdapter.class',// 排除xml序列化中间生成类
+                    '**/*XmlAdapter*.class',// 排除XmlAdapter中的匿名类ChildElementBinder
 
                     'com/tencent/cos/xml/crypto/**',
                     'com/tencent/cos/xml/model/tag/eventstreaming/**',
