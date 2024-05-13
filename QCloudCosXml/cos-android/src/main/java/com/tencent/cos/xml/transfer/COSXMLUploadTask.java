@@ -51,6 +51,7 @@ import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectResult;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.cos.xml.model.object.UploadPartResult;
+import com.tencent.cos.xml.model.tag.CallbackResult;
 import com.tencent.cos.xml.model.tag.InitiateMultipartUpload;
 import com.tencent.cos.xml.model.tag.ListParts;
 import com.tencent.cos.xml.model.tag.UrlUploadPolicy;
@@ -1050,6 +1051,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
             PutObjectResult putObjectResult = (PutObjectResult) sourceResult;
             cosxmlUploadTaskResult.eTag = putObjectResult.eTag;
             cosxmlUploadTaskResult.picUploadResult = putObjectResult.picUploadResult();
+            cosxmlUploadTaskResult.callbackResult = putObjectResult.callbackResult;
         } else if(sourceResult instanceof CompleteMultiUploadResult){
             CompleteMultiUploadResult completeMultiUploadResult = (CompleteMultiUploadResult) sourceResult;
             if(completeMultiUploadResult.completeMultipartUpload != null){
@@ -1058,6 +1060,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 picUploadResult.originalInfo = completeMultiUploadResult.completeMultipartUpload.getOriginInfo();
                 picUploadResult.processResults = completeMultiUploadResult.completeMultipartUpload.processResults;
                 cosxmlUploadTaskResult.picUploadResult = picUploadResult;
+                cosxmlUploadTaskResult.callbackResult = completeMultiUploadResult.completeMultipartUpload.callbackResult;
             }
         } else if(sourceResult instanceof HeadObjectResult){
             HeadObjectResult headObjectResult = (HeadObjectResult) sourceResult;
@@ -1313,6 +1316,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         protected COSXMLUploadTaskResult(){}
         public String eTag;
         public PicUploadResult picUploadResult;
+        public CallbackResult callbackResult;
     }
 
     private Map<String, List<String>> getCustomCompleteHeaders(@Nullable Map<String, List<String>> customHeaders) {

@@ -16,11 +16,11 @@ public class TestConst {
 
     public static final String SECRET_ID = BuildConfig.COS_SECRET_ID;
     public static final String SECRET_KEY = BuildConfig.COS_SECRET_KEY;
-
     public static final String PERSIST_BUCKET_REGION = BuildConfig.PERSIST_BUCKET_REGION;
     public static final String PERSIST_BUCKET = BuildConfig.PERSIST_BUCKET;
     public static final String PERSIST_BUCKET_CDN_SIGN = BuildConfig.PERSIST_BUCKET_CDN_SIGN;
     public static final String PERSIST_BUCKET_PIC_PATH = "do_not_remove/image.png";
+    public static final String PERSIST_BUCKET_PIC_6M_PATH = "do_not_remove/6m.jpg";
     public static final String PERSIST_BUCKET_QR_PATH = "do_not_remove/qr.png";
     public static final String PERSIST_BUCKET_VIDEO_PATH = "do_not_remove/video.mp4";
     public static final String PERSIST_BUCKET_SELECT_JSON_PATH = "do_not_remove/select.json";
@@ -99,4 +99,9 @@ public class TestConst {
     public static final String PERSIST_BUCKET_CDN_SMALL_OBJECT_URL = "https://mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com/do_not_remove/cdn/small_object";
     public static final String PERSIST_BUCKET_CDN_BIG_OBJECT_URL = "https://mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com/do_not_remove/cdn/big_object";
     public static final String PERSIST_BUCKET_QR_URL = "https://mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com/do_not_remove/cdn/qr.png";
+
+    public static final String CALLBACK_SECRET_ID = BuildConfig.CALLBACK_SECRET_ID;
+    public static final String CALLBACK_SECRET_KEY = BuildConfig.CALLBACK_SECRET_KEY;
+    public static final String CALLBACK_PERSIST_BUCKET_REGION = "ap-shanghai";
+    public static final String CALLBACK_PERSIST_BUCKET = "test-callback-1251668577";
 }

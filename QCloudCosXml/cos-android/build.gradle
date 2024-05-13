@@ -66,6 +66,9 @@ android {
 
             it.buildConfigField 'String', 'CLS_SECRET_ID', quotWrapper(System.getenv("CLS_SECRET_ID"))
             it.buildConfigField 'String', 'CLS_SECRET_KEY', quotWrapper(System.getenv("CLS_SECRET_KEY"))
+
+            it.buildConfigField 'String', 'CALLBACK_SECRET_ID', quotWrapper(System.getenv("CALLBACK_SECRET_ID"))
+            it.buildConfigField 'String', 'CALLBACK_SECRET_KEY', quotWrapper(System.getenv("CALLBACK_SECRET_KEY"))
         }
 
         release {

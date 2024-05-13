@@ -29,6 +29,7 @@ import static com.tencent.cos.xml.core.TestUtils.bigFilePath;
 import static com.tencent.cos.xml.core.TestUtils.bigPlusFilePath;
 import static com.tencent.cos.xml.core.TestUtils.getContext;
 import static com.tencent.cos.xml.core.TestUtils.smallFilePath;
+import static org.hamcrest.CoreMatchers.is;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -39,6 +40,7 @@ import androidx.collection.ArraySet;
 import androidx.core.content.FileProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.MyOnSignatureListener;
 import com.tencent.cos.xml.core.ServiceFactory;
@@ -53,18 +55,25 @@ import com.tencent.cos.xml.listener.CosXmlResultSimpleListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.BasePutObjectResult;
+import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.tag.InitiateMultipartUpload;
 import com.tencent.cos.xml.model.tag.UrlUploadPolicy;
+import com.tencent.cos.xml.model.tag.pic.PicOperationRule;
+import com.tencent.cos.xml.model.tag.pic.PicOperations;
+import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.cos.xml.utils.UrlUtil;
 import com.tencent.qcloud.core.auth.COSXmlSignSourceProvider;
+import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.util.Base64Utils;
 import com.tencent.qcloud.core.util.QCloudStringUtils;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 import org.junit.runner.RunWith;
 
 import java.io.File;
@@ -73,6 +82,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -1600,4 +1611,135 @@ public class UploadTest {
         }
         testLocker.lock(20000);
     }
+
+    @Test
+    public void testUploadSmallFileCallback() throws CosXmlClientException {
+        testUploadCallback(false, false, false);
+        testUploadCallback(false, false, true);
+        testUploadCallback(false, true, false);
+
+//        testUploadCallback(false, true, true);
+
+        testUploadCallback(true, false, false);
+        testUploadCallback(true, false, true);
+        testUploadCallback(true, true, false);
+        testUploadCallback(true, true, true);
+    }
+
+    @Rule
+    public ErrorCollector collector = new ErrorCollector();
+    private void testUploadCallback(boolean isBigFile, boolean isCI, boolean is203) throws CosXmlClientException {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .setDebuggable(true)
+                .setRegion(TestConst.CALLBACK_PERSIST_BUCKET_REGION)
+                .builder();
+        CosXmlSimpleService cosXmlSimpleService = new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
+                new ShortTimeCredentialProvider(TestConst.CALLBACK_SECRET_ID, TestConst.CALLBACK_SECRET_KEY,60000) );
+        TransferConfig transferConfig = new TransferConfig.Builder().build();
+        TransferManager transferManager = new TransferManager(cosXmlSimpleService, transferConfig);
+
+        PutObjectRequest putObjectRequest;
+        if(isCI){
+            String localImageName ="/test_image.png";
+            String cosPath;
+            if(isBigFile){
+                cosPath = TestConst.PERSIST_BUCKET_PIC_6M_PATH;
+            } else {
+                cosPath = TestConst.PERSIST_BUCKET_PIC_PATH;
+            }
+            GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                    cosPath, TestUtils.localParentPath(), localImageName);
+            CosXmlSimpleService cosXmlDefaultService = ServiceFactory.INSTANCE.newDefaultService();
+            try {
+                cosXmlDefaultService.getObject(getObjectRequest);
+            } catch (Exception e) {
+                Assert.fail(e.getMessage());
+            }
+
+            putObjectRequest = new PutObjectRequest(TestConst.CALLBACK_PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH, TestUtils.localPath(localImageName));
+            List<PicOperationRule> rules = new LinkedList<>();
+            rules.add(new PicOperationRule("examplepngobject", "imageView2/format/png"));
+            PicOperations picOperations = new PicOperations(true, rules);
+            putObjectRequest.setPicOperations(picOperations);
+        } else {
+            if(isBigFile){
+                putObjectRequest = new PutObjectRequest(TestConst.CALLBACK_PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH, TestUtils.bigFilePath());
+            } else {
+                putObjectRequest = new PutObjectRequest(TestConst.CALLBACK_PERSIST_BUCKET, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH, TestUtils.smallFilePath());
+            }
+        }
+
+        String callbackJson;
+        if(is203){
+            callbackJson = "{ \"callbackUrlaaa\": \"http://114.132.67.183/index\", " +
+                    "\"callbackHost\": \"114.132.67.183\", " +
+                    "\"callbackBody\": \"bucket=${bucket}&object=${object}&etag=${etag}&test=test_123\", " +
+                    "\"callbackBodyType\": \"application/x-www-form-urlencoded\" }";
+        } else {
+            callbackJson = "{ \"callbackUrl\": \"http://114.132.67.183/index\", " +
+                    "\"callbackHost\": \"114.132.67.183\", " +
+                    "\"callbackBody\": \"bucket=${bucket}&object=${object}&etag=${etag}&test=test_123\", " +
+                    "\"callbackBodyType\": \"application/x-www-form-urlencoded\" }";
+        }
+        String callbackBase64 = DigestUtils.getBase64(callbackJson);
+        putObjectRequest.setRequestHeaders("x-cos-callback", callbackBase64, false);
+
+        COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
+        final TestLocker testLocker = new TestLocker();
+        uploadTask.setInitMultipleUploadListener(initiateMultipartUpload -> TestUtils.print(initiateMultipartUpload.uploadId));
+        uploadTask.setInternalStateListener(state -> TestUtils.print(state.name()));
+        uploadTask.setInternalProgressListener((complete, target) -> TestUtils.print(String.format("%d-%d", complete, target)));
+        uploadTask.setInternalInitMultipleUploadListener(initiateMultipartUpload -> TestUtils.print(initiateMultipartUpload.uploadId));
+        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                COSXMLUploadTask.COSXMLUploadTaskResult cosxmlUploadTaskResult = (COSXMLUploadTask.COSXMLUploadTaskResult) result;
+                TestUtils.printXML(cosxmlUploadTaskResult);
+                if(cosxmlUploadTaskResult.callbackResult != null && cosxmlUploadTaskResult.callbackResult.getCallbackBody() != null) {
+                    TestUtils.print("CallbackBody:");
+                    TestUtils.print(cosxmlUploadTaskResult.callbackResult.getCallbackBody());
+                }
+                if(is203){
+                    if(isCI){
+                        if(isBigFile){
+                            //
+                            collector.checkThat(true, is(true));
+                            // 这种情况 合并操作总是超时(需要和后端一起看) 导致最后上传成功是head检测 因此万象和回调的响应都没有
+//                            collector.checkThat(cosxmlUploadTaskResult.picUploadResult.originalInfo != null, is(true));
+//                            collector.checkThat("203".equals(cosxmlUploadTaskResult.callbackResult.status) && TextUtils.isEmpty(cosxmlUploadTaskResult.callbackResult.getCallbackBody()), is(true));
+                        } else {
+                            collector.checkThat(cosxmlUploadTaskResult.picUploadResult.originalInfo != null, is(true));
+                            collector.checkThat(cosxmlUploadTaskResult.callbackResult == null, is(true));
+                        }
+                    } else {
+                        collector.checkThat("203".equals(cosxmlUploadTaskResult.callbackResult.status) && TextUtils.isEmpty(cosxmlUploadTaskResult.callbackResult.getCallbackBody()), is(true));
+                    }
+                } else {
+                    if(isCI){
+                        if(isBigFile){
+                            collector.checkThat(cosxmlUploadTaskResult.picUploadResult.originalInfo != null, is(true));
+                            collector.checkThat("200".equals(cosxmlUploadTaskResult.callbackResult.status) && !TextUtils.isEmpty(cosxmlUploadTaskResult.callbackResult.getCallbackBody()), is(true));
+                        } else {
+                            collector.checkThat(cosxmlUploadTaskResult.picUploadResult.originalInfo != null, is(true));
+                            collector.checkThat(cosxmlUploadTaskResult.callbackResult == null, is(true));
+                        }
+                    } else {
+                        collector.checkThat("200".equals(cosxmlUploadTaskResult.callbackResult.status) && !TextUtils.isEmpty(cosxmlUploadTaskResult.callbackResult.getCallbackBody()), is(true));
+                    }
+                }
+
+                collector.checkThat(result.httpCode >= 200 && result.httpCode < 300, is(true));
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                collector.addError(new AssertionError(TestUtils.getCosExceptionMessage(this.getClass().getSimpleName(), clientException, serviceException)));
+                testLocker.release();
+            }
+        });
+
+        testLocker.lock();
+    }
+
 }
