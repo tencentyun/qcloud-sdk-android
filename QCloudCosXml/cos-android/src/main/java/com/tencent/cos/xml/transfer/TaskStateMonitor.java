@@ -22,13 +22,11 @@
 
 package com.tencent.cos.xml.transfer;
 
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.MessageQueue;
 
-import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.model.CosXmlResult;
 
 import java.lang.reflect.Constructor;
@@ -95,16 +93,8 @@ final class TaskStateMonitor implements Runnable{
         //设置消息队列
         try {
             setMessageQueue();
-        } catch (NoSuchFieldException e) {
-            setMessageQueueException(e);
-        } catch (IllegalAccessException e) {
-            setMessageQueueException(e);
-        } catch (InvocationTargetException e) {
-            setMessageQueueException(e);
-        } catch (InstantiationException e) {
-            setMessageQueueException(e);
-        } catch (ClassNotFoundException e) {
-            setMessageQueueException(e);
+        } catch (NoSuchFieldException | IllegalAccessException | InvocationTargetException | InstantiationException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
         taskHandler = new Handler(getLooper()){
             @Override
@@ -130,11 +120,6 @@ final class TaskStateMonitor implements Runnable{
             }
         };
         Looper.loop();
-    }
-
-    private void setMessageQueueException(Exception e){
-        e.printStackTrace();
-        CosTrackService.getInstance().reportError(TAG, e);
     }
 
     private void setMessageQueue() throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException, InvocationTargetException, InstantiationException {
@@ -178,11 +163,7 @@ final class TaskStateMonitor implements Runnable{
         taskHandler.removeCallbacksAndMessages(null);
         Looper looper = getLooper();
         if (looper != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                looper.quitSafely();
-            }else {
-                looper.quit();
-            }
+            looper.quitSafely();
         }
         isRunning = false;
     }

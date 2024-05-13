@@ -133,7 +133,7 @@ public class MediaTest {
     }
 
     @Test
-    public void searchMediaQueue() {
+    public void stage1_searchMediaQueue() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         SearchMediaQueueRequest request = new SearchMediaQueueRequest(TestConst.ASR_BUCKET);
         request.queueIds="aaa,bbb,ccc";
@@ -145,6 +145,9 @@ public class MediaTest {
             SearchMediaQueueResult result = ciService.searchMediaQueue(request);
             Assert.assertNotNull(result.response);
             TestUtils.printXML(result.response);
+            if(result.response.queueList!=null && result.response.queueList.size()>0) {
+                updateMediaQueueId = result.response.queueList.get(0).queueId;
+            }
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
@@ -153,7 +156,7 @@ public class MediaTest {
     }
 
     @Test
-    public void searchMediaQueueAsync() {
+    public void stage1_searchMediaQueueAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         SearchMediaQueueRequest request = new SearchMediaQueueRequest(TestConst.ASR_BUCKET);
         request.queueIds="aaa,bbb,ccc";
@@ -168,6 +171,10 @@ public class MediaTest {
                 SearchMediaQueueResult SearchMediaQueueResult = (SearchMediaQueueResult)result;
                 Assert.assertNotNull(SearchMediaQueueResult.response);
                 TestUtils.printXML(SearchMediaQueueResult.response);
+
+                if(SearchMediaQueueResult.response.queueList!=null && SearchMediaQueueResult.response.queueList.size()>0){
+                    updateMediaQueueId = SearchMediaQueueResult.response.queueList.get(0).queueId;
+                }
                 testLocker.release();
             }
 
@@ -180,10 +187,13 @@ public class MediaTest {
         testLocker.lock();
     }
 
+    String updateMediaQueueId;
     @Test
-    public void updateMediaQueue() {
+    public void stage2_updateMediaQueue() {
+        if(updateMediaQueueId == null) return;
+
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        UpdateMediaQueueRequest request = new UpdateMediaQueueRequest(TestConst.ASR_BUCKET, "p4a17eeea29334bf499b7e20e2fbfd99d");
+        UpdateMediaQueueRequest request = new UpdateMediaQueueRequest(TestConst.ASR_BUCKET, updateMediaQueueId);
         UpdateMediaQueue updateMediaQueue = new UpdateMediaQueue();
         updateMediaQueue.name = "My-Queue-Media";
         updateMediaQueue.state = "Active";
@@ -207,9 +217,11 @@ public class MediaTest {
     }
 
     @Test
-    public void updateMediaQueueAsync() {
+    public void stage2_updateMediaQueueAsync() {
+        if(updateMediaQueueId == null) return;
+
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        UpdateMediaQueueRequest request = new UpdateMediaQueueRequest(TestConst.ASR_BUCKET, "p4a17eeea29334bf499b7e20e2fbfd99d");
+        UpdateMediaQueueRequest request = new UpdateMediaQueueRequest(TestConst.ASR_BUCKET, updateMediaQueueId);
         UpdateMediaQueue updateMediaQueue = new UpdateMediaQueue();
         updateMediaQueue.name = "My-Queue-Media";
         updateMediaQueue.state = "Active";
@@ -750,14 +762,14 @@ public class MediaTest {
     @Test
     public void submitVideoMontageJob() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        SubmitVideoMontageJobRequest request = new SubmitVideoMontageJobRequest(TestConst.ASR_BUCKET);
+        SubmitVideoMontageJobRequest request = new SubmitVideoMontageJobRequest(TestConst.PERSIST_BUCKET);
         SubmitVideoMontageJob SubmitVideoMontageJob = new SubmitVideoMontageJob();
         SubmitVideoMontageJob.SubmitVideoMontageJobInput input = new SubmitVideoMontageJob.SubmitVideoMontageJobInput();
         input.object = TestConst.MEDIA_BUCKET_VIDEO;
         SubmitVideoMontageJob.input = input;
         SubmitVideoMontageJob.SubmitVideoMontageJobOutput output = new SubmitVideoMontageJob.SubmitVideoMontageJobOutput();
         output.region = TestConst.PERSIST_BUCKET_REGION;
-        output.bucket = TestConst.ASR_BUCKET;
+        output.bucket = TestConst.PERSIST_BUCKET;
         output.object = TestConst.MEDIA_BUCKET_JOB_RESULT+"video_montage.${ext}";
         SubmitVideoMontageJob.SubmitVideoMontageJobOperation operation = new SubmitVideoMontageJob.SubmitVideoMontageJobOperation();
         operation.output = output;
@@ -765,6 +777,9 @@ public class MediaTest {
         TemplateVideoMontage.TemplateVideoMontageContainer container = new TemplateVideoMontage.TemplateVideoMontageContainer();
         container.format = "mp4";
         videoMontage.container = container;
+        videoMontage.video = new TemplateVideoMontage.TemplateVideoMontageVideo();
+        videoMontage.video.codec = "H.264";
+        videoMontage.video.width = "1280";
         operation.videoMontage = videoMontage;
         operation.jobLevel = "0";
         SubmitVideoMontageJob.operation = operation;
@@ -787,14 +802,14 @@ public class MediaTest {
     @Test
     public void submitVideoMontageJobAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        SubmitVideoMontageJobRequest request = new SubmitVideoMontageJobRequest(TestConst.ASR_BUCKET);
+        SubmitVideoMontageJobRequest request = new SubmitVideoMontageJobRequest(TestConst.PERSIST_BUCKET);
         SubmitVideoMontageJob SubmitVideoMontageJob = new SubmitVideoMontageJob();
         SubmitVideoMontageJob.SubmitVideoMontageJobInput input = new SubmitVideoMontageJob.SubmitVideoMontageJobInput();
         input.object = TestConst.MEDIA_BUCKET_VIDEO;
         SubmitVideoMontageJob.input = input;
         SubmitVideoMontageJob.SubmitVideoMontageJobOutput output = new SubmitVideoMontageJob.SubmitVideoMontageJobOutput();
         output.region = TestConst.PERSIST_BUCKET_REGION;
-        output.bucket = TestConst.ASR_BUCKET;
+        output.bucket = TestConst.PERSIST_BUCKET;
         output.object = TestConst.MEDIA_BUCKET_JOB_RESULT+"video_montage.${ext}";
         SubmitVideoMontageJob.SubmitVideoMontageJobOperation operation = new SubmitVideoMontageJob.SubmitVideoMontageJobOperation();
         operation.output = output;
@@ -802,6 +817,9 @@ public class MediaTest {
         TemplateVideoMontage.TemplateVideoMontageContainer container = new TemplateVideoMontage.TemplateVideoMontageContainer();
         container.format = "mp4";
         videoMontage.container = container;
+        videoMontage.video = new TemplateVideoMontage.TemplateVideoMontageVideo();
+        videoMontage.video.codec = "H.264";
+        videoMontage.video.width = "1280";
         operation.videoMontage = videoMontage;
         operation.jobLevel = "0";
         SubmitVideoMontageJob.operation = operation;
@@ -1126,16 +1144,16 @@ public class MediaTest {
 
     @Test
     public void submitPicProcessJob() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        SubmitPicProcessJobRequest request = new SubmitPicProcessJobRequest(TestConst.ASR_BUCKET);
+        CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
+        SubmitPicProcessJobRequest request = new SubmitPicProcessJobRequest(TestConst.WORDS_GENERALIZE_BUCKET);
         SubmitPicProcessJob submitPicProcessJob = new SubmitPicProcessJob();
         SubmitPicProcessJob.SubmitPicProcessJobInput input = new SubmitPicProcessJob.SubmitPicProcessJobInput();
         input.object = TestConst.MEDIA_BUCKET_IMAGE;
         submitPicProcessJob.input = input;
         SubmitPicProcessJob.SubmitPicProcessJobOperation operation = new SubmitPicProcessJob.SubmitPicProcessJobOperation();
         SubmitPicProcessJob.SubmitPicProcessJobOutput output = new SubmitPicProcessJob.SubmitPicProcessJobOutput();
-        output.region = TestConst.PERSIST_BUCKET_REGION;
-        output.bucket = TestConst.ASR_BUCKET;
+        output.region = TestConst.WORDS_GENERALIZE_BUCKET_REGION;
+        output.bucket = TestConst.WORDS_GENERALIZE_BUCKET;
         output.object = TestConst.MEDIA_BUCKET_JOB_RESULT+"PicProcess.jpg";
         operation.output = output;
         PicProcess picProcess = new PicProcess();
@@ -1162,16 +1180,16 @@ public class MediaTest {
 
     @Test
     public void submitPicProcessJobAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        SubmitPicProcessJobRequest request = new SubmitPicProcessJobRequest(TestConst.ASR_BUCKET);
+        CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
+        SubmitPicProcessJobRequest request = new SubmitPicProcessJobRequest(TestConst.WORDS_GENERALIZE_BUCKET);
         SubmitPicProcessJob submitPicProcessJob = new SubmitPicProcessJob();
         SubmitPicProcessJob.SubmitPicProcessJobInput input = new SubmitPicProcessJob.SubmitPicProcessJobInput();
         input.object = TestConst.MEDIA_BUCKET_IMAGE;
         submitPicProcessJob.input = input;
         SubmitPicProcessJob.SubmitPicProcessJobOperation operation = new SubmitPicProcessJob.SubmitPicProcessJobOperation();
         SubmitPicProcessJob.SubmitPicProcessJobOutput output = new SubmitPicProcessJob.SubmitPicProcessJobOutput();
-        output.region = TestConst.PERSIST_BUCKET_REGION;
-        output.bucket = TestConst.ASR_BUCKET;
+        output.region = TestConst.WORDS_GENERALIZE_BUCKET_REGION;
+        output.bucket = TestConst.WORDS_GENERALIZE_BUCKET;
         output.object = TestConst.MEDIA_BUCKET_JOB_RESULT+"PicProcess.jpg";
         operation.output = output;
         PicProcess picProcess = new PicProcess();
@@ -1352,11 +1370,56 @@ public class MediaTest {
     }
 
     @Test
-    public void triggerWorkflow() {
+    public void stage3_getWorkflowList() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        GetWorkflowListRequest request = new GetWorkflowListRequest(TestConst.ASR_BUCKET);
+        try {
+            GetWorkflowListResult result = ciService.getWorkflowList(request);
+            Assert.assertNotNull(result.response);
+            TestUtils.printXML(result.response);
+            if(result.response.mediaWorkflowList!=null && result.response.mediaWorkflowList.size()>0) {
+                workflowId = result.response.mediaWorkflowList.get(0).workflowId;
+            }
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void stage3_getWorkflowListAsync() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        GetWorkflowListRequest request = new GetWorkflowListRequest(TestConst.ASR_BUCKET);
+        final TestLocker testLocker = new TestLocker();
+        ciService.getWorkflowListAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                GetWorkflowListResult GetWorkflowListResult = (GetWorkflowListResult)result;
+                Assert.assertNotNull(GetWorkflowListResult.response);
+                TestUtils.printXML(GetWorkflowListResult.response);
+                if(GetWorkflowListResult.response.mediaWorkflowList!=null && GetWorkflowListResult.response.mediaWorkflowList.size()>0) {
+                    workflowId = GetWorkflowListResult.response.mediaWorkflowList.get(0).workflowId;
+                }
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+    }
+
+    String workflowId;
+    @Test
+    public void stage4_triggerWorkflow() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         TriggerWorkflowRequest request = new TriggerWorkflowRequest(
                 TestConst.ASR_BUCKET,
-                "we59a9648e62e48ffb25e4b41f3721799",
+                workflowId,
                 "aaa/测试.mp4"
         );
         request.setName("名字");
@@ -1372,11 +1435,11 @@ public class MediaTest {
     }
 
     @Test
-    public void triggerWorkflowAsync() {
+    public void stage4_triggerWorkflowAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         TriggerWorkflowRequest request = new TriggerWorkflowRequest(
                 TestConst.ASR_BUCKET,
-                "we59a9648e62e48ffb25e4b41f3721799",
+                workflowId,
                 "aaa/测试.mp4"
         );
         request.setName("名字");
@@ -1400,47 +1463,9 @@ public class MediaTest {
     }
 
     @Test
-    public void getWorkflowList() {
+    public void stage5_GetWorkflowDetail() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        GetWorkflowListRequest request = new GetWorkflowListRequest(TestConst.ASR_BUCKET);
-        try {
-            GetWorkflowListResult result = ciService.getWorkflowList(request);
-            Assert.assertNotNull(result.response);
-            TestUtils.printXML(result.response);
-        } catch (CosXmlClientException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
-        } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
-        }
-    }
-
-    @Test
-    public void getWorkflowListAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        GetWorkflowListRequest request = new GetWorkflowListRequest(TestConst.ASR_BUCKET);
-        final TestLocker testLocker = new TestLocker();
-        ciService.getWorkflowListAsync(request, new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                GetWorkflowListResult GetWorkflowListResult = (GetWorkflowListResult)result;
-                Assert.assertNotNull(GetWorkflowListResult.response);
-                TestUtils.printXML(GetWorkflowListResult.response);
-                testLocker.release();
-            }
-
-            @Override
-            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
-                testLocker.release();
-            }
-        });
-        testLocker.lock();
-    }
-
-    @Test
-    public void GetWorkflowDetail() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        GetWorkflowDetailRequest request = new GetWorkflowDetailRequest(TestConst.ASR_BUCKET, "i166ee19017b011eda8a5525400c540df");
+        GetWorkflowDetailRequest request = new GetWorkflowDetailRequest(TestConst.ASR_BUCKET, workflowId);
         try {
             GetWorkflowDetailResult result = ciService.getWorkflowDetail(request);
             Assert.assertNotNull(result.response);
@@ -1453,9 +1478,9 @@ public class MediaTest {
     }
 
     @Test
-    public void GetWorkflowDetailAsync() {
+    public void stage5_GetWorkflowDetailAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        GetWorkflowDetailRequest request = new GetWorkflowDetailRequest(TestConst.ASR_BUCKET, "i166ee19017b011eda8a5525400c540df");
+        GetWorkflowDetailRequest request = new GetWorkflowDetailRequest(TestConst.ASR_BUCKET, workflowId);
         final TestLocker testLocker = new TestLocker();
         ciService.getWorkflowDetailAsync(request, new CosXmlResultListener() {
             @Override

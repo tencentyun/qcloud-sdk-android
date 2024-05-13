@@ -19,11 +19,11 @@ import com.tencent.cos.xml.model.tag.ACLAccount;
 import org.junit.Assert;
 
 // Generate by auto
-public class PutBucketTestAdapter extends NormalRequestTestAdapter<PutBucketRequest, PutBucketResult> {
+public class PutBucketMazTestAdapter extends NormalRequestTestAdapter<PutBucketRequest, PutBucketResult> {
     @Override
     protected PutBucketRequest newRequestInstance() {
-        PutBucketRequest request = new PutBucketRequest(TestConst.TEMP_BUCKET);
-        request.enableMAZ(false);
+        PutBucketRequest request = new PutBucketRequest(TestConst.TEMP_BUCKET_MAZ);
+        request.enableMAZ(true);
         request.setRegion(TEMP_BUCKET_REGION);
         request.setXCOSACL(COSACL.DEFAULT);
         ACLAccount aclAccount = new ACLAccount();
@@ -33,7 +33,8 @@ public class PutBucketTestAdapter extends NormalRequestTestAdapter<PutBucketRequ
         request.setXCOSGrantWrite(aclAccount);
         request.setXCOSReadWrite(aclAccount);
 
-        PutBucketRequest request1 = new PutBucketRequest(TestConst.TEMP_BUCKET);
+
+        PutBucketRequest request1 = new PutBucketRequest(TestConst.TEMP_BUCKET_MAZ);
         request1.setRegion(TEMP_BUCKET_REGION);
         request1.setXCOSACL("default");
         request1.setXCOSGrantRead("default");

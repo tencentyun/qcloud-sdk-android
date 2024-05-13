@@ -43,8 +43,6 @@ import com.tencent.cos.xml.model.object.InitMultipartUploadRequest;
 import com.tencent.cos.xml.model.object.InitMultipartUploadResult;
 import com.tencent.cos.xml.model.object.ListPartsRequest;
 import com.tencent.cos.xml.model.object.ListPartsResult;
-import com.tencent.cos.xml.model.object.PostObjectRequest;
-import com.tencent.cos.xml.model.object.PostObjectResult;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectResult;
 import com.tencent.cos.xml.model.object.UploadPartCopyRequest;
@@ -111,43 +109,6 @@ public interface SimpleCosXml extends BaseCosXml {
      * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
      */
     void putObjectAsync(PutObjectRequest request, final CosXmlResultListener cosXmlResultListener);
-
-    /**
-     * <p>
-     * 使用表单请求上传对象的同步方法.&nbsp;
-     * <p>
-     * 表单上传可以将本地不超过5GB的对象（Object）以网页表单（HTML Form）的形式上传至指定存储桶中.
-     * 对于大于 5 GB 的对象(或者在高带宽或弱网络环境中）优先使用分片上传的方式 (<a href="https://cloud.tencent.com/document/product/436/14112">https://cloud.tencent.com/document/product/436/14112</a>).&nbsp;
-     * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/14690">https://cloud.tencent.com/document/product/436/14690.</a><br>
-     *
-     * <p>
-     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/34536#.E8.A1.A8.E5.8D.95.E4.B8.8A.E4.BC.A0.E5.AF.B9.E8.B1.A1">表单上传对象示例</a>
-     *
-     * @param request 简单上传请求 {@link PutObjectRequest}
-     * @return 简单上传请求返回的结果 {@link PutObjectResult}
-     * @throws CosXmlClientException 客户端异常
-     * @throws CosXmlServiceException 服务端异常
-     */
-    PostObjectResult postObject(PostObjectRequest request)throws CosXmlClientException, CosXmlServiceException;
-
-    /**
-     * <p>
-     * 使用表单请求上传对象的异步方法.&nbsp;
-     * <p>
-     * 表单上传可以将本地不超过5GB的对象（Object）以网页表单（HTML Form）的形式上传至指定存储桶中.
-     * 对于大于 5 GB 的对象(或者在高带宽或弱网络环境中）优先使用分片上传的方式 (<a href="https://cloud.tencent.com/document/product/436/14112">https://cloud.tencent.com/document/product/436/14112</a>).&nbsp;
-     * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/436/14690">https://cloud.tencent.com/document/product/436/14690.</a><br>
-     *
-     * <p>
-     * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/34536#.E8.A1.A8.E5.8D.95.E4.B8.8A.E4.BC.A0.E5.AF.B9.E8.B1.A1">表单上传对象示例</a>
-     *
-     * @param request 简单上传请求 {@link PutObjectRequest}
-     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
-     */
-    void postObjectAsync(PostObjectRequest request, final  CosXmlResultListener cosXmlResultListener);
-
 
     /**
      * <p>

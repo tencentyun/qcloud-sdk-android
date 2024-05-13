@@ -21,9 +21,11 @@ import com.tencent.qcloud.core.common.QCloudServiceException;
 import org.junit.Assert;
 import org.xmlpull.v1.XmlSerializer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -42,7 +44,6 @@ public class TestUtils {
 
 
     public static void assertCOSXMLTaskSuccess(COSXMLTask cosxmlTask) {
-
         Assert.assertTrue(cosxmlTask.getException() == null?cosxmlTask.getTaskState().name():getCosExceptionMessage(cosxmlTask.getException()),
                 cosxmlTask.getTaskState() == TransferState.COMPLETED);
     }
@@ -372,5 +373,20 @@ public class TestUtils {
             }
         }
         serializer.endTag("", clazz.getSimpleName());
+    }
+
+    public static byte[] inputStreamToByteArray(InputStream is) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        int nRead;
+        byte[] data = new byte[1024];
+
+        while ((nRead = is.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+
+        buffer.flush();
+
+        return buffer.toByteArray();
     }
 }

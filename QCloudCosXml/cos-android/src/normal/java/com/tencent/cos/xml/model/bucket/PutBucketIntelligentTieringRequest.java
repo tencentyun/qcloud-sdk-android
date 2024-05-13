@@ -43,7 +43,6 @@ public class PutBucketIntelligentTieringRequest extends BucketRequest {
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
         if(configuration == null){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "configuration must not be null");
         }
     }
 

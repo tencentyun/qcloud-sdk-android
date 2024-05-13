@@ -459,6 +459,7 @@ public class SimpleOtherObjectTest {
         // 查询分片上传
         ListPartsRequest listPartsRequest1 = new ListPartsRequest(bucketName, fileName, uploadId);
         listPartsRequest1.setPartNumberMarker(0);
+        listPartsRequest1.setPartNumberMarker("0");
         Assert.assertEquals(listPartsRequest1.getPartNumberMarker(), 0);
         ListPartsResult listPartsResult1 = null;
         try {

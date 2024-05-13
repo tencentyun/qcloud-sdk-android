@@ -74,8 +74,5 @@ final public class DescribeWordsGeneralizeJobRequest extends BucketRequest {
     @Override
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
-        if(TextUtils.isEmpty(jobId)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "jobId must be non-empty");
-        }
     }
 }

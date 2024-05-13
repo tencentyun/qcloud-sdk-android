@@ -18,6 +18,7 @@ public class GetBucketTestAdapter extends NormalRequestTestAdapter<GetBucketRequ
         request.setPrefix(null);
         request = new GetBucketRequest(TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET, null);
         Assert.assertNull(request.getPrefix());
+        request.setDelimiter('/');
         request.setDelimiter("/");
         Assert.assertEquals("/", request.getDelimiter());
         request.setEncodingType("url");

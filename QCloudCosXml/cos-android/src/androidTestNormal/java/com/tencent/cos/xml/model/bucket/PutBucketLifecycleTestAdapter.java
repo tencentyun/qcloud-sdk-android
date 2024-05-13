@@ -58,6 +58,7 @@ public class PutBucketLifecycleTestAdapter extends NormalRequestTestAdapter<PutB
 
         ruleList.add(rule1);
         ruleList.add(rule2);
+        putBucketLifecycleRequest.getLifecycleConfiguration();
 
         putBucketLifecycleRequest.setRuleList(rule);
         putBucketLifecycleRequest.setRuleList(ruleList);

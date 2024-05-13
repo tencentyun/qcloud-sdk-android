@@ -93,7 +93,6 @@ public class NormalServiceFactory {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setDebuggable(true)
-                .setAppidAndRegion(TestConst.COS_APPID, TestConst.PERSIST_BUCKET_REGION)
                 .setRegion(TestConst.WORDS_GENERALIZE_BUCKET_REGION)
                 .builder();
 
@@ -105,7 +104,7 @@ public class NormalServiceFactory {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setDebuggable(true)
-                .setRegion(TestConst.AUDIT_BUCKET_REGION)
+                .setRegion(TestConst.CI_BUCKET_REGION)
                 .builder();
 
         return new CIService(getContext(), cosXmlServiceConfig,
@@ -116,7 +115,7 @@ public class NormalServiceFactory {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setDebuggable(true)
-                .setRegion(TestConst.AUDIT_BUCKET_REGION)
+                .setRegion(TestConst.CI_BUCKET_REGION)
                 .builder();
 
 //        return new CIService(getContext(), cosXmlServiceConfig, new MySessionCredentialProvider() );

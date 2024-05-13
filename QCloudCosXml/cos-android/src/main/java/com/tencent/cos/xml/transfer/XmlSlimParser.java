@@ -27,7 +27,6 @@ import android.util.Xml;
 import com.tencent.cos.xml.model.tag.CopyObject;
 import com.tencent.cos.xml.model.tag.InitiateMultipartUpload;
 import com.tencent.cos.xml.model.tag.ListParts;
-import com.tencent.cos.xml.model.tag.PostResponse;
 import com.tencent.cos.xml.utils.BaseXmlSlimParser;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -168,41 +167,6 @@ public class XmlSlimParser extends BaseXmlSlimParser {
                     }else if(tagName.equalsIgnoreCase("Part")){
                         result.parts.add(part);
                         part = null;
-                    }
-                    break;
-            }
-            eventType = xmlPullParser.next();
-        }
-    }
-
-    /**
-     * 解析 使用表单请求上传对象的响应
-     * @param inputStream xml输入流
-     * @param result 使用表单请求上传对象的响应
-     * @throws XmlPullParserException xml解析异常
-     * @throws IOException IO异常
-     */
-    public static void parsePostResponseResult(InputStream inputStream, PostResponse result) throws XmlPullParserException, IOException {
-        XmlPullParser xmlPullParser =  Xml.newPullParser();
-        xmlPullParser.setInput(inputStream, "UTF-8");
-        int eventType = xmlPullParser.getEventType();
-        String tagName;
-        while (eventType != XmlPullParser.END_DOCUMENT){
-            switch (eventType){
-                case XmlPullParser.START_TAG:
-                    tagName = xmlPullParser.getName();
-                    if(tagName.equalsIgnoreCase("Location")){
-                        xmlPullParser.next();
-                        result.location = xmlPullParser.getText();
-                    }else if(tagName.equalsIgnoreCase("Bucket")){
-                        xmlPullParser.next();
-                        result.bucket = xmlPullParser.getText();
-                    }else if(tagName.equalsIgnoreCase("Key")){
-                        xmlPullParser.next();
-                        result.key = xmlPullParser.getText();
-                    }else if(tagName.equalsIgnoreCase("ETag")){
-                        xmlPullParser.next();
-                        result.eTag = xmlPullParser.getText();
                     }
                     break;
             }

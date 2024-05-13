@@ -46,8 +46,6 @@ final public class GetBucketPolicyResult extends CosXmlResult {
         super.parseResponseBody(response);
         try {
             policy = response.string();
-        } catch (IOException e) {
-            throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);
-        }
+        } catch (IOException e) {throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);}
     }
 }

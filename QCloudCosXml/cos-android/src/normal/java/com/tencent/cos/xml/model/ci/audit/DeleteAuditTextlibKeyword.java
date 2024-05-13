@@ -27,7 +27,7 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 
 import java.util.List;
 
-@XmlBean(name = "Request", method = XmlBean.GenerateMethod.TO)
+@XmlBean(name = "Request", method = XmlBean.GenerateMethod.ALL)
 public class DeleteAuditTextlibKeyword {
     /**
      * 关键词ID列表

@@ -24,7 +24,6 @@ import com.tencent.cos.xml.utils.FileUtils;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.util.ContextHolder;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,7 +31,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -358,8 +356,8 @@ public class COSDownloadTask extends COSTransferTask {
             // 保存下载记录
             try {
                 sharedPreferences.edit().putString(key, DownloadRecord.flatJson(
-                        new DownloadRecord(lastModified, eTag, crc64ecma, remoteStart, remoteEnd,
-                        new LinkedList<DownloadedBlock>()))).apply();
+                        new DownloadRecord(lastModified, eTag, crc64ecma, remoteStart, remoteEnd
+                        ))).apply();
             } catch (JSONException e) {
                 loggerWarn(TAG, taskId,"save DownloadRecord failed: %s", e.getMessage());
             }
@@ -444,17 +442,11 @@ public class COSDownloadTask extends COSTransferTask {
         long remoteStart;
         long remoteEnd;
 
-
-        // 只有分块下载才有值，暂时不支持分块下载
-        List<DownloadedBlock> downloadedBlocks;
-
-
         public DownloadRecord(String lastModified, String eTag, String crc64ecma,
-                              long remoteStart, long remoteEnd, List<DownloadedBlock> downloadedBlocks) {
+                              long remoteStart, long remoteEnd) {
             this.lastModified = lastModified;
             this.eTag = eTag;
             this.crc64ecma = crc64ecma;
-            this.downloadedBlocks = downloadedBlocks;
             this.remoteStart = remoteStart;
             this.remoteEnd = remoteEnd;
         }
@@ -467,14 +459,6 @@ public class COSDownloadTask extends COSTransferTask {
             jsonObject.put("crc64ecma", downloadRecord.crc64ecma);
             jsonObject.put("remoteStart", downloadRecord.remoteStart);
             jsonObject.put("remoteEnd", downloadRecord.remoteEnd);
-            JSONArray downloadedBlocks = new JSONArray();
-            for (DownloadedBlock block : downloadRecord.downloadedBlocks) {
-                JSONObject blockObject = new JSONObject();
-                blockObject.put("from", block.from);
-                blockObject.put("to", block.to);
-                downloadedBlocks.put(blockObject);
-            }
-            jsonObject.put("downloadedBlocks", downloadedBlocks);
             return jsonObject.toString();
         }
 
@@ -486,26 +470,8 @@ public class COSDownloadTask extends COSTransferTask {
             String crc64ecma = jsonObject.optString("crc64ecma");
             String remoteStart = jsonObject.getString("remoteStart");
             String remoteEnd = jsonObject.getString("remoteEnd");
-            JSONArray jsonArray = jsonObject.getJSONArray("downloadedBlocks");
-            List<DownloadedBlock> downloadedBlocks = new LinkedList<>();
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject block = (JSONObject) jsonArray.get(i);
-                downloadedBlocks.add(new DownloadedBlock(Long.parseLong(block.getString("from")),
-                        Long.parseLong(block.getString("to"))));
-            }
             return new DownloadRecord(lastModified, eTag, crc64ecma,
-                    Long.parseLong(remoteStart), Long.parseLong(remoteEnd), downloadedBlocks);
-        }
-    }
-
-    private static class DownloadedBlock {
-
-        long from;
-        long to;
-
-        public DownloadedBlock(long from, long to) {
-            this.from = from;
-            this.to = to;
+                    Long.parseLong(remoteStart), Long.parseLong(remoteEnd));
         }
     }
 }

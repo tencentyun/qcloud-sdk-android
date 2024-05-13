@@ -359,11 +359,6 @@ public class CosXmlSimpleService implements SimpleCosXml {
             QCloudHttpRequest<T2> httpRequest = buildHttpRequest(cosXmlRequest, cosXmlResult);
 
             HttpTask<T2> httpTask;
-//            if (cosXmlRequest instanceof PostObjectRequest) {
-//                httpTask = client.resolveRequest(httpRequest, null);
-//            } else {
-//                httpTask = client.resolveRequest(httpRequest, credentialProvider);
-//            }
             httpTask = client.resolveRequest(httpRequest, credentialProvider);
             
             httpTask.setTransferThreadControl(config.isTransferThreadControl());

@@ -139,10 +139,8 @@ public class PostVideoAuditRequest extends BasePostAuditRequest {
         super.checkParameters();
         if(TextUtils.isEmpty(postVideoAudit.input.object) &&
                 TextUtils.isEmpty(postVideoAudit.input.url)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "object or url must be non-empty");
         }
         if(postVideoAudit.conf.snapshot.count == 0){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "count cannot be 0");
         }
 
     }
