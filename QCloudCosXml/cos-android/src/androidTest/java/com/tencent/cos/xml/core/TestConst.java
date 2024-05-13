@@ -103,5 +103,5 @@ public class TestConst {
     public static final String CALLBACK_SECRET_ID = BuildConfig.CALLBACK_SECRET_ID;
     public static final String CALLBACK_SECRET_KEY = BuildConfig.CALLBACK_SECRET_KEY;
     public static final String CALLBACK_PERSIST_BUCKET_REGION = "ap-shanghai";
-    public static final String CALLBACK_PERSIST_BUCKET = "test-callback-1251668577";
+    public static final String CALLBACK_PERSIST_BUCKET = "test-callback-1252246555";
 }
