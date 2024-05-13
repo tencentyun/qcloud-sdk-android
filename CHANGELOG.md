@@ -1,3 +1,7 @@
+## v5.9.28
+1. 支持服务回调
+2. 完善select object content对\r\n的处理
+
 ## v5.9.27
 1. 完善cls日志上报逻辑（对齐各端）
 2. CosXmlService和网络client示例对应关系优化
