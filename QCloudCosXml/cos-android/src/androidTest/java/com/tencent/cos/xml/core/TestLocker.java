@@ -39,7 +39,8 @@ public class TestLocker {
 
     public void lock() {
         try {
-            locker.await(100000, TimeUnit.MILLISECONDS);
+            locker.await(50000, TimeUnit.MILLISECONDS);
+//            locker.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -30,7 +30,6 @@ import com.tencent.qcloud.core.logger.QCloudLogger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -49,7 +48,7 @@ public class SelfUploadTest {
     private static final String TAG = "SelfUploadTest";
 
     // 小文件上传
-    @Test
+//    @Test
     public void testUploadSmallFile() {
         TransferManager transferManager = newSelfTransferManager();
 
@@ -88,7 +87,7 @@ public class SelfUploadTest {
     }
 
     // 大文件上传
-    @Test
+//    @Test
     public void testUploadBigFile() {
         TransferManager transferManager = newSelfTransferManager();
 

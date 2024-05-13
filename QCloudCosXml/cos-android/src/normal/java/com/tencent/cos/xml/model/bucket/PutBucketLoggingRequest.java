@@ -53,7 +53,6 @@ public class PutBucketLoggingRequest extends BucketRequest {
      * @param targetBucket 目标存储桶
      */
     public void setTargetBucket(String targetBucket){
-        if(targetBucket == null) return;
         if(bucketLoggingStatus.loggingEnabled == null){
             bucketLoggingStatus.loggingEnabled = new BucketLoggingStatus.LoggingEnabled();
         }
@@ -65,7 +64,6 @@ public class PutBucketLoggingRequest extends BucketRequest {
      * @param targetPrefix 目标路径
      */
     public void setTargetPrefix(String targetPrefix){
-        if(targetPrefix == null) return;
         if(bucketLoggingStatus.loggingEnabled == null){
             bucketLoggingStatus.loggingEnabled = new BucketLoggingStatus.LoggingEnabled();
         }

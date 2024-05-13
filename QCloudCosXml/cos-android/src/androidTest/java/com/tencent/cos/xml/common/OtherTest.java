@@ -33,6 +33,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
+import com.tencent.cos.xml.core.TestLocker;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
@@ -87,14 +88,14 @@ public class OtherTest {
 
     @Test
     public void testPreBuildConnection() {
-        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newSelfService();
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
         boolean b = cosXmlSimpleService.preBuildConnection(TestConst.PERSIST_BUCKET);
         Assert.assertTrue(b);
     }
 
     @Test
     public void testPreBuildConnectionFailed() {
-        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newSelfService();
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
         boolean b = cosXmlSimpleService.preBuildConnection(TestConst.PERSIST_BUCKET+"aaaaaaa");
         Assert.assertFalse(b);
     }
@@ -102,33 +103,41 @@ public class OtherTest {
     @Test
     public void testPreBuildConnectionAsync() {
         CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+        final TestLocker testLocker = new TestLocker();
         cosXmlSimpleService.preBuildConnectionAsync(TestConst.PERSIST_BUCKET, new CosXmlResultSimpleListener() {
             @Override
             public void onSuccess() {
                 Assert.assertTrue(true);
+                testLocker.release();
             }
 
             @Override
             public void onFail(CosXmlClientException exception, CosXmlServiceException serviceException) {
                 Assert.fail(TestUtils.getCosExceptionMessage(exception, serviceException));
+                testLocker.release();
             }
         });
+        testLocker.lock();
     }
 
     @Test
     public void testPreBuildConnectionAsyncFailed() {
         CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+        final TestLocker testLocker = new TestLocker();
         cosXmlSimpleService.preBuildConnectionAsync(TestConst.PERSIST_BUCKET+"aaaaa", new CosXmlResultSimpleListener() {
             @Override
             public void onSuccess() {
                 Assert.fail();
+                testLocker.release();
             }
 
             @Override
             public void onFail(CosXmlClientException exception, CosXmlServiceException serviceException) {
                 Assert.assertTrue(true);
+                testLocker.release();
             }
         });
+        testLocker.lock();
     }
 
     @Test public void testCRC64() {

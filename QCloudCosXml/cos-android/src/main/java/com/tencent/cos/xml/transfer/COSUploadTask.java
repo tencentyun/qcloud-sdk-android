@@ -328,7 +328,7 @@ public class COSUploadTask extends COSTransferTask {
         }
     }
 
-    abstract static class BaseUploadTask implements Runnable {
+    abstract static class BaseUploadTask {
 
         protected bolts.TaskCompletionSource<CosXmlResult> tcs;
         protected COSDirect cosDirect;
@@ -346,21 +346,6 @@ public class COSUploadTask extends COSTransferTask {
             this.tcs = new TaskCompletionSource<>();
             this.mTransferTaskCts = transferTaskCts;
             this.totalUploadSize = totalUploadSize;
-        }
-
-        @Override
-        public void run() {
-
-            if (mTransferTaskCts.isCancellationRequested()) {
-                tcs.setCancelled();
-                return;
-            }
-
-            try {
-                tcs.setResult(upload(putObjectRequest));
-            } catch (Exception e) {
-                tcs.setError(e);
-            }
         }
 
         public Task<CosXmlResult> getTask() {

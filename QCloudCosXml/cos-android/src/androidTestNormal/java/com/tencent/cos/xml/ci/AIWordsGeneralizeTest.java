@@ -104,7 +104,7 @@ public class AIWordsGeneralizeTest {
     public void stage2_describeAiQueuesAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
         final TestLocker locker = new TestLocker();
-        DescribeAiQueuesRequest request = new DescribeAiQueuesRequest(TestConst.WORDS_GENERALIZE_BUCKET);
+        DescribeAiQueuesRequest request = new DescribeAiQueuesRequest(TestConst.WORDS_GENERALIZE_BUCKET, TestConst.WORDS_GENERALIZE_BUCKET_REGION);
         request.setQueueIds(AIWordsGeneralizeTest.queueId+",ashjdaosdhjiasodj12312"+",ashjdaosdasdashjiasodj12312");
         ciService.describeAiQueuesAsync(request, new CosXmlResultListener() {
             @Override
@@ -201,7 +201,7 @@ public class AIWordsGeneralizeTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newWordsGeneralizeCIService();
         final TestLocker locker = new TestLocker();
         DescribeWordsGeneralizeJobRequest request = new DescribeWordsGeneralizeJobRequest(
-                TestConst.WORDS_GENERALIZE_BUCKET, AIWordsGeneralizeTest.jobId);
+                TestConst.WORDS_GENERALIZE_BUCKET, TestConst.WORDS_GENERALIZE_BUCKET_REGION, AIWordsGeneralizeTest.jobId);
         ciService.describeWordsGeneralizeJobAsync(request, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult cosResult) {

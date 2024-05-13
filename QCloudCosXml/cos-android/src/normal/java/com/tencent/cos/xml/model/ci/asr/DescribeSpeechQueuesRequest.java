@@ -37,8 +37,7 @@ final public class DescribeSpeechQueuesRequest extends BaseDescribeQueuesRequest
     }
 
     public DescribeSpeechQueuesRequest(String bucket, String region) {
-        super(bucket);
-        this.region = region;
+        super(bucket, region);
     }
 
     @Override

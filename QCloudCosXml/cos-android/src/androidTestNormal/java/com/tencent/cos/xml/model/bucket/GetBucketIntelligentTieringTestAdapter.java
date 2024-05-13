@@ -30,6 +30,7 @@ public class GetBucketIntelligentTieringTestAdapter extends NormalRequestTestAda
 
     @Override
     protected void assertResult(GetBucketIntelligentTieringResult result) {
+        result.getConfiguration();
         super.assertResult(result);
     }
 }

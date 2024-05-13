@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.tag.audit.bean.AuditConf;
@@ -107,7 +106,6 @@ public class PostImagesAuditRequest extends BasePostAuditRequest {
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
         if(postImagesAudit.input != null && postImagesAudit.input.size() <= 0){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "input must be non-empty");
         }
     }
 }
