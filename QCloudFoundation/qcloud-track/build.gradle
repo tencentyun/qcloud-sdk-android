@@ -1,0 +1,72 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 33
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 33
+
+        versionCode 10002
+        versionName "1.0.2"
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        consumerProguardFiles "consumer-rules.pro"
+
+        multiDexEnabled true
+    }
+    buildTypes {
+        debug {
+            it.buildConfigField 'String', 'CLS_SECRET_ID', quotWrapper(System.getenv("CLS_SECRET_ID"))
+            it.buildConfigField 'String', 'CLS_SECRET_KEY', quotWrapper(System.getenv("CLS_SECRET_KEY"))
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation "androidx.test:rules:1.5.0"
+    androidTestImplementation 'androidx.core:core:1.6.0'
+    androidTestImplementation "androidx.test:runner:1.5.2"
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    androidTestCompileOnly project(path: ':qcloud-track')
+    androidTestImplementation 'com.tencentcloudapi.cls:tencentcloud-cls-sdk-android:1.0.5'
+    androidTestImplementation 'com.google.guava:guava:27.0.1-android'
+
+    compileOnly 'com.tencentcloudapi.cls:tencentcloud-cls-sdk-android:1.0.5'
+//    implementation 'com.tencentcloudapi.cls:cls-network-diagnosis-reporter-android:1.0.5'
+    compileOnly 'com.google.guava:guava:27.0.1-android'
+
+    compileOnly files(
+            'libs/beacon-android-release-4.2.86.7-hf1-official.aar',
+            'libs/qimei-1.2.18.3.aar',
+            'libs/qimei-core-1.2.18.3-normal.aar',
+            'libs/qmsp-oaid2-1.0.4.aar'
+    )
+}
+
+project.extensions.add('artifactId', 'qcloud-track')
+project.extensions.add('artifactDesc', 'the track for tencent cloud sdk')
+project.extensions.add('archiveFilePath', 'outputs/aar/qcloud-track-release.aar')
+
+
+apply from: '../../publishMavenCentral.gradle'
+
+static String quotWrapper(key) {
+    if (key == null) {
+        return "\"\""
+    }
+    return "\"".concat(key).concat("\"")
+}
