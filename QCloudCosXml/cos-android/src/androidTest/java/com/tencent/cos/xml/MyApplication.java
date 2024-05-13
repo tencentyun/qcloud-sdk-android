@@ -2,6 +2,8 @@ package com.tencent.cos.xml;
 
 import android.app.Application;
 
+import com.tencent.cos.xml.core.TestUtils;
+
 /**
  * <p>
  * Created by jordanqin on 2023/9/14 21:38.
@@ -11,6 +13,13 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable throwable) {
+                // 在这里处理异常，例如记录日志
+                TestUtils.printError(throwable.getMessage());
+            }
+        });
         trackInit();
     }
 

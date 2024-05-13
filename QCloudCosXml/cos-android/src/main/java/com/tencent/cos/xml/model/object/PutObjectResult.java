@@ -22,14 +22,20 @@
 
 package com.tencent.cos.xml.model.object;
 
+import android.text.TextUtils;
+
 import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.SimpleCosXml;
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.model.tag.CallbackResult;
 import com.tencent.cos.xml.model.tag.pic.PicUploadResult;
 import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpResponse;
+
+import java.io.IOException;
 
 /**
  * 简单上传的返回结果.
@@ -39,10 +45,46 @@ import com.tencent.qcloud.core.http.HttpResponse;
 final public class PutObjectResult extends BasePutObjectResult {
     public PicUploadResult picUploadResult;
 
+    public CallbackResult callbackResult;
+
     @Override
     public void parseResponseBody(HttpResponse response) throws CosXmlServiceException, CosXmlClientException {
         super.parseResponseBody(response);
-        picUploadResult = QCloudXmlUtils.fromXml(response.byteStream(), PicUploadResult.class);
+        try {
+            String contentType = response.header("Content-Type");
+            if("application/xml".equalsIgnoreCase(contentType)){
+                if(httpCode == 203){
+                    // xml内容 且http状态码为203 任务是回调失败
+                    CallbackResult.Error callbackResultError = QCloudXmlUtils.fromXml(response.byteStream(), CallbackResult.Error.class);
+                    callbackResult = new CallbackResult();
+                    callbackResult.status = "203";
+                    callbackResult.error = callbackResultError;
+                } else {
+                    // xml内容 非203保持之前逻辑  进行万象响应解析（万象的响应有没有可能http状态码是203?）
+                    picUploadResult = QCloudXmlUtils.fromXml(response.byteStream(), PicUploadResult.class);
+                }
+            } else {
+                String responseString;
+                try {
+                    responseString = response.string();
+                } catch (IOException e) {throw new CosXmlClientException(ClientErrorCode.POOR_NETWORK.getCode(), e);}
+                if(!TextUtils.isEmpty(responseString)){
+                    // 不是xml且body不为空 认为是回调成功
+                    callbackResult = new CallbackResult();
+                    callbackResult.status = "200";
+
+                    callbackResult.callbackBody = responseString;
+                    // PutObject 不是base64
+                    callbackResult.callbackBodyNotBase64 = true;
+                }
+            }
+        } catch (Exception e){
+            if(e instanceof CosXmlClientException){
+                throw e;
+            } else {
+                throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);
+            }
+        }
     }
 
     /**

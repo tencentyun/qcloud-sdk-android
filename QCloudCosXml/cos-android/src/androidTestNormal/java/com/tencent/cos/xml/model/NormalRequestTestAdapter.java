@@ -1,5 +1,7 @@
 package com.tencent.cos.xml.model;
 
+import static org.hamcrest.CoreMatchers.is;
+
 import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.CosXmlService;
@@ -11,6 +13,12 @@ import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 
 import org.junit.Assert;
+import org.junit.rules.ErrorCollector;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -18,6 +26,10 @@ import org.junit.Assert;
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
 public abstract class NormalRequestTestAdapter<R extends CosXmlRequest, S extends CosXmlResult> {
+    protected ErrorCollector collector;
+    public void setCollector(ErrorCollector collector) {
+        this.collector = collector;
+    }
     private int retry = 3;
 
     private void recoveryRetry(){
@@ -99,14 +111,49 @@ public abstract class NormalRequestTestAdapter<R extends CosXmlRequest, S extend
 
     protected void assertResult(S result) {
         TestUtils.print(result.printResult());
+
+        setResultPublicFieldNull(result);
+        result.printResult();
+
         TestUtils.printXML(result);
-        Assert.assertTrue(result.httpCode >= 200 && result.httpCode < 300);
+        if(this.collector != null) {
+            this.collector.checkThat(result.httpCode >= 200 && result.httpCode < 300, is(true));
+        } else  {
+            Assert.assertTrue(result.httpCode >= 200 && result.httpCode < 300);
+        }
     }
 
     protected void assertException(@Nullable CosXmlClientException clientException,
                                    @Nullable CosXmlServiceException serviceException) {
+        if(this.collector != null) {
+            this.collector.addError(new AssertionError(TestUtils.getCosExceptionMessage(this.getClass().getSimpleName(), clientException, serviceException)));
+        } else {
+            Assert.fail(TestUtils.getCosExceptionMessage(this.getClass().getSimpleName(), clientException, serviceException));
+        }
+    }
 
-        Assert.fail(TestUtils.getCosExceptionMessage(this.getClass().getSimpleName(), clientException, serviceException));
+    private void setResultPublicFieldNull(S result) {
+        if (result == null) {
+            return;
+        }
+
+        Field[] fields = result.getClass().getDeclaredFields();
+        List<Field> publicFields = new ArrayList<>();
+
+        for (Field field : fields) {
+            if (Modifier.isPublic(field.getModifiers())) {
+                publicFields.add(field);
+            }
+        }
+
+        if (publicFields.size() == 1) {
+            Field publicField = publicFields.get(0);
+            try {
+                publicField.set(result, null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     static class COSResult {

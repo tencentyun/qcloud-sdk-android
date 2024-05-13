@@ -31,6 +31,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
 /**
  * <p>
  * Created by jordanqin on 2023/2/21 14:37.
@@ -50,6 +56,38 @@ public class SpeechTest {
         request.setPageNumber(1);
         request.setPageSize(10);
         request.setRegions("All");
+        try {
+            DescribeSpeechBucketsResult result = ciService.describeSpeechBuckets(request);
+            Assert.assertNotNull(result.describeSpeechBucketsResponse);
+            TestUtils.printXML(result.describeSpeechBucketsResponse);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void stage1_describeSpeechBuckets1() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        DescribeSpeechBucketsRequest request = new DescribeSpeechBucketsRequest();
+        request.setBucketNames(TestConst.PERSIST_BUCKET);
+        try {
+            DescribeSpeechBucketsResult result = ciService.describeSpeechBuckets(request);
+            Assert.assertNotNull(result.describeSpeechBucketsResponse);
+            TestUtils.printXML(result.describeSpeechBucketsResponse);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void stage1_describeSpeechBuckets2() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        DescribeSpeechBucketsRequest request = new DescribeSpeechBucketsRequest();
+        request.setBucketName("mobile-");
         try {
             DescribeSpeechBucketsResult result = ciService.describeSpeechBuckets(request);
             Assert.assertNotNull(result.describeSpeechBucketsResponse);
@@ -177,7 +215,7 @@ public class SpeechTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         final TestLocker locker = new TestLocker();
         CreateSpeechJobsRequest request = new CreateSpeechJobsRequest(TestConst.ASR_BUCKET);
-        request.setInputObject(TestConst.ASR_OBJECT_GS_2C);
+        request.setInputUrl(TestConst.ASR_OBJECT_GS_2C_URL);
         request.setQueueId(SpeechTest.queueId);
         request.setOutput(TestConst.ASR_BUCKET_REGION, TestConst.ASR_BUCKET, TestConst.ASR_OBJECT_OUTPUT);
         request.setEngineModelType("8k_zh");
@@ -245,7 +283,7 @@ public class SpeechTest {
     public void stage5_describeSpeechJobAsync() {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
         final TestLocker locker = new TestLocker();
-        DescribeSpeechJobRequest request = new DescribeSpeechJobRequest(TestConst.ASR_BUCKET, SpeechTest.jobId);
+        DescribeSpeechJobRequest request = new DescribeSpeechJobRequest(TestConst.ASR_BUCKET, TestConst.PERSIST_BUCKET_REGION, SpeechTest.jobId);
         ciService.describeSpeechJobAsync(request, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult cosResult) {
@@ -288,8 +326,29 @@ public class SpeechTest {
         request.setNextToken(null);
         request.setSize(50);
         request.setStates("All");
-//        request.setStartCreationTime("%Y-%m-%dT%H:%m:%S%z");
-//        request.setEndCreationTime("%Y-%m-%dT%H:%m:%S%z");
+        try {
+            DescribeSpeechJobsResult result = ciService.describeSpeechJobs(request);
+            Assert.assertNotNull(result.describeSpeechJobsResponse);
+            TestUtils.printXML(result.describeSpeechJobsResponse);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void stage7_describeSpeechJobs1() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        DescribeSpeechJobsRequest request = new DescribeSpeechJobsRequest(TestConst.ASR_BUCKET);
+        request.setQueueId(SpeechTest.queueId);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault());
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        String oneDayBefore = sdf.format(cal.getTime());
+        request.setStartCreationTime(oneDayBefore);
+        request.setEndCreationTime(sdf.format(new Date()));
         try {
             DescribeSpeechJobsResult result = ciService.describeSpeechJobs(request);
             Assert.assertNotNull(result.describeSpeechJobsResponse);

@@ -31,6 +31,8 @@ public class DeleteMultiObjectTestAdapter extends NormalRequestTestAdapter<Delet
         request.setQuiet(false);
         request.setObjectList(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+3);
         request.setObjectList(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+4, null);
+        //制造删除失败的对象
+        request.setObjectList("doesNotExist");
         Map<String, String> objectListWithVersionId = new HashMap<>();
         objectListWithVersionId.put(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+5, null);
         objectListWithVersionId.put(TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH+6, null);

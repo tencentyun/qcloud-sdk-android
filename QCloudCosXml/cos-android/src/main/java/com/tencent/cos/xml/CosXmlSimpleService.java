@@ -48,8 +48,6 @@ import com.tencent.cos.xml.model.object.InitMultipartUploadRequest;
 import com.tencent.cos.xml.model.object.InitMultipartUploadResult;
 import com.tencent.cos.xml.model.object.ListPartsRequest;
 import com.tencent.cos.xml.model.object.ListPartsResult;
-import com.tencent.cos.xml.model.object.PostObjectRequest;
-import com.tencent.cos.xml.model.object.PostObjectResult;
 import com.tencent.cos.xml.model.object.PreBuildConnectionRequest;
 import com.tencent.cos.xml.model.object.PreBuildConnectionResult;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
@@ -108,8 +106,6 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
         super.setProgressListener(cosXmlRequest, httpTask, isSchedule);
         if (cosXmlRequest instanceof AppendObjectRequest) {
             httpTask.addProgressListener(((AppendObjectRequest) cosXmlRequest).getProgressListener());
-        } else if (cosXmlRequest instanceof PostObjectRequest) {
-            httpTask.addProgressListener(((PostObjectRequest) cosXmlRequest).getProgressListener());
         }
     }
 
@@ -138,40 +134,10 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
         putObjectResult.accessUrl = getAccessUrl(request);
         schedule(request, putObjectResult, cosXmlResultListener);
     }
-
-    public PutObjectResult internalPutObject(PutObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
-        PutObjectResult putObjectResult = new PutObjectResult();
-        putObjectResult.accessUrl = getAccessUrl(request);
-        return execute(request, putObjectResult, true);
-    }
     public void internalPutObjectAsync(PutObjectRequest request, CosXmlResultListener cosXmlResultListener) {
         PutObjectResult putObjectResult = new PutObjectResult();
         putObjectResult.accessUrl = getAccessUrl(request);
         schedule(request, putObjectResult, cosXmlResultListener, true);
-    }
-
-    /**
-     * <p>
-     * 以网页表单的形式上传文件的同步方法.&nbsp;
-     * </p>
-     * 详细介绍，请查看:{@link SimpleCosXml#postObject(PostObjectRequest)}
-     */
-    @Override
-    public PostObjectResult postObject(PostObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
-        PostObjectResult postObjectResult = new PostObjectResult();
-        return execute(request, postObjectResult);
-    }
-
-    /**
-     * <p>
-     * 以网页表单的形式上传文件的异步方法.&nbsp;
-     * </p>
-     * 详细介绍，请查看:{@link SimpleCosXml#postObjectAsync(PostObjectRequest, CosXmlResultListener)}
-     */
-    @Override
-    public void postObjectAsync(PostObjectRequest request, CosXmlResultListener cosXmlResultListener) {
-        PostObjectResult postObjectResult = new PostObjectResult();
-        schedule(request, postObjectResult, cosXmlResultListener);
     }
 
     /**
@@ -242,10 +208,6 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
     @Override
     public void copyObjectAsync(CopyObjectRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new CopyObjectResult(), cosXmlResultListener);
-    }
-
-    public CopyObjectResult internalCopyObject(CopyObjectRequest request) throws CosXmlClientException, CosXmlServiceException {
-        return execute(request, new CopyObjectResult(), true);
     }
     public void internalCopyObjectAsync(CopyObjectRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new CopyObjectResult(), cosXmlResultListener, true);

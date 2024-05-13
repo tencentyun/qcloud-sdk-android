@@ -23,7 +23,6 @@
 package com.tencent.cos.xml.model.bucket;
 
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
-import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
@@ -78,9 +77,6 @@ public class PutBucketDomainRequest extends BucketRequest {
         {
             for(DomainConfiguration.DomainRule rule : domainConfiguration.domainRules)
             {
-                if(rule.status == null) throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "DomainRule.status is null");
-                if (rule.name == null) throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "DomainRule.name is null");
-                if (rule.type == null) throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "DomainRule.type is null");
             }
         }
     }

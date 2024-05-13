@@ -1,5 +1,7 @@
 package com.tencent.cos.xml.ci;
 
+import android.net.Uri;
+
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -27,6 +29,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+
 /**
  * <p>
  * Created by jordanqin on 2020/12/5.
@@ -48,8 +56,77 @@ public class CosXmlCITest {
 
         QRCodeUploadRequest request = new QRCodeUploadRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
                 TestUtils.localPath("qr.png"));
+        request.isPicInfo = true;
+        qRCodeUpload(ciService, request);
+    }
+
+    @Test
+    public void testQRCodeUploadBtUri() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        try {
+            ciService.getObject(new GetObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
+                    TestUtils.localParentPath()));
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+        }
+
+        QRCodeUploadRequest request = new QRCodeUploadRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
+                Uri.fromFile(new File(TestUtils.localPath("qr.png"))));
+        request.setCover(0);
+        qRCodeUpload(ciService, request);
+    }
+
+    @Test
+    public void testQRCodeUploadByInputStream() throws IOException {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        try {
+            ciService.getObject(new GetObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
+                    TestUtils.localParentPath()));
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+        }
+
+        QRCodeUploadRequest request = new QRCodeUploadRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
+                Files.newInputStream(new File(TestUtils.localPath("qr.png")).toPath()));
+        request.isPicInfo = true;
+        qRCodeUpload(ciService, request);
+    }
+
+    @Test
+    public void testQRCodeUploadByBytes() throws IOException {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        try {
+            ciService.getObject(new GetObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
+                    TestUtils.localParentPath()));
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+        }
+
+        QRCodeUploadRequest request = new QRCodeUploadRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
+                TestUtils.inputStreamToByteArray(Files.newInputStream(new File(TestUtils.localPath("qr.png")).toPath()))
+                );
+        request.isPicInfo = true;
+        qRCodeUpload(ciService, request);
+    }
+
+    @Test
+    public void testQRCodeUploadByUrl() throws MalformedURLException {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        QRCodeUploadRequest request = new QRCodeUploadRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
+                new URL(TestConst.PERSIST_BUCKET_QR_URL));
+        qRCodeUpload(ciService, request);
+    }
+
+    private void qRCodeUpload(CIService ciService, QRCodeUploadRequest request){
         try {
             QRCodeUploadResult result = ciService.qrCodeUpload(request);
+            result.getPicUploadResult();
             Assert.assertNotNull(result.picUploadResult);
             for (QRCodeUploadResult.QrPicObject qrPicObject : result.picUploadResult.processResults){
                 for (QRCodeInfo qrCodeInfo : qrPicObject.qrCodeInfo){
@@ -115,6 +192,38 @@ public class CosXmlCITest {
         request.setRegions(TestConst.PERSIST_BUCKET_REGION);
         request.setPageNumber(2);
         request.setPageSize(10);
+        try {
+            GetDescribeMediaBucketsResult result = ciService.getDescribeMediaBuckets(request);
+            Assert.assertNotNull(result.describeMediaBucketsResult);
+            TestUtils.printXML(result.describeMediaBucketsResult);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void getDescribeMediaBuckets1() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        GetDescribeMediaBucketsRequest request = new GetDescribeMediaBucketsRequest();
+        request.setBucketNames(TestConst.PERSIST_BUCKET);
+        try {
+            GetDescribeMediaBucketsResult result = ciService.getDescribeMediaBuckets(request);
+            Assert.assertNotNull(result.describeMediaBucketsResult);
+            TestUtils.printXML(result.describeMediaBucketsResult);
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void getDescribeMediaBuckets2() {
+        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+        GetDescribeMediaBucketsRequest request = new GetDescribeMediaBucketsRequest();
+        request.setBucketName("mobile-");
         try {
             GetDescribeMediaBucketsResult result = ciService.getDescribeMediaBuckets(request);
             Assert.assertNotNull(result.describeMediaBucketsResult);

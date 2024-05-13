@@ -307,6 +307,17 @@ public class DigestUtils {
         return hmacSha1;
     }
 
+    public static String decodeBase64(String content) {
+        if(TextUtils.isEmpty(content)){
+            return content;
+        }
+        try {
+            return new String(Base64.decode(content, Base64.DEFAULT), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return content;
+        }
+    }
+
     public static String getBase64(String content) throws CosXmlClientException {
         if(TextUtils.isEmpty(content)){
             return content;

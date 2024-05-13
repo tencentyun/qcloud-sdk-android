@@ -229,15 +229,15 @@ class SerialUploadPartsTask extends BaseUploadPartsTask {
         }
     }
 
-    public void setHttpTaskMetrics(HttpTaskMetrics httpTaskMetrics) {
-        this.httpTaskMetrics = httpTaskMetrics;
-    }
-    
-    synchronized private void mergeTaskMetrics(HttpTaskMetrics httpTaskMetrics) {
-        if (httpTaskMetrics != null && this.httpTaskMetrics != null) {
-            this.httpTaskMetrics.merge(httpTaskMetrics);
-        }
-    }
+//    public void setHttpTaskMetrics(HttpTaskMetrics httpTaskMetrics) {
+//        this.httpTaskMetrics = httpTaskMetrics;
+//    }
+//
+//    synchronized private void mergeTaskMetrics(HttpTaskMetrics httpTaskMetrics) {
+//        if (httpTaskMetrics != null && this.httpTaskMetrics != null) {
+//            this.httpTaskMetrics.merge(httpTaskMetrics);
+//        }
+//    }
 }
 
 /**

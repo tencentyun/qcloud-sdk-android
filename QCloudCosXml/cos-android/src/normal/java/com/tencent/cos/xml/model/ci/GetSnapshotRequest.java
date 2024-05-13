@@ -60,9 +60,6 @@ public class GetSnapshotRequest extends GetObjectRequest {
      * @param width 截图的宽
      */
     public void setWidth(int width) {
-        if (width <= 0) {
-            return;
-        }
         queryParameters.put("width", String.valueOf(width));
     }
 
@@ -71,9 +68,6 @@ public class GetSnapshotRequest extends GetObjectRequest {
      * @param height 截图的高
      */
     public void setHeight(int height) {
-        if (height <= 0) {
-            return;
-        }
         queryParameters.put("height", String.valueOf(height));
     }
 
@@ -114,8 +108,6 @@ public class GetSnapshotRequest extends GetObjectRequest {
         super.checkParameters();
 
         if (time < 0) {
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(),
-                    "Please set a valid time");
         }
     }
 

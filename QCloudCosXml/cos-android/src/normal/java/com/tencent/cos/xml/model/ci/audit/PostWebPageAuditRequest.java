@@ -104,11 +104,9 @@ public class PostWebPageAuditRequest extends BasePostAuditRequest {
     public void checkParameters() throws CosXmlClientException {
         super.checkParameters();
         if(TextUtils.isEmpty(postWebPageAudit.input.url)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "url must be non-empty");
         }
 
         if(TextUtils.isEmpty(postWebPageAudit.conf.detectType)){
-            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "detectType must be non-empty");
         }
     }
 }
