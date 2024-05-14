@@ -19,6 +19,7 @@ public class TestConst {
     public static final String PERSIST_BUCKET_REGION = BuildConfig.PERSIST_BUCKET_REGION;
     public static final String PERSIST_BUCKET = BuildConfig.PERSIST_BUCKET;
     public static final String PERSIST_BUCKET_CDN_SIGN = BuildConfig.PERSIST_BUCKET_CDN_SIGN;
+    public static final String PERSIST_BUCKET_ROOT_FILE_PATH = "do_not_remove";
     public static final String PERSIST_BUCKET_PIC_PATH = "do_not_remove/image.png";
     public static final String PERSIST_BUCKET_PIC_6M_PATH = "do_not_remove/6m.jpg";
     public static final String PERSIST_BUCKET_QR_PATH = "do_not_remove/qr.png";
