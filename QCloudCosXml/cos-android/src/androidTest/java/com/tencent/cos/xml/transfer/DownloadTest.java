@@ -503,6 +503,9 @@ public class DownloadTest {
         testDownloadBtPath("do_not_remove/", false, false);
         testDownloadBtPath("/do_not_remove/", false, false);
 
+        // 为了覆盖getCanonicalPath()的IOException
+        testDownloadBtPath("\u0000", true, true);
+
         Assert.assertTrue(true);
     }
 

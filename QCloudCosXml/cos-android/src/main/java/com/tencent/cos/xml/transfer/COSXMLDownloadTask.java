@@ -121,6 +121,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
             } catch (IOException e) {e.printStackTrace();}
             if ("/".equals(normalizedPath)) {
                 updateState(TransferState.FAILED, new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "The key in the getobject is illegal"), null, false);
+                return false;
             }
         }
         return true;
