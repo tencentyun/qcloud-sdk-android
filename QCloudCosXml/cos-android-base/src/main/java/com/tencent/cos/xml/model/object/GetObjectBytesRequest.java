@@ -22,13 +22,17 @@
 
 package com.tencent.cos.xml.model.object;
 
+import android.util.Log;
+
 import com.tencent.cos.xml.BaseCosXml;
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -36,6 +40,16 @@ import java.io.IOException;
  * @see BaseCosXml#getObject(String, String)
  */
 final public class GetObjectBytesRequest extends ObjectRequest {
+    private boolean objectKeySimplifyCheck = true;
+
+    /**
+     * 设置是否校验cosPath归并后是否符合规范，默认为true
+     * @param objectKeySimplifyCheck 是否校验cosPath归并后是否符合规范
+     */
+    public void setObjectKeySimplifyCheck(boolean objectKeySimplifyCheck) {
+        this.objectKeySimplifyCheck = objectKeySimplifyCheck;
+    }
+
     public GetObjectBytesRequest(String bucket, String cosPath) {
         super(bucket, cosPath);
     }
@@ -48,5 +62,21 @@ final public class GetObjectBytesRequest extends ObjectRequest {
     @Override
     protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
         return null;
+    }
+
+    @Override
+    public void checkParameters() throws CosXmlClientException {
+        super.checkParameters();
+
+        if(objectKeySimplifyCheck) {
+            String normalizedPath = cosPath;
+            try {
+                File file = new File("/" + cosPath);
+                normalizedPath = file.getCanonicalPath();
+            } catch (IOException e) {e.printStackTrace();}
+            if ("/".equals(normalizedPath)) {
+                throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "The key in the getobject is illegal");
+            }
+        }
     }
 }

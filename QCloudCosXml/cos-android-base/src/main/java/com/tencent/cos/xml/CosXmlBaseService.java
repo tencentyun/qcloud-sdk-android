@@ -659,6 +659,18 @@ public class CosXmlBaseService implements BaseCosXml {
 
     /**
      * <p>
+     * 将 COS 对象下载为字节数组
+     * <p>
+     * 详细介绍，请查看:{@link BaseCosXml#getObject(GetObjectBytesRequest)}
+     */
+    @Override
+    public byte[] getObject(GetObjectBytesRequest request) throws CosXmlClientException, CosXmlServiceException {
+        GetObjectBytesResult getObjectBytesResult = execute(request, new GetObjectBytesResult());
+        return getObjectBytesResult != null ? getObjectBytesResult.data : new byte[0];
+    }
+
+    /**
+     * <p>
      * 基础简单上传的同步方法.&nbsp;
      * <p>
      * 详细介绍，请查看:{@link  BaseCosXml#basePutObject(BasePutObjectRequest)}

@@ -26,8 +26,10 @@ import android.net.Uri;
 
 import com.tencent.cos.xml.BaseCosXml;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.Range;
 import com.tencent.cos.xml.common.RequestMethod;
+import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
@@ -60,6 +62,8 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
     private String saveFileName;
 
     private Uri fileContentUri;
+
+    private boolean objectKeySimplifyCheck = true;
 
     /**
      * GetObjectRequest 构造函数
@@ -317,6 +321,18 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
         return saveFileName;
     }
 
+    /**
+     * 设置是否校验cosPath归并后是否符合规范，默认为true
+     * @param objectKeySimplifyCheck 是否校验cosPath归并后是否符合规范
+     */
+    public void setObjectKeySimplifyCheck(boolean objectKeySimplifyCheck) {
+        this.objectKeySimplifyCheck = objectKeySimplifyCheck;
+    }
+
+    public boolean isObjectKeySimplifyCheck() {
+        return objectKeySimplifyCheck;
+    }
+
     public String getDownloadPath(){
         String path  = null;
         if(savePath != null){
@@ -388,5 +404,21 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
     @Override
     public void setTrafficLimit(long limit) {
         addHeader("x-cos-traffic-limit", String.valueOf(limit));
+    }
+
+    @Override
+    public void checkParameters() throws CosXmlClientException {
+        super.checkParameters();
+
+        if(objectKeySimplifyCheck) {
+            String normalizedPath = cosPath;
+            try {
+                File file = new File("/" + cosPath);
+                normalizedPath = file.getCanonicalPath();
+            } catch (IOException e) {e.printStackTrace();}
+            if ("/".equals(normalizedPath)) {
+                throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "The key in the getobject is illegal");
+            }
+        }
     }
 }

@@ -28,6 +28,7 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.object.BasePutObjectRequest;
 import com.tencent.cos.xml.model.object.BasePutObjectResult;
+import com.tencent.cos.xml.model.object.GetObjectBytesRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectResult;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
@@ -112,6 +113,22 @@ public interface BaseCosXml {
      * @throws CosXmlServiceException 服务端异常
      */
     byte[] getObject(String bucketName, String objectName) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 下载 COS 对象到字节数组的同步方法<br>
+     * 和{@link #getObject(GetObjectRequest)}类似，只是返回结果形式不同
+     * </p>
+     * <p>
+     * 注意：请不要通过本接口下载大文件，否则容易造成内存溢出。
+     * </p>
+     *
+     * @param request 获取 COS 对象的请求 {@link GetObjectBytesRequest}
+     * @return 对象的字节数据
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    byte[] getObject(GetObjectBytesRequest request) throws CosXmlClientException, CosXmlServiceException;
 
     /**
      * <p>
