@@ -1,3 +1,6 @@
+## v5.9.29
+1. 针对getObject接口进行路径归并后检查
+
 ## v5.9.28
 1. 支持服务回调
 2. 完善select object content对\r\n的处理
