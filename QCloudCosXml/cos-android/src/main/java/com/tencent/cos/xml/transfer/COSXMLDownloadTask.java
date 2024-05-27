@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import com.tencent.cos.xml.CosTrackService;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
+import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
@@ -48,6 +49,7 @@ import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.QCloudTask;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +67,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
     private long rangeStart = 0L;
     private long rangeEnd = -1L;
     private long fileOffset = 0L;
+    private boolean objectKeySimplifyCheck = true;
     private String eTag;
     private long hasWriteDataLen = 0L;
     private long startTime = 0L;
@@ -92,6 +95,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         this.queries = getObjectRequest.getQueryString();
         this.headers = getObjectRequest.getRequestHeaders();
         this.noSignHeaders = getObjectRequest.getNoSignHeaders();
+        this.objectKeySimplifyCheck = getObjectRequest.isObjectKeySimplifyCheck();
         this.isNeedMd5 = getObjectRequest.isNeedMD5();
         //需要取出range字段
         if(this.headers != null && this.headers.containsKey(COSRequestHeaderKey.RANGE)){
@@ -108,10 +112,26 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         this.fileOffset = getObjectRequest.getFileOffset();
     }
 
+    private boolean checkParameter(){
+        if(objectKeySimplifyCheck) {
+            String normalizedPath = cosPath;
+            try {
+                File file = new File("/" + cosPath);
+                normalizedPath = file.getCanonicalPath();
+            } catch (IOException e) {e.printStackTrace();}
+            if ("/".equals(normalizedPath)) {
+                updateState(TransferState.FAILED, new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "The key in the getobject is illegal"), null, false);
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * 下载操作
      */
     protected void download(){
+        if(!checkParameter()) return;
         startTime = System.nanoTime();
         run();
     }
@@ -122,6 +142,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         getObjectRequest.setFileOffset(fileOffset);
         getObjectRequest.setQueryParameters(queries);
         getObjectRequest.setRequestHeaders(headers);
+        getObjectRequest.setObjectKeySimplifyCheck(objectKeySimplifyCheck);
         getObjectRequest.addNoSignHeader(noSignHeaders);
         if(rangeEnd > 0 || rangeStart > 0){
             getObjectRequest.setRange(rangeStart, rangeEnd);
