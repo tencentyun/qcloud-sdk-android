@@ -40,6 +40,7 @@ import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
+import com.tencent.cos.xml.model.object.GetObjectBytesRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
@@ -475,5 +476,196 @@ public class DownloadTest {
             return;
         }
         Assert.assertTrue(true);
+    }
+
+    @Test public void testDownloadPath() {
+        testDownloadBtPath("/", true, true);
+        testDownloadBtPath("///////", true, true);
+        testDownloadBtPath("/abc/../", true, true);
+        testDownloadBtPath("/./", true, true);
+        testDownloadBtPath("///abc/.//def//../../", true, true);
+        testDownloadBtPath("/././///abc/.//def//../../", true, true);
+        testDownloadBtPath(TestConst.PERSIST_BUCKET_ROOT_FILE_PATH, false, true);
+        testDownloadBtPath(TestConst.PERSIST_BUCKET_PIC_PATH, false, true);
+        testDownloadBtPath("/"+TestConst.PERSIST_BUCKET_PIC_PATH, false, true);
+        testDownloadBtPath("do_not_remove/", false, true);
+        testDownloadBtPath("/do_not_remove/", false, true);
+
+        testDownloadBtPath("/", true, false);
+        testDownloadBtPath("///////", true, false);
+        testDownloadBtPath("/abc/../", true, false);
+        testDownloadBtPath("/./", true, false);
+        testDownloadBtPath("///abc/.//def//../../", true, false);
+        testDownloadBtPath("/././///abc/.//def//../../", true, false);
+        testDownloadBtPath(TestConst.PERSIST_BUCKET_ROOT_FILE_PATH, false, false);
+        testDownloadBtPath(TestConst.PERSIST_BUCKET_PIC_PATH, false, false);
+        testDownloadBtPath("/"+TestConst.PERSIST_BUCKET_PIC_PATH, false, false);
+        testDownloadBtPath("do_not_remove/", false, false);
+        testDownloadBtPath("/do_not_remove/", false, false);
+
+        // 为了覆盖getCanonicalPath()的IOException
+        testDownloadBtPath("\u0000", true, true);
+
+        Assert.assertTrue(true);
+    }
+
+    private void testDownloadBtPath(String cosPath, boolean isFail, boolean isObjectKeySimplifyCheck){
+        try {
+            TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+
+            GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                    cosPath,
+                    TestUtils.localParentPath(), "test");
+            getObjectRequest.setObjectKeySimplifyCheck(isObjectKeySimplifyCheck);
+
+            COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+                    getObjectRequest);
+            final TestLocker testLocker = new TestLocker();
+            downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+                @Override
+                public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                    testLocker.release();
+                }
+
+                @Override
+                public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                    String error = TestUtils.getCosExceptionMessage(clientException, serviceException);
+                    TestUtils.printError(error);
+                    if(serviceException != null){
+                        // 如果开启校验且应该校验失败 就不应该走到服务端，其他情况不关注后端错误
+                        if(isObjectKeySimplifyCheck && isFail){
+                            Assert.fail(error);
+                        }
+                    }
+                    if(clientException != null){
+                        if(isFail) {
+                            if (!"The key in the getobject is illegal".equals(clientException.getMessage())) {
+                                Assert.fail(clientException.getMessage());
+                            } else {
+                                if(!isObjectKeySimplifyCheck){
+                                    Assert.fail(clientException.getMessage());
+                                }
+                            }
+                        } else {
+                            Assert.fail(clientException.getMessage());
+                        }
+                    }
+                    testLocker.release();
+                }
+            });
+            testLocker.lock();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test public void testGetObjectPath() {
+        getObjectByPath("/", true, true);
+        getObjectByPath("///////", true, true);
+        getObjectByPath("/abc/../", true, true);
+        getObjectByPath("/./", true, true);
+        getObjectByPath("///abc/.//def//../../", true, true);
+        getObjectByPath("/././///abc/.//def//../../", true, true);
+        getObjectByPath(TestConst.PERSIST_BUCKET_ROOT_FILE_PATH, false, true);
+        getObjectByPath(TestConst.PERSIST_BUCKET_PIC_PATH, false, true);
+        getObjectByPath("/"+TestConst.PERSIST_BUCKET_PIC_PATH, false, true);
+        getObjectByPath("do_not_remove/", false, true);
+        getObjectByPath("/do_not_remove/", false, true);
+
+        getObjectByPath("/", true, false);
+        getObjectByPath("///////", true, false);
+        getObjectByPath("/abc/../", true, false);
+        getObjectByPath("/./", true, false);
+        getObjectByPath("///abc/.//def//../../", true, false);
+        getObjectByPath("/././///abc/.//def//../../", true, false);
+        getObjectByPath(TestConst.PERSIST_BUCKET_ROOT_FILE_PATH, false, false);
+        getObjectByPath(TestConst.PERSIST_BUCKET_PIC_PATH, false, false);
+        getObjectByPath("/"+TestConst.PERSIST_BUCKET_PIC_PATH, false, false);
+        getObjectByPath("do_not_remove/", false, false);
+        getObjectByPath("/do_not_remove/", false, false);
+
+        Assert.assertTrue(true);
+    }
+    private void getObjectByPath(String cosPath, boolean isFail, boolean isObjectKeySimplifyCheck) {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                cosPath,
+                TestUtils.localParentPath(), "test");
+        getObjectRequest.setObjectKeySimplifyCheck(isObjectKeySimplifyCheck);
+        try {
+            cosXmlSimpleService.getObject(getObjectRequest);
+        } catch (CosXmlClientException e) {
+            TestUtils.printError(e.getMessage());
+            if(isFail) {
+                if (!"The key in the getobject is illegal".equals(e.getMessage())) {
+                    Assert.fail(e.getMessage());
+                } else {
+                    if(!isObjectKeySimplifyCheck){
+                        Assert.fail(e.getMessage());
+                    }
+                }
+            } else {
+                Assert.fail(e.getMessage());
+            }
+        } catch (CosXmlServiceException e) {
+            // 如果开启校验且应该校验失败 就不应该走到服务端，其他情况不关注后端错误
+            if(isObjectKeySimplifyCheck && isFail){
+                Assert.fail(e.getMessage());
+            }
+        }
+    }
+
+    @Test public void testGetObjectBytesPath() {
+        getObjectBytesByPath("/", true, true);
+        getObjectBytesByPath("///////", true, true);
+        getObjectBytesByPath("/abc/../", true, true);
+        getObjectBytesByPath("/./", true, true);
+        getObjectBytesByPath("///abc/.//def//../../", true, true);
+        getObjectBytesByPath("/././///abc/.//def//../../", true, true);
+        getObjectBytesByPath(TestConst.PERSIST_BUCKET_ROOT_FILE_PATH, false, true);
+        getObjectBytesByPath(TestConst.PERSIST_BUCKET_PIC_PATH, false, true);
+        getObjectBytesByPath("/"+TestConst.PERSIST_BUCKET_PIC_PATH, false, true);
+        getObjectBytesByPath("do_not_remove/", false, true);
+        getObjectBytesByPath("/do_not_remove/", false, true);
+
+        getObjectBytesByPath("/", true, false);
+        getObjectBytesByPath("///////", true, false);
+        getObjectBytesByPath("/abc/../", true, false);
+        getObjectBytesByPath("/./", true, false);
+        getObjectBytesByPath("///abc/.//def//../../", true, false);
+        getObjectBytesByPath("/././///abc/.//def//../../", true, false);
+        getObjectBytesByPath(TestConst.PERSIST_BUCKET_ROOT_FILE_PATH, false, false);
+        getObjectBytesByPath(TestConst.PERSIST_BUCKET_PIC_PATH, false, false);
+        getObjectBytesByPath("/"+TestConst.PERSIST_BUCKET_PIC_PATH, false, false);
+        getObjectBytesByPath("do_not_remove/", false, false);
+        getObjectBytesByPath("/do_not_remove/", false, false);
+
+        Assert.assertTrue(true);
+    }
+    private void getObjectBytesByPath(String cosPath, boolean isFail, boolean isObjectKeySimplifyCheck) {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDefaultService();
+        GetObjectBytesRequest getObjectBytesRequest = new GetObjectBytesRequest(TestConst.PERSIST_BUCKET, cosPath);
+        getObjectBytesRequest.setObjectKeySimplifyCheck(isObjectKeySimplifyCheck);
+        try {
+            cosXmlSimpleService.getObject(getObjectBytesRequest);
+        } catch (CosXmlClientException e) {
+            TestUtils.printError(e.getMessage());
+            if(isFail) {
+                if (!"The key in the getobject is illegal".equals(e.getMessage())) {
+                    Assert.fail(e.getMessage());
+                } else {
+                    if(!isObjectKeySimplifyCheck){
+                        Assert.fail(e.getMessage());
+                    }
+                }
+            } else {
+                Assert.fail(e.getMessage());
+            }
+        } catch (CosXmlServiceException e) {
+            // 如果开启校验且应该校验失败 就不应该走到服务端，其他情况不关注后端错误
+            if(isObjectKeySimplifyCheck && isFail){
+                Assert.fail(e.getMessage());
+            }
+        }
     }
 }

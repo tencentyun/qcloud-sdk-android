@@ -22,6 +22,6 @@
  */
 
 ext {
-    cosSdkVersionCode = 50928
-    cosSdkVersionName = '5.9.28'
+    cosSdkVersionCode = 50929
+    cosSdkVersionName = '5.9.29'
 }
