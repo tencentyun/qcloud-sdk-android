@@ -79,6 +79,8 @@ public final class HttpConstants {
         public final static String EXPECT = "Expect";
 
         public final static String SERVER = "Server";
+
+        public final static String ACCEPT = "Accept";
     }
 
     public static final class RequestMethod {
