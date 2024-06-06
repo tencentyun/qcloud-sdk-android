@@ -172,6 +172,11 @@ dependencies {
         embed(name: 'qmsp-oaid2-1.0.4', ext: 'aar')
     }
 
+    // 非lite版本引入gson库，万象部分功能需要
+    if (!android.defaultPublishConfig.contains("slim")) {
+        implementation 'com.google.code.gson:gson:2.11.0'
+    }
+
     // kms 加密
     compileOnly 'com.tencentcloudapi:tencentcloud-sdk-java-kms:3.1.213'
     compileOnly 'xerces:xercesImpl:2.12.0'

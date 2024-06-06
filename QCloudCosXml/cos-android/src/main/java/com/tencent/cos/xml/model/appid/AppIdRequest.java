@@ -20,17 +20,39 @@
  *  SOFTWARE.
  */
 
-include ':cosxml-ktx-example'
-include ':cos-android', ':cos-android-base', ':foundation', ':qcloud-track', ':cos-android-ktx',
-        ':xmlAnnoation', ':xmlCore', ':xmlCompiler',
-        ':quic'
-//':cos-android-tiny',
+package com.tencent.cos.xml.model.appid;
 
-project(':foundation').projectDir = new File(rootDir, '../QCloudFoundation/foundation')
-project(':quic').projectDir = new File(rootDir, '../QCloudFoundation/quic')
-project(':qcloud-track').projectDir = new File(rootDir, '../QCloudFoundation/qcloud-track')
 
-project(':xmlAnnoation').projectDir      = new File(rootDir, '../QCloudXml/xmlAnnoation')
-// 合并到 foundation 中
-// project(':xmlCore').projectDir        = new File(rootDir, '../QCloudXml/xmlCore')
-project(':xmlCompiler').projectDir       = new File(rootDir, '../QCloudXml/xmlCompiler')
+import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.common.ClientErrorCode;
+import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.model.CosXmlRequest;
+
+/**
+ * appid相关请求基类
+ */
+public abstract class AppIdRequest extends CosXmlRequest {
+    public String appid;
+    /**
+     * appid相关请求基类
+     * @param appid appid
+     */
+    public AppIdRequest(String appid){
+        this.appid = appid;
+    }
+
+    @Override
+    public String getRequestHost(CosXmlServiceConfig config) {
+        return config.getRequestHostByAppId(region, appid, CosXmlServiceConfig.CI_APPID_HOST_FORMAT);
+    }
+
+    @Override
+    public void checkParameters() throws CosXmlClientException {
+        if(requestURL != null){
+            return;
+        }
+        if(appid == null){
+            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "appid must not be null");
+        }
+    }
+}

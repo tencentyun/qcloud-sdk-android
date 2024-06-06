@@ -20,17 +20,30 @@
  *  SOFTWARE.
  */
 
-include ':cosxml-ktx-example'
-include ':cos-android', ':cos-android-base', ':foundation', ':qcloud-track', ':cos-android-ktx',
-        ':xmlAnnoation', ':xmlCore', ':xmlCompiler',
-        ':quic'
-//':cos-android-tiny',
+package com.tencent.cos.xml.model.ci.metainsight;
 
-project(':foundation').projectDir = new File(rootDir, '../QCloudFoundation/foundation')
-project(':quic').projectDir = new File(rootDir, '../QCloudFoundation/quic')
-project(':qcloud-track').projectDir = new File(rootDir, '../QCloudFoundation/qcloud-track')
+import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.model.CosXmlResult;
+import com.tencent.cos.xml.utils.QCloudJsonUtils;
+import com.tencent.qcloud.core.http.HttpResponse;
 
-project(':xmlAnnoation').projectDir      = new File(rootDir, '../QCloudXml/xmlAnnoation')
-// 合并到 foundation 中
-// project(':xmlCore').projectDir        = new File(rootDir, '../QCloudXml/xmlCore')
-project(':xmlCompiler').projectDir       = new File(rootDir, '../QCloudXml/xmlCompiler')
+import com.tencent.cos.xml.model.ci.metainsight.DeleteDatasetResponse;
+
+/**
+ * 删除数据集的返回结果.
+ * @see com.tencent.cos.xml.CIService#deleteDataset(DeleteDatasetRequest)
+ * @see DeleteDatasetRequest 
+ */
+final public class DeleteDatasetResult extends CosXmlResult {
+    /**
+     * 删除数据集结果
+     */
+    public DeleteDatasetResponse response;
+
+    @Override
+    public void parseResponseBody(HttpResponse httpResponse) throws CosXmlServiceException, CosXmlClientException {
+        super.parseResponseBody(httpResponse);
+        this.response = QCloudJsonUtils.fromJson(httpResponse, DeleteDatasetResponse.class);
+    }
+}

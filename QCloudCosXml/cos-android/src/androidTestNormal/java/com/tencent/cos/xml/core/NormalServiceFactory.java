@@ -123,6 +123,17 @@ public class NormalServiceFactory {
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
+    public CIService newMetaInsightService() {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setRegion(TestConst.CI_BUCKET_REGION)
+                .builder();
+
+        return new CIService(getContext(), cosXmlServiceConfig,
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
+    }
+
     public TransferManager newDefaultTransferManager() {
 
         TransferConfig transferConfig = new TransferConfig.Builder().build();

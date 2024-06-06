@@ -37,6 +37,7 @@ public class TestConst {
     public static final String PERSIST_BUCKET_REPLICATION_REGION = BuildConfig.PERSIST_BUCKET_REPLICATION_REGION;
 
     public static final String CI_BUCKET_REGION = "ap-beijing";
+    public static final String CI_BUCKET_APPID = "1253960454";
     public static final String CI_BUCKET = "cos-sdk-citest-1253960454";
 
     //审核
