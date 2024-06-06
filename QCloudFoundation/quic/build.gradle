@@ -29,8 +29,8 @@ android {
         targetSdkVersion 27
 
         // versionCode 6位  versionName最后一段为3位时代表不上Maven的私有版本（目前9结尾用来兼容armeabi）
-        versionCode 10544
-        versionName "1.5.44"
+        versionCode 10545
+        versionName "1.5.45"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'proguard-rules.pro'
