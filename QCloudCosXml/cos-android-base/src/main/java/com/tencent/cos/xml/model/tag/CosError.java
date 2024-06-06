@@ -22,6 +22,9 @@
 
 package com.tencent.cos.xml.model.tag;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * COS错误信息
  * 请参考：<a href="https://cloud.tencent.com/document/product/436/7730">COS错误信息</a>
@@ -47,4 +50,14 @@ public class CosError {
      * 每次请求出错时，服务端将会自动为这个错误生成一个ID，遇到问题时，该 ID 能更快地协助 COS 定位问题
      */
     public String traceId;
+
+    public static CosError fromJson(String json) throws JSONException {
+        JSONObject jsonObject = new JSONObject(json);
+        CosError cosError = new CosError();
+        cosError.code = jsonObject.optString("Code");
+        cosError.message = jsonObject.optString("Message");
+        cosError.requestId = jsonObject.optString("RequestId");
+        cosError.traceId = jsonObject.optString("TraceId");
+        return cosError;
+    }
 }

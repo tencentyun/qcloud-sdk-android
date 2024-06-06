@@ -20,17 +20,20 @@
  *  SOFTWARE.
  */
 
-include ':cosxml-ktx-example'
-include ':cos-android', ':cos-android-base', ':foundation', ':qcloud-track', ':cos-android-ktx',
-        ':xmlAnnoation', ':xmlCore', ':xmlCompiler',
-        ':quic'
-//':cos-android-tiny',
+package com.tencent.cos.xml.model.ci.metainsight;
 
-project(':foundation').projectDir = new File(rootDir, '../QCloudFoundation/foundation')
-project(':quic').projectDir = new File(rootDir, '../QCloudFoundation/quic')
-project(':qcloud-track').projectDir = new File(rootDir, '../QCloudFoundation/qcloud-track')
+public class CreateDatasetBinding {
 
-project(':xmlAnnoation').projectDir      = new File(rootDir, '../QCloudXml/xmlAnnoation')
-// 合并到 foundation 中
-// project(':xmlCore').projectDir        = new File(rootDir, '../QCloudXml/xmlCore')
-project(':xmlCompiler').projectDir       = new File(rootDir, '../QCloudXml/xmlCompiler')
+    /**
+     * 数据集名称，同一个账户下唯一。;是否必传：是
+     */
+    public String datasetName;
+
+    /**
+     * 资源标识字段，表示需要与数据集绑定的资源，当前仅支持COS存储桶，字段规则：cos://，其中BucketName表示COS存储桶名称，例如：cos://examplebucket-1250000000;是否必传：是
+     */
+    public String uRI;
+
+
+   
+}

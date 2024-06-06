@@ -20,17 +20,30 @@
  *  SOFTWARE.
  */
 
-include ':cosxml-ktx-example'
-include ':cos-android', ':cos-android-base', ':foundation', ':qcloud-track', ':cos-android-ktx',
-        ':xmlAnnoation', ':xmlCore', ':xmlCompiler',
-        ':quic'
-//':cos-android-tiny',
+package com.tencent.cos.xml.model.ci.metainsight;
 
-project(':foundation').projectDir = new File(rootDir, '../QCloudFoundation/foundation')
-project(':quic').projectDir = new File(rootDir, '../QCloudFoundation/quic')
-project(':qcloud-track').projectDir = new File(rootDir, '../QCloudFoundation/qcloud-track')
+import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.model.CosXmlResult;
+import com.tencent.cos.xml.utils.QCloudJsonUtils;
+import com.tencent.qcloud.core.http.HttpResponse;
 
-project(':xmlAnnoation').projectDir      = new File(rootDir, '../QCloudXml/xmlAnnoation')
-// 合并到 foundation 中
-// project(':xmlCore').projectDir        = new File(rootDir, '../QCloudXml/xmlCore')
-project(':xmlCompiler').projectDir       = new File(rootDir, '../QCloudXml/xmlCompiler')
+import com.tencent.cos.xml.model.ci.metainsight.UpdateFileMetaIndexResponse;
+
+/**
+ * 更新元数据索引的返回结果.
+ * @see com.tencent.cos.xml.CIService#updateFileMetaIndex(UpdateFileMetaIndexRequest)
+ * @see UpdateFileMetaIndexRequest 
+ */
+final public class UpdateFileMetaIndexResult extends CosXmlResult {
+    /**
+     * 更新元数据索引结果
+     */
+    public UpdateFileMetaIndexResponse response;
+
+    @Override
+    public void parseResponseBody(HttpResponse httpResponse) throws CosXmlServiceException, CosXmlClientException {
+        super.parseResponseBody(httpResponse);
+        this.response = QCloudJsonUtils.fromJson(httpResponse, UpdateFileMetaIndexResponse.class);
+    }
+}
