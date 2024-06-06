@@ -14,6 +14,7 @@ import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.transfer.COSTransferTask;
 import com.tencent.cos.xml.transfer.COSXMLTask;
 import com.tencent.cos.xml.transfer.TransferState;
+import com.tencent.cos.xml.utils.QCloudJsonUtils;
 import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
@@ -81,6 +82,10 @@ public class TestUtils {
         } catch (ClassNotFoundException e) {
             return false;
         }
+    }
+
+    public static void printJson(Object object) {
+        TestUtils.print(QCloudJsonUtils.toJson(object));
     }
 
     public static <T> void printXML(T object) {

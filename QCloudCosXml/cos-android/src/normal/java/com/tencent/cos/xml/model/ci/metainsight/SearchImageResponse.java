@@ -20,17 +20,29 @@
  *  SOFTWARE.
  */
 
-include ':cosxml-ktx-example'
-include ':cos-android', ':cos-android-base', ':foundation', ':qcloud-track', ':cos-android-ktx',
-        ':xmlAnnoation', ':xmlCore', ':xmlCompiler',
-        ':quic'
-//':cos-android-tiny',
+package com.tencent.cos.xml.model.ci.metainsight;
 
-project(':foundation').projectDir = new File(rootDir, '../QCloudFoundation/foundation')
-project(':quic').projectDir = new File(rootDir, '../QCloudFoundation/quic')
-project(':qcloud-track').projectDir = new File(rootDir, '../QCloudFoundation/qcloud-track')
+import java.util.List;
 
-project(':xmlAnnoation').projectDir      = new File(rootDir, '../QCloudXml/xmlAnnoation')
-// 合并到 foundation 中
-// project(':xmlCore').projectDir        = new File(rootDir, '../QCloudXml/xmlCore')
-project(':xmlCompiler').projectDir       = new File(rootDir, '../QCloudXml/xmlCompiler')
+public class SearchImageResponse {
+    
+    /**
+     * 图像检索识别结果信息列表。
+     */
+    public List<ImageResult> imageResult;
+    /**
+     * 请求ID。
+     */
+    public String requestId;
+    public static class ImageResult {
+        /**
+         * 资源标识字段，表示需要建立索引的文件地址。
+         */
+        public String uRI;
+        /**
+         * 相关图片匹配得分。
+         */
+        public int score;
+    }
+
+}
