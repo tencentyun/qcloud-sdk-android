@@ -138,6 +138,38 @@ import com.tencent.cos.xml.model.ci.media.TriggerWorkflowRequest;
 import com.tencent.cos.xml.model.ci.media.TriggerWorkflowResult;
 import com.tencent.cos.xml.model.ci.media.UpdateMediaQueueRequest;
 import com.tencent.cos.xml.model.ci.media.UpdateMediaQueueResult;
+import com.tencent.cos.xml.model.ci.metainsight.CreateDatasetBindingRequest;
+import com.tencent.cos.xml.model.ci.metainsight.CreateDatasetBindingResult;
+import com.tencent.cos.xml.model.ci.metainsight.CreateDatasetRequest;
+import com.tencent.cos.xml.model.ci.metainsight.CreateDatasetResult;
+import com.tencent.cos.xml.model.ci.metainsight.CreateFileMetaIndexRequest;
+import com.tencent.cos.xml.model.ci.metainsight.CreateFileMetaIndexResult;
+import com.tencent.cos.xml.model.ci.metainsight.DatasetFaceSearchRequest;
+import com.tencent.cos.xml.model.ci.metainsight.DatasetFaceSearchResult;
+import com.tencent.cos.xml.model.ci.metainsight.DatasetSimpleQueryRequest;
+import com.tencent.cos.xml.model.ci.metainsight.DatasetSimpleQueryResult;
+import com.tencent.cos.xml.model.ci.metainsight.DeleteDatasetBindingRequest;
+import com.tencent.cos.xml.model.ci.metainsight.DeleteDatasetBindingResult;
+import com.tencent.cos.xml.model.ci.metainsight.DeleteDatasetRequest;
+import com.tencent.cos.xml.model.ci.metainsight.DeleteDatasetResult;
+import com.tencent.cos.xml.model.ci.metainsight.DeleteFileMetaIndexRequest;
+import com.tencent.cos.xml.model.ci.metainsight.DeleteFileMetaIndexResult;
+import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetBindingRequest;
+import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetBindingResult;
+import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetBindingsRequest;
+import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetBindingsResult;
+import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetRequest;
+import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetResult;
+import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetsRequest;
+import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetsResult;
+import com.tencent.cos.xml.model.ci.metainsight.DescribeFileMetaIndexRequest;
+import com.tencent.cos.xml.model.ci.metainsight.DescribeFileMetaIndexResult;
+import com.tencent.cos.xml.model.ci.metainsight.SearchImageRequest;
+import com.tencent.cos.xml.model.ci.metainsight.SearchImageResult;
+import com.tencent.cos.xml.model.ci.metainsight.UpdateDatasetRequest;
+import com.tencent.cos.xml.model.ci.metainsight.UpdateDatasetResult;
+import com.tencent.cos.xml.model.ci.metainsight.UpdateFileMetaIndexRequest;
+import com.tencent.cos.xml.model.ci.metainsight.UpdateFileMetaIndexResult;
 import com.tencent.qcloud.core.auth.COSXmlSigner;
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
 import com.tencent.qcloud.core.auth.SignerFactory;
@@ -1815,7 +1847,6 @@ public class CIService extends CosXmlService {
         schedule(request, new DeleteAuditTextlibKeywordResult(), cosXmlResultListener);
     }
 
-    //    ------------------------------------------todo 待测---------------------
     /**
      * <p>
      * 创建图片处理模板的同步方法.&nbsp;
@@ -2067,5 +2098,485 @@ public class CIService extends CosXmlService {
      */
     public void templateVideoMontageAsync(TemplateVideoMontageRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new TemplateVideoMontageResult(), cosXmlResultListener);
+    }
+
+
+
+    /**
+     * <p>
+     * 本接口用于创建一个数据集（Dataset），数据集是由文件元数据构成的集合，用于存储和管理元数据。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106020">https://cloud.tencent.com/document/product/460/106020</a>
+     *
+     * @param request 本接口用于创建一个数据集（Dataset），数据集是由文件元数据构成的集合，用于存储和管理元数据。请求 {@link CreateDatasetRequest}
+     * @return 本接口用于创建一个数据集（Dataset），数据集是由文件元数据构成的集合，用于存储和管理元数据。返回结果 {@link CreateDatasetResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public CreateDatasetResult createDataset(CreateDatasetRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new CreateDatasetResult());
+    }
+
+    /**
+     * <p>
+     * 本接口用于创建一个数据集（Dataset），数据集是由文件元数据构成的集合，用于存储和管理元数据。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106020">https://cloud.tencent.com/document/product/460/106020</a>
+     *
+     * @param request 本接口用于创建一个数据集（Dataset），数据集是由文件元数据构成的集合，用于存储和管理元数据。请求 {@link CreateDatasetRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void createDatasetAsync(CreateDatasetRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new CreateDatasetResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 本文档介绍创建数据集（Dataset）和对象存储（COS）Bucket 的绑定关系，绑定后将使用创建数据集时所指定算子对文件进行处理。
+     绑定关系创建后，将对 COS 中新增的文件进行准实时的增量追踪扫描，使用创建数据集时所指定算子对文件进行处理，抽取文件元数据信息进行索引。通过此方式为文件建立索引后，您可以使用元数据查询API对元数据进行查询、管理和统计。
+     的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106159">https://cloud.tencent.com/document/product/460/106159</a>
+     *
+     * @param request 本文档介绍创建数据集（Dataset）和对象存储（COS）Bucket 的绑定关系，绑定后将使用创建数据集时所指定算子对文件进行处理。
+    绑定关系创建后，将对 COS 中新增的文件进行准实时的增量追踪扫描，使用创建数据集时所指定算子对文件进行处理，抽取文件元数据信息进行索引。通过此方式为文件建立索引后，您可以使用元数据查询API对元数据进行查询、管理和统计。
+    请求 {@link CreateDatasetBindingRequest}
+     * @return 本文档介绍创建数据集（Dataset）和对象存储（COS）Bucket 的绑定关系，绑定后将使用创建数据集时所指定算子对文件进行处理。
+    绑定关系创建后，将对 COS 中新增的文件进行准实时的增量追踪扫描，使用创建数据集时所指定算子对文件进行处理，抽取文件元数据信息进行索引。通过此方式为文件建立索引后，您可以使用元数据查询API对元数据进行查询、管理和统计。
+    返回结果 {@link CreateDatasetBindingResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public CreateDatasetBindingResult createDatasetBinding(CreateDatasetBindingRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new CreateDatasetBindingResult());
+    }
+
+    /**
+     * <p>
+     * 本文档介绍创建数据集（Dataset）和对象存储（COS）Bucket 的绑定关系，绑定后将使用创建数据集时所指定算子对文件进行处理。
+     绑定关系创建后，将对 COS 中新增的文件进行准实时的增量追踪扫描，使用创建数据集时所指定算子对文件进行处理，抽取文件元数据信息进行索引。通过此方式为文件建立索引后，您可以使用元数据查询API对元数据进行查询、管理和统计。
+     的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106159">https://cloud.tencent.com/document/product/460/106159</a>
+     *
+     * @param request 本文档介绍创建数据集（Dataset）和对象存储（COS）Bucket 的绑定关系，绑定后将使用创建数据集时所指定算子对文件进行处理。
+    绑定关系创建后，将对 COS 中新增的文件进行准实时的增量追踪扫描，使用创建数据集时所指定算子对文件进行处理，抽取文件元数据信息进行索引。通过此方式为文件建立索引后，您可以使用元数据查询API对元数据进行查询、管理和统计。
+    请求 {@link CreateDatasetBindingRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void createDatasetBindingAsync(CreateDatasetBindingRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new CreateDatasetBindingResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 提取一个 COS 文件的元数据，在数据集中建立索引。会根据数据集中的算子提取不同的元数据建立索引，也支持建立自定义的元数据索引。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106022">https://cloud.tencent.com/document/product/460/106022</a>
+     *
+     * @param request 提取一个 COS 文件的元数据，在数据集中建立索引。会根据数据集中的算子提取不同的元数据建立索引，也支持建立自定义的元数据索引。请求 {@link CreateFileMetaIndexRequest}
+     * @return 提取一个 COS 文件的元数据，在数据集中建立索引。会根据数据集中的算子提取不同的元数据建立索引，也支持建立自定义的元数据索引。返回结果 {@link CreateFileMetaIndexResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public CreateFileMetaIndexResult createFileMetaIndex(CreateFileMetaIndexRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new CreateFileMetaIndexResult());
+    }
+
+    /**
+     * <p>
+     * 提取一个 COS 文件的元数据，在数据集中建立索引。会根据数据集中的算子提取不同的元数据建立索引，也支持建立自定义的元数据索引。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106022">https://cloud.tencent.com/document/product/460/106022</a>
+     *
+     * @param request 提取一个 COS 文件的元数据，在数据集中建立索引。会根据数据集中的算子提取不同的元数据建立索引，也支持建立自定义的元数据索引。请求 {@link CreateFileMetaIndexRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void createFileMetaIndexAsync(CreateFileMetaIndexRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new CreateFileMetaIndexResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 从数据集中搜索与指定图片最相似的前N张图片并返回人脸坐标可对数据集内文件进行一个或多个人员的人脸识别。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106166">https://cloud.tencent.com/document/product/460/106166</a>
+     *
+     * @param request 从数据集中搜索与指定图片最相似的前N张图片并返回人脸坐标可对数据集内文件进行一个或多个人员的人脸识别。请求 {@link DatasetFaceSearchRequest}
+     * @return 从数据集中搜索与指定图片最相似的前N张图片并返回人脸坐标可对数据集内文件进行一个或多个人员的人脸识别。返回结果 {@link DatasetFaceSearchResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DatasetFaceSearchResult datasetFaceSearch(DatasetFaceSearchRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DatasetFaceSearchResult());
+    }
+
+    /**
+     * <p>
+     * 从数据集中搜索与指定图片最相似的前N张图片并返回人脸坐标可对数据集内文件进行一个或多个人员的人脸识别。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106166">https://cloud.tencent.com/document/product/460/106166</a>
+     *
+     * @param request 从数据集中搜索与指定图片最相似的前N张图片并返回人脸坐标可对数据集内文件进行一个或多个人员的人脸识别。请求 {@link DatasetFaceSearchRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void datasetFaceSearchAsync(DatasetFaceSearchRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DatasetFaceSearchResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 可以根据已提取的文件元数据（包含文件名、标签、路径、自定义标签、文本等字段）查询和统计数据集内文件，支持逻辑关系表达方式。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106375">https://cloud.tencent.com/document/product/460/106375</a>
+     *
+     * @param request 可以根据已提取的文件元数据（包含文件名、标签、路径、自定义标签、文本等字段）查询和统计数据集内文件，支持逻辑关系表达方式。请求 {@link DatasetSimpleQueryRequest}
+     * @return 可以根据已提取的文件元数据（包含文件名、标签、路径、自定义标签、文本等字段）查询和统计数据集内文件，支持逻辑关系表达方式。返回结果 {@link DatasetSimpleQueryResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DatasetSimpleQueryResult datasetSimpleQuery(DatasetSimpleQueryRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DatasetSimpleQueryResult());
+    }
+
+    /**
+     * <p>
+     * 可以根据已提取的文件元数据（包含文件名、标签、路径、自定义标签、文本等字段）查询和统计数据集内文件，支持逻辑关系表达方式。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106375">https://cloud.tencent.com/document/product/460/106375</a>
+     *
+     * @param request 可以根据已提取的文件元数据（包含文件名、标签、路径、自定义标签、文本等字段）查询和统计数据集内文件，支持逻辑关系表达方式。请求 {@link DatasetSimpleQueryRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void datasetSimpleQueryAsync(DatasetSimpleQueryRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DatasetSimpleQueryResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 删除一个数据集（Dataset）。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106157">https://cloud.tencent.com/document/product/460/106157</a>
+     *
+     * @param request 删除一个数据集（Dataset）。请求 {@link DeleteDatasetRequest}
+     * @return 删除一个数据集（Dataset）。返回结果 {@link DeleteDatasetResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DeleteDatasetResult deleteDataset(DeleteDatasetRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DeleteDatasetResult());
+    }
+
+    /**
+     * <p>
+     * 删除一个数据集（Dataset）。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106157">https://cloud.tencent.com/document/product/460/106157</a>
+     *
+     * @param request 删除一个数据集（Dataset）。请求 {@link DeleteDatasetRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void deleteDatasetAsync(DeleteDatasetRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DeleteDatasetResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 解绑数据集和对象存储（COS）Bucket ，解绑会导致 COS Bucket新增的变更不会同步到数据集，请谨慎操作。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106160">https://cloud.tencent.com/document/product/460/106160</a>
+     *
+     * @param request 解绑数据集和对象存储（COS）Bucket ，解绑会导致 COS Bucket新增的变更不会同步到数据集，请谨慎操作。请求 {@link DeleteDatasetBindingRequest}
+     * @return 解绑数据集和对象存储（COS）Bucket ，解绑会导致 COS Bucket新增的变更不会同步到数据集，请谨慎操作。返回结果 {@link DeleteDatasetBindingResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DeleteDatasetBindingResult deleteDatasetBinding(DeleteDatasetBindingRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DeleteDatasetBindingResult());
+    }
+
+    /**
+     * <p>
+     * 解绑数据集和对象存储（COS）Bucket ，解绑会导致 COS Bucket新增的变更不会同步到数据集，请谨慎操作。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106160">https://cloud.tencent.com/document/product/460/106160</a>
+     *
+     * @param request 解绑数据集和对象存储（COS）Bucket ，解绑会导致 COS Bucket新增的变更不会同步到数据集，请谨慎操作。请求 {@link DeleteDatasetBindingRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void deleteDatasetBindingAsync(DeleteDatasetBindingRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DeleteDatasetBindingResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 从数据集内删除一个文件的元信息。无论该文件的元信息是否在数据集内存在，均会返回删除成功。
+
+     的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106163">https://cloud.tencent.com/document/product/460/106163</a>
+     *
+     * @param request 从数据集内删除一个文件的元信息。无论该文件的元信息是否在数据集内存在，均会返回删除成功。
+
+    请求 {@link DeleteFileMetaIndexRequest}
+     * @return 从数据集内删除一个文件的元信息。无论该文件的元信息是否在数据集内存在，均会返回删除成功。
+
+    返回结果 {@link DeleteFileMetaIndexResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DeleteFileMetaIndexResult deleteFileMetaIndex(DeleteFileMetaIndexRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DeleteFileMetaIndexResult());
+    }
+
+    /**
+     * <p>
+     * 从数据集内删除一个文件的元信息。无论该文件的元信息是否在数据集内存在，均会返回删除成功。
+
+     的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106163">https://cloud.tencent.com/document/product/460/106163</a>
+     *
+     * @param request 从数据集内删除一个文件的元信息。无论该文件的元信息是否在数据集内存在，均会返回删除成功。
+
+    请求 {@link DeleteFileMetaIndexRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void deleteFileMetaIndexAsync(DeleteFileMetaIndexRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DeleteFileMetaIndexResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 查询一个数据集（Dataset）信息。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106155">https://cloud.tencent.com/document/product/460/106155</a>
+     *
+     * @param request 查询一个数据集（Dataset）信息。请求 {@link DescribeDatasetRequest}
+     * @return 查询一个数据集（Dataset）信息。返回结果 {@link DescribeDatasetResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DescribeDatasetResult describeDataset(DescribeDatasetRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DescribeDatasetResult());
+    }
+
+    /**
+     * <p>
+     * 查询一个数据集（Dataset）信息。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106155">https://cloud.tencent.com/document/product/460/106155</a>
+     *
+     * @param request 查询一个数据集（Dataset）信息。请求 {@link DescribeDatasetRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void describeDatasetAsync(DescribeDatasetRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DescribeDatasetResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 查询数据集和对象存储（COS）Bucket 绑定关系列表。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106485">https://cloud.tencent.com/document/product/460/106485</a>
+     *
+     * @param request 查询数据集和对象存储（COS）Bucket 绑定关系列表。请求 {@link DescribeDatasetBindingRequest}
+     * @return 查询数据集和对象存储（COS）Bucket 绑定关系列表。返回结果 {@link DescribeDatasetBindingResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DescribeDatasetBindingResult describeDatasetBinding(DescribeDatasetBindingRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DescribeDatasetBindingResult());
+    }
+
+    /**
+     * <p>
+     * 查询数据集和对象存储（COS）Bucket 绑定关系列表。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106485">https://cloud.tencent.com/document/product/460/106485</a>
+     *
+     * @param request 查询数据集和对象存储（COS）Bucket 绑定关系列表。请求 {@link DescribeDatasetBindingRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void describeDatasetBindingAsync(DescribeDatasetBindingRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DescribeDatasetBindingResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 查询数据集和对象存储（COS）Bucket 绑定关系列表。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106161">https://cloud.tencent.com/document/product/460/106161</a>
+     *
+     * @param request 查询数据集和对象存储（COS）Bucket 绑定关系列表。请求 {@link DescribeDatasetBindingsRequest}
+     * @return 查询数据集和对象存储（COS）Bucket 绑定关系列表。返回结果 {@link DescribeDatasetBindingsResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DescribeDatasetBindingsResult describeDatasetBindings(DescribeDatasetBindingsRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DescribeDatasetBindingsResult());
+    }
+
+    /**
+     * <p>
+     * 查询数据集和对象存储（COS）Bucket 绑定关系列表。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106161">https://cloud.tencent.com/document/product/460/106161</a>
+     *
+     * @param request 查询数据集和对象存储（COS）Bucket 绑定关系列表。请求 {@link DescribeDatasetBindingsRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void describeDatasetBindingsAsync(DescribeDatasetBindingsRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DescribeDatasetBindingsResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 获取数据集（Dataset）列表。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106158">https://cloud.tencent.com/document/product/460/106158</a>
+     *
+     * @param request 获取数据集（Dataset）列表。请求 {@link DescribeDatasetsRequest}
+     * @return 获取数据集（Dataset）列表。返回结果 {@link DescribeDatasetsResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DescribeDatasetsResult describeDatasets(DescribeDatasetsRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DescribeDatasetsResult());
+    }
+
+    /**
+     * <p>
+     * 获取数据集（Dataset）列表。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106158">https://cloud.tencent.com/document/product/460/106158</a>
+     *
+     * @param request 获取数据集（Dataset）列表。请求 {@link DescribeDatasetsRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void describeDatasetsAsync(DescribeDatasetsRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DescribeDatasetsResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 获取数据集内已完成索引的一个文件的元数据。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106164">https://cloud.tencent.com/document/product/460/106164</a>
+     *
+     * @param request 获取数据集内已完成索引的一个文件的元数据。请求 {@link DescribeFileMetaIndexRequest}
+     * @return 获取数据集内已完成索引的一个文件的元数据。返回结果 {@link DescribeFileMetaIndexResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public DescribeFileMetaIndexResult describeFileMetaIndex(DescribeFileMetaIndexRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new DescribeFileMetaIndexResult());
+    }
+
+    /**
+     * <p>
+     * 获取数据集内已完成索引的一个文件的元数据。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106164">https://cloud.tencent.com/document/product/460/106164</a>
+     *
+     * @param request 获取数据集内已完成索引的一个文件的元数据。请求 {@link DescribeFileMetaIndexRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void describeFileMetaIndexAsync(DescribeFileMetaIndexRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new DescribeFileMetaIndexResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 可通过输入自然语言或图片，基于语义对数据集内文件进行图像检索。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106376">https://cloud.tencent.com/document/product/460/106376</a>
+     *
+     * @param request 可通过输入自然语言或图片，基于语义对数据集内文件进行图像检索。请求 {@link SearchImageRequest}
+     * @return 可通过输入自然语言或图片，基于语义对数据集内文件进行图像检索。返回结果 {@link SearchImageResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public SearchImageResult searchImage(SearchImageRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new SearchImageResult());
+    }
+
+    /**
+     * <p>
+     * 可通过输入自然语言或图片，基于语义对数据集内文件进行图像检索。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106376">https://cloud.tencent.com/document/product/460/106376</a>
+     *
+     * @param request 可通过输入自然语言或图片，基于语义对数据集内文件进行图像检索。请求 {@link SearchImageRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void searchImageAsync(SearchImageRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new SearchImageResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 更新一个数据集（Dataset）信息。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106156">https://cloud.tencent.com/document/product/460/106156</a>
+     *
+     * @param request 更新一个数据集（Dataset）信息。请求 {@link UpdateDatasetRequest}
+     * @return 更新一个数据集（Dataset）信息。返回结果 {@link UpdateDatasetResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public UpdateDatasetResult updateDataset(UpdateDatasetRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new UpdateDatasetResult());
+    }
+
+    /**
+     * <p>
+     * 更新一个数据集（Dataset）信息。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106156">https://cloud.tencent.com/document/product/460/106156</a>
+     *
+     * @param request 更新一个数据集（Dataset）信息。请求 {@link UpdateDatasetRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void updateDatasetAsync(UpdateDatasetRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new UpdateDatasetResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 更新数据集内已索引的一个文件的部分元数据。
+
+     并非所有的元数据都允许您自定义更新，在您发起更新请求时需要填写数据集，默认会根据该数据集的算子进行元数据重新提取并更新已存在的索引，此外您也可以更新部分自定义的元数据索引，如CustomTags、CustomId等字段，具体请参考请求参数一节。的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106162">https://cloud.tencent.com/document/product/460/106162</a>
+     *
+     * @param request 更新数据集内已索引的一个文件的部分元数据。
+
+    并非所有的元数据都允许您自定义更新，在您发起更新请求时需要填写数据集，默认会根据该数据集的算子进行元数据重新提取并更新已存在的索引，此外您也可以更新部分自定义的元数据索引，如CustomTags、CustomId等字段，具体请参考请求参数一节。请求 {@link UpdateFileMetaIndexRequest}
+     * @return 更新数据集内已索引的一个文件的部分元数据。
+
+    并非所有的元数据都允许您自定义更新，在您发起更新请求时需要填写数据集，默认会根据该数据集的算子进行元数据重新提取并更新已存在的索引，此外您也可以更新部分自定义的元数据索引，如CustomTags、CustomId等字段，具体请参考请求参数一节。返回结果 {@link UpdateFileMetaIndexResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public UpdateFileMetaIndexResult updateFileMetaIndex(UpdateFileMetaIndexRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new UpdateFileMetaIndexResult());
+    }
+
+    /**
+     * <p>
+     * 更新数据集内已索引的一个文件的部分元数据。
+
+     并非所有的元数据都允许您自定义更新，在您发起更新请求时需要填写数据集，默认会根据该数据集的算子进行元数据重新提取并更新已存在的索引，此外您也可以更新部分自定义的元数据索引，如CustomTags、CustomId等字段，具体请参考请求参数一节。的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/106162">https://cloud.tencent.com/document/product/460/106162</a>
+     *
+     * @param request 更新数据集内已索引的一个文件的部分元数据。
+
+    并非所有的元数据都允许您自定义更新，在您发起更新请求时需要填写数据集，默认会根据该数据集的算子进行元数据重新提取并更新已存在的索引，此外您也可以更新部分自定义的元数据索引，如CustomTags、CustomId等字段，具体请参考请求参数一节。请求 {@link UpdateFileMetaIndexRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void updateFileMetaIndexAsync(UpdateFileMetaIndexRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new UpdateFileMetaIndexResult(), cosXmlResultListener);
     }
 }

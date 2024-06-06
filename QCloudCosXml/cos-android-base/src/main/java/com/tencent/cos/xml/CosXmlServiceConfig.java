@@ -60,6 +60,7 @@ public class CosXmlServiceConfig implements Parcelable {
     public static final String PATH_STYLE_HOST_FORMAT = "cos.${region}.myqcloud.com";
 
     public static final String CI_HOST_FORMAT = "${bucket}.ci.${region}.myqcloud.com";
+    public static final String CI_APPID_HOST_FORMAT = "${appid}.ci.${region}.myqcloud.com";
     public static final String CI_REGION_HOST_FORMAT = "ci.${region}.myqcloud.com";
     public static final String PIC_HOST_FORMAT = "${bucket}.pic.${region}.myqcloud.com";
 
@@ -251,6 +252,22 @@ public class CosXmlServiceConfig implements Parcelable {
     /**
      * 获取请求host
      * @param region 区域
+     * @param appid appid
+     * @param hostFormat HOST 格式，支持通配符
+     * @return 请求host
+     */
+    public String getRequestHostByAppId(String region, String appid, String hostFormat) {
+        if (!TextUtils.isEmpty(host)) {
+            return host;
+        }
+        region = TextUtils.isEmpty(region) ? this.region : region; // 优先 request 中的 region
+
+        return getFormatHostByAppId(hostFormat, region, appid);
+    }
+
+    /**
+     * 获取请求host
+     * @param region 区域
      * @param hostFormat HOST 格式，支持通配符
      * @return 请求host
      */
@@ -307,6 +324,17 @@ public class CosXmlServiceConfig implements Parcelable {
             throw new IllegalArgumentException("please set request or config region !");
         }
         return hostFormat.replace("${region}", region);
+    }
+
+    private String getFormatHostByAppId(String hostFormat, String region, String appid) {
+        if(region == null){
+            throw new IllegalArgumentException("please set request or config region !");
+        }
+        if(appid == null){
+            throw new IllegalArgumentException("please set request appid !");
+        }
+
+        return hostFormat.replace("${appid}", appid).replace("${region}", region);
     }
 
     private String getHostFormat(boolean accelerate, boolean pathStyle) {
