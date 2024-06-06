@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,20 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50930
-    cosSdkVersionName = '5.9.30'
+package com.tencent.cos.xml.model.ci.metainsight;
+
+public class DeleteFileMetaIndex {
+
+    /**
+     * 数据集名称，同一个账户下唯一。;是否必传：是
+     */
+    public String datasetName;
+
+    /**
+     * 资源标识字段，表示需要建立索引的文件地址。;是否必传：是
+     */
+    public String uRI;
+
+
+   
 }

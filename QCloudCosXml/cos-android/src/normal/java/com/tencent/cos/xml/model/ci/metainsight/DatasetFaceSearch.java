@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,35 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50930
-    cosSdkVersionName = '5.9.30'
+package com.tencent.cos.xml.model.ci.metainsight;
+
+public class DatasetFaceSearch {
+
+    /**
+     * 数据集名称，同一个账户下唯一。;是否必传：是
+     */
+    public String datasetName;
+
+    /**
+     * 资源标识字段，表示需要建立索引的文件地址。;是否必传：是
+     */
+    public String uRI;
+
+    /**
+     * 输入图片中检索的人脸数量，默认值为1(传0或不传采用默认值)，最大值为10。;是否必传：否
+     */
+    public int maxFaceNum;
+
+    /**
+     * 检索的每张人脸返回相关人脸数量，默认值为10，最大值为100。;是否必传：否
+     */
+    public int limit;
+
+    /**
+     * 出参 Score 中，只有超过 MatchThreshold 值的结果才会返回。范围：1-100，默认值为0，推荐值为80。;是否必传：否
+     */
+    public int matchThreshold;
+
+
+   
 }

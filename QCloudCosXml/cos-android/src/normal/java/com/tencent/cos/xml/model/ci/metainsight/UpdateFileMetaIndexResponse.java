@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,19 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50930
-    cosSdkVersionName = '5.9.30'
+package com.tencent.cos.xml.model.ci.metainsight;
+
+import java.util.List;
+
+public class UpdateFileMetaIndexResponse {
+    
+    /**
+     * 请求ID
+     */
+    public String requestId;
+    /**
+     * 创建元数据索引的任务ID
+     */
+    public String eventId;
+
 }

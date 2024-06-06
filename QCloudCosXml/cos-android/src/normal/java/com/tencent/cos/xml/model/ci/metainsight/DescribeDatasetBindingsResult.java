@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,30 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50930
-    cosSdkVersionName = '5.9.30'
+package com.tencent.cos.xml.model.ci.metainsight;
+
+import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.model.CosXmlResult;
+import com.tencent.cos.xml.utils.QCloudJsonUtils;
+import com.tencent.qcloud.core.http.HttpResponse;
+
+import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetBindingsResponse;
+
+/**
+ * 查询绑定关系列表的返回结果.
+ * @see com.tencent.cos.xml.CIService#describeDatasetBindings(DescribeDatasetBindingsRequest)
+ * @see DescribeDatasetBindingsRequest 
+ */
+final public class DescribeDatasetBindingsResult extends CosXmlResult {
+    /**
+     * 查询绑定关系列表结果
+     */
+    public DescribeDatasetBindingsResponse response;
+
+    @Override
+    public void parseResponseBody(HttpResponse httpResponse) throws CosXmlServiceException, CosXmlClientException {
+        super.parseResponseBody(httpResponse);
+        this.response = QCloudJsonUtils.fromJson(httpResponse, DescribeDatasetBindingsResponse.class);
+    }
 }

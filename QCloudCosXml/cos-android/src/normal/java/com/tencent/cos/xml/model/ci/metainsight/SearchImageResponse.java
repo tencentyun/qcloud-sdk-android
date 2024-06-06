@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,29 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50930
-    cosSdkVersionName = '5.9.30'
+package com.tencent.cos.xml.model.ci.metainsight;
+
+import java.util.List;
+
+public class SearchImageResponse {
+    
+    /**
+     * 图像检索识别结果信息列表。
+     */
+    public List<ImageResult> imageResult;
+    /**
+     * 请求ID。
+     */
+    public String requestId;
+    public static class ImageResult {
+        /**
+         * 资源标识字段，表示需要建立索引的文件地址。
+         */
+        public String uRI;
+        /**
+         * 相关图片匹配得分。
+         */
+        public int score;
+    }
+
 }

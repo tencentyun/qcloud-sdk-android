@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,39 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50930
-    cosSdkVersionName = '5.9.30'
+package com.tencent.cos.xml.model.appid;
+
+
+import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.common.ClientErrorCode;
+import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.model.CosXmlRequest;
+
+/**
+ * appid相关请求基类
+ */
+public abstract class AppIdRequest extends CosXmlRequest {
+    public String appid;
+    /**
+     * appid相关请求基类
+     * @param appid appid
+     */
+    public AppIdRequest(String appid){
+        this.appid = appid;
+    }
+
+    @Override
+    public String getRequestHost(CosXmlServiceConfig config) {
+        return config.getRequestHostByAppId(region, appid, CosXmlServiceConfig.CI_APPID_HOST_FORMAT);
+    }
+
+    @Override
+    public void checkParameters() throws CosXmlClientException {
+        if(requestURL != null){
+            return;
+        }
+        if(appid == null){
+            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "appid must not be null");
+        }
+    }
 }
