@@ -39,6 +39,7 @@ import com.tencent.cos.xml.listener.CosXmlResultSimpleListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.PresignedUrlRequest;
+import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlBytesRequest;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
 import com.tencent.cos.xml.model.object.DeleteObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
@@ -343,6 +344,52 @@ public class OneTimeCredentialTest {
             }
         });
         testLocker.lock();
+    }
+
+    @Test
+    public void testPreBuildConnectionFail() {
+        CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newAnonymousService();
+        PreBuildConnectionRequest request = new PreBuildConnectionRequest(TestConst.PERSIST_BUCKET);
+        boolean b1 = cosXmlService.preBuildConnection(request);
+
+        PreBuildConnectionRequest request1 = new PreBuildConnectionRequest("fail-1253960454");
+        boolean b2 = cosXmlService.preBuildConnection(request1);
+
+        final boolean[] b3 = {false};
+        final TestLocker testLocker = new TestLocker();
+        cosXmlService.preBuildConnectionAsync(request, new CosXmlResultSimpleListener() {
+            @Override
+            public void onSuccess() {
+                b3[0] = true;
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlClientException exception, CosXmlServiceException serviceException) {
+                b3[0] = false;
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+
+        final boolean[] b4 = {false};
+        final TestLocker testLocker1 = new TestLocker();
+        PreBuildConnectionRequest request2 = new PreBuildConnectionRequest("fail-1253960454");
+        cosXmlService.preBuildConnectionAsync(request2, new CosXmlResultSimpleListener() {
+            @Override
+            public void onSuccess() {
+                b4[0] = false;
+                testLocker1.release();
+            }
+
+            @Override
+            public void onFail(CosXmlClientException exception, CosXmlServiceException serviceException) {
+                b4[0] = true;
+                testLocker1.release();
+            }
+        });
+        Assert.assertTrue(b1 && !b2 && b3[0] &&!b4[0]);
+        testLocker1.lock();
     }
 
     @Test
