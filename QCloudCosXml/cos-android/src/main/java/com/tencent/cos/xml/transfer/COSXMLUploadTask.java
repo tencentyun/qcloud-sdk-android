@@ -240,6 +240,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         this.headers = putObjectRequest.getRequestHeaders();
         this.noSignHeaders = putObjectRequest.getNoSignHeaders();
         this.isNeedMd5 = putObjectRequest.isNeedMD5();
+        this.credentialProvider = putObjectRequest.getCredentialProvider();
         this.uploadId = uploadId;
         this.priorityLow = putObjectRequest.isPriorityLow();
     }
@@ -342,6 +343,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         }
         putObjectRequest.setRequestHeaders(headers);
         putObjectRequest.addNoSignHeader(noSignHeaders);
+        putObjectRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
             putObjectRequest.setSign(onSignatureListener.onGetSign(putObjectRequest));
@@ -424,6 +426,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
         initMultipartUploadRequest.setRequestHeaders(headers);
         initMultipartUploadRequest.addNoSignHeader(noSignHeaders);
+        initMultipartUploadRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
             initMultipartUploadRequest.setSign(onSignatureListener.onGetSign(initMultipartUploadRequest));
@@ -521,6 +524,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         listPartsRequest.setRegion(region);
         listPartsRequest.setRequestHeaders(headers);
         listPartsRequest.addNoSignHeader(noSignHeaders);
+        listPartsRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
             listPartsRequest.setSign(onSignatureListener.onGetSign(listPartsRequest));
@@ -685,6 +689,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
     private @Nullable HeadObjectResult headObjectToCheckCRC64() {
         try {
             headObjectRequest  = new HeadObjectRequest(bucket, cosPath);
+            headObjectRequest.setCredentialProvider(credentialProvider);
             HeadObjectResult headObjectResult = cosXmlService.headObject(headObjectRequest);
             String crcValue = getCRCValue(headObjectResult);
             long remoteCrc64 = DigestUtils.getBigIntFromString(crcValue);
@@ -742,6 +747,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 }
                 uploadPartRequest.setRequestHeaders(headers);
                 uploadPartRequest.addNoSignHeader(noSignHeaders);
+                uploadPartRequest.setCredentialProvider(credentialProvider);
                 uploadPartRequest.setOnRequestWeightListener(new CosXmlRequest.OnRequestWeightListener() {
                     @Override
                     public int onWeight() {
@@ -822,6 +828,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         completeMultiUploadRequest.setNeedMD5(isNeedMd5);
         completeMultiUploadRequest.setRequestHeaders(getCustomCompleteHeaders(headers));
         completeMultiUploadRequest.addNoSignHeader(noSignHeaders);
+        completeMultiUploadRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
             completeMultiUploadRequest.setSign(onSignatureListener.onGetSign(completeMultiUploadRequest));
@@ -1001,6 +1008,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         AbortMultiUploadRequest abortMultiUploadRequest = new AbortMultiUploadRequest(bucket, cosPath,
                 uploadId);
         abortMultiUploadRequest.setRegion(region);
+        abortMultiUploadRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
             abortMultiUploadRequest.setSign(onSignatureListener.onGetSign(abortMultiUploadRequest));

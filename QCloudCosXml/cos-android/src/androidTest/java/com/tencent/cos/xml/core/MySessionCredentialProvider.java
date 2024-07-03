@@ -44,7 +44,10 @@ public class MySessionCredentialProvider
     @Override
     protected QCloudLifecycleCredentials fetchNewCredentials()
             throws QCloudClientException {
+        return MySessionCredentialProvider.getSessionQCloudCredentials();
+    }
 
+    public static SessionQCloudCredentials getSessionQCloudCredentials() throws QCloudClientException {
         // 首先从您的临时密钥服务器获取包含了密钥信息的响应
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()

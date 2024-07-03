@@ -364,7 +364,11 @@ public class CosXmlBaseService implements BaseCosXml {
 
         // add sign
         if (credentialProvider == null) {
-            httpRequestBuilder.signer(null, null);
+            if(cosXmlRequest.getCredentialProvider() != null) {
+                httpRequestBuilder.signer(signerTypeCompat(signerType, cosXmlRequest), cosXmlRequest.getSignSourceProvider());
+            } else {
+                httpRequestBuilder.signer(null, null);
+            }
         } else {
             httpRequestBuilder.signer(signerTypeCompat(signerType, cosXmlRequest), cosXmlRequest.getSignSourceProvider());
         }
@@ -431,7 +435,12 @@ public class CosXmlBaseService implements BaseCosXml {
             QCloudHttpRequest<T2> httpRequest = buildHttpRequest(cosXmlRequest, cosXmlResult);
             HttpTask<T2> httpTask;
 
-            httpTask = client.resolveRequest(httpRequest, credentialProvider);
+            // 单次临时密钥优先级比service中的密钥提供器高
+            if(cosXmlRequest.getCredentialProvider() != null){
+                httpTask = client.resolveRequest(httpRequest, cosXmlRequest.getCredentialProvider());
+            } else {
+                httpTask = client.resolveRequest(httpRequest, credentialProvider);
+            }
             httpTask.setTransferThreadControl(config.isTransferThreadControl());
             httpTask.setUploadMaxThreadCount(config.getUploadMaxThreadCount());
             httpTask.setDownloadMaxThreadCount(config.getDownloadMaxThreadCount());
@@ -494,8 +503,13 @@ public class CosXmlBaseService implements BaseCosXml {
             QCloudHttpRequest<T2> httpRequest = buildHttpRequest(cosXmlRequest, cosXmlResult);
 
             HttpTask<T2> httpTask;
-            httpTask = client.resolveRequest(httpRequest, credentialProvider);
-            
+            // 单次临时密钥优先级比service中的密钥提供器高
+            if(cosXmlRequest.getCredentialProvider() != null){
+                httpTask = client.resolveRequest(httpRequest, cosXmlRequest.getCredentialProvider());
+            } else {
+                httpTask = client.resolveRequest(httpRequest, credentialProvider);
+            }
+
             httpTask.setTransferThreadControl(config.isTransferThreadControl());
             httpTask.setUploadMaxThreadCount(config.getUploadMaxThreadCount());
             httpTask.setDownloadMaxThreadCount(config.getDownloadMaxThreadCount());
@@ -590,11 +604,16 @@ public class CosXmlBaseService implements BaseCosXml {
             //step1: obtain sign, contain token if it exist.
             // 根据 provider 类型判断是否需要传入 credential scope
             QCloudCredentials credentials;
-            if (credentialProvider instanceof ScopeLimitCredentialProvider) {
-                credentials = ((ScopeLimitCredentialProvider) credentialProvider).getCredentials(
-                        cosXmlRequest.getSTSCredentialScope(config));
+            // 单次临时密钥优先级比service中的密钥提供器高
+            if(cosXmlRequest.getCredentialProvider() != null){
+                credentials = cosXmlRequest.getCredentialProvider().getCredentials();
             } else {
-                credentials = credentialProvider.getCredentials();
+                if (credentialProvider instanceof ScopeLimitCredentialProvider) {
+                    credentials = ((ScopeLimitCredentialProvider) credentialProvider).getCredentials(
+                            cosXmlRequest.getSTSCredentialScope(config));
+                } else {
+                    credentials = credentialProvider.getCredentials();
+                }
             }
 
             QCloudSigner signer = SignerFactory.getSigner(signerTypeCompat(signerType, cosXmlRequest));
