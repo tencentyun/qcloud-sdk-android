@@ -63,6 +63,16 @@ public class ServiceFactory {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setDebuggable(true)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .builder();
+
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig);
+    }
+
+    public CosXmlSimpleService newAnonymousServiceByChengDu() {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
                 .setConnectionTimeout(4000)
                 .setSocketTimeout(4000)
                 .setTransferThreadControl(false)

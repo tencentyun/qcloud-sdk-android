@@ -120,6 +120,7 @@ import com.tencent.cos.xml.model.ci.GetMediaInfoRequest;
 import com.tencent.cos.xml.model.ci.GetMediaInfoResult;
 import com.tencent.cos.xml.model.ci.GetSnapshotRequest;
 import com.tencent.cos.xml.model.ci.GetSnapshotResult;
+import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlBytesRequest;
 import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlLinkRequest;
 import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlLinkResult;
 import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlRequest;
@@ -2548,6 +2549,22 @@ public interface CosXml extends SimpleCosXml {
      * @throws CosXmlServiceException 服务端异常
      */
     byte[] previewDocumentInHtmlBytes(String bucketName, String objectName) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 以HTML格式直出内容预览文档到字节数组的同步方法<br>
+     * 和{@link #previewDocumentInHtml(PreviewDocumentInHtmlRequest)}类似，只是返回结果形式不同
+     * </p>
+     * <p>
+     * 注意：请不要通过本接口预览大文件，否则容易造成内存溢出。
+     * </p>
+     *
+     * @param request 以HTML格式预览文档的请求 {@link PreviewDocumentInHtmlBytesRequest}
+     * @return 预览结果的字节数据
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    byte[] previewDocumentInHtmlBytes(PreviewDocumentInHtmlBytesRequest request) throws CosXmlClientException, CosXmlServiceException;
 
     /**
      * <p>
