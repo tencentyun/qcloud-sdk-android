@@ -144,7 +144,7 @@ public class BatchDownloadTest {
      */
 //    @Test
     public void testBatchSmallGet() {
-        CosXmlSimpleService simpleService = ServiceFactory.INSTANCE.newAnonymousService();
+        CosXmlSimpleService simpleService = ServiceFactory.INSTANCE.newAnonymousServiceByChengDu();
         int count = 3;
         final TestLocker testLocker = new TestLocker(count);
         final AtomicInteger errorCount = new AtomicInteger(0);
