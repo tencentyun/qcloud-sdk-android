@@ -43,6 +43,7 @@ import com.tencent.cos.xml.model.object.InitMultipartUploadRequest;
 import com.tencent.cos.xml.model.object.InitMultipartUploadResult;
 import com.tencent.cos.xml.model.object.ListPartsRequest;
 import com.tencent.cos.xml.model.object.ListPartsResult;
+import com.tencent.cos.xml.model.object.PreBuildConnectionRequest;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectResult;
 import com.tencent.cos.xml.model.object.UploadPartCopyRequest;
@@ -517,4 +518,26 @@ public interface SimpleCosXml extends BaseCosXml {
      * @param listener 结果回调函数
      */
     void preBuildConnectionAsync(String bucket, CosXmlResultSimpleListener listener);
+
+    /**
+     * <p>
+     * 预连接的同步方法。
+     * </p>
+     *
+     * @param request 预连接请求
+     * @return 预连接是否成功
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    boolean preBuildConnection(PreBuildConnectionRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 预连接的异步方法。
+     * </p>
+     *
+     * @param request 预连接请求
+     * @param listener 结果回调函数
+     */
+    void preBuildConnectionAsync(PreBuildConnectionRequest request, CosXmlResultSimpleListener listener);
 }

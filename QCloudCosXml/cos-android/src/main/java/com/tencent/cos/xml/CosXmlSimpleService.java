@@ -373,6 +373,47 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
+     * 预连接的同步方法.&nbsp。
+     * </p>
+     */
+    @Override
+    public boolean preBuildConnection(PreBuildConnectionRequest request) {
+        try {
+            execute(request, new PreBuildConnectionResult());
+            return true;
+        } catch (CosXmlClientException e) {
+            return false;
+        } catch (CosXmlServiceException e) {
+            return e.getStatusCode() != 404;
+        }
+    }
+
+    /**
+     * <p>
+     * 预连接的异步方法.&nbsp。
+     * </p>
+     */
+    @Override
+    public void preBuildConnectionAsync(PreBuildConnectionRequest request, final CosXmlResultSimpleListener listener) {
+        schedule(request, new PreBuildConnectionResult(), new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                listener.onSuccess();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                if(serviceException != null && serviceException.getStatusCode() != 404){
+                    listener.onSuccess();
+                } else {
+                    listener.onFail(clientException, serviceException);
+                }
+            }
+        });
+    }
+
+    /**
+     * <p>
      * 查询存储桶（Bucket）中正在进行中的分块上传对象的同步方法.&nbsp;
      * </p>
      * 详细介绍，请查看:{@link  CosXml#listMultiUploads(ListMultiUploadsRequest request)}

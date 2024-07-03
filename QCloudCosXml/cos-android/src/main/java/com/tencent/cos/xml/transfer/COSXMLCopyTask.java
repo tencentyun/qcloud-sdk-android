@@ -145,6 +145,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         this.queries = copyObjectRequest.getQueryString();
         this.headers = copyObjectRequest.getRequestHeaders();
         this.noSignHeaders = copyObjectRequest.getNoSignHeaders();
+        this.credentialProvider = copyObjectRequest.getCredentialProvider();
         this.isNeedMd5 = copyObjectRequest.isNeedMD5();
     }
 
@@ -154,6 +155,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         this.queries = copyObjectRequest.getQueryString();
         this.headers = copyObjectRequest.getRequestHeaders();
         this.noSignHeaders = copyObjectRequest.getNoSignHeaders();
+        this.credentialProvider = copyObjectRequest.getCredentialProvider();
         this.isNeedMd5 = copyObjectRequest.isNeedMD5();
         this.uploadId = uploadId;
     }
@@ -171,6 +173,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
 
         copyObjectRequest.setRequestHeaders(headers);
         copyObjectRequest.addNoSignHeader(noSignHeaders);
+        copyObjectRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
             copyObjectRequest.setSign(onSignatureListener.onGetSign(copyObjectRequest));
@@ -221,6 +224,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
 
         initMultipartUploadRequest.setRequestHeaders(headers);
         initMultipartUploadRequest.addNoSignHeader(noSignHeaders);
+        initMultipartUploadRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
             initMultipartUploadRequest.setSign(onSignatureListener.onGetSign(initMultipartUploadRequest));
@@ -278,6 +282,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
 
         listPartsRequest.setRequestHeaders(headers);
         listPartsRequest.addNoSignHeader(noSignHeaders);
+        listPartsRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
             listPartsRequest.setSign(onSignatureListener.onGetSign(listPartsRequest));
@@ -338,6 +343,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
 
                 uploadPartCopyRequest.setRequestHeaders(headers);
                 uploadPartCopyRequest.addNoSignHeader(noSignHeaders);
+                uploadPartCopyRequest.setCredentialProvider(credentialProvider);
 
                 if(onSignatureListener != null){
                     uploadPartCopyRequest.setSign(onSignatureListener.onGetSign(uploadPartCopyRequest));
@@ -393,6 +399,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         completeMultiUploadRequest.setNeedMD5(isNeedMd5);
         completeMultiUploadRequest.setRequestHeaders(headers);
         completeMultiUploadRequest.addNoSignHeader(noSignHeaders);
+        completeMultiUploadRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
             completeMultiUploadRequest.setSign(onSignatureListener.onGetSign(completeMultiUploadRequest));
@@ -469,6 +476,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         //clear copy part list on cos
         AbortMultiUploadRequest abortMultiUploadRequest = new AbortMultiUploadRequest(bucket, cosPath,
                 uploadId);
+        abortMultiUploadRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
             abortMultiUploadRequest.setSign(onSignatureListener.onGetSign(abortMultiUploadRequest));
@@ -578,6 +586,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
     protected void run() {
         headObjectRequest = new HeadObjectRequest(copySourceStruct.bucket, copySourceStruct.cosPath);
         headObjectRequest.setRegion(copySourceStruct.region);
+        headObjectRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
             headObjectRequest.setSign(onSignatureListener.onGetSign(headObjectRequest));

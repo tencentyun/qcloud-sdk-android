@@ -42,6 +42,7 @@ import com.tencent.cos.xml.model.object.InitMultipartUploadRequest;
 import com.tencent.cos.xml.model.object.ListPartsRequest;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
+import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 
 import java.util.List;
@@ -86,6 +87,8 @@ public abstract class COSXMLTask {
     protected Set<String> noSignHeaders;
     /** 是否需要计算 MD5 */
     protected boolean isNeedMd5 = true;
+    /** 请求的密钥提供器 */
+    protected QCloudCredentialProvider credentialProvider;
     /** 进度回调监听器 */
     protected CosXmlProgressListener cosXmlProgressListener;
     /** 结果回调监听器 */

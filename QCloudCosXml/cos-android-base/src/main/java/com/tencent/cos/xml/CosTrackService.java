@@ -148,6 +148,24 @@ public class CosTrackService {
     }
 
     /**
+     * 初始化CLS（匿名方式）
+     * 请在调用cos sdk接口之前调用该方法
+     * @param applicationContext Context
+     * @param topicId 日志主题ID
+     * @param endpoint 接入点
+     */
+    public static void initCLs(Context applicationContext,String topicId, String endpoint){
+        if (!ClsTrackService.isInclude()) {
+            throw new IllegalStateException("Please quote the cls library first: com.tencentcloudapi.cls:tencentcloud-cls-sdk-android:x.x.x");
+        }
+        ClsTrackService clsTrackService = new ClsTrackService();
+        clsTrackService.init(applicationContext, topicId, endpoint);
+        // 写死固定无效字符串，因为cls sdk不允许空密钥
+        clsTrackService.setSecurityCredential("secretId", "secretKey");
+        QCloudTrackService.getInstance().addTrackService(EVENT_CODE_QCLOUD_TRACK_COS_SDK, clsTrackService);
+    }
+
+    /**
      * 初始化CLS（固定密钥）
      * 请在调用cos sdk接口之前调用该方法
      * @param applicationContext Context
