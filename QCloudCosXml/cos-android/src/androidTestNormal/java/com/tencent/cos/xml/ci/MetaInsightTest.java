@@ -75,12 +75,13 @@ import java.util.HashMap;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MetaInsightTest {
 
+    String datasetName = "datasetnametest1";
     @Test
     public void stage1_createDataset() {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         CreateDatasetRequest request = new CreateDatasetRequest(TestConst.CI_BUCKET_APPID);
         CreateDataset createDataset = new CreateDataset();// 创建数据集请求体
-        createDataset.datasetName = "datasetnametest1";
+        createDataset.datasetName = datasetName;
         createDataset.description = "datasetnametest0";
         createDataset.templateId = "Official:COSBasicMeta";
         request.setCreateDataset(createDataset);// 设置请求
@@ -93,7 +94,26 @@ public class MetaInsightTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if("dataset already created".equalsIgnoreCase(e.getMessage())){
+                datasetName = "dataset"+ System.currentTimeMillis();
+                CreateDatasetRequest request1 = new CreateDatasetRequest(TestConst.CI_BUCKET_APPID);
+                CreateDataset createDataset1 = new CreateDataset();// 创建数据集请求体
+                createDataset1.datasetName = datasetName;
+                createDataset1.description = "datasetnametest0";
+                createDataset1.templateId = "Official:COSBasicMeta";
+                request1.setCreateDataset(createDataset1);// 设置请求
+                try {
+                    CreateDatasetResult result = ciService.createDataset(request);
+                    Assert.assertNotNull(result.response);
+                    TestUtils.printJson(result.response);
+                } catch (CosXmlClientException e1) {
+                    Assert.fail(TestUtils.getCosExceptionMessage(e));
+                } catch (CosXmlServiceException e1) {
+                    Assert.fail(TestUtils.getCosExceptionMessage(e));
+                }
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -131,7 +151,7 @@ public class MetaInsightTest {
     public void stage2_describeDataset() {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         DescribeDatasetRequest request = new DescribeDatasetRequest(TestConst.CI_BUCKET_APPID);
-        request.datasetname = "datasetnametest1";// 设置数据集名称，同一个账户下唯一。
+        request.datasetname = datasetName;// 设置数据集名称，同一个账户下唯一。
         request.statistics = false;// 设置是否需要实时统计数据集中文件相关信息。有效值： false：不统计，返回的文件的总大小、数量信息可能不正确也可能都为0。 true：需要统计，返回数据集中当前的文件的总大小、数量信息。 默认值为false。
 
         try {
@@ -178,7 +198,7 @@ public class MetaInsightTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         UpdateDatasetRequest request = new UpdateDatasetRequest(TestConst.CI_BUCKET_APPID);
         UpdateDataset updateDataset = new UpdateDataset();// 更新数据集请求体
-        updateDataset.datasetName = "datasetnametest1";
+        updateDataset.datasetName = datasetName;
         updateDataset.description = "datasetnametest1";
         updateDataset.templateId = "Official:FaceSearch";
         request.setUpdateDataset(updateDataset);// 设置请求
@@ -276,7 +296,7 @@ public class MetaInsightTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         CreateDatasetBindingRequest request = new CreateDatasetBindingRequest(TestConst.CI_BUCKET_APPID);
         CreateDatasetBinding createDatasetBinding = new CreateDatasetBinding();// 绑定存储桶与数据集请求体
-        createDatasetBinding.datasetName = "datasetnametest1";
+        createDatasetBinding.datasetName = datasetName;
         createDatasetBinding.uRI = "cos://"+TestConst.CI_BUCKET;
         request.setCreateDatasetBinding(createDatasetBinding);// 设置请求
 
@@ -325,7 +345,7 @@ public class MetaInsightTest {
     public void stage6_describeDatasetBinding() {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         DescribeDatasetBindingRequest request = new DescribeDatasetBindingRequest(TestConst.CI_BUCKET_APPID);
-        request.datasetname = "datasetnametest1";// 设置数据集名称，同一个账户下唯一。
+        request.datasetname = datasetName;// 设置数据集名称，同一个账户下唯一。
         request.uri = "cos://"+TestConst.CI_BUCKET;// 设置资源标识字段，表示需要与数据集绑定的资源，当前仅支持COS存储桶，字段规则：cos://，其中BucketName表示COS存储桶名称，例如（需要进行urlencode）：cos%3A%2F%2Fexample-125000
 
         try {
@@ -372,7 +392,7 @@ public class MetaInsightTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         DescribeDatasetBindingsRequest request = new DescribeDatasetBindingsRequest(TestConst.CI_BUCKET_APPID);
         request.maxresults = 100;
-        request.datasetname = "datasetnametest1";// 设置数据集名称，同一个账户下唯一。
+        request.datasetname = datasetName;// 设置数据集名称，同一个账户下唯一。
 
         try {
             DescribeDatasetBindingsResult result = ciService.describeDatasetBindings(request);
@@ -418,7 +438,7 @@ public class MetaInsightTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         CreateFileMetaIndexRequest request = new CreateFileMetaIndexRequest(TestConst.CI_BUCKET_APPID);
         CreateFileMetaIndex createFileMetaIndex = new CreateFileMetaIndex();// 创建元数据索引请求体
-        createFileMetaIndex.datasetName = "datasetnametest1";
+        createFileMetaIndex.datasetName = datasetName;
         createFileMetaIndex.callback = "https://github.com/jordanqin";
         createFileMetaIndex.file = new CreateFileMetaIndex.File();
         createFileMetaIndex.file.uRI = "cos://"+TestConst.CI_BUCKET+"/media/test.jpg";
@@ -500,7 +520,7 @@ public class MetaInsightTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         UpdateFileMetaIndexRequest request = new UpdateFileMetaIndexRequest(TestConst.CI_BUCKET_APPID);
         UpdateFileMetaIndex updateFileMetaIndex = new UpdateFileMetaIndex();// 更新元数据索引请求体
-        updateFileMetaIndex.datasetName = "datasetnametest1";
+        updateFileMetaIndex.datasetName = datasetName;
         updateFileMetaIndex.callback = "https://github.com/jordanqin";
         updateFileMetaIndex.file = new UpdateFileMetaIndex.File();
         updateFileMetaIndex.file.uRI = "cos://"+TestConst.CI_BUCKET+"/media/test.jpg";
@@ -581,7 +601,7 @@ public class MetaInsightTest {
     public void stagea_describeFileMetaIndex() {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         DescribeFileMetaIndexRequest request = new DescribeFileMetaIndexRequest(TestConst.CI_BUCKET_APPID);
-        request.datasetname = "datasetnametest1";// 设置数据集名称，同一个账户下唯一。
+        request.datasetname = datasetName;// 设置数据集名称，同一个账户下唯一。
         request.uri = "cos://"+TestConst.CI_BUCKET+"/media/test.jpg";// 设置资源标识字段，表示需要建立索引的文件地址，当前仅支持COS上的文件，字段规则：cos:///，其中BucketName表示COS存储桶名称，ObjectKey表示文件完整路径，例如：cos://exampleTestConst.CI_BUCKET_APPID-1250000000/test1/img.jpg。 注意： 1、仅支持本账号内的COS文件 2、不支持HTTP开头的地址 3、需UrlEncode
 
         try {
@@ -628,7 +648,7 @@ public class MetaInsightTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         DeleteFileMetaIndexRequest request = new DeleteFileMetaIndexRequest(TestConst.CI_BUCKET_APPID);
         DeleteFileMetaIndex deleteFileMetaIndex = new DeleteFileMetaIndex();// 删除元数据索引请求体
-        deleteFileMetaIndex.datasetName = "datasetnametest1";// 设置数据集名称，同一个账户下唯一。
+        deleteFileMetaIndex.datasetName = datasetName;// 设置数据集名称，同一个账户下唯一。
         deleteFileMetaIndex.uRI = "cos://"+TestConst.CI_BUCKET+"/media/test.jpg";// 设置资源标识字段，表示需要建立索引的文件地址，当前仅支持COS上的文件，字段规则：cos:///，其中BucketName表示COS存储桶名称，ObjectKey表示文件完整路径，例如：cos://exampleTestConst.CI_BUCKET_APPID-1250000000/test1/img.jpg。 注意： 1、仅支持本账号内的COS文件 2、不支持HTTP开头的地址 3、需UrlEncode
         request.setDeleteFileMetaIndex(deleteFileMetaIndex);// 设置请求
 
@@ -678,7 +698,7 @@ public class MetaInsightTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         DatasetSimpleQueryRequest request = new DatasetSimpleQueryRequest(TestConst.CI_BUCKET_APPID);
         DatasetSimpleQuery datasetSimpleQuery = new DatasetSimpleQuery();// 简单查询请求体
-        datasetSimpleQuery.datasetName = "datasetnametest1";
+        datasetSimpleQuery.datasetName = datasetName;
         datasetSimpleQuery.sort = "CustomId";
         datasetSimpleQuery.order = "desc";
         datasetSimpleQuery.maxResults = 100;
@@ -758,7 +778,7 @@ public class MetaInsightTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         DatasetFaceSearchRequest request = new DatasetFaceSearchRequest(TestConst.CI_BUCKET_APPID);
         DatasetFaceSearch datasetFaceSearch = new DatasetFaceSearch();// 人脸搜索请求体
-        datasetFaceSearch.datasetName = "datasetnametest1";
+        datasetFaceSearch.datasetName = datasetName;
         datasetFaceSearch.uRI = "cos://"+TestConst.CI_BUCKET+"/media/test.jpg";
         datasetFaceSearch.maxFaceNum = 2;
         datasetFaceSearch.limit = 10;
@@ -782,7 +802,7 @@ public class MetaInsightTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         DatasetFaceSearchRequest request = new DatasetFaceSearchRequest(TestConst.CI_BUCKET_APPID);
         DatasetFaceSearch datasetFaceSearch = new DatasetFaceSearch();// 人脸搜索请求体
-        datasetFaceSearch.datasetName = "datasetnametest1";
+        datasetFaceSearch.datasetName = datasetName;
         datasetFaceSearch.uRI = "cos://"+TestConst.CI_BUCKET+"/media/test.jpg";
         datasetFaceSearch.maxFaceNum = 2;
         datasetFaceSearch.limit = 10;
@@ -870,7 +890,7 @@ public class MetaInsightTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         DeleteDatasetBindingRequest request = new DeleteDatasetBindingRequest(TestConst.CI_BUCKET_APPID);
         DeleteDatasetBinding deleteDatasetBinding = new DeleteDatasetBinding();// 解绑存储桶与数据集请求体
-        deleteDatasetBinding.datasetName = "datasetnametest1";
+        deleteDatasetBinding.datasetName = datasetName;
         deleteDatasetBinding.uRI = "cos://"+TestConst.CI_BUCKET;
         request.setDeleteDatasetBinding(deleteDatasetBinding);// 设置请求
 
@@ -920,7 +940,7 @@ public class MetaInsightTest {
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         DeleteDatasetRequest request = new DeleteDatasetRequest(TestConst.CI_BUCKET_APPID);
         DeleteDataset deleteDataset = new DeleteDataset();// 删除数据集请求体
-        deleteDataset.datasetName = "datasetnametest1";
+        deleteDataset.datasetName = datasetName;
         request.setDeleteDataset(deleteDataset);// 设置请求
 
         try {

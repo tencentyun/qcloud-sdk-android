@@ -28,9 +28,13 @@ import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.utils.URLEncodeUtils;
+import com.tencent.qcloud.core.auth.BasicLifecycleCredentialProvider;
 import com.tencent.qcloud.core.auth.COSXmlSignSourceProvider;
+import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
+import com.tencent.qcloud.core.auth.QCloudLifecycleCredentials;
 import com.tencent.qcloud.core.auth.QCloudSignSourceProvider;
 import com.tencent.qcloud.core.auth.STSCredentialScope;
+import com.tencent.qcloud.core.auth.SessionQCloudCredentials;
 import com.tencent.qcloud.core.common.QCloudTaskStateListener;
 import com.tencent.qcloud.core.http.HttpConfiguration;
 import com.tencent.qcloud.core.http.HttpConstants;
@@ -111,6 +115,11 @@ public abstract class CosXmlRequest{
      * 任务状态监听器
      */
     protected QCloudTaskStateListener qCloudTaskStateListener;
+
+    /**
+     * 密钥提供器
+     */
+    private QCloudCredentialProvider credentialProvider;
 
     /**
      * 设置请求URL
@@ -566,6 +575,27 @@ public abstract class CosXmlRequest{
      */
     public void setOnRequestWeightListener(OnRequestWeightListener onRequestWeightListener) {
         this.onRequestWeightListener = onRequestWeightListener;
+    }
+
+    /**
+     * 设置单次临时密钥
+     * @param credential 单次临时密钥
+     */
+    public void setCredential(SessionQCloudCredentials credential) {
+        this.credentialProvider = new BasicLifecycleCredentialProvider(){
+            @Override
+            protected QCloudLifecycleCredentials fetchNewCredentials() {
+                return credential;
+            }
+        };
+    }
+
+    public void setCredentialProvider(QCloudCredentialProvider credentialProvider) {
+        this.credentialProvider = credentialProvider;
+    }
+
+    public QCloudCredentialProvider getCredentialProvider() {
+        return credentialProvider;
     }
 
     /**

@@ -1976,6 +1976,18 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
         return previewDocumentInHtmlBytesResult != null ? previewDocumentInHtmlBytesResult.getData() : new byte[0];
     }
 
+    /**
+     * <p>
+     * 以HTML格式直出内容预览文档到字节数组
+     * <p>
+     * 详细介绍，请查看:{@link CosXml#previewDocumentInHtmlBytes(String, String)}
+     */
+    @Override
+    public byte[] previewDocumentInHtmlBytes(PreviewDocumentInHtmlBytesRequest request) throws CosXmlClientException, CosXmlServiceException {
+        PreviewDocumentInHtmlBytesResult previewDocumentInHtmlBytesResult = execute(request, new PreviewDocumentInHtmlBytesResult());
+        return previewDocumentInHtmlBytesResult != null ? previewDocumentInHtmlBytesResult.getData() : new byte[0];
+    }
+
     public void formatConversionAsync(FormatConversionRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new FormatConversionResult(), cosXmlResultListener);
     }
