@@ -6,6 +6,7 @@ import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
+import com.tencent.cos.xml.model.EmptyResponseResult;
 import com.tencent.cos.xml.model.ci.DeleteBucketDPStateRequest;
 import com.tencent.cos.xml.model.ci.DeleteBucketDPStateResult;
 import com.tencent.cos.xml.model.ci.DescribeDocProcessBucketsRequest;
@@ -16,14 +17,61 @@ import com.tencent.cos.xml.model.ci.QRCodeUploadRequest;
 import com.tencent.cos.xml.model.ci.QRCodeUploadResult;
 import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionRequest;
 import com.tencent.cos.xml.model.ci.SensitiveContentRecognitionResult;
+import com.tencent.cos.xml.model.ci.ai.CloseAIBucketRequest;
+import com.tencent.cos.xml.model.ci.ai.CloseAIBucketResult;
+import com.tencent.cos.xml.model.ci.ai.CloseAsrBucketRequest;
+import com.tencent.cos.xml.model.ci.ai.CloseAsrBucketResult;
 import com.tencent.cos.xml.model.ci.ai.CreateWordsGeneralizeJobRequest;
 import com.tencent.cos.xml.model.ci.ai.CreateWordsGeneralizeJobResult;
 import com.tencent.cos.xml.model.ci.ai.DescribeAiQueuesRequest;
 import com.tencent.cos.xml.model.ci.ai.DescribeAiQueuesResult;
 import com.tencent.cos.xml.model.ci.ai.DescribeWordsGeneralizeJobRequest;
 import com.tencent.cos.xml.model.ci.ai.DescribeWordsGeneralizeJobResult;
+import com.tencent.cos.xml.model.ci.ai.GetAIBucketRequest;
+import com.tencent.cos.xml.model.ci.ai.GetAIBucketResult;
+import com.tencent.cos.xml.model.ci.ai.GetAIQueueRequest;
+import com.tencent.cos.xml.model.ci.ai.GetAIQueueResult;
+import com.tencent.cos.xml.model.ci.ai.ImageSearchBucketRequest;
+import com.tencent.cos.xml.model.ci.ai.OpenAsrBucketRequest;
+import com.tencent.cos.xml.model.ci.ai.OpenAsrBucketResult;
 import com.tencent.cos.xml.model.ci.ai.OpenBucketAiRequest;
 import com.tencent.cos.xml.model.ci.ai.OpenBucketAiResult;
+import com.tencent.cos.xml.model.ci.ai.PostNoiseReductionRequest;
+import com.tencent.cos.xml.model.ci.ai.PostNoiseReductionResult;
+import com.tencent.cos.xml.model.ci.ai.PostNoiseReductionTempleteRequest;
+import com.tencent.cos.xml.model.ci.ai.PostNoiseReductionTempleteResult;
+import com.tencent.cos.xml.model.ci.ai.PostSegmentVideoBodyRequest;
+import com.tencent.cos.xml.model.ci.ai.PostSegmentVideoBodyResult;
+import com.tencent.cos.xml.model.ci.ai.PostSoundHoundRequest;
+import com.tencent.cos.xml.model.ci.ai.PostSoundHoundResult;
+import com.tencent.cos.xml.model.ci.ai.PostSpeechRecognitionTempleteRequest;
+import com.tencent.cos.xml.model.ci.ai.PostSpeechRecognitionTempleteResult;
+import com.tencent.cos.xml.model.ci.ai.PostTranslationRequest;
+import com.tencent.cos.xml.model.ci.ai.PostTranslationResult;
+import com.tencent.cos.xml.model.ci.ai.PostVideoTargetRecRequest;
+import com.tencent.cos.xml.model.ci.ai.PostVideoTargetRecResult;
+import com.tencent.cos.xml.model.ci.ai.PostVideoTargetTempleteRequest;
+import com.tencent.cos.xml.model.ci.ai.PostVideoTargetTempleteResult;
+import com.tencent.cos.xml.model.ci.ai.PostVoiceSynthesisRequest;
+import com.tencent.cos.xml.model.ci.ai.PostVoiceSynthesisResult;
+import com.tencent.cos.xml.model.ci.ai.PostVoiceSynthesisTempleteRequest;
+import com.tencent.cos.xml.model.ci.ai.PostVoiceSynthesisTempleteResult;
+import com.tencent.cos.xml.model.ci.ai.UpdateAIQueueRequest;
+import com.tencent.cos.xml.model.ci.ai.UpdateAIQueueResult;
+import com.tencent.cos.xml.model.ci.ai.UpdateAsrQueueRequest;
+import com.tencent.cos.xml.model.ci.ai.UpdateAsrQueueResult;
+import com.tencent.cos.xml.model.ci.ai.UpdateNoiseReductionTempleteRequest;
+import com.tencent.cos.xml.model.ci.ai.UpdateNoiseReductionTempleteResult;
+import com.tencent.cos.xml.model.ci.ai.UpdateSpeechRecognitionTempleteRequest;
+import com.tencent.cos.xml.model.ci.ai.UpdateSpeechRecognitionTempleteResult;
+import com.tencent.cos.xml.model.ci.ai.UpdateVideoTargetTempleteRequest;
+import com.tencent.cos.xml.model.ci.ai.UpdateVideoTargetTempleteResult;
+import com.tencent.cos.xml.model.ci.ai.UpdateVoiceSeparateTempleteRequest;
+import com.tencent.cos.xml.model.ci.ai.UpdateVoiceSeparateTempleteResult;
+import com.tencent.cos.xml.model.ci.ai.UpdateVoiceSynthesisTempleteRequest;
+import com.tencent.cos.xml.model.ci.ai.UpdateVoiceSynthesisTempleteResult;
+import com.tencent.cos.xml.model.ci.ai.VocalScoreRequest;
+import com.tencent.cos.xml.model.ci.ai.VocalScoreResult;
 import com.tencent.cos.xml.model.ci.asr.CreateSpeechJobsRequest;
 import com.tencent.cos.xml.model.ci.asr.CreateSpeechJobsResult;
 import com.tencent.cos.xml.model.ci.asr.DescribeSpeechBucketsRequest;
@@ -733,7 +781,7 @@ public class CIService extends CosXmlService {
      * <p>
      * 提交一个语音识别任务的同步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46228">https://cloud.tencent.com/document/product/460/46228.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84798">https://cloud.tencent.com/document/product/460/84798.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">提交一个语音识别任务示例</a>
@@ -751,7 +799,7 @@ public class CIService extends CosXmlService {
      * <p>
      * 提交一个语音识别任务的异步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46228">https://cloud.tencent.com/document/product/460/46228.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84798">https://cloud.tencent.com/document/product/460/84798.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">提交一个语音识别任务示例</a>
@@ -767,7 +815,7 @@ public class CIService extends CosXmlService {
      * <p>
      * 查询指定的语音识别任务的同步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46229">https://cloud.tencent.com/document/product/460/46229.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/47596">https://cloud.tencent.com/document/product/436/47596.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">查询指定的语音识别任务示例</a>
@@ -785,7 +833,7 @@ public class CIService extends CosXmlService {
      * <p>
      * 查询指定的语音识别任务的异步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46229">https://cloud.tencent.com/document/product/460/46229.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/47596">https://cloud.tencent.com/document/product/436/47596.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">查询指定的语音识别任务示例</a>
@@ -801,7 +849,7 @@ public class CIService extends CosXmlService {
      * <p>
      * 拉取符合条件的语音识别任务的同步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46230">https://cloud.tencent.com/document/product/460/46230.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/47597">https://cloud.tencent.com/document/product/436/47597.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">拉取符合条件的语音识别任务示例</a>
@@ -819,7 +867,7 @@ public class CIService extends CosXmlService {
      * <p>
      * 拉取符合条件的语音识别任务的异步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46230">https://cloud.tencent.com/document/product/460/46230.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/436/47597">https://cloud.tencent.com/document/product/436/47597.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">拉取符合条件的语音识别任务示例</a>
@@ -835,7 +883,7 @@ public class CIService extends CosXmlService {
      * <p>
      * 开通AI 内容识别服务并生成队列的同步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46230">https://cloud.tencent.com/document/product/460/46230.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79593">https://cloud.tencent.com/document/product/460/79593.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">开通AI 内容识别服务并生成队列示例</a>
@@ -853,7 +901,7 @@ public class CIService extends CosXmlService {
      * <p>
      * 开通AI 内容识别服务并生成队列的异步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46230">https://cloud.tencent.com/document/product/460/46230.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79593">https://cloud.tencent.com/document/product/460/79593.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">开通AI 内容识别服务并生成队列示例</a>
@@ -903,7 +951,7 @@ public class CIService extends CosXmlService {
      * <p>
      * 提交一个Ai分词识别任务的同步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46228">https://cloud.tencent.com/document/product/460/46228.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84800">https://cloud.tencent.com/document/product/460/84800.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">提交一个Ai分词识别任务示例</a>
@@ -921,7 +969,7 @@ public class CIService extends CosXmlService {
      * <p>
      * 提交一个Ai分词识别任务的异步方法.&nbsp;
      * <p>
-     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46228">https://cloud.tencent.com/document/product/460/46228.</a>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84800">https://cloud.tencent.com/document/product/460/84800.</a>
      * <br>
      * <p>
      * SDK 示例：<a href="https://cloud.tencent.com/document/product/436/41907#.E8.AE.BE.E7.BD.AE.E9.9D.99.E6.80.81.E7.BD.91.E7.AB.99">提交一个Ai分词识别任务示例</a>
@@ -1847,6 +1895,623 @@ public class CIService extends CosXmlService {
         schedule(request, new DeleteAuditTextlibKeywordResult(), cosXmlResultListener);
     }
 
+
+    /**
+     * <p>
+     * 本接口用于查询已经开通AI 内容识别（异步）服务的存储桶的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79594">https://cloud.tencent.com/document/product/460/79594</a>
+     *
+     * @param request 本接口用于查询已经开通AI 内容识别（异步）服务的存储桶请求 {@link GetAIBucketRequest}
+     * @return 本接口用于查询已经开通AI 内容识别（异步）服务的存储桶返回结果 {@link GetAIBucketResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public GetAIBucketResult getAIBucket(GetAIBucketRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetAIBucketResult());
+    }
+
+    /**
+     * <p>
+     * 本接口用于查询已经开通AI 内容识别（异步）服务的存储桶的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79594">https://cloud.tencent.com/document/product/460/79594</a>
+     *
+     * @param request 本接口用于查询已经开通AI 内容识别（异步）服务的存储桶请求 {@link GetAIBucketRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void getAIBucketAsync(GetAIBucketRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new GetAIBucketResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 本接口用于更新AI 内容识别（异步）的队列的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79397">https://cloud.tencent.com/document/product/460/79397</a>
+     *
+     * @param request 本接口用于更新AI 内容识别（异步）的队列请求 {@link UpdateAIQueueRequest}
+     * @return 本接口用于更新AI 内容识别（异步）的队列返回结果 {@link UpdateAIQueueResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public UpdateAIQueueResult updateAIQueue(UpdateAIQueueRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new UpdateAIQueueResult());
+    }
+
+    /**
+     * <p>
+     * 本接口用于更新AI 内容识别（异步）的队列的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79397">https://cloud.tencent.com/document/product/460/79397</a>
+     *
+     * @param request 本接口用于更新AI 内容识别（异步）的队列请求 {@link UpdateAIQueueRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void updateAIQueueAsync(UpdateAIQueueRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new UpdateAIQueueResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 本接口用于关闭AI 内容识别（异步）服务并删除队列的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/95752">https://cloud.tencent.com/document/product/460/95752</a>
+     *
+     * @param request 本接口用于关闭AI 内容识别（异步）服务并删除队列请求 {@link CloseAIBucketRequest}
+     * @return 本接口用于关闭AI 内容识别（异步）服务并删除队列返回结果 {@link CloseAIBucketResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public CloseAIBucketResult closeAIBucket(CloseAIBucketRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new CloseAIBucketResult());
+    }
+
+    /**
+     * <p>
+     * 本接口用于关闭AI 内容识别（异步）服务并删除队列的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/95752">https://cloud.tencent.com/document/product/460/95752</a>
+     *
+     * @param request 本接口用于关闭AI 内容识别（异步）服务并删除队列请求 {@link CloseAIBucketRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void closeAIBucketAsync(CloseAIBucketRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new CloseAIBucketResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 该接口用于开通 Bucket 搜图功能的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63899">https://cloud.tencent.com/document/product/460/63899</a>
+     *
+     * @param request 该接口用于开通 Bucket 搜图功能请求 {@link ImageSearchBucketRequest}
+     * @return 该接口用于开通 Bucket 搜图功能返回结果 {@link EmptyResponseResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public EmptyResponseResult imageSearchBucket(ImageSearchBucketRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new EmptyResponseResult());
+    }
+
+    /**
+     * <p>
+     * 该接口用于开通 Bucket 搜图功能的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63899">https://cloud.tencent.com/document/product/460/63899</a>
+     *
+     * @param request 该接口用于开通 Bucket 搜图功能请求 {@link ImageSearchBucketRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void imageSearchBucketAsync(ImageSearchBucketRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new EmptyResponseResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 创建视频目标检测模板的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84736">https://cloud.tencent.com/document/product/460/84736</a>
+     *
+     * @param request 创建视频目标检测模板请求 {@link PostVideoTargetTempleteRequest}
+     * @return 创建视频目标检测模板返回结果 {@link PostVideoTargetTempleteResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public PostVideoTargetTempleteResult postVideoTargetTemplete(PostVideoTargetTempleteRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PostVideoTargetTempleteResult());
+    }
+
+    /**
+     * <p>
+     * 创建视频目标检测模板的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84736">https://cloud.tencent.com/document/product/460/84736</a>
+     *
+     * @param request 创建视频目标检测模板请求 {@link PostVideoTargetTempleteRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void postVideoTargetTempleteAsync(PostVideoTargetTempleteRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PostVideoTargetTempleteResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 更新视频目标检测模板的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84760">https://cloud.tencent.com/document/product/460/84760</a>
+     *
+     * @param request 更新视频目标检测模板请求 {@link UpdateVideoTargetTempleteRequest}
+     * @return 更新视频目标检测模板返回结果 {@link UpdateVideoTargetTempleteResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public UpdateVideoTargetTempleteResult updateVideoTargetTemplete(UpdateVideoTargetTempleteRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new UpdateVideoTargetTempleteResult());
+    }
+
+    /**
+     * <p>
+     * 更新视频目标检测模板的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84760">https://cloud.tencent.com/document/product/460/84760</a>
+     *
+     * @param request 更新视频目标检测模板请求 {@link UpdateVideoTargetTempleteRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void updateVideoTargetTempleteAsync(UpdateVideoTargetTempleteRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new UpdateVideoTargetTempleteResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 提交一个视频人像抠图任务的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83973">https://cloud.tencent.com/document/product/460/83973</a>
+     *
+     * @param request 提交一个视频人像抠图任务请求 {@link PostSegmentVideoBodyRequest}
+     * @return 提交一个视频人像抠图任务返回结果 {@link PostSegmentVideoBodyResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public PostSegmentVideoBodyResult postSegmentVideoBody(PostSegmentVideoBodyRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PostSegmentVideoBodyResult());
+    }
+
+    /**
+     * <p>
+     * 提交一个视频人像抠图任务的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83973">https://cloud.tencent.com/document/product/460/83973</a>
+     *
+     * @param request 提交一个视频人像抠图任务请求 {@link PostSegmentVideoBodyRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void postSegmentVideoBodyAsync(PostSegmentVideoBodyRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PostSegmentVideoBodyResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 本接口用于开通智能语音服务并生成队列的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/95754">https://cloud.tencent.com/document/product/460/95754</a>
+     *
+     * @param request 本接口用于开通智能语音服务并生成队列请求 {@link OpenAsrBucketRequest}
+     * @return 本接口用于开通智能语音服务并生成队列返回结果 {@link OpenAsrBucketResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public OpenAsrBucketResult openAsrBucket(OpenAsrBucketRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new OpenAsrBucketResult());
+    }
+
+    /**
+     * <p>
+     * 本接口用于开通智能语音服务并生成队列的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/95754">https://cloud.tencent.com/document/product/460/95754</a>
+     *
+     * @param request 本接口用于开通智能语音服务并生成队列请求 {@link OpenAsrBucketRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void openAsrBucketAsync(OpenAsrBucketRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new OpenAsrBucketResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 本接口用于关闭智能语音服务并删除队列的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/95755">https://cloud.tencent.com/document/product/460/95755</a>
+     *
+     * @param request 本接口用于关闭智能语音服务并删除队列请求 {@link CloseAsrBucketRequest}
+     * @return 本接口用于关闭智能语音服务并删除队列返回结果 {@link CloseAsrBucketResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public CloseAsrBucketResult closeAsrBucket(CloseAsrBucketRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new CloseAsrBucketResult());
+    }
+
+    /**
+     * <p>
+     * 本接口用于关闭智能语音服务并删除队列的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/95755">https://cloud.tencent.com/document/product/460/95755</a>
+     *
+     * @param request 本接口用于关闭智能语音服务并删除队列请求 {@link CloseAsrBucketRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void closeAsrBucketAsync(CloseAsrBucketRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new CloseAsrBucketResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 本接口用于查询AI 内容识别（异步）队列的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79394">https://cloud.tencent.com/document/product/460/79394</a>
+     *
+     * @param request 本接口用于查询AI 内容识别（异步）队列请求 {@link GetAIQueueRequest}
+     * @return 本接口用于查询AI 内容识别（异步）队列返回结果 {@link GetAIQueueResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public GetAIQueueResult getAIQueue(GetAIQueueRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetAIQueueResult());
+    }
+
+    /**
+     * <p>
+     * 本接口用于查询AI 内容识别（异步）队列的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79394">https://cloud.tencent.com/document/product/460/79394</a>
+     *
+     * @param request 本接口用于查询AI 内容识别（异步）队列请求 {@link GetAIQueueRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void getAIQueueAsync(GetAIQueueRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new GetAIQueueResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 本接口用于更新智能语音的队列的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46235">https://cloud.tencent.com/document/product/460/46235</a>
+     *
+     * @param request 本接口用于更新智能语音的队列请求 {@link UpdateAsrQueueRequest}
+     * @return 本接口用于更新智能语音的队列返回结果 {@link UpdateAsrQueueResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public UpdateAsrQueueResult updateAsrQueue(UpdateAsrQueueRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new UpdateAsrQueueResult());
+    }
+
+    /**
+     * <p>
+     * 本接口用于更新智能语音的队列的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/46235">https://cloud.tencent.com/document/product/460/46235</a>
+     *
+     * @param request 本接口用于更新智能语音的队列请求 {@link UpdateAsrQueueRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void updateAsrQueueAsync(UpdateAsrQueueRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new UpdateAsrQueueResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 更新人声分离转码模板的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84757">https://cloud.tencent.com/document/product/460/84757</a>
+     *
+     * @param request 更新人声分离转码模板请求 {@link UpdateVoiceSeparateTempleteRequest}
+     * @return 更新人声分离转码模板返回结果 {@link UpdateVoiceSeparateTempleteResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public UpdateVoiceSeparateTempleteResult updateVoiceSeparateTemplete(UpdateVoiceSeparateTempleteRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new UpdateVoiceSeparateTempleteResult());
+    }
+
+    /**
+     * <p>
+     * 更新人声分离转码模板的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84757">https://cloud.tencent.com/document/product/460/84757</a>
+     *
+     * @param request 更新人声分离转码模板请求 {@link UpdateVoiceSeparateTempleteRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void updateVoiceSeparateTempleteAsync(UpdateVoiceSeparateTempleteRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new UpdateVoiceSeparateTempleteResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 提交一个音频降噪任务的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84796">https://cloud.tencent.com/document/product/460/84796</a>
+     *
+     * @param request 提交一个音频降噪任务请求 {@link PostNoiseReductionRequest}
+     * @return 提交一个音频降噪任务返回结果 {@link PostNoiseReductionResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public PostNoiseReductionResult postNoiseReduction(PostNoiseReductionRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PostNoiseReductionResult());
+    }
+
+    /**
+     * <p>
+     * 提交一个音频降噪任务的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84796">https://cloud.tencent.com/document/product/460/84796</a>
+     *
+     * @param request 提交一个音频降噪任务请求 {@link PostNoiseReductionRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void postNoiseReductionAsync(PostNoiseReductionRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PostNoiseReductionResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 创建音频降噪模板的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/94315">https://cloud.tencent.com/document/product/460/94315</a>
+     *
+     * @param request 创建音频降噪模板请求 {@link PostNoiseReductionTempleteRequest}
+     * @return 创建音频降噪模板返回结果 {@link PostNoiseReductionTempleteResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public PostNoiseReductionTempleteResult postNoiseReductionTemplete(PostNoiseReductionTempleteRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PostNoiseReductionTempleteResult());
+    }
+
+    /**
+     * <p>
+     * 创建音频降噪模板的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/94315">https://cloud.tencent.com/document/product/460/94315</a>
+     *
+     * @param request 创建音频降噪模板请求 {@link PostNoiseReductionTempleteRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void postNoiseReductionTempleteAsync(PostNoiseReductionTempleteRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PostNoiseReductionTempleteResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 提交一个语音合成任务的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84797">https://cloud.tencent.com/document/product/460/84797</a>
+     *
+     * @param request 提交一个语音合成任务请求 {@link PostVoiceSynthesisRequest}
+     * @return 提交一个语音合成任务返回结果 {@link PostVoiceSynthesisResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public PostVoiceSynthesisResult postVoiceSynthesis(PostVoiceSynthesisRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PostVoiceSynthesisResult());
+    }
+
+    /**
+     * <p>
+     * 提交一个语音合成任务的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84797">https://cloud.tencent.com/document/product/460/84797</a>
+     *
+     * @param request 提交一个语音合成任务请求 {@link PostVoiceSynthesisRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void postVoiceSynthesisAsync(PostVoiceSynthesisRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PostVoiceSynthesisResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 创建语音合成模板的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84499">https://cloud.tencent.com/document/product/460/84499</a>
+     *
+     * @param request 创建语音合成模板请求 {@link PostVoiceSynthesisTempleteRequest}
+     * @return 创建语音合成模板返回结果 {@link PostVoiceSynthesisTempleteResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public PostVoiceSynthesisTempleteResult postVoiceSynthesisTemplete(PostVoiceSynthesisTempleteRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PostVoiceSynthesisTempleteResult());
+    }
+
+    /**
+     * <p>
+     * 创建语音合成模板的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84499">https://cloud.tencent.com/document/product/460/84499</a>
+     *
+     * @param request 创建语音合成模板请求 {@link PostVoiceSynthesisTempleteRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void postVoiceSynthesisTempleteAsync(PostVoiceSynthesisTempleteRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PostVoiceSynthesisTempleteResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 更新语音合成模板的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84758">https://cloud.tencent.com/document/product/460/84758</a>
+     *
+     * @param request 更新语音合成模板请求 {@link UpdateVoiceSynthesisTempleteRequest}
+     * @return 更新语音合成模板返回结果 {@link UpdateVoiceSynthesisTempleteResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public UpdateVoiceSynthesisTempleteResult updateVoiceSynthesisTemplete(UpdateVoiceSynthesisTempleteRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new UpdateVoiceSynthesisTempleteResult());
+    }
+
+    /**
+     * <p>
+     * 更新语音合成模板的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84758">https://cloud.tencent.com/document/product/460/84758</a>
+     *
+     * @param request 更新语音合成模板请求 {@link UpdateVoiceSynthesisTempleteRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void updateVoiceSynthesisTempleteAsync(UpdateVoiceSynthesisTempleteRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new UpdateVoiceSynthesisTempleteResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 创建语音识别模板的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84498">https://cloud.tencent.com/document/product/460/84498</a>
+     *
+     * @param request 创建语音识别模板请求 {@link PostSpeechRecognitionTempleteRequest}
+     * @return 创建语音识别模板返回结果 {@link PostSpeechRecognitionTempleteResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public PostSpeechRecognitionTempleteResult postSpeechRecognitionTemplete(PostSpeechRecognitionTempleteRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PostSpeechRecognitionTempleteResult());
+    }
+
+    /**
+     * <p>
+     * 创建语音识别模板的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84498">https://cloud.tencent.com/document/product/460/84498</a>
+     *
+     * @param request 创建语音识别模板请求 {@link PostSpeechRecognitionTempleteRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void postSpeechRecognitionTempleteAsync(PostSpeechRecognitionTempleteRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PostSpeechRecognitionTempleteResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 更新语音识别模板的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84759">https://cloud.tencent.com/document/product/460/84759</a>
+     *
+     * @param request 更新语音识别模板请求 {@link UpdateSpeechRecognitionTempleteRequest}
+     * @return 更新语音识别模板返回结果 {@link UpdateSpeechRecognitionTempleteResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public UpdateSpeechRecognitionTempleteResult updateSpeechRecognitionTemplete(UpdateSpeechRecognitionTempleteRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new UpdateSpeechRecognitionTempleteResult());
+    }
+
+    /**
+     * <p>
+     * 更新语音识别模板的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84759">https://cloud.tencent.com/document/product/460/84759</a>
+     *
+     * @param request 更新语音识别模板请求 {@link UpdateSpeechRecognitionTempleteRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void updateSpeechRecognitionTempleteAsync(UpdateSpeechRecognitionTempleteRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new UpdateSpeechRecognitionTempleteResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 提交一个听歌识曲任务的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84795">https://cloud.tencent.com/document/product/460/84795</a>
+     *
+     * @param request 提交一个听歌识曲任务请求 {@link PostSoundHoundRequest}
+     * @return 提交一个听歌识曲任务返回结果 {@link PostSoundHoundResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public PostSoundHoundResult postSoundHound(PostSoundHoundRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PostSoundHoundResult());
+    }
+
+    /**
+     * <p>
+     * 提交一个听歌识曲任务的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84795">https://cloud.tencent.com/document/product/460/84795</a>
+     *
+     * @param request 提交一个听歌识曲任务请求 {@link PostSoundHoundRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void postSoundHoundAsync(PostSoundHoundRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PostSoundHoundResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 更新音频降噪模板的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/94394">https://cloud.tencent.com/document/product/460/94394</a>
+     *
+     * @param request 更新音频降噪模板请求 {@link UpdateNoiseReductionTempleteRequest}
+     * @return 更新音频降噪模板返回结果 {@link UpdateNoiseReductionTempleteResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public UpdateNoiseReductionTempleteResult updateNoiseReductionTemplete(UpdateNoiseReductionTempleteRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new UpdateNoiseReductionTempleteResult());
+    }
+
+    /**
+     * <p>
+     * 更新音频降噪模板的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/94394">https://cloud.tencent.com/document/product/460/94394</a>
+     *
+     * @param request 更新音频降噪模板请求 {@link UpdateNoiseReductionTempleteRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void updateNoiseReductionTempleteAsync(UpdateNoiseReductionTempleteRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new UpdateNoiseReductionTempleteResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 提交一个视频目标检测任务的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84801">https://cloud.tencent.com/document/product/460/84801</a>
+     *
+     * @param request 提交一个视频目标检测任务请求 {@link PostVideoTargetRecRequest}
+     * @return 提交一个视频目标检测任务返回结果 {@link PostVideoTargetRecResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public PostVideoTargetRecResult postVideoTargetRec(PostVideoTargetRecRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PostVideoTargetRecResult());
+    }
+
+    /**
+     * <p>
+     * 提交一个视频目标检测任务的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84801">https://cloud.tencent.com/document/product/460/84801</a>
+     *
+     * @param request 提交一个视频目标检测任务请求 {@link PostVideoTargetRecRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void postVideoTargetRecAsync(PostVideoTargetRecRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PostVideoTargetRecResult(), cosXmlResultListener);
+    }
+
     /**
      * <p>
      * 创建图片处理模板的同步方法.&nbsp;
@@ -2578,5 +3243,61 @@ public class CIService extends CosXmlService {
      */
     public void updateFileMetaIndexAsync(UpdateFileMetaIndexRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new UpdateFileMetaIndexResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 提交一个音乐评分任务的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/96095">https://cloud.tencent.com/document/product/460/96095</a>
+     *
+     * @param request 提交一个音乐评分任务请求 {@link VocalScoreRequest}
+     * @return 提交一个音乐评分任务返回结果 {@link VocalScoreResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public VocalScoreResult vocalScore(VocalScoreRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new VocalScoreResult());
+    }
+
+    /**
+     * <p>
+     * 提交一个音乐评分任务的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/96095">https://cloud.tencent.com/document/product/460/96095</a>
+     *
+     * @param request 提交一个音乐评分任务请求 {@link VocalScoreRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void vocalScoreAsync(VocalScoreRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new VocalScoreResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 提交一个翻译任务的同步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84799">https://cloud.tencent.com/document/product/460/84799</a>
+     *
+     * @param request 提交一个翻译任务请求 {@link PostTranslationRequest}
+     * @return 提交一个翻译任务返回结果 {@link PostTranslationResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    public PostTranslationResult postTranslation(PostTranslationRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new PostTranslationResult());
+    }
+
+    /**
+     * <p>
+     * 提交一个翻译任务的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/84799">https://cloud.tencent.com/document/product/460/84799</a>
+     *
+     * @param request 提交一个翻译任务请求 {@link PostTranslationRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    public void postTranslationAsync(PostTranslationRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new PostTranslationResult(), cosXmlResultListener);
     }
 }

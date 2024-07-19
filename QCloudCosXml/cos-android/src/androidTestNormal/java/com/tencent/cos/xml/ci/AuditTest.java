@@ -322,7 +322,7 @@ public class AuditTest {
         postRequest.setObject(TestConst.AUDIT_BUCKET_VIDEO);
 //        postRequest.setUrl("https://cos-sdk-citest-1253960454.cos.ap-beijing.myqcloud.com/example.mp4");
         postRequest.setDataId("DataIdQJD");
-        postRequest.setCallback("https://github.com/jordanqin");
+        postRequest.setCallback("https://github.com/tencentyun/qcloud-sdk-android");
         postRequest.setCallbackVersion("Detail");
         postRequest.setCount(3);
         postRequest.setTimeInterval(10);
@@ -363,7 +363,7 @@ public class AuditTest {
 //        postRequest.setObject(TestConst.AUDIT_BUCKET_VIDEO);
         postRequest.setUrl("https://cos-sdk-citest-1253960454.cos.ap-beijing.myqcloud.com/example.mp4");
         postRequest.setDataId("DataIdQJD");
-        postRequest.setCallback("https://github.com/jordanqin");
+        postRequest.setCallback("https://github.com/tencentyun/qcloud-sdk-android");
         postRequest.setCallbackVersion("Detail");
         postRequest.setCount(3);
         postRequest.setTimeInterval(10);
@@ -424,7 +424,7 @@ public class AuditTest {
         postRequest.setObject(TestConst.AUDIT_BUCKET_AUDIO);
 //        postRequest.setUrl("https://cos-sdk-citest-1253960454.cos.ap-beijing.myqcloud.com/example1672060469857.mp3");
         postRequest.setDataId("DataIdQJD");
-        postRequest.setCallback("https://github.com/jordanqin");
+        postRequest.setCallback("https://github.com/tencentyun/qcloud-sdk-android");
         postRequest.setCallbackVersion("Detail");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
         postRequest.setBizType("");
@@ -460,7 +460,7 @@ public class AuditTest {
 //        postRequest.setObject(TestConst.AUDIT_BUCKET_AUDIO);
         postRequest.setUrl("https://cos-sdk-citest-1253960454.cos.ap-beijing.myqcloud.com/example1672060469857.mp3");
         postRequest.setDataId("DataIdQJD");
-        postRequest.setCallback("https://github.com/jordanqin");
+        postRequest.setCallback("https://github.com/tencentyun/qcloud-sdk-android");
         postRequest.setCallbackVersion("Detail");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
         postRequest.setBizType(null);
@@ -510,7 +510,7 @@ public class AuditTest {
 //        postRequest.setUrl("https://cos-sdk-citest-1253960454.cos.ap-beijing.myqcloud.com/test.txt");
 //        postRequest.setContent(Base64.encodeToString("测试文本 很黄很暴力".getBytes(Charset.forName("UTF-8")), Base64.NO_WRAP));
         postRequest.setDataId("DataIdQJD");
-        postRequest.setCallback("https://github.com/jordanqin");
+        postRequest.setCallback("https://github.com/tencentyun/qcloud-sdk-android");
         postRequest.setCallbackVersion("Detail");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
         postRequest.setBizType("");
@@ -547,7 +547,7 @@ public class AuditTest {
 //        postRequest.setUrl("https://cos-sdk-citest-1253960454.cos.ap-beijing.myqcloud.com/test.txt");
         postRequest.setContent(Base64.encodeToString("测试文本 很黄很暴力".getBytes(Charset.forName("UTF-8")), Base64.NO_WRAP));
         postRequest.setDataId("DataIdQJD");
-        postRequest.setCallback("https://github.com/jordanqin");
+        postRequest.setCallback("https://github.com/tencentyun/qcloud-sdk-android");
         postRequest.setCallbackVersion("Detail");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
         postRequest.setBizType(null);
@@ -595,7 +595,7 @@ public class AuditTest {
         postRequest.setObject(TestConst.AUDIT_BUCKET_DOCUMENT);
 //        postRequest.setUrl("https://cos-sdk-citest-1253960454.cos.ap-beijing.myqcloud.com/student.ppt");
         postRequest.setDataId("DataIdQJD");
-        postRequest.setCallback("https://github.com/jordanqin");
+        postRequest.setCallback("https://github.com/tencentyun/qcloud-sdk-android");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
         postRequest.setBizType("");
         postRequest.setConfig(new AuditConf());
@@ -630,7 +630,7 @@ public class AuditTest {
 //        postRequest.setObject(TestConst.AUDIT_BUCKET_DOCUMENT);
         postRequest.setUrl("https://cos-sdk-citest-1253960454.cos.ap-beijing.myqcloud.com/student.ppt");
         postRequest.setDataId("DataIdQJD");
-        postRequest.setCallback("https://github.com/jordanqin");
+        postRequest.setCallback("https://github.com/tencentyun/qcloud-sdk-android");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
         postRequest.setBizType(null);
         postRequest.setType("pdf");
@@ -676,7 +676,7 @@ public class AuditTest {
 
         PostWebPageAuditRequest postRequest = new PostWebPageAuditRequest(TestConst.CI_BUCKET);
         postRequest.setUrl(TestConst.AUDIT_WEBPAGE);
-        postRequest.setCallback("https://github.com/jordanqin");
+        postRequest.setCallback("https://github.com/tencentyun/qcloud-sdk-android");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
         postRequest.setReturnHighlightHtml(true);
         postRequest.setConfig(new PostWebPageAudit.WebPageAuditConf());
@@ -709,7 +709,7 @@ public class AuditTest {
         final TestLocker testLocker = new TestLocker();
         PostWebPageAuditRequest postRequest = new PostWebPageAuditRequest(TestConst.CI_BUCKET);
         postRequest.setUrl(TestConst.AUDIT_WEBPAGE);
-        postRequest.setCallback("https://github.com/jordanqin");
+        postRequest.setCallback("https://github.com/tencentyun/qcloud-sdk-android");
         postRequest.setDetectType("Porn,Terrorism,Politics,Ads,Illegal,Abuse");
         postRequest.setReturnHighlightHtml(true);
         ciService.postWebPageAuditAsync(postRequest, new CosXmlResultListener() {
@@ -767,8 +767,10 @@ public class AuditTest {
         input.dataId = "dataId";
         postLiveVideoAudit.input = input;
         PostLiveVideoAudit.PostLiveVideoAuditConf conf = new PostLiveVideoAudit.PostLiveVideoAuditConf();
-        conf.bizType = "94b92c470c4a11efa10c525400b75156";
-        conf.callback = "https://github.com/jordanqin";
+        conf.bizType = "b81d45f94b91a683255e9a9506f45a11";
+        conf.callback = "https://github.com/tencentyun/qcloud-sdk-android";
+//        conf.bizType = "94b92c470c4a11efa10c525400b75156";
+//        conf.callback = "https://github.com/jordanqin";
         conf.callbackType = 1;
         postLiveVideoAudit.conf = conf;
         postRequest.setPostLiveVideoAudit(postLiveVideoAudit);
@@ -820,7 +822,7 @@ public class AuditTest {
         postLiveVideoAudit.input = input;
         PostLiveVideoAudit.PostLiveVideoAuditConf conf = new PostLiveVideoAudit.PostLiveVideoAuditConf();
         conf.bizType = "b81d45f94b91a683255e9a9506f45a11";
-        conf.callback = "https://github.com/jordanqin";
+        conf.callback = "https://github.com/tencentyun/qcloud-sdk-android";
         conf.callbackType = 1;
         postLiveVideoAudit.conf = conf;
         postRequest.setPostLiveVideoAudit(postLiveVideoAudit);

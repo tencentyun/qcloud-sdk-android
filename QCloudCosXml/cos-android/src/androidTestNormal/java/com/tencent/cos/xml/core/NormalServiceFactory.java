@@ -31,6 +31,10 @@ public class NormalServiceFactory {
         return newService(cosXmlServiceConfig);
     }
 
+    public CosXmlService newCosXmlService() {
+        return newDefaultService();
+    }
+
     public CosXmlService newDefaultServiceBySessionCredentials() {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
