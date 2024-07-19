@@ -50,6 +50,10 @@ public class TestConst {
     public static final String AUDIT_BUCKET_DOCUMENT = "student.ppt";
     public static final String AUDIT_WEBPAGE = "https://tech.meituan.com/2021/06/10/react-native-hybrid-practice-dsl-in-meituan.html";
 
+    // AI内容识别
+    public static final String AI_RECOGNITION_BUCKET = "ai-recognition-1253960454";
+    public static final String AI_RECOGNITION_IMAGE = "image.jpg";
+
     //声音识别
     public static final String ASR_BUCKET_REGION = "ap-guangzhou";
     public static final String ASR_BUCKET = "ci-auditing-sample-1253960454";

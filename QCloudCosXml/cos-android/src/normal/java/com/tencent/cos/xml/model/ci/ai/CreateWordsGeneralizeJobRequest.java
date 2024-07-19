@@ -45,7 +45,7 @@ import com.tencent.qcloud.core.http.RequestBodySerializer;
 public class CreateWordsGeneralizeJobRequest extends BucketRequest {
     private final CreateWordsGeneralizeJob createWordsGeneralizeJob;
     /**
-     * 提交一个语音识别任务请求
+     * 提交一个分词任务请求
      *
      * @param bucket  存储桶名
      */

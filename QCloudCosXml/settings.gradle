@@ -20,11 +20,12 @@
  *  SOFTWARE.
  */
 
-include ':cosxml-ktx-example'
-include ':cos-android', ':cos-android-base', ':foundation', ':qcloud-track', ':cos-android-ktx',
+//include ':cosxml-ktx-example'
+include ':cos-android', ':cos-android-base', ':foundation', ':qcloud-track',
         ':xmlAnnoation', ':xmlCore', ':xmlCompiler',
         ':quic'
 //':cos-android-tiny',
+//':cos-android-ktx',
 
 project(':foundation').projectDir = new File(rootDir, '../QCloudFoundation/foundation')
 project(':quic').projectDir = new File(rootDir, '../QCloudFoundation/quic')

@@ -39,7 +39,6 @@ import com.tencent.cos.xml.listener.CosXmlResultSimpleListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.PresignedUrlRequest;
-import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlBytesRequest;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
 import com.tencent.cos.xml.model.object.DeleteObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
