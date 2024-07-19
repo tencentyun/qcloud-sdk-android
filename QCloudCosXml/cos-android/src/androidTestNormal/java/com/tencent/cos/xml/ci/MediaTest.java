@@ -59,16 +59,12 @@ import com.tencent.cos.xml.model.ci.media.SubmitVideoMontageJobResult;
 import com.tencent.cos.xml.model.ci.media.SubmitVideoTagJob;
 import com.tencent.cos.xml.model.ci.media.SubmitVideoTagJobRequest;
 import com.tencent.cos.xml.model.ci.media.SubmitVideoTagJobResult;
-import com.tencent.cos.xml.model.ci.media.SubmitVoiceSeparateJob;
-import com.tencent.cos.xml.model.ci.media.SubmitVoiceSeparateJobRequest;
-import com.tencent.cos.xml.model.ci.media.SubmitVoiceSeparateJobResult;
 import com.tencent.cos.xml.model.ci.media.TemplateAnimation;
 import com.tencent.cos.xml.model.ci.media.TemplateConcat;
 import com.tencent.cos.xml.model.ci.media.TemplateSmartCover;
 import com.tencent.cos.xml.model.ci.media.TemplateSnapshot;
 import com.tencent.cos.xml.model.ci.media.TemplateTranscode;
 import com.tencent.cos.xml.model.ci.media.TemplateVideoMontage;
-import com.tencent.cos.xml.model.ci.media.TemplateVoiceSeparate;
 import com.tencent.cos.xml.model.ci.media.TemplateWatermark;
 import com.tencent.cos.xml.model.ci.media.TriggerWorkflowRequest;
 import com.tencent.cos.xml.model.ci.media.TriggerWorkflowResult;
@@ -201,7 +197,7 @@ public class MediaTest {
         notifyConfig.state = "On";
         notifyConfig.type = "Url";
         notifyConfig.url = "http://callback.demo.com";
-        notifyConfig.event = "TaskFinish,WorkflowFinish";
+        notifyConfig.event = "TaskFinish";
         notifyConfig.resultFormat = "JSON";
         updateMediaQueue.notifyConfig = notifyConfig;
         request.setUpdateMediaQueue(updateMediaQueue);
@@ -229,7 +225,7 @@ public class MediaTest {
         notifyConfig.state = "On";
         notifyConfig.type = "Url";
         notifyConfig.url = "http://callback.demo.com";
-        notifyConfig.event = "TaskFinish,WorkflowFinish";
+        notifyConfig.event = "TaskFinish";
         notifyConfig.resultFormat = "JSON";
         updateMediaQueue.notifyConfig = notifyConfig;
         request.setUpdateMediaQueue(updateMediaQueue);
@@ -834,97 +830,6 @@ public class MediaTest {
                 SubmitVideoMontageJobResult SubmitVideoMontageJobResult = (SubmitVideoMontageJobResult)result;
                 Assert.assertNotNull(SubmitVideoMontageJobResult.response);
                 TestUtils.printXML(SubmitVideoMontageJobResult.response);
-                testLocker.release();
-            }
-
-            @Override
-            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
-                testLocker.release();
-            }
-        });
-        testLocker.lock();
-    }
-
-    @Test
-    public void submitVoiceSeparateJob() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        SubmitVoiceSeparateJobRequest request = new SubmitVoiceSeparateJobRequest(TestConst.ASR_BUCKET);
-        SubmitVoiceSeparateJob submitVoiceSeparateJob = new SubmitVoiceSeparateJob();
-        SubmitVoiceSeparateJob.SubmitVoiceSeparateJobInput input = new SubmitVoiceSeparateJob.SubmitVoiceSeparateJobInput();
-        input.object = TestConst.MEDIA_BUCKET_VIDEO;
-        submitVoiceSeparateJob.input = input;
-        SubmitVoiceSeparateJob.SubmitVoiceSeparateJobOutput output = new SubmitVoiceSeparateJob.SubmitVoiceSeparateJobOutput();
-        output.region = TestConst.PERSIST_BUCKET_REGION;
-        output.bucket = TestConst.ASR_BUCKET;
-        output.object = TestConst.MEDIA_BUCKET_JOB_RESULT+"video_backgroud.${ext}";
-        output.auObject = TestConst.MEDIA_BUCKET_JOB_RESULT+"video_audio.${ext}";
-        SubmitVoiceSeparateJob.SubmitVoiceSeparateJobOperation operation = new SubmitVoiceSeparateJob.SubmitVoiceSeparateJobOperation();
-        operation.output = output;
-        SubmitVoiceSeparateJob.VoiceSeparate voiceSeparate = new SubmitVoiceSeparateJob.VoiceSeparate();
-        voiceSeparate.audioMode = "IsAudio";
-        TemplateVoiceSeparate.AudioConfig audioConfig = new TemplateVoiceSeparate.AudioConfig();
-        audioConfig.codec = "aac";
-        audioConfig.samplerate = "44100";
-        audioConfig.bitrate = "128";
-        audioConfig.channels = "4";
-        voiceSeparate.audioConfig = audioConfig;
-        operation.voiceSeparate = voiceSeparate;
-        operation.jobLevel = "0";
-        submitVoiceSeparateJob.operation = operation;
-        submitVoiceSeparateJob.callBackFormat = "XML";
-        submitVoiceSeparateJob.callBackType = "Url";
-//        submitVoiceSeparateJob.callBack = "http://callback.demo.com";
-        request.setSubmitVoiceSeparateJob(submitVoiceSeparateJob);
-
-        try {
-            SubmitVoiceSeparateJobResult result = ciService.submitVoiceSeparateJob(request);
-            Assert.assertNotNull(result.response);
-            TestUtils.printXML(result.response);
-        } catch (CosXmlClientException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
-        } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
-        }
-    }
-
-    @Test
-    public void submitVoiceSeparateJobAsync() {
-        CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
-        SubmitVoiceSeparateJobRequest request = new SubmitVoiceSeparateJobRequest(TestConst.ASR_BUCKET);
-        SubmitVoiceSeparateJob submitVoiceSeparateJob = new SubmitVoiceSeparateJob();
-        SubmitVoiceSeparateJob.SubmitVoiceSeparateJobInput input = new SubmitVoiceSeparateJob.SubmitVoiceSeparateJobInput();
-        input.object = TestConst.MEDIA_BUCKET_VIDEO;
-        submitVoiceSeparateJob.input = input;
-        SubmitVoiceSeparateJob.SubmitVoiceSeparateJobOutput output = new SubmitVoiceSeparateJob.SubmitVoiceSeparateJobOutput();
-        output.region = TestConst.PERSIST_BUCKET_REGION;
-        output.bucket = TestConst.ASR_BUCKET;
-        output.object = TestConst.MEDIA_BUCKET_JOB_RESULT+"video_backgroud.${ext}";
-        output.auObject = TestConst.MEDIA_BUCKET_JOB_RESULT+"video_audio.${ext}";
-        SubmitVoiceSeparateJob.SubmitVoiceSeparateJobOperation operation = new SubmitVoiceSeparateJob.SubmitVoiceSeparateJobOperation();
-        operation.output = output;
-        SubmitVoiceSeparateJob.VoiceSeparate voiceSeparate = new SubmitVoiceSeparateJob.VoiceSeparate();
-        voiceSeparate.audioMode = "IsAudio";
-        TemplateVoiceSeparate.AudioConfig audioConfig = new TemplateVoiceSeparate.AudioConfig();
-        audioConfig.codec = "aac";
-        audioConfig.samplerate = "44100";
-        audioConfig.bitrate = "128";
-        audioConfig.channels = "4";
-        voiceSeparate.audioConfig = audioConfig;
-        operation.voiceSeparate = voiceSeparate;
-        operation.jobLevel = "0";
-        submitVoiceSeparateJob.operation = operation;
-        submitVoiceSeparateJob.callBackFormat = "XML";
-        submitVoiceSeparateJob.callBackType = "Url";
-//        submitVoiceSeparateJob.callBack = "http://callback.demo.com";
-        request.setSubmitVoiceSeparateJob(submitVoiceSeparateJob);
-        final TestLocker testLocker = new TestLocker();
-        ciService.submitVoiceSeparateJobAsync(request, new CosXmlResultListener() {
-            @Override
-            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                SubmitVoiceSeparateJobResult SubmitVoiceSeparateJobResult = (SubmitVoiceSeparateJobResult)result;
-                Assert.assertNotNull(SubmitVoiceSeparateJobResult.response);
-                TestUtils.printXML(SubmitVoiceSeparateJobResult.response);
                 testLocker.release();
             }
 

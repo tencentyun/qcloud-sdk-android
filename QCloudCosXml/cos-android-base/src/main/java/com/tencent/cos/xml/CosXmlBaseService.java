@@ -41,6 +41,7 @@ import com.tencent.cos.xml.model.object.GetObjectBytesRequest;
 import com.tencent.cos.xml.model.object.GetObjectBytesResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectResult;
+import com.tencent.cos.xml.model.object.SaveLocalRequest;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.cos.xml.model.object.UploadPartResult;
 import com.tencent.cos.xml.model.object.UploadRequest;
@@ -385,16 +386,16 @@ public class CosXmlBaseService implements BaseCosXml {
             httpRequestBuilder.body(cosXmlRequest.getRequestBody());
         }
 
-        if (cosXmlRequest instanceof GetObjectRequest) {
-            GetObjectRequest getObjectRequest = (GetObjectRequest) cosXmlRequest;
-            if (!TextUtils.isEmpty(getObjectRequest.getDownloadPath())) {
+        if (cosXmlRequest instanceof SaveLocalRequest) {
+            SaveLocalRequest saveLocalRequest = (SaveLocalRequest) cosXmlRequest;
+            if (!TextUtils.isEmpty(saveLocalRequest.getSaveLocalPath())) {
                 httpRequestBuilder.converter(new ResponseFileBodySerializer<T2>((GetObjectResult) cosXmlResult,
-                        getObjectRequest.getDownloadPath(), getObjectRequest.getFileOffset()));
-            } else if (getObjectRequest.getFileContentUri() != null) {
+                        saveLocalRequest.getSaveLocalPath(), saveLocalRequest.getSaveLocalOffset()));
+            } else if (saveLocalRequest.getSaveLocalUri() != null) {
                 httpRequestBuilder.converter(new ResponseFileBodySerializer<T2>((GetObjectResult) cosXmlResult,
-                        getObjectRequest.getFileContentUri(),
+                        saveLocalRequest.getSaveLocalUri(),
                         ContextHolder.getAppContext().getContentResolver(),
-                        getObjectRequest.getFileOffset()));
+                        saveLocalRequest.getSaveLocalOffset()));
             }
         } else if (cosXmlRequest instanceof GetObjectBytesRequest) {
             httpRequestBuilder.converter(new ResponseBytesConverter<T2>((GetObjectBytesResult) cosXmlResult));
