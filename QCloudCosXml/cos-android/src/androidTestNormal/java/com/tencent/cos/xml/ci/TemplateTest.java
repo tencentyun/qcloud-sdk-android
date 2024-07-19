@@ -14,6 +14,7 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.ci.common.AudioMix;
+import com.tencent.cos.xml.model.ci.common.EffectConfig;
 import com.tencent.cos.xml.model.ci.common.PicProcess;
 import com.tencent.cos.xml.model.ci.media.TemplateAnimation;
 import com.tencent.cos.xml.model.ci.media.TemplateAnimationRequest;
@@ -359,7 +360,7 @@ public class TemplateTest {
         audioMix.audioSource = String.format("http://%s.cos.%s.myqcloud.com/%s", TestConst.CI_BUCKET, TestConst.CI_BUCKET_REGION, TestConst.AUDIT_BUCKET_AUDIO);
         audioMix.mixMode = "Once";
         audioMix.replace = "true";
-        audioMix.effectConfig = new AudioMix.EffectConfig();
+        audioMix.effectConfig = new EffectConfig();
         audioMix.effectConfig.enableStartFadein = "true";
         audioMix.effectConfig.startFadeinTime = "3";
         audioMix.effectConfig.enableEndFadeout = "false";
@@ -414,7 +415,7 @@ public class TemplateTest {
         audioMix.audioSource = String.format("http://%s.cos.%s.myqcloud.com/%s", TestConst.CI_BUCKET, TestConst.CI_BUCKET_REGION, TestConst.AUDIT_BUCKET_AUDIO);
         audioMix.mixMode = "Once";
         audioMix.replace = "true";
-        audioMix.effectConfig = new AudioMix.EffectConfig();
+        audioMix.effectConfig = new EffectConfig();
         audioMix.effectConfig.enableStartFadein = "true";
         audioMix.effectConfig.startFadeinTime = "3";
         audioMix.effectConfig.enableEndFadeout = "false";
@@ -530,7 +531,7 @@ public class TemplateTest {
         audioMix.audioSource = String.format("http://%s.cos.%s.myqcloud.com/%s", TestConst.CI_BUCKET, TestConst.CI_BUCKET_REGION, TestConst.AUDIT_BUCKET_AUDIO);
         audioMix.mixMode = "Once";
         audioMix.replace = "true";
-        audioMix.effectConfig = new AudioMix.EffectConfig();
+        audioMix.effectConfig = new EffectConfig();
         audioMix.effectConfig.enableStartFadein = "true";
         audioMix.effectConfig.startFadeinTime = "3";
         audioMix.effectConfig.enableEndFadeout = "false";
@@ -582,7 +583,7 @@ public class TemplateTest {
         audioMix.audioSource = String.format("http://%s.cos.%s.myqcloud.com/%s", TestConst.CI_BUCKET, TestConst.CI_BUCKET_REGION, TestConst.AUDIT_BUCKET_AUDIO);
         audioMix.mixMode = "Once";
         audioMix.replace = "true";
-        audioMix.effectConfig = new AudioMix.EffectConfig();
+        audioMix.effectConfig = new EffectConfig();
         audioMix.effectConfig.enableStartFadein = "true";
         audioMix.effectConfig.startFadeinTime = "3";
         audioMix.effectConfig.enableEndFadeout = "false";
@@ -690,7 +691,7 @@ public class TemplateTest {
         audioMix.audioSource = String.format("http://%s.cos.%s.myqcloud.com/%s", TestConst.CI_BUCKET, TestConst.CI_BUCKET_REGION, TestConst.AUDIT_BUCKET_AUDIO);
         audioMix.mixMode = "Once";
         audioMix.replace = "true";
-        audioMix.effectConfig = new AudioMix.EffectConfig();
+        audioMix.effectConfig = new EffectConfig();
         audioMix.effectConfig.enableStartFadein = "true";
         audioMix.effectConfig.startFadeinTime = "3";
         audioMix.effectConfig.enableEndFadeout = "false";
@@ -734,7 +735,7 @@ public class TemplateTest {
         audioMix.audioSource = String.format("http://%s.cos.%s.myqcloud.com/%s", TestConst.CI_BUCKET, TestConst.CI_BUCKET_REGION, TestConst.AUDIT_BUCKET_AUDIO);
         audioMix.mixMode = "Once";
         audioMix.replace = "true";
-        audioMix.effectConfig = new AudioMix.EffectConfig();
+        audioMix.effectConfig = new EffectConfig();
         audioMix.effectConfig.enableStartFadein = "true";
         audioMix.effectConfig.startFadeinTime = "3";
         audioMix.effectConfig.enableEndFadeout = "false";

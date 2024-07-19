@@ -26,6 +26,7 @@ import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlBooleanListener;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
+import com.tencent.cos.xml.model.EmptyResponseResult;
 import com.tencent.cos.xml.model.bucket.DeleteBucketCORSRequest;
 import com.tencent.cos.xml.model.bucket.DeleteBucketCORSResult;
 import com.tencent.cos.xml.model.bucket.DeleteBucketDomainRequest;
@@ -127,6 +128,52 @@ import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlRequest;
 import com.tencent.cos.xml.model.ci.PreviewDocumentInHtmlResult;
 import com.tencent.cos.xml.model.ci.PreviewDocumentRequest;
 import com.tencent.cos.xml.model.ci.PreviewDocumentResult;
+import com.tencent.cos.xml.model.ci.ai.AIBodyRecognitionRequest;
+import com.tencent.cos.xml.model.ci.ai.AIBodyRecognitionResult;
+import com.tencent.cos.xml.model.ci.ai.AIDetectCarRequest;
+import com.tencent.cos.xml.model.ci.ai.AIDetectCarResult;
+import com.tencent.cos.xml.model.ci.ai.AIDetectFaceRequest;
+import com.tencent.cos.xml.model.ci.ai.AIDetectFaceResult;
+import com.tencent.cos.xml.model.ci.ai.AIDetectPetRequest;
+import com.tencent.cos.xml.model.ci.ai.AIDetectPetResult;
+import com.tencent.cos.xml.model.ci.ai.AIEnhanceImageRequest;
+import com.tencent.cos.xml.model.ci.ai.AIFaceEffectRequest;
+import com.tencent.cos.xml.model.ci.ai.AIFaceEffectResult;
+import com.tencent.cos.xml.model.ci.ai.AIGameRecRequest;
+import com.tencent.cos.xml.model.ci.ai.AIGameRecResult;
+import com.tencent.cos.xml.model.ci.ai.AIIDCardOCRRequest;
+import com.tencent.cos.xml.model.ci.ai.AIIDCardOCRResult;
+import com.tencent.cos.xml.model.ci.ai.AIImageColoringRequest;
+import com.tencent.cos.xml.model.ci.ai.AIImageCropRequest;
+import com.tencent.cos.xml.model.ci.ai.AILicenseRecRequest;
+import com.tencent.cos.xml.model.ci.ai.AILicenseRecResult;
+import com.tencent.cos.xml.model.ci.ai.AISuperResolutionRequest;
+import com.tencent.cos.xml.model.ci.ai.AddImageSearchRequest;
+import com.tencent.cos.xml.model.ci.ai.AssessQualityRequest;
+import com.tencent.cos.xml.model.ci.ai.AssessQualityResult;
+import com.tencent.cos.xml.model.ci.ai.AutoTranslationBlockRequest;
+import com.tencent.cos.xml.model.ci.ai.AutoTranslationBlockResult;
+import com.tencent.cos.xml.model.ci.ai.COSOCRRequest;
+import com.tencent.cos.xml.model.ci.ai.COSOCRResult;
+import com.tencent.cos.xml.model.ci.ai.CreateCRcodeRequest;
+import com.tencent.cos.xml.model.ci.ai.CreateCRcodeResult;
+import com.tencent.cos.xml.model.ci.ai.DeleteImageSearchRequest;
+import com.tencent.cos.xml.model.ci.ai.DetectLabelRequest;
+import com.tencent.cos.xml.model.ci.ai.DetectLabelResult;
+import com.tencent.cos.xml.model.ci.ai.GetActionSequenceRequest;
+import com.tencent.cos.xml.model.ci.ai.GetActionSequenceResult;
+import com.tencent.cos.xml.model.ci.ai.GetLiveCodeRequest;
+import com.tencent.cos.xml.model.ci.ai.GetLiveCodeResult;
+import com.tencent.cos.xml.model.ci.ai.GetSearchImageRequest;
+import com.tencent.cos.xml.model.ci.ai.GetSearchImageResult;
+import com.tencent.cos.xml.model.ci.ai.GoodsMattingRequest;
+import com.tencent.cos.xml.model.ci.ai.ImageRepairRequest;
+import com.tencent.cos.xml.model.ci.ai.LivenessRecognitionRequest;
+import com.tencent.cos.xml.model.ci.ai.LivenessRecognitionResult;
+import com.tencent.cos.xml.model.ci.ai.RecognitionQRcodeRequest;
+import com.tencent.cos.xml.model.ci.ai.RecognitionQRcodeResult;
+import com.tencent.cos.xml.model.ci.ai.RecognizeLogoRequest;
+import com.tencent.cos.xml.model.ci.ai.RecognizeLogoResult;
 import com.tencent.cos.xml.model.ci.media.GetPrivateM3U8Request;
 import com.tencent.cos.xml.model.ci.media.GetPrivateM3U8Result;
 import com.tencent.cos.xml.model.ci.media.GetWorkflowDetailRequest;
@@ -141,6 +188,7 @@ import com.tencent.cos.xml.model.object.DeleteObjectTaggingRequest;
 import com.tencent.cos.xml.model.object.DeleteObjectTaggingResult;
 import com.tencent.cos.xml.model.object.GetObjectACLRequest;
 import com.tencent.cos.xml.model.object.GetObjectACLResult;
+import com.tencent.cos.xml.model.object.GetObjectResult;
 import com.tencent.cos.xml.model.object.GetObjectTaggingRequest;
 import com.tencent.cos.xml.model.object.GetObjectTaggingResult;
 import com.tencent.cos.xml.model.object.HeadObjectRequest;
@@ -2861,5 +2909,654 @@ public interface CosXml extends SimpleCosXml {
      * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
      */
     void getWorkflowDetailAsync(GetWorkflowDetailRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AIImageColoring 接口对黑白图像进行上色的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83794">https://cloud.tencent.com/document/product/460/83794</a>
+     *
+     * @param request 腾讯云数据万象通过 AIImageColoring 接口对黑白图像进行上色请求 {@link AIImageColoringRequest}
+     * @return 腾讯云数据万象通过 AIImageColoring 接口对黑白图像进行上色返回结果 {@link GetObjectResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetObjectResult aiImageColoring(AIImageColoringRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AIImageColoring 接口对黑白图像进行上色的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83794">https://cloud.tencent.com/document/product/460/83794</a>
+     *
+     * @param request 腾讯云数据万象通过 AIImageColoring 接口对黑白图像进行上色请求 {@link AIImageColoringRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void aiImageColoringAsync(AIImageColoringRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AISuperResolution 接口对图像进行超分辨率处理，当前默认超分为宽高的2倍的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83793">https://cloud.tencent.com/document/product/460/83793</a>
+     *
+     * @param request 腾讯云数据万象通过 AISuperResolution 接口对图像进行超分辨率处理，当前默认超分为宽高的2倍请求 {@link AISuperResolutionRequest}
+     * @return 腾讯云数据万象通过 AISuperResolution 接口对图像进行超分辨率处理，当前默认超分为宽高的2倍返回结果 {@link GetObjectResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetObjectResult aiSuperResolution(AISuperResolutionRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AISuperResolution 接口对图像进行超分辨率处理，当前默认超分为宽高的2倍的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83793">https://cloud.tencent.com/document/product/460/83793</a>
+     *
+     * @param request 腾讯云数据万象通过 AISuperResolution 接口对图像进行超分辨率处理，当前默认超分为宽高的2倍请求 {@link AISuperResolutionRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void aiSuperResolutionAsync(AISuperResolutionRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AIEnhanceImage 接口对图像进行增强处理的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83792">https://cloud.tencent.com/document/product/460/83792</a>
+     *
+     * @param request 腾讯云数据万象通过 AIEnhanceImage 接口对图像进行增强处理请求 {@link AIEnhanceImageRequest}
+     * @return 腾讯云数据万象通过 AIEnhanceImage 接口对图像进行增强处理返回结果 {@link GetObjectResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetObjectResult aiEnhanceImage(AIEnhanceImageRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AIEnhanceImage 接口对图像进行增强处理的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83792">https://cloud.tencent.com/document/product/460/83792</a>
+     *
+     * @param request 腾讯云数据万象通过 AIEnhanceImage 接口对图像进行增强处理请求 {@link AIEnhanceImageRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void aiEnhanceImageAsync(AIEnhanceImageRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AIImageCrop 接口对图像进行智能裁剪，支持持久化、云上处理及下载时处理的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83791">https://cloud.tencent.com/document/product/460/83791</a>
+     *
+     * @param request 腾讯云数据万象通过 AIImageCrop 接口对图像进行智能裁剪，支持持久化、云上处理及下载时处理请求 {@link AIImageCropRequest}
+     * @return 腾讯云数据万象通过 AIImageCrop 接口对图像进行智能裁剪，支持持久化、云上处理及下载时处理返回结果 {@link GetObjectResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetObjectResult aiImageCrop(AIImageCropRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AIImageCrop 接口对图像进行智能裁剪，支持持久化、云上处理及下载时处理的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83791">https://cloud.tencent.com/document/product/460/83791</a>
+     *
+     * @param request 腾讯云数据万象通过 AIImageCrop 接口对图像进行智能裁剪，支持持久化、云上处理及下载时处理请求 {@link AIImageCropRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void aiImageCropAsync(AIImageCropRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AutoTranslationBlock  接口对文字块进行翻译，请求时需要携带签名的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83547">https://cloud.tencent.com/document/product/460/83547</a>
+     *
+     * @param request 腾讯云数据万象通过 AutoTranslationBlock  接口对文字块进行翻译，请求时需要携带签名请求 {@link AutoTranslationBlockRequest}
+     * @return 腾讯云数据万象通过 AutoTranslationBlock  接口对文字块进行翻译，请求时需要携带签名返回结果 {@link AutoTranslationBlockResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    AutoTranslationBlockResult autoTranslationBlock(AutoTranslationBlockRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AutoTranslationBlock  接口对文字块进行翻译，请求时需要携带签名的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83547">https://cloud.tencent.com/document/product/460/83547</a>
+     *
+     * @param request 腾讯云数据万象通过 AutoTranslationBlock  接口对文字块进行翻译，请求时需要携带签名请求 {@link AutoTranslationBlockRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void autoTranslationBlockAsync(AutoTranslationBlockRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 RecognizeLogo 接口实现对图片内电商 Logo 的识别，返回图片中 Logo 的名称、坐标、置信度分值。，返回图片中Logo的名称、坐标、置信度分值。图片Logo识别请求包属于 GET 请求，请求时需要携带签名的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79736">https://cloud.tencent.com/document/product/460/79736</a>
+     *
+     * @param request 腾讯云数据万象通过 RecognizeLogo 接口实现对图片内电商 Logo 的识别，返回图片中 Logo 的名称、坐标、置信度分值。，返回图片中Logo的名称、坐标、置信度分值。图片Logo识别请求包属于 GET 请求，请求时需要携带签名请求 {@link RecognizeLogoRequest}
+     * @return 腾讯云数据万象通过 RecognizeLogo 接口实现对图片内电商 Logo 的识别，返回图片中 Logo 的名称、坐标、置信度分值。，返回图片中Logo的名称、坐标、置信度分值。图片Logo识别请求包属于 GET 请求，请求时需要携带签名返回结果 {@link RecognizeLogoResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    RecognizeLogoResult recognizeLogo(RecognizeLogoRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 RecognizeLogo 接口实现对图片内电商 Logo 的识别，返回图片中 Logo 的名称、坐标、置信度分值。，返回图片中Logo的名称、坐标、置信度分值。图片Logo识别请求包属于 GET 请求，请求时需要携带签名的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79736">https://cloud.tencent.com/document/product/460/79736</a>
+     *
+     * @param request 腾讯云数据万象通过 RecognizeLogo 接口实现对图片内电商 Logo 的识别，返回图片中 Logo 的名称、坐标、置信度分值。，返回图片中Logo的名称、坐标、置信度分值。图片Logo识别请求包属于 GET 请求，请求时需要携带签名请求 {@link RecognizeLogoRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void recognizeLogoAsync(RecognizeLogoRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 数据万象二维码识别功能可识别图片中有效二维码的位置及内容，输出图像中二维码包含的文本信息（每个二维码对应的 URL 或文本），并可对识别出的二维码添加马赛克的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/37513">https://cloud.tencent.com/document/product/460/37513</a>
+     *
+     * @param request 数据万象二维码识别功能可识别图片中有效二维码的位置及内容，输出图像中二维码包含的文本信息（每个二维码对应的 URL 或文本），并可对识别出的二维码添加马赛克请求 {@link RecognitionQRcodeRequest}
+     * @return 数据万象二维码识别功能可识别图片中有效二维码的位置及内容，输出图像中二维码包含的文本信息（每个二维码对应的 URL 或文本），并可对识别出的二维码添加马赛克返回结果 {@link RecognitionQRcodeResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    RecognitionQRcodeResult recognitionQRcode(RecognitionQRcodeRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 数据万象二维码识别功能可识别图片中有效二维码的位置及内容，输出图像中二维码包含的文本信息（每个二维码对应的 URL 或文本），并可对识别出的二维码添加马赛克的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/37513">https://cloud.tencent.com/document/product/460/37513</a>
+     *
+     * @param request 数据万象二维码识别功能可识别图片中有效二维码的位置及内容，输出图像中二维码包含的文本信息（每个二维码对应的 URL 或文本），并可对识别出的二维码添加马赛克请求 {@link RecognitionQRcodeRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void recognitionQRcodeAsync(RecognitionQRcodeRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 数据万象二维码生成功能可根据用户指定的文本信息（URL 或文本），生成对应的二维码或条形码的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/53491">https://cloud.tencent.com/document/product/460/53491</a>
+     *
+     * @param request 数据万象二维码生成功能可根据用户指定的文本信息（URL 或文本），生成对应的二维码或条形码请求 {@link CreateCRcodeRequest}
+     * @return 数据万象二维码生成功能可根据用户指定的文本信息（URL 或文本），生成对应的二维码或条形码返回结果 {@link CreateCRcodeResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    CreateCRcodeResult createCRcode(CreateCRcodeRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 数据万象二维码生成功能可根据用户指定的文本信息（URL 或文本），生成对应的二维码或条形码的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/53491">https://cloud.tencent.com/document/product/460/53491</a>
+     *
+     * @param request 数据万象二维码生成功能可根据用户指定的文本信息（URL 或文本），生成对应的二维码或条形码请求 {@link CreateCRcodeRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void createCRcodeAsync(CreateCRcodeRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 图片标签功能通过借助数据万象的持久化处理接口，实现对 COS 存量数据的图片标签识别，返回图片中置信度较高的主题标签。图片标签识别请求包属于 GET 请求，请求时需要携带签名的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/39082">https://cloud.tencent.com/document/product/460/39082</a>
+     *
+     * @param request 图片标签功能通过借助数据万象的持久化处理接口，实现对 COS 存量数据的图片标签识别，返回图片中置信度较高的主题标签。图片标签识别请求包属于 GET 请求，请求时需要携带签名请求 {@link DetectLabelRequest}
+     * @return 图片标签功能通过借助数据万象的持久化处理接口，实现对 COS 存量数据的图片标签识别，返回图片中置信度较高的主题标签。图片标签识别请求包属于 GET 请求，请求时需要携带签名返回结果 {@link DetectLabelResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    DetectLabelResult detectLabel(DetectLabelRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 图片标签功能通过借助数据万象的持久化处理接口，实现对 COS 存量数据的图片标签识别，返回图片中置信度较高的主题标签。图片标签识别请求包属于 GET 请求，请求时需要携带签名的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/39082">https://cloud.tencent.com/document/product/460/39082</a>
+     *
+     * @param request 图片标签功能通过借助数据万象的持久化处理接口，实现对 COS 存量数据的图片标签识别，返回图片中置信度较高的主题标签。图片标签识别请求包属于 GET 请求，请求时需要携带签名请求 {@link DetectLabelRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void detectLabelAsync(DetectLabelRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 游戏标签功能实现游戏图片场景的识别，返回图片中置信度较高的游戏类别标签。游戏标签识别请求包属于 GET 请求，请求时需要携带签名的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/93153">https://cloud.tencent.com/document/product/460/93153</a>
+     *
+     * @param request 游戏标签功能实现游戏图片场景的识别，返回图片中置信度较高的游戏类别标签。游戏标签识别请求包属于 GET 请求，请求时需要携带签名请求 {@link AIGameRecRequest}
+     * @return 游戏标签功能实现游戏图片场景的识别，返回图片中置信度较高的游戏类别标签。游戏标签识别请求包属于 GET 请求，请求时需要携带签名返回结果 {@link AIGameRecResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    AIGameRecResult aiGameRec(AIGameRecRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 游戏标签功能实现游戏图片场景的识别，返回图片中置信度较高的游戏类别标签。游戏标签识别请求包属于 GET 请求，请求时需要携带签名的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/93153">https://cloud.tencent.com/document/product/460/93153</a>
+     *
+     * @param request 游戏标签功能实现游戏图片场景的识别，返回图片中置信度较高的游戏类别标签。游戏标签识别请求包属于 GET 请求，请求时需要携带签名请求 {@link AIGameRecRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void aiGameRecAsync(AIGameRecRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 图片质量评分功能为同步请求方式，您可以通过本接口对图片文件进行检测，从多方面评估，最终给出综合可观的清晰度评分和主观的美观度评分。该接口属于 GET 请求的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63228">https://cloud.tencent.com/document/product/460/63228</a>
+     *
+     * @param request 图片质量评分功能为同步请求方式，您可以通过本接口对图片文件进行检测，从多方面评估，最终给出综合可观的清晰度评分和主观的美观度评分。该接口属于 GET 请求请求 {@link AssessQualityRequest}
+     * @return 图片质量评分功能为同步请求方式，您可以通过本接口对图片文件进行检测，从多方面评估，最终给出综合可观的清晰度评分和主观的美观度评分。该接口属于 GET 请求返回结果 {@link AssessQualityResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    AssessQualityResult assessQuality(AssessQualityRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 图片质量评分功能为同步请求方式，您可以通过本接口对图片文件进行检测，从多方面评估，最终给出综合可观的清晰度评分和主观的美观度评分。该接口属于 GET 请求的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63228">https://cloud.tencent.com/document/product/460/63228</a>
+     *
+     * @param request 图片质量评分功能为同步请求方式，您可以通过本接口对图片文件进行检测，从多方面评估，最终给出综合可观的清晰度评分和主观的美观度评分。该接口属于 GET 请求请求 {@link AssessQualityRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void assessQualityAsync(AssessQualityRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 人脸检测功能为同步请求方式，您可以通过本接口检测图片中的人脸位置。该接口属于 GET 请求的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63223">https://cloud.tencent.com/document/product/460/63223</a>
+     *
+     * @param request 人脸检测功能为同步请求方式，您可以通过本接口检测图片中的人脸位置。该接口属于 GET 请求请求 {@link AIDetectFaceRequest}
+     * @return 人脸检测功能为同步请求方式，您可以通过本接口检测图片中的人脸位置。该接口属于 GET 请求返回结果 {@link AIDetectFaceResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    AIDetectFaceResult aiDetectFace(AIDetectFaceRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 人脸检测功能为同步请求方式，您可以通过本接口检测图片中的人脸位置。该接口属于 GET 请求的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63223">https://cloud.tencent.com/document/product/460/63223</a>
+     *
+     * @param request 人脸检测功能为同步请求方式，您可以通过本接口检测图片中的人脸位置。该接口属于 GET 请求请求 {@link AIDetectFaceRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void aiDetectFaceAsync(AIDetectFaceRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 人脸特效，提供人脸美颜、人像变换、人像分割功能的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/47197">https://cloud.tencent.com/document/product/460/47197</a>
+     *
+     * @param request 人脸特效，提供人脸美颜、人像变换、人像分割功能请求 {@link AIFaceEffectRequest}
+     * @return 人脸特效，提供人脸美颜、人像变换、人像分割功能返回结果 {@link AIFaceEffectResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    AIFaceEffectResult aiFaceEffect(AIFaceEffectRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 人脸特效，提供人脸美颜、人像变换、人像分割功能的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/47197">https://cloud.tencent.com/document/product/460/47197</a>
+     *
+     * @param request 人脸特效，提供人脸美颜、人像变换、人像分割功能请求 {@link AIFaceEffectRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void aiFaceEffectAsync(AIFaceEffectRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AIBodyRecognition 接口识别并输出画面中人体，输出其位置（矩形框）和置信度。图片人体识别请求包属于 GET 请求，请求时需要携带签名的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83196">https://cloud.tencent.com/document/product/460/83196</a>
+     *
+     * @param request 腾讯云数据万象通过 AIBodyRecognition 接口识别并输出画面中人体，输出其位置（矩形框）和置信度。图片人体识别请求包属于 GET 请求，请求时需要携带签名请求 {@link AIBodyRecognitionRequest}
+     * @return 腾讯云数据万象通过 AIBodyRecognition 接口识别并输出画面中人体，输出其位置（矩形框）和置信度。图片人体识别请求包属于 GET 请求，请求时需要携带签名返回结果 {@link AIBodyRecognitionResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    AIBodyRecognitionResult aiBodyRecognition(AIBodyRecognitionRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AIBodyRecognition 接口识别并输出画面中人体，输出其位置（矩形框）和置信度。图片人体识别请求包属于 GET 请求，请求时需要携带签名的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/83196">https://cloud.tencent.com/document/product/460/83196</a>
+     *
+     * @param request 腾讯云数据万象通过 AIBodyRecognition 接口识别并输出画面中人体，输出其位置（矩形框）和置信度。图片人体识别请求包属于 GET 请求，请求时需要携带签名请求 {@link AIBodyRecognitionRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void aiBodyRecognitionAsync(AIBodyRecognitionRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 detect-pet 接口识别并输出画面中宠物，输出其位置（矩形框）和置信度。图片宠物识别请求包属于 GET 请求，请求时需要携带签名的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/95753">https://cloud.tencent.com/document/product/460/95753</a>
+     *
+     * @param request 腾讯云数据万象通过 detect-pet 接口识别并输出画面中宠物，输出其位置（矩形框）和置信度。图片宠物识别请求包属于 GET 请求，请求时需要携带签名请求 {@link AIDetectPetRequest}
+     * @return 腾讯云数据万象通过 detect-pet 接口识别并输出画面中宠物，输出其位置（矩形框）和置信度。图片宠物识别请求包属于 GET 请求，请求时需要携带签名返回结果 {@link AIDetectPetResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    AIDetectPetResult aiDetectPet(AIDetectPetRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 detect-pet 接口识别并输出画面中宠物，输出其位置（矩形框）和置信度。图片宠物识别请求包属于 GET 请求，请求时需要携带签名的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/95753">https://cloud.tencent.com/document/product/460/95753</a>
+     *
+     * @param request 腾讯云数据万象通过 detect-pet 接口识别并输出画面中宠物，输出其位置（矩形框）和置信度。图片宠物识别请求包属于 GET 请求，请求时需要携带签名请求 {@link AIDetectPetRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void aiDetectPetAsync(AIDetectPetRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 支持中国大陆居民二代身份证正反面所有字段的识别，包括姓名、性别、民族、出生日期、住址、公民身份证号、签发机关、有效期限；具备身份证照片、人像照片的裁剪功能和翻拍、PS、复印件告警功能，以及边框和框内遮挡告警、临时身份证告警和身份证有效期不合法告警等扩展功能的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/48638">https://cloud.tencent.com/document/product/460/48638</a>
+     *
+     * @param request 支持中国大陆居民二代身份证正反面所有字段的识别，包括姓名、性别、民族、出生日期、住址、公民身份证号、签发机关、有效期限；具备身份证照片、人像照片的裁剪功能和翻拍、PS、复印件告警功能，以及边框和框内遮挡告警、临时身份证告警和身份证有效期不合法告警等扩展功能请求 {@link AIIDCardOCRRequest}
+     * @return 支持中国大陆居民二代身份证正反面所有字段的识别，包括姓名、性别、民族、出生日期、住址、公民身份证号、签发机关、有效期限；具备身份证照片、人像照片的裁剪功能和翻拍、PS、复印件告警功能，以及边框和框内遮挡告警、临时身份证告警和身份证有效期不合法告警等扩展功能返回结果 {@link AIIDCardOCRResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    AIIDCardOCRResult aiIDCardOCR(AIIDCardOCRRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 支持中国大陆居民二代身份证正反面所有字段的识别，包括姓名、性别、民族、出生日期、住址、公民身份证号、签发机关、有效期限；具备身份证照片、人像照片的裁剪功能和翻拍、PS、复印件告警功能，以及边框和框内遮挡告警、临时身份证告警和身份证有效期不合法告警等扩展功能的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/48638">https://cloud.tencent.com/document/product/460/48638</a>
+     *
+     * @param request 支持中国大陆居民二代身份证正反面所有字段的识别，包括姓名、性别、民族、出生日期、住址、公民身份证号、签发机关、有效期限；具备身份证照片、人像照片的裁剪功能和翻拍、PS、复印件告警功能，以及边框和框内遮挡告警、临时身份证告警和身份证有效期不合法告警等扩展功能请求 {@link AIIDCardOCRRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void aiIDCardOCRAsync(AIIDCardOCRRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 集成了活体检测和跟权威库进行比对的能力，传入一段视频和姓名、身份证号信息即可进行验证。对录制的自拍视频进行活体检测，从而确认当前用户为真人，可防止照片、视频、静态3D建模等各种不同类型的攻击。检测为真人后，再判断该视频中的人与权威库的证件照是否属于同一个人，实现用户身份信息核实的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/48641">https://cloud.tencent.com/document/product/460/48641</a>
+     *
+     * @param request 集成了活体检测和跟权威库进行比对的能力，传入一段视频和姓名、身份证号信息即可进行验证。对录制的自拍视频进行活体检测，从而确认当前用户为真人，可防止照片、视频、静态3D建模等各种不同类型的攻击。检测为真人后，再判断该视频中的人与权威库的证件照是否属于同一个人，实现用户身份信息核实请求 {@link LivenessRecognitionRequest}
+     * @return 集成了活体检测和跟权威库进行比对的能力，传入一段视频和姓名、身份证号信息即可进行验证。对录制的自拍视频进行活体检测，从而确认当前用户为真人，可防止照片、视频、静态3D建模等各种不同类型的攻击。检测为真人后，再判断该视频中的人与权威库的证件照是否属于同一个人，实现用户身份信息核实返回结果 {@link LivenessRecognitionResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    LivenessRecognitionResult livenessRecognition(LivenessRecognitionRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 集成了活体检测和跟权威库进行比对的能力，传入一段视频和姓名、身份证号信息即可进行验证。对录制的自拍视频进行活体检测，从而确认当前用户为真人，可防止照片、视频、静态3D建模等各种不同类型的攻击。检测为真人后，再判断该视频中的人与权威库的证件照是否属于同一个人，实现用户身份信息核实的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/48641">https://cloud.tencent.com/document/product/460/48641</a>
+     *
+     * @param request 集成了活体检测和跟权威库进行比对的能力，传入一段视频和姓名、身份证号信息即可进行验证。对录制的自拍视频进行活体检测，从而确认当前用户为真人，可防止照片、视频、静态3D建模等各种不同类型的攻击。检测为真人后，再判断该视频中的人与权威库的证件照是否属于同一个人，实现用户身份信息核实请求 {@link LivenessRecognitionRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void livenessRecognitionAsync(LivenessRecognitionRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 使用数字活体检测模式前，需调用本接口获取数字验证码的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/48647">https://cloud.tencent.com/document/product/460/48647</a>
+     *
+     * @param request 使用数字活体检测模式前，需调用本接口获取数字验证码请求 {@link GetLiveCodeRequest}
+     * @return 使用数字活体检测模式前，需调用本接口获取数字验证码返回结果 {@link GetLiveCodeResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetLiveCodeResult getLiveCode(GetLiveCodeRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 使用数字活体检测模式前，需调用本接口获取数字验证码的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/48647">https://cloud.tencent.com/document/product/460/48647</a>
+     *
+     * @param request 使用数字活体检测模式前，需调用本接口获取数字验证码请求 {@link GetLiveCodeRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void getLiveCodeAsync(GetLiveCodeRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 使用动作活体检测模式前，需调用本接口获取动作顺序的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/48648">https://cloud.tencent.com/document/product/460/48648</a>
+     *
+     * @param request 使用动作活体检测模式前，需调用本接口获取动作顺序请求 {@link GetActionSequenceRequest}
+     * @return 使用动作活体检测模式前，需调用本接口获取动作顺序返回结果 {@link GetActionSequenceResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetActionSequenceResult getActionSequence(GetActionSequenceRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 使用动作活体检测模式前，需调用本接口获取动作顺序的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/48648">https://cloud.tencent.com/document/product/460/48648</a>
+     *
+     * @param request 使用动作活体检测模式前，需调用本接口获取动作顺序请求 {@link GetActionSequenceRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void getActionSequenceAsync(GetActionSequenceRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 车辆车牌检测功能为同步请求方式，您可以通过本接口检测图片中的车辆，识别出车辆的品牌、颜色、位置、车牌位置等信息。该接口属于 GET 请求的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63225">https://cloud.tencent.com/document/product/460/63225</a>
+     *
+     * @param request 车辆车牌检测功能为同步请求方式，您可以通过本接口检测图片中的车辆，识别出车辆的品牌、颜色、位置、车牌位置等信息。该接口属于 GET 请求请求 {@link AIDetectCarRequest}
+     * @return 车辆车牌检测功能为同步请求方式，您可以通过本接口检测图片中的车辆，识别出车辆的品牌、颜色、位置、车牌位置等信息。该接口属于 GET 请求返回结果 {@link AIDetectCarResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    AIDetectCarResult aiDetectCar(AIDetectCarRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 车辆车牌检测功能为同步请求方式，您可以通过本接口检测图片中的车辆，识别出车辆的品牌、颜色、位置、车牌位置等信息。该接口属于 GET 请求的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63225">https://cloud.tencent.com/document/product/460/63225</a>
+     *
+     * @param request 车辆车牌检测功能为同步请求方式，您可以通过本接口检测图片中的车辆，识别出车辆的品牌、颜色、位置、车牌位置等信息。该接口属于 GET 请求请求 {@link AIDetectCarRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void aiDetectCarAsync(AIDetectCarRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 通用文字识别功能（Optical Character Recognition，OCR）基于行业前沿的深度学习技术，将图片上的文字内容，智能识别为可编辑的文本，可应用于随手拍扫描、纸质文档电子化、电商广告审核等多种场景，大幅提升信息处理效率的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63227">https://cloud.tencent.com/document/product/460/63227</a>
+     *
+     * @param request 通用文字识别功能（Optical Character Recognition，OCR）基于行业前沿的深度学习技术，将图片上的文字内容，智能识别为可编辑的文本，可应用于随手拍扫描、纸质文档电子化、电商广告审核等多种场景，大幅提升信息处理效率请求 {@link COSOCRRequest}
+     * @return 通用文字识别功能（Optical Character Recognition，OCR）基于行业前沿的深度学习技术，将图片上的文字内容，智能识别为可编辑的文本，可应用于随手拍扫描、纸质文档电子化、电商广告审核等多种场景，大幅提升信息处理效率返回结果 {@link COSOCRResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    COSOCRResult cOSOCR(COSOCRRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 通用文字识别功能（Optical Character Recognition，OCR）基于行业前沿的深度学习技术，将图片上的文字内容，智能识别为可编辑的文本，可应用于随手拍扫描、纸质文档电子化、电商广告审核等多种场景，大幅提升信息处理效率的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63227">https://cloud.tencent.com/document/product/460/63227</a>
+     *
+     * @param request 通用文字识别功能（Optical Character Recognition，OCR）基于行业前沿的深度学习技术，将图片上的文字内容，智能识别为可编辑的文本，可应用于随手拍扫描、纸质文档电子化、电商广告审核等多种场景，大幅提升信息处理效率请求 {@link COSOCRRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void cOSOCRAsync(COSOCRRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 本接口支持中国大陆居民二代身份证正面（暂不支持背面）、驾驶证主页（暂不支持副页）所有字段的自动定位，暂不支持文本识别，用于对特定字段的抹除、屏蔽，以及进一步的文本识别的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/96767">https://cloud.tencent.com/document/product/460/96767</a>
+     *
+     * @param request 本接口支持中国大陆居民二代身份证正面（暂不支持背面）、驾驶证主页（暂不支持副页）所有字段的自动定位，暂不支持文本识别，用于对特定字段的抹除、屏蔽，以及进一步的文本识别请求 {@link AILicenseRecRequest}
+     * @return 本接口支持中国大陆居民二代身份证正面（暂不支持背面）、驾驶证主页（暂不支持副页）所有字段的自动定位，暂不支持文本识别，用于对特定字段的抹除、屏蔽，以及进一步的文本识别返回结果 {@link AILicenseRecResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    AILicenseRecResult aiLicenseRec(AILicenseRecRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 本接口支持中国大陆居民二代身份证正面（暂不支持背面）、驾驶证主页（暂不支持副页）所有字段的自动定位，暂不支持文本识别，用于对特定字段的抹除、屏蔽，以及进一步的文本识别的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/96767">https://cloud.tencent.com/document/product/460/96767</a>
+     *
+     * @param request 本接口支持中国大陆居民二代身份证正面（暂不支持背面）、驾驶证主页（暂不支持副页）所有字段的自动定位，暂不支持文本识别，用于对特定字段的抹除、屏蔽，以及进一步的文本识别请求 {@link AILicenseRecRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void aiLicenseRecAsync(AILicenseRecRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 GoodsMatting 接口检测图片中的商品信息，生成只包含商品信息的图片，支持持久化、云上处理及下载时处理的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79735">https://cloud.tencent.com/document/product/460/79735</a>
+     *
+     * @param request 腾讯云数据万象通过 GoodsMatting 接口检测图片中的商品信息，生成只包含商品信息的图片，支持持久化、云上处理及下载时处理请求 {@link GoodsMattingRequest}
+     * @return 腾讯云数据万象通过 GoodsMatting 接口检测图片中的商品信息，生成只包含商品信息的图片，支持持久化、云上处理及下载时处理返回结果 {@link GetObjectResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetObjectResult goodsMatting(GoodsMattingRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 GoodsMatting 接口检测图片中的商品信息，生成只包含商品信息的图片，支持持久化、云上处理及下载时处理的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79735">https://cloud.tencent.com/document/product/460/79735</a>
+     *
+     * @param request 腾讯云数据万象通过 GoodsMatting 接口检测图片中的商品信息，生成只包含商品信息的图片，支持持久化、云上处理及下载时处理请求 {@link GoodsMattingRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void goodsMattingAsync(GoodsMattingRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 该接口用于添加图库图片的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63900">https://cloud.tencent.com/document/product/460/63900</a>
+     *
+     * @param request 该接口用于添加图库图片请求 {@link AddImageSearchRequest}
+     * @return 该接口用于添加图库图片返回结果 {@link EmptyResponseResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    EmptyResponseResult addImageSearch(AddImageSearchRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 该接口用于添加图库图片的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63900">https://cloud.tencent.com/document/product/460/63900</a>
+     *
+     * @param request 该接口用于添加图库图片请求 {@link AddImageSearchRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void addImageSearchAsync(AddImageSearchRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 该接口用于检索图片的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63901">https://cloud.tencent.com/document/product/460/63901</a>
+     *
+     * @param request 该接口用于检索图片请求 {@link GetSearchImageRequest}
+     * @return 该接口用于检索图片返回结果 {@link GetSearchImageResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetSearchImageResult getSearchImage(GetSearchImageRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 该接口用于检索图片的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63901">https://cloud.tencent.com/document/product/460/63901</a>
+     *
+     * @param request 该接口用于检索图片请求 {@link GetSearchImageRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void getSearchImageAsync(GetSearchImageRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 该接口用于删除图库图片的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63902">https://cloud.tencent.com/document/product/460/63902</a>
+     *
+     * @param request 该接口用于删除图库图片请求 {@link DeleteImageSearchRequest}
+     * @return 该接口用于删除图库图片返回结果 {@link EmptyResponseResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    EmptyResponseResult deleteImageSearch(DeleteImageSearchRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 该接口用于删除图库图片的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/63902">https://cloud.tencent.com/document/product/460/63902</a>
+     *
+     * @param request 该接口用于删除图库图片请求 {@link DeleteImageSearchRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void deleteImageSearchAsync(DeleteImageSearchRequest request, CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 ImageRepair 接⼝能检测并擦除图片中常见的标志,并对擦除部分进行智能修复，此功能需携带签名的同步方法.&nbsp;
+     * </p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79042">https://cloud.tencent.com/document/product/460/79042</a>
+     *
+     * @param request 腾讯云数据万象通过 ImageRepair 接⼝能检测并擦除图片中常见的标志,并对擦除部分进行智能修复，此功能需携带签名请求 {@link ImageRepairRequest}
+     * @return 腾讯云数据万象通过 ImageRepair 接⼝能检测并擦除图片中常见的标志,并对擦除部分进行智能修复，此功能需携带签名返回结果 {@link GetObjectResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    GetObjectResult imageRepair(ImageRepairRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 ImageRepair 接⼝能检测并擦除图片中常见的标志,并对擦除部分进行智能修复，此功能需携带签名的异步方法.&nbsp;
+     * <p>
+     * API 接口：<a href="https://cloud.tencent.com/document/product/460/79042">https://cloud.tencent.com/document/product/460/79042</a>
+     *
+     * @param request 腾讯云数据万象通过 ImageRepair 接⼝能检测并擦除图片中常见的标志,并对擦除部分进行智能修复，此功能需携带签名请求 {@link ImageRepairRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void imageRepairAsync(ImageRepairRequest request, CosXmlResultListener cosXmlResultListener);
+
 
 }

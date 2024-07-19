@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package com.tencent.cos.xml.model.ci.common;
 
 import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
@@ -7,63 +29,27 @@ import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
  * Created by jordanqin on 2023/6/29 11:37.
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
-@XmlBean
+
+@XmlBean(name = "AudioMix", method = XmlBean.GenerateMethod.ALL)
 public class AudioMix {
     /**
-     * 需要被混音的音轨媒体地址, 需要做 URLEncode
-     * 需与 Input 媒体文件存储于同一 bucket
-     */
+      * 需要被混音的音轨媒体地址, 需要做 URLEncode;是否必传：是
+      */
     public String audioSource;
-    /**
-     * 混音模式
-     * Repeat: 混音循环
-     * Once: 混音一次播放
-     */
-    public String mixMode;
-    /**
-     * 是否用混音音轨媒体替换Input媒体文件的原音频
-     * true/false
-     */
-    public String replace;
-    /**
-     * 混音淡入淡出配置
-     */
-    public EffectConfig effectConfig;
 
     /**
-     * 混音淡入淡出配置
-     */
-    @XmlBean
-    public static class EffectConfig {
-        /**
-         * 开启淡入
-         * true/false
-         */
-        public String enableStartFadein;
-        /**
-         * 淡入时长
-         * 大于0, 支持浮点数
-         */
-        public String startFadeinTime;
-        /**
-         * 开启淡出
-         * true/false
-         */
-        public String enableEndFadeout;
-        /**
-         * 淡出时长
-         * 大于0, 支持浮点数
-         */
-        public String endFadeoutTime;
-        /**
-         * 开启 bgm 转换淡入
-         * true/false
-         */
-        public String enableBgmFade;
-        /**
-         * bgm 转换淡入时长
-         * 大于0, 支持浮点数
-         */
-        public String bgmFadeTime;
-    }
+      * 混音模式;是否必传：否
+      */
+    public String mixMode;
+
+    /**
+      * 是否用混音音轨媒体替换Input媒体文件的原音频;是否必传：否
+      */
+    public String replace;
+
+    /**
+      * 混音淡入淡出配置;是否必传：否
+      */
+    public EffectConfig effectConfig;
+
 }

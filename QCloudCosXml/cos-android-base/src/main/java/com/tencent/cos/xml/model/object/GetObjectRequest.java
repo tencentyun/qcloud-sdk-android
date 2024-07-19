@@ -45,7 +45,7 @@ import java.util.Map;
  * @see BaseCosXml#getObject(GetObjectRequest)
  * @see BaseCosXml#getObjectAsync(GetObjectRequest, CosXmlResultListener)
  */
-public class GetObjectRequest extends ObjectRequest implements TransferRequest {
+public class GetObjectRequest extends ObjectRequest implements SaveLocalRequest, TransferRequest {
 
     private String rspContentType;
     private String rspContentLanguage;
@@ -363,6 +363,21 @@ public class GetObjectRequest extends ObjectRequest implements TransferRequest {
 
     public Uri getFileContentUri() {
         return fileContentUri;
+    }
+
+    @Override
+    public String getSaveLocalPath() {
+        return getDownloadPath();
+    }
+
+    @Override
+    public Uri getSaveLocalUri() {
+        return getFileContentUri();
+    }
+
+    @Override
+    public long getSaveLocalOffset() {
+        return getFileOffset();
     }
 
     @Override

@@ -57,6 +57,14 @@ public class CreateSpeechJobsRequest extends BucketRequest {
     }
 
     /**
+     * 设置模板
+     * @param templateId 模板ID
+     */
+    public void setTemplateId(String templateId){
+        createSpeechJobs.operation.templateId = templateId;
+    }
+
+    /**
      * 设置语音文件在 COS 上的 key
      */
     public void setInputObject(@NonNull String object){
