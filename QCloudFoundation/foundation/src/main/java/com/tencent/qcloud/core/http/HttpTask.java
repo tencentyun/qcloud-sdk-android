@@ -271,6 +271,8 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
                     httpRequest.addOrReplaceHeader(HttpConstants.Header.HOST, url.getHost());
                 } catch (MalformedURLException ignored) {
                 }
+                // 添加重试header
+                httpRequest.addOrReplaceHeader(HttpConstants.Header.COS_SDK_RETRY, String.valueOf(true));
                 //重签名
                 metrics.onSignRequestStart();
                 signRequest(signer, (QCloudHttpRequest) httpRequest);
