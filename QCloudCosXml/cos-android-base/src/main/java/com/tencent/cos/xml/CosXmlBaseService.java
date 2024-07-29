@@ -224,6 +224,7 @@ public class CosXmlBaseService implements BaseCosXml {
         }
         builder.dnsCache(configuration.isDnsCache());
         builder.addPrefetchHost(configuration.getEndpointSuffix());
+        builder.setVerifySSLEnable(configuration.isVerifySSLEnable());
     }
 
     public void setNetworkClient(CosXmlServiceConfig configuration){
