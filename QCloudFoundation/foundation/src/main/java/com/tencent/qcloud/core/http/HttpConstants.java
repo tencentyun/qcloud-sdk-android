@@ -81,6 +81,8 @@ public final class HttpConstants {
         public final static String SERVER = "Server";
 
         public final static String ACCEPT = "Accept";
+
+        public final static String COS_SDK_RETRY = "x-cos-sdk-retry";
     }
 
     public static final class RequestMethod {
