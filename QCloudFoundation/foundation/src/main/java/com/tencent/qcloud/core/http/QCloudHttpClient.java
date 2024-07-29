@@ -313,6 +313,7 @@ public final class QCloudHttpClient {
         boolean enableDebugLog = false;
         List<String> prefetchHost = new LinkedList<>();
         boolean dnsCache = false;
+        boolean verifySSLEnable = true;
 
         public Builder() {
         }
@@ -365,6 +366,11 @@ public final class QCloudHttpClient {
 
         public Builder dnsCache(boolean dnsCache) {
             this.dnsCache = dnsCache;
+            return this;
+        }
+
+        public Builder setVerifySSLEnable(boolean verifySSLEnable) {
+            this.verifySSLEnable = verifySSLEnable;
             return this;
         }
 

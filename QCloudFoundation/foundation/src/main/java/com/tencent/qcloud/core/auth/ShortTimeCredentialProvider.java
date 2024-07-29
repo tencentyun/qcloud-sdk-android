@@ -38,8 +38,15 @@ public class ShortTimeCredentialProvider extends BasicLifecycleCredentialProvide
 
     private String secretKey;
     private long duration;
+    private long startTime;
     private String secretId;
 
+    /**
+     * 永久秘钥提供器
+     * @param secretId secretId
+     * @param secretKey secretKey
+     * @param keyDuration 有效时长（单位为秒）
+     */
     @Deprecated
     public ShortTimeCredentialProvider(String secretId, String secretKey, long keyDuration) {
         this.secretId = secretId;
@@ -47,10 +54,26 @@ public class ShortTimeCredentialProvider extends BasicLifecycleCredentialProvide
         this.duration = keyDuration;
     }
 
+    /**
+     * 支持配置起始时间的永久秘钥提供器
+     * @param secretId secretId
+     * @param secretKey secretKey
+     * @param startTime 其实时间戳（单位为秒）
+     * @param keyDuration 有效时长（单位为秒）
+     */
+    @Deprecated
+    public ShortTimeCredentialProvider(String secretId, String secretKey, long startTime, long keyDuration) {
+        this(secretId, secretKey, keyDuration);
+        this.startTime = startTime;
+    }
+
     @Override
     protected QCloudLifecycleCredentials fetchNewCredentials() throws QCloudClientException  {
         // 使用本地永久秘钥计算得到临时秘钥
-        long current = HttpConfiguration.getDeviceTimeWithOffset();
+        long current = startTime;
+        if(current <= 0){
+            current = HttpConfiguration.getDeviceTimeWithOffset();
+        }
         long expired = current + duration;
         String keyTime = current + ";" + expired;
         String signKey = secretKey2SignKey(secretKey, keyTime);
@@ -77,5 +100,9 @@ public class ShortTimeCredentialProvider extends BasicLifecycleCredentialProvide
 
     public long getDuration() {
         return duration;
+    }
+
+    public long getStartTime() {
+        return startTime;
     }
 }
