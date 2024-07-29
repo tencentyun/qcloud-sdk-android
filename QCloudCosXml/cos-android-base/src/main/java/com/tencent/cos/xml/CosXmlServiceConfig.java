@@ -110,6 +110,7 @@ public class CosXmlServiceConfig implements Parcelable {
     private final int uploadMaxThreadCount;
     private final int downloadMaxThreadCount;
     private final boolean domainSwitch;
+    private final boolean verifySSLEnable;
 
     public CosXmlServiceConfig(Builder builder) {
         this.protocol = builder.protocol;
@@ -148,6 +149,7 @@ public class CosXmlServiceConfig implements Parcelable {
         this.uploadMaxThreadCount = builder.uploadMaxThreadCount;
         this.downloadMaxThreadCount = builder.downloadMaxThreadCount;
         this.domainSwitch = builder.domainSwitch;
+        this.verifySSLEnable = builder.verifySSLEnable;
     }
 
     public Builder newBuilder() {
@@ -437,6 +439,10 @@ public class CosXmlServiceConfig implements Parcelable {
         return domainSwitch;
     }
 
+    public boolean isVerifySSLEnable(){
+        return verifySSLEnable;
+    }
+
     @Deprecated
     public String getEndpointSuffix() {
         return getEndpointSuffix(region, false);
@@ -641,6 +647,7 @@ public class CosXmlServiceConfig implements Parcelable {
         private int uploadMaxThreadCount;
         private int downloadMaxThreadCount;
         private boolean domainSwitch;
+        private boolean verifySSLEnable;
 
         public Builder() {
             protocol = HTTPS_PROTOCOL;
@@ -650,6 +657,7 @@ public class CosXmlServiceConfig implements Parcelable {
             uploadMaxThreadCount = TaskExecutors.UPLOAD_THREAD_COUNT;
             downloadMaxThreadCount = TaskExecutors.DOWNLOAD_THREAD_COUNT;
             domainSwitch = true;
+            verifySSLEnable = true;
         }
 
         public Builder(CosXmlServiceConfig config) {
@@ -689,6 +697,7 @@ public class CosXmlServiceConfig implements Parcelable {
             uploadMaxThreadCount = config.uploadMaxThreadCount;
             downloadMaxThreadCount = config.downloadMaxThreadCount;
             domainSwitch = config.domainSwitch;
+            verifySSLEnable = config.verifySSLEnable;
         }
 
         /**
@@ -742,6 +751,14 @@ public class CosXmlServiceConfig implements Parcelable {
 
         public Builder setDomainSwitch(boolean domainSwitch) {
             this.domainSwitch = domainSwitch;
+            return this;
+        }
+
+        /**
+         * 设置是否开启SSL证书校验，默认开启
+         */
+        public Builder setVerifySSLEnable(boolean verifySSLEnable) {
+            this.verifySSLEnable = verifySSLEnable;
             return this;
         }
 

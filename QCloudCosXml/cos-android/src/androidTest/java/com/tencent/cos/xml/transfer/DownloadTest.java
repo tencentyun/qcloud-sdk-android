@@ -29,6 +29,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.MyOnSignatureListener;
 import com.tencent.cos.xml.core.ServiceFactory;
@@ -470,6 +471,59 @@ public class DownloadTest {
             cosXmlSimpleService.getObject(getObjectRequest);
         } catch (CosXmlClientException e) {
             Assert.fail(e.getMessage());
+            return;
+        } catch (CosXmlServiceException e) {
+            Assert.fail(e.getMessage());
+            return;
+        }
+        Assert.assertTrue(true);
+    }
+
+    @Test public void testSmallDownloadToFileByVerifySSLNotEnabled() {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .setVerifySSLEnable(false)
+                .builder();
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newService(cosXmlServiceConfig);
+
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                TestUtils.localParentPath());
+        try {
+            cosXmlSimpleService.getObject(getObjectRequest);
+        } catch (CosXmlClientException e) {
+            Assert.fail(e.getMessage());
+            return;
+        } catch (CosXmlServiceException e) {
+            Assert.fail(e.getMessage());
+            return;
+        }
+        Assert.assertTrue(true);
+    }
+
+    @Test public void testDownloadToFileTimeout() {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setConnectionTimeout(3000)
+                .setSocketTimeout(3000)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .builder();
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newService(cosXmlServiceConfig);
+
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_BIG_1G_OBJECT_PATH,
+                TestUtils.localParentPath());
+        try {
+            cosXmlSimpleService.getObject(getObjectRequest);
+        } catch (CosXmlClientException e) {
+            if(e.getMessage().contains("timeout")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(e.getMessage());
+            }
             return;
         } catch (CosXmlServiceException e) {
             Assert.fail(e.getMessage());
