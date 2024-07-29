@@ -180,6 +180,14 @@ public class RetryInterceptor implements Interceptor {
                 }
             }
 
+            // 属于重试
+            if(attempts > 0){
+                // 添加重试header
+                request = request.newBuilder()
+                        .header(HttpConstants.Header.COS_SDK_RETRY, String.valueOf(true))
+                        .build();
+            }
+
             QCloudLogger.i(HTTP_LOG_TAG, "%s start to execute, attempts is %d", request, attempts);
 
             //记录重试次数
