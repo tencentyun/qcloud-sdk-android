@@ -83,6 +83,7 @@ public class TestConst {
     public static final String PERSIST_BUCKET_BIG_OBJECT_PATH = "do_not_remove/big_object";
     public static final String PERSIST_BUCKET_BATCH_OBJECT_PATH = "do_not_remove//batch/small_object";
     public static final String PERSIST_BUCKET_BIG_60M_OBJECT_PATH = "do_not_remove/big_60m_object";
+    public static final String PERSIST_BUCKET_BIG_1G_OBJECT_PATH = "do_not_remove/big_file.zip";
     public static final String PERSIST_BUCKET_CSE_SMALL_OBJECT_PATH = "do_not_remove/cse_small_object";
     public static final String PERSIST_BUCKET_CSE_BIG_OBJECT_PATH = "do_not_remove/cse_big_object";
 
