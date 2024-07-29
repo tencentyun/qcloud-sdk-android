@@ -74,7 +74,6 @@ import com.tencent.cos.xml.model.ci.media.SubmitVoiceSeparateJobResult;
 import com.tencent.cos.xml.model.ci.media.TemplateVoiceSeparate;
 import com.tencent.cos.xml.model.ci.media.TemplateVoiceSeparateRequest;
 import com.tencent.cos.xml.model.ci.media.TemplateVoiceSeparateResult;
-import com.tencent.cos.xml.model.tag.CallBackMqConfig;
 
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -596,6 +595,7 @@ public class SpeechTest {
         request.setInputObject(TestConst.ASR_OBJECT_LONG);
         request.setQueueId(SpeechTest.queueId);
         request.setOutput(TestConst.ASR_BUCKET_REGION, TestConst.ASR_BUCKET, TestConst.ASR_OBJECT_OUTPUT);
+        request.setTemplateId(SpeechTest.templateId);
         request.setEngineModelType("8k_zh");
         request.setChannelNum(1);
         request.setResTextFormat(1);
@@ -613,7 +613,7 @@ public class SpeechTest {
         request.setCallBack("no");
         request.setCallBackFormat("XML");
         request.setCallBackType("Url");
-        request.setCallBackMqConfig(new CallBackMqConfig());
+//        request.setCallBackMqConfig(new CallBackMqConfig());
 
         try {
             CreateSpeechJobsResult result = ciService.createSpeechJobs(request);
