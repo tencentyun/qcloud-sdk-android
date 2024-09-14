@@ -87,6 +87,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 
 
@@ -427,6 +428,11 @@ public class CosXmlBaseService implements BaseCosXml {
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> T2 execute(T1 cosXmlRequest, T2 cosXmlResult, boolean internal)
             throws CosXmlClientException, CosXmlServiceException {
         try {
+            // 如果有值 说明是task传入的 则以task为准
+            if(TextUtils.isEmpty(cosXmlRequest.getClientTraceId())){
+                cosXmlRequest.setClientTraceId(UUID.randomUUID().toString());
+            }
+
             if(TextUtils.isEmpty(cosXmlRequest.getRegion()) && config != null){
                 cosXmlRequest.setRegion(config.getRegion());
             }
@@ -454,12 +460,15 @@ public class CosXmlBaseService implements BaseCosXml {
             HttpResult<T2> httpResult = httpTask.executeNow();
 
             CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest, internal);
+            CosTrackService.getInstance().reportHttpMetrics(cosXmlRequest);
             logRequestMetrics(cosXmlRequest);
 
             return httpResult != null ? httpResult.content() : null;
         } catch (QCloudServiceException e) {
+            CosTrackService.getInstance().reportHttpMetrics(cosXmlRequest);
             throw CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, e, internal);
         } catch (QCloudClientException e) {
+            CosTrackService.getInstance().reportHttpMetrics(cosXmlRequest);
             throw CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e, internal);
         }
     }
@@ -477,12 +486,14 @@ public class CosXmlBaseService implements BaseCosXml {
             @Override
             public void onSuccess(HttpResult<T2> result) {
                 CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest, internal);
+                CosTrackService.getInstance().reportHttpMetrics(cosXmlRequest);
                 logRequestMetrics(cosXmlRequest);
                 cosXmlResultListener.onSuccess(cosXmlRequest, result.content());
             }
 
             @Override
             public void onFailure(QCloudClientException clientException, QCloudServiceException serviceException) {
+                CosTrackService.getInstance().reportHttpMetrics(cosXmlRequest);
                 logRequestMetrics(cosXmlRequest);
                 if (clientException != null) {
                     CosXmlClientException xmlClientException = CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, clientException, internal);
@@ -495,6 +506,10 @@ public class CosXmlBaseService implements BaseCosXml {
         };
 
         try {
+            if(TextUtils.isEmpty(cosXmlRequest.getClientTraceId())){
+                cosXmlRequest.setClientTraceId(UUID.randomUUID().toString());
+            }
+
             if(TextUtils.isEmpty(cosXmlRequest.getRegion()) && config != null){
                 cosXmlRequest.setRegion(config.getRegion());
             }

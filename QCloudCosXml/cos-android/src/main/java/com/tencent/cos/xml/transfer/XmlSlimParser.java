@@ -98,6 +98,9 @@ public class XmlSlimParser extends BaseXmlSlimParser {
                     if(tagName.equalsIgnoreCase("Bucket")){
                         xmlPullParser.next();
                         result.bucket = xmlPullParser.getText();
+                    }else if(tagName.equalsIgnoreCase("EncodingType")){
+                        xmlPullParser.next();
+                        result.encodingType = xmlPullParser.getText();
                     }else if(tagName.equalsIgnoreCase("Encoding-type")){
                         xmlPullParser.next();
                         result.encodingType = xmlPullParser.getText();

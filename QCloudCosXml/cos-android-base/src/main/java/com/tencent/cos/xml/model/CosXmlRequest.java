@@ -122,6 +122,11 @@ public abstract class CosXmlRequest{
     private QCloudCredentialProvider credentialProvider;
 
     /**
+     * 标记一次请求的客户端唯一标识，用于日志上报和本地日志记录
+     */
+    private String clientTraceId;
+
+    /**
      * 设置请求URL
      * @param requestURL 请求URL
      */
@@ -596,6 +601,20 @@ public abstract class CosXmlRequest{
 
     public QCloudCredentialProvider getCredentialProvider() {
         return credentialProvider;
+    }
+
+    /**
+     * 标记一次请求的客户端唯一标识，用于日志上报和本地日志记录
+     */
+    public String getClientTraceId() {
+        return clientTraceId;
+    }
+
+    /**
+     * 标记一次请求的客户端唯一标识，用于日志上报和本地日志记录
+     */
+    public void setClientTraceId(String clientTraceId) {
+        this.clientTraceId = clientTraceId;
     }
 
     /**
