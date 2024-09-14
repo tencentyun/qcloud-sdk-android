@@ -6,8 +6,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 50931
-        versionName '5.9.31'
+        versionCode 50932
+        versionName '5.9.32'
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -70,6 +70,7 @@ dependencies {
 
     api project(':foundation')
     api project(':qcloud-track')
+    api project(':network-sonar')
 }
 
 project.extensions.add('artifactId', 'qcloud-cos-android-base')

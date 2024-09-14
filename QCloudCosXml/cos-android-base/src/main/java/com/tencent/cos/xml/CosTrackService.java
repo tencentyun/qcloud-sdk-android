@@ -25,17 +25,18 @@ package com.tencent.cos.xml;
 import android.content.Context;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.base.BuildConfig;
 import com.tencent.cos.xml.common.ClientErrorCode;
+import com.tencent.cos.xml.common.VersionInfo;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.object.BasePutObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectBytesRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
-import com.tencent.cos.xml.model.object.ObjectRequest;
 import com.tencent.cos.xml.transfer.TransferTaskMetrics;
 import com.tencent.cos.xml.utils.ThrowableUtils;
 import com.tencent.qcloud.core.common.QCloudAuthenticationException;
@@ -45,6 +46,14 @@ import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.HttpRequest;
 import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
+import com.tencent.qcloud.network.sonar.NetworkSonar;
+import com.tencent.qcloud.network.sonar.NetworkSonarCallback;
+import com.tencent.qcloud.network.sonar.SonarRequest;
+import com.tencent.qcloud.network.sonar.SonarResult;
+import com.tencent.qcloud.network.sonar.SonarType;
+import com.tencent.qcloud.network.sonar.dns.DnsResult;
+import com.tencent.qcloud.network.sonar.ping.PingResult;
+import com.tencent.qcloud.network.sonar.traceroute.TracerouteResult;
 import com.tencent.qcloud.track.Constants;
 import com.tencent.qcloud.track.QCloudTrackService;
 import com.tencent.qcloud.track.cls.ClsLifecycleCredentialProvider;
@@ -52,10 +61,18 @@ import com.tencent.qcloud.track.service.BeaconTrackService;
 import com.tencent.qcloud.track.service.ClsTrackService;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,7 +87,14 @@ public class CosTrackService {
 
     private static final String SDK_NAME = "cos";
 
-    private static final String EVENT_CODE_QCLOUD_TRACK_COS_SDK = "qcloud_track_cos_sdk";
+    // 业务事件
+    private static final String EVENT_CODE_TRACK_COS_SDK = "qcloud_track_cos_sdk";
+    // 网络事件
+    private static final String EVENT_CODE_TRACK_COS_SDK_HTTP = "qcloud_track_cos_sdk_http";
+    // 常规网络探测事件
+    private static final String EVENT_CODE_TRACK_COS_SDK_SONAR = "qcloud_track_cos_sdk_sonar";
+    // 错误网络探测事件
+    private static final String EVENT_CODE_TRACK_COS_SDK_SONAR_FAILURE = "qcloud_track_cos_sdk_sonar_failure";
     private static final String EVENT_CODE_NEW_TRANSFER = "qcloud_track_cos_sdk_transfer";
 
     private static final String EVENT_PARAMS_SUCCESS = "Success";
@@ -79,9 +103,14 @@ public class CosTrackService {
     private static final String EVENT_PARAMS_CLIENT = "Client";
 
     private static CosTrackService instance;
-
     //上报桥接来源
     private String bridge;
+    private Context applicationContext;
+    private boolean isCloseReport;
+
+    // 常规探测
+    private final ScheduledExecutorService sonarScheduler = Executors.newScheduledThreadPool(1);
+    private final SonarHostsRandomQueue sonarHosts = new SonarHostsRandomQueue(3);
 
     private CosTrackService() {
     }
@@ -94,12 +123,18 @@ public class CosTrackService {
             if (instance == null) {
                 instance = new CosTrackService();
                 instance.bridge = bridge;
+                instance.applicationContext = applicationContext;
+                instance.isCloseReport = isCloseReport;
                 if (BeaconTrackService.isInclude()) {
                     // 添加全部上报灯塔上报器
                     BeaconTrackService beaconTrackService = new BeaconTrackService();
                     beaconTrackService.setContext(applicationContext);
-                    beaconTrackService.init("0AND05O9HW5YY29Z");
-                    QCloudTrackService.getInstance().addTrackService(EVENT_CODE_QCLOUD_TRACK_COS_SDK, beaconTrackService);
+                    beaconTrackService.init("0AND063SCYC5856Q");
+                    QCloudTrackService.getInstance().addTrackService(EVENT_CODE_TRACK_COS_SDK, beaconTrackService);
+                    QCloudTrackService.getInstance().addTrackService(EVENT_CODE_TRACK_COS_SDK_HTTP, beaconTrackService);
+                    QCloudTrackService.getInstance().addTrackService(EVENT_CODE_TRACK_COS_SDK_SONAR, beaconTrackService);
+                    QCloudTrackService.getInstance().addTrackService(EVENT_CODE_TRACK_COS_SDK_SONAR_FAILURE, beaconTrackService);
+
                     // 添加全部上报灯塔上报器(新传输)
                     BeaconTrackService newTransferBeaconTrackService = new BeaconTrackService();
                     newTransferBeaconTrackService.setContext(applicationContext);
@@ -117,6 +152,7 @@ public class CosTrackService {
                 QCloudTrackService.getInstance().setIsCloseReport(isCloseReport);
 
                 CosTrackService.getInstance().reportSdkStart();
+                CosTrackService.getInstance().periodicSonar();
 
 //                if (BeaconTrackService.isInclude()) {
 //                // 获取灯塔云控配置，决定是否要initBeacon
@@ -162,7 +198,7 @@ public class CosTrackService {
         clsTrackService.init(applicationContext, topicId, endpoint);
         // 写死固定无效字符串，因为cls sdk不允许空密钥
         clsTrackService.setSecurityCredential("secretId", "secretKey");
-        QCloudTrackService.getInstance().addTrackService(EVENT_CODE_QCLOUD_TRACK_COS_SDK, clsTrackService);
+        QCloudTrackService.getInstance().addTrackService(EVENT_CODE_TRACK_COS_SDK, clsTrackService);
     }
 
     /**
@@ -182,7 +218,7 @@ public class CosTrackService {
         ClsTrackService clsTrackService = new ClsTrackService();
         clsTrackService.init(applicationContext, topicId, endpoint);
         clsTrackService.setSecurityCredential(secretId, secretKey);
-        QCloudTrackService.getInstance().addTrackService(EVENT_CODE_QCLOUD_TRACK_COS_SDK, clsTrackService);
+        QCloudTrackService.getInstance().addTrackService(EVENT_CODE_TRACK_COS_SDK, clsTrackService);
     }
 
     /**
@@ -201,7 +237,7 @@ public class CosTrackService {
         ClsTrackService clsTrackService = new ClsTrackService();
         clsTrackService.init(applicationContext, topicId, endpoint);
         clsTrackService.setCredentialProvider(lifecycleCredentialProvider);
-        QCloudTrackService.getInstance().addTrackService(EVENT_CODE_QCLOUD_TRACK_COS_SDK, clsTrackService);
+        QCloudTrackService.getInstance().addTrackService(EVENT_CODE_TRACK_COS_SDK, clsTrackService);
     }
 
     public static CosTrackService getInstance() {
@@ -219,7 +255,9 @@ public class CosTrackService {
             params.putAll(getCommonParams());
             QCloudTrackService.getInstance().reportSimpleData(Constants.SIMPLE_DATA_EVENT_CODE_START, params);
         } catch (Exception e){
-            e.printStackTrace();
+            if(IS_DEBUG) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -242,7 +280,154 @@ public class CosTrackService {
             params.putAll(getCommonParams());
             QCloudTrackService.getInstance().reportSimpleData(Constants.SIMPLE_DATA_EVENT_CODE_ERROR, params);
         } catch (Exception eee){
-            eee.printStackTrace();
+            if(IS_DEBUG) {
+                eee.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 网络事件：每次请求网络后产生
+     */
+    public void reportHttpMetrics(CosXmlRequest request) {
+        if (request == null || request.getMetrics() == null ||
+                // 判断有没有http性能，有的话上报，因为有可能是客户端非网络异常
+                (request.getMetrics().httpTaskFullTime() == 0 && request.getMetrics().dnsLookupTookTime() == 0
+                        && request.getMetrics().connectTookTime() == 0 && request.getMetrics().secureConnectTookTime() == 0)) {
+            return;
+        }
+
+        try {
+            // 添加 Request 参数
+            Map<String, String> params = parseCosXmlRequestBaseParams(request);
+            // 添加HTTP性能参数
+            HttpTaskMetrics taskMetrics = request.getMetrics();
+            params.putAll(parseHttpTaskMetricsBaseParams(taskMetrics, getRequestName(request)));
+            // 添加基础参数
+            params.putAll(getCommonParams());
+            if(!TextUtils.isEmpty(request.getClientTraceId())){
+                params.put("client_trace_id", request.getClientTraceId());
+            }
+            QCloudTrackService.getInstance().report(EVENT_CODE_TRACK_COS_SDK_HTTP, params);
+        } catch (Exception e) {
+            if(IS_DEBUG) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void periodicSonar(){
+        final Runnable sonar = () -> {
+            SonarHost sonarHost = sonarHosts.get();
+            if(sonarHost == null || sonarHost.getHost() == null) return;
+
+            long diffInMinutes = (System.currentTimeMillis() - sonarHosts.getSonarHostsAddTimestamp()) / (1000 * 60);
+            // 检查是否超过了15分钟
+            if (diffInMinutes > 15) return;
+
+            Map<String, String> extra = new HashMap<>();
+            extra.put("region", sonarHost.getRegion());
+            extra.put("bucket", sonarHost.getBucket());
+            sonar(EVENT_CODE_TRACK_COS_SDK_SONAR, sonarHost.getHost(), extra, true);
+        };
+        // 探测策略：起始延迟3分钟，每10分钟执行一次
+        sonarScheduler.scheduleWithFixedDelay(sonar, 3, 10, TimeUnit.MINUTES);
+    }
+
+
+    public void failSonar(String host, String region, String bucket, String clientTraceId){
+        if(host == null) return;
+        Map<String, String> extra = new HashMap<>();
+        extra.put("region", region);
+        extra.put("bucket", bucket);
+        extra.put("client_trace_id", clientTraceId);
+        sonar(EVENT_CODE_TRACK_COS_SDK_SONAR_FAILURE, host, extra, false);
+    }
+
+    private void sonar(String eventCode, String host, Map<String, String> extra, boolean periodic){
+        // 不做无谓的探测
+        if (instance.isCloseReport || !BeaconTrackService.isInclude()) {
+            return;
+        }
+
+        try {
+            Map<String, String> params = new HashMap<>(extra);
+            params.put("host", host);
+
+            SonarRequest sonarRequest;
+            List<SonarType> types = new ArrayList<>();
+            if(periodic){
+                types.add(SonarType.PING);
+                long startTime = System.currentTimeMillis();
+                InetAddress address = InetAddress.getByName(host);
+                String dnsIp = address.getHostAddress();
+                params.put("dns_ip", dnsIp);
+                params.put("dns_lookupTime", String.valueOf(System.currentTimeMillis() - startTime));
+                sonarRequest = new SonarRequest(host, dnsIp);
+            } else {
+                types.add(SonarType.DNS);
+                types.add(SonarType.PING);
+                types.add(SonarType.TRACEROUTE);
+                sonarRequest = new SonarRequest(host);
+            }
+            NetworkSonar.sonar(applicationContext, sonarRequest, types, new NetworkSonarCallback() {
+                @Override
+                public void onSuccess(SonarResult result) {
+                }
+
+                @Override
+                public void onFail(SonarResult result) {
+                }
+
+                @Override
+                public void onFinish(List<SonarResult> results) {
+                    if(results != null && !results.isEmpty()){
+                        for(SonarResult sonarResult : results){
+                            if(sonarResult == null || !sonarResult.isSuccess() || sonarResult.getResult() == null) continue;
+                            switch (sonarResult.getType()) {
+                                case DNS:
+                                    DnsResult dnsResult = (DnsResult) sonarResult.getResult();
+                                    params.put("dns_ip", dnsResult.ip);
+                                    params.put("dns_lookupTime", String.valueOf(dnsResult.lookupTime));
+                                    params.put("dns_a", dnsResult.a);
+                                    params.put("dns_cname", dnsResult.cname);
+                                    params.put("dns_result", dnsResult.response);
+                                    break;
+                                case PING:
+                                    PingResult pingResult = (PingResult) sonarResult.getResult();
+                                    params.put("ping_ip", pingResult.ip);
+                                    params.put("ping_size", String.valueOf(pingResult.size));
+                                    params.put("ping_interval", String.valueOf(pingResult.interval));
+                                    params.put("ping_count", String.valueOf(pingResult.count));
+                                    params.put("ping_loss", String.valueOf(pingResult.getLoss()));
+                                    params.put("ping_response_num", String.valueOf(pingResult.getResponseNum()));
+                                    params.put("ping_avg", String.valueOf(pingResult.avg));
+                                    params.put("ping_max", String.valueOf(pingResult.max));
+                                    params.put("ping_min", String.valueOf(pingResult.min));
+                                    params.put("ping_stddev", String.valueOf(pingResult.stddev));
+                                    break;
+                                case TRACEROUTE:
+                                    TracerouteResult tracerouteResult = (TracerouteResult) sonarResult.getResult();
+                                    params.put("traceroute_ip", tracerouteResult.getTargetIp());
+                                    params.put("traceroute_status", tracerouteResult.getCommandStatus().getName());
+                                    params.put("traceroute_hop_count", String.valueOf(tracerouteResult.getHopCount()));
+                                    params.put("traceroute_total_delay", String.valueOf(tracerouteResult.getTotalDelay()));
+                                    params.put("traceroute_avg_loss_rate", String.valueOf(tracerouteResult.getLossRate()));
+                                    params.put("traceroute_nodes", tracerouteResult.getNodeResultsString());
+                                    break;
+                            }
+                        }
+                        // 至少探测到一种网络情况才上报
+                        if(params.containsKey("dns_ip") || params.containsKey("ping_ip") || params.containsKey("traceroute_ip")){
+                            QCloudTrackService.getInstance().report(eventCode, params);
+                        }
+                    }
+                }
+            });
+        } catch (Exception e) {
+            if(IS_DEBUG) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -255,15 +440,11 @@ public class CosTrackService {
         reportRequestSuccess(request, false);
     }
     public void reportRequestSuccess(CosXmlRequest request, boolean internal) {
-        Map<String, String> extra = null;
-        if(request instanceof BasePutObjectRequest){
-            extra = Collections.singletonMap("request_name", "UploadTask");
-        } else if(request instanceof GetObjectRequest || request instanceof GetObjectBytesRequest){
-            extra = Collections.singletonMap("request_name", "DownloadTask");
-        } else if("CopyObjectRequest".equalsIgnoreCase(request.getClass().getSimpleName())){
-            extra = Collections.singletonMap("request_name", "CopyTask");
-        }
-        reportRequestSuccess(request, extra, internal);
+        reportRequestSuccess(
+                request,
+                Collections.singletonMap("request_name", getRequestName(request)),
+                internal
+        );
     }
 
     /**
@@ -273,15 +454,12 @@ public class CosTrackService {
         return reportRequestClientException(request, clientException, false);
     }
     public CosXmlClientException reportRequestClientException(CosXmlRequest request, QCloudClientException clientException, boolean internal) {
-        Map<String, String> extra = null;
-        if(request instanceof BasePutObjectRequest){
-            extra = Collections.singletonMap("request_name", "UploadTask");
-        } else if(request instanceof GetObjectRequest || request instanceof GetObjectBytesRequest){
-            extra = Collections.singletonMap("request_name", "DownloadTask");
-        } else if("CopyObjectRequest".equalsIgnoreCase(request.getClass().getSimpleName())){
-            extra = Collections.singletonMap("request_name", "CopyTask");
-        }
-        return reportClientException(request, clientException, extra, internal);
+        return reportClientException(
+                request,
+                clientException,
+                Collections.singletonMap("request_name", getRequestName(request)),
+                internal
+        );
     }
 
     /**
@@ -291,15 +469,12 @@ public class CosTrackService {
         return reportRequestServiceException(request, serviceException, false);
     }
     public CosXmlServiceException reportRequestServiceException(CosXmlRequest request, QCloudServiceException serviceException, boolean internal) {
-        Map<String, String> extra = null;
-        if(request instanceof BasePutObjectRequest){
-            extra = Collections.singletonMap("request_name", "UploadTask");
-        } else if(request instanceof GetObjectRequest || request instanceof GetObjectBytesRequest){
-            extra = Collections.singletonMap("request_name", "DownloadTask");
-        } else if("CopyObjectRequest".equalsIgnoreCase(request.getClass().getSimpleName())){
-            extra = Collections.singletonMap("request_name", "CopyTask");
-        }
-        return reportServiceException(request, serviceException, extra, internal);
+        return reportServiceException(
+                request,
+                serviceException,
+                Collections.singletonMap("request_name", getRequestName(request)),
+                internal
+        );
     }
 
     /**
@@ -387,6 +562,8 @@ public class CosTrackService {
      * 单个请求，整体任务 成功
      */
     private void reportRequestSuccess(CosXmlRequest request, @Nullable Map<String, String> extra, boolean internal) {
+        if(internal) return;
+
         try {
             HttpTaskMetrics taskMetrics = request.getMetrics();
 
@@ -406,11 +583,22 @@ public class CosTrackService {
             }
             // 添加性能参数
             params.putAll(parseHttpTaskMetricsParams(taskMetrics, params.get("request_name")));
-            if(!internal) {
-                QCloudTrackService.getInstance().report(EVENT_CODE_QCLOUD_TRACK_COS_SDK, params);
+            if(!TextUtils.isEmpty(request.getClientTraceId())){
+                params.put("client_trace_id", request.getClientTraceId());
             }
+            QCloudTrackService.getInstance().report(EVENT_CODE_TRACK_COS_SDK, params);
+
+            sonarHosts.add(
+                    new SonarHost(
+                            params.get("host"),
+                            params.get("region"),
+                            params.get("bucket")
+                    )
+            );
         } catch (Exception e) {
-            e.printStackTrace();
+            if(IS_DEBUG) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -420,7 +608,7 @@ public class CosTrackService {
     private CosXmlClientException reportClientException(CosXmlRequest request, QCloudClientException clientException, @Nullable Map<String, String> extra, boolean internal) {
         ReturnClientException returnClientException = getClientExceptionParams(clientException);
         try {
-            if (isReport(returnClientException.exception)) {
+            if (!internal && isReport(returnClientException.exception)) {
                 HttpTaskMetrics taskMetrics = request.getMetrics();
 
                 // 添加 Request 参数
@@ -442,12 +630,26 @@ public class CosTrackService {
                 }
                 // 添加性能参数
                 params.putAll(parseHttpTaskMetricsParams(taskMetrics, params.get("request_name")));
-                if(!internal) {
-                    QCloudTrackService.getInstance().report(EVENT_CODE_QCLOUD_TRACK_COS_SDK, params);
+                if(!TextUtils.isEmpty(request.getClientTraceId())){
+                    params.put("client_trace_id", request.getClientTraceId());
+                }
+                QCloudTrackService.getInstance().report(EVENT_CODE_TRACK_COS_SDK, params);
+
+                // 客户端网络异常sonar
+                if(returnClientException.exception.errorCode == ClientErrorCode.POOR_NETWORK.getCode() ||
+                        returnClientException.exception.errorCode == ClientErrorCode.IO_ERROR.getCode()){
+                    failSonar(
+                            params.get("host"),
+                            params.get("region"),
+                            params.get("bucket"),
+                            request.getClientTraceId()
+                    );
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            if(IS_DEBUG) {
+                e.printStackTrace();
+            }
         }
         return returnClientException.exception;
     }
@@ -458,7 +660,7 @@ public class CosTrackService {
     private CosXmlServiceException reportServiceException(CosXmlRequest request, QCloudServiceException serviceException, @Nullable Map<String, String> extra, boolean internal) {
         ReturnServiceException returnServiceException = getServiceExceptionParams(serviceException);
         try {
-            if (isReport(returnServiceException.exception)) {
+            if (!internal && isReport(returnServiceException.exception)) {
                 // 添加 Request 参数
                 Map<String, String> params = parseCosXmlRequestParams(request);
                 // 添加基础参数
@@ -478,20 +680,34 @@ public class CosTrackService {
                 }
                 // 添加性能参数
                 params.putAll(parseHttpTaskMetricsParams(request.getMetrics(), params.get("request_name")));
-                if(!internal) {
-                    QCloudTrackService.getInstance().report(EVENT_CODE_QCLOUD_TRACK_COS_SDK, params);
+                if(!TextUtils.isEmpty(request.getClientTraceId())){
+                    params.put("client_trace_id", request.getClientTraceId());
+                }
+                QCloudTrackService.getInstance().report(EVENT_CODE_TRACK_COS_SDK, params);
+
+                // 服务端网络异常sonar
+                if(returnServiceException.exception != null && ("RequestTimeout".equals(returnServiceException.exception.getErrorCode()) ||
+                        "UserNetworkTooSlow".equals(returnServiceException.exception.getErrorCode()))){
+                    failSonar(
+                            params.get("host"),
+                            params.get("region"),
+                            params.get("bucket"),
+                            request.getClientTraceId()
+                    );
                 }
             }
         } catch (Exception e){
-            e.printStackTrace();
+            if(IS_DEBUG) {
+                e.printStackTrace();
+            }
         }
         return returnServiceException.exception;
     }
 
     /**
-     * 获取http性能数据字段
+     * 获取http性能数据基础字段
      */
-    private Map<String, String> parseHttpTaskMetricsParams(@Nullable HttpTaskMetrics taskMetrics, String requestName) {
+    private Map<String, String> parseHttpTaskMetricsBaseParams(@Nullable HttpTaskMetrics taskMetrics, String requestName) {
         Map<String, String> params = new HashMap<>();
 
         if (taskMetrics == null) {
@@ -502,13 +718,10 @@ public class CosTrackService {
         params.put("http_dns", String.valueOf(taskMetrics.dnsLookupTookTime()));
         params.put("http_connect", String.valueOf(taskMetrics.connectTookTime()));
         params.put("http_secure_connect", String.valueOf(taskMetrics.secureConnectTookTime()));
-        params.put("http_md5", String.valueOf(taskMetrics.calculateMD5STookTime()));
-        params.put("http_sign", String.valueOf(taskMetrics.signRequestTookTime()));
         params.put("http_read_header", String.valueOf(taskMetrics.readResponseHeaderTookTime()));
         params.put("http_read_body", String.valueOf(taskMetrics.readResponseBodyTookTime()));
         params.put("http_write_header", String.valueOf(taskMetrics.writeRequestHeaderTookTime()));
         params.put("http_write_body", String.valueOf(taskMetrics.writeRequestBodyTookTime()));
-        params.put("http_full_time", String.valueOf(taskMetrics.fullTaskTookTime()));
         if("UploadTask".equalsIgnoreCase(requestName) || "CopyTask".equalsIgnoreCase(requestName)){
             params.put("http_size", String.valueOf(taskMetrics.requestBodyByteCount()));
             // 速度 每秒传输的数据大小 kb为单位
@@ -522,17 +735,34 @@ public class CosTrackService {
             // 速度 每秒传输的数据大小 kb为单位
             params.put("http_speed", String.valueOf(((taskMetrics.requestBodyByteCount() + taskMetrics.responseBodyByteCount())/1024d) / taskMetrics.httpTaskFullTime()));
         }
-        params.put("http_retry_times", String.valueOf(taskMetrics.getRetryCount()));
-        params.put("http_domain", taskMetrics.getDomainName() != null ? taskMetrics.getDomainName() : "null");
         params.put("http_connect_ip", taskMetrics.getConnectAddress() != null ? taskMetrics.getConnectAddress().getHostAddress() : "null");
         params.put("http_dns_ips", taskMetrics.getRemoteAddress() != null ? taskMetrics.getRemoteAddress().toString() : "null");
         return params;
     }
 
     /**
-     * 获取request数据字段
+     * 获取http性能数据字段
      */
-    private Map<String, String> parseCosXmlRequestParams(CosXmlRequest request) {
+    private Map<String, String> parseHttpTaskMetricsParams(@Nullable HttpTaskMetrics taskMetrics, String requestName) {
+        Map<String, String> params = new HashMap<>();
+
+        if (taskMetrics == null) {
+            return params;
+        }
+
+        params.putAll(parseHttpTaskMetricsBaseParams(taskMetrics, requestName));
+
+        params.put("http_md5", String.valueOf(taskMetrics.calculateMD5STookTime()));
+        params.put("http_sign", String.valueOf(taskMetrics.signRequestTookTime()));
+        params.put("http_full_time", String.valueOf(taskMetrics.fullTaskTookTime()));
+        params.put("http_retry_times", String.valueOf(taskMetrics.getRetryCount()));
+        return params;
+    }
+
+    /**
+     * 获取request数据基础字段
+     */
+    private Map<String, String> parseCosXmlRequestBaseParams(CosXmlRequest request) {
         Map<String, String> params = new HashMap<>();
         if (request == null) {
             return params;
@@ -551,23 +781,11 @@ public class CosTrackService {
                     network_protocol = request.getHttpTask().request().url().getProtocol();
                 }
                 params.put("network_protocol", network_protocol);
-
                 params.put("http_method", request.getHttpTask().request().method());
-                if (request.getHttpTask().request().url() != null) {
-                    params.put("url", request.getHttpTask().request().url().toString());
-                }
-                if (!TextUtils.isEmpty(ua)) {
-                    params.put("user_agent", ua);
-                }
             }
         }
 
-        if (request instanceof ObjectRequest &&
-                !TextUtils.isEmpty(((ObjectRequest) request).getCosPath())) {
-            params.put("request_path", ((ObjectRequest) request).getCosPath());
-        }
-
-        String host = parseHost(request); // taskMetrics.getDomainName();
+        String host = parseHost(request);
         if (!TextUtils.isEmpty(host)) {
             params.put("host", host);
             try {
@@ -575,16 +793,33 @@ public class CosTrackService {
                 Matcher matcher = pattern.matcher(host);
                 if (matcher.find()) {
                     String findRegion = matcher.group(1);
-                    if(!TextUtils.isEmpty(findRegion) && !"accelerate".equals(findRegion)) {
+                    if(!TextUtils.isEmpty(findRegion)) {
                         params.put("region", findRegion);
                     }
                 }
             } catch (Exception e) {
             }
-            try {
-                params.put("accelerate", String.valueOf(host.endsWith("cos.accelerate.myqcloud.com")));
-            } catch (Exception e){
-                e.printStackTrace();
+        }
+        return params;
+    }
+
+    /**
+     * 获取request数据字段
+     */
+    private Map<String, String> parseCosXmlRequestParams(CosXmlRequest request) {
+        Map<String, String> params = new HashMap<>();
+        if (request == null) {
+            return params;
+        }
+
+        params.putAll(parseCosXmlRequestBaseParams(request));
+
+        if (request.getHttpTask() != null) {
+            if (request.getHttpTask().request() != null) {
+                String ua = request.getHttpTask().request().header(HttpConstants.Header.USER_AGENT);
+                if (!TextUtils.isEmpty(ua)) {
+                    params.put("user_agent", ua);
+                }
             }
         }
         return params;
@@ -597,8 +832,8 @@ public class CosTrackService {
      */
     private Map<String, String> getCommonParams() {
         Map<String, String> params = new HashMap<>();
-        params.put("sdk_version_name", com.tencent.cos.xml.base.BuildConfig.VERSION_NAME);
-        params.put("sdk_version_code", String.valueOf(com.tencent.cos.xml.base.BuildConfig.VERSION_CODE));
+        params.put("sdk_version_name", VersionInfo.getVersionName());
+        params.put("sdk_version_code", String.valueOf(VersionInfo.getVersionCode()));
         if (!TextUtils.isEmpty(bridge)) {
             params.put("sdk_bridge", bridge);
         }
@@ -614,10 +849,21 @@ public class CosTrackService {
                 host = httpRequest.host();
             }
         }
-        if (host == null && request.getMetrics() != null) {
-            host = request.getMetrics().getDomainName();
-        }
         return host;
+    }
+
+    private static @NonNull String getRequestName(CosXmlRequest request) {
+        String request_name;
+        if(request instanceof BasePutObjectRequest){
+            request_name = "UploadTask";
+        } else if(request instanceof GetObjectRequest || request instanceof GetObjectBytesRequest){
+            request_name = "DownloadTask";
+        } else if("CopyObjectRequest".equalsIgnoreCase(request.getClass().getSimpleName())){
+            request_name = "CopyTask";
+        } else {
+            request_name = request.getClass().getSimpleName();
+        }
+        return request_name;
     }
 
     /**
@@ -721,6 +967,66 @@ public class CosTrackService {
         return !notReport;
     }
 
+    private static class SonarHostsRandomQueue {
+        private final List<SonarHost> list;
+        private final int maxSize;
+        private final Random random;
+        // sonarHostsAdd时的时间戳，也就是最后一次cos成功操作的时间戳，用来计算是否停止探测
+        private long sonarHostsAddTimestamp;
+
+        public SonarHostsRandomQueue(int size) {
+            this.list = new LinkedList<>();
+            this.maxSize = size;
+            this.random = new Random();
+        }
+
+        public void add(SonarHost sonarHost) {
+            if (list.size() >= maxSize) {
+                // 如果列表已满，移除最早插入的元素
+                list.remove(0);
+            }
+            list.add(sonarHost);
+            sonarHostsAddTimestamp = System.currentTimeMillis();
+        }
+
+        public long getSonarHostsAddTimestamp() {
+            return sonarHostsAddTimestamp;
+        }
+
+        public SonarHost get() {
+            if (list.isEmpty()) {
+                return null;
+            }
+            // 获取一个随机元素
+            int index = random.nextInt(list.size());
+            return list.get(index);
+        }
+    }
+
+    private static class SonarHost {
+        private final String host;
+        private final String region;
+        private final String bucket;
+
+        public SonarHost(String host, String region, String bucket) {
+            this.host = host;
+            this.region = region;
+            this.bucket = bucket;
+        }
+
+        public String getHost() {
+            return host;
+        }
+
+        public String getRegion() {
+            return region;
+        }
+
+        public String getBucket() {
+            return bucket;
+        }
+    }
+
     /**
      * 返回 服务名称 和 错误节点
      */
@@ -790,7 +1096,9 @@ public class CosTrackService {
             }
             QCloudTrackService.getInstance().report(EVENT_CODE_NEW_TRANSFER, params);
         } catch (Exception e) {
-            e.printStackTrace();
+            if(IS_DEBUG) {
+                e.printStackTrace();
+            }
         }
     }
 
