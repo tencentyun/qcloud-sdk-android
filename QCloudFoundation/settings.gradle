@@ -1,2 +1,3 @@
 include ':foundation', ':quic'
 include ':qcloud-track'
+include ':network-sonar'

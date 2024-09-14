@@ -260,6 +260,7 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
                 metrics.onHttpTaskEnd();
                 return httpResult;
             } else {
+                metrics.onHttpTaskEnd();
                 throw serviceException;
             }
         } catch (QCloudClientException clientException) {
@@ -283,6 +284,7 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
                 metrics.onHttpTaskEnd();
                 return httpResult;
             } else {
+                metrics.onHttpTaskEnd();
                 throw clientException;
             }
         } finally {
