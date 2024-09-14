@@ -52,6 +52,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 下载传输任务
@@ -74,6 +75,10 @@ public final class COSXMLDownloadTask extends COSXMLTask{
     private HeadObjectRequest headObjectRequest;
     private GetObjectRequest getObjectRequest;
     private SharedPreferences sharedPreferences;
+    /**
+     * 标记一次请求的客户端唯一标识，用于日志上报和本地日志记录
+     */
+    private String clientTraceId;
 
 
     COSXMLDownloadTask(Context context, CosXmlSimpleService cosXmlService, String region, String bucket, String cosPath, String localSaveDirPath, String localSaveFileName){
@@ -86,6 +91,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         if(context != null){
             sharedPreferences = context.getSharedPreferences("COSXMLDOWNLOADTASK", 0);
         }
+        this.clientTraceId = UUID.randomUUID().toString();
     }
 
     COSXMLDownloadTask(Context context, CosXmlSimpleService cosXmlService, GetObjectRequest getObjectRequest){
@@ -134,6 +140,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
     protected void download(){
         if(!checkParameter()) return;
         startTime = System.nanoTime();
+        this.clientTraceId = UUID.randomUUID().toString();
         run();
     }
 
@@ -166,6 +173,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 }
             }
         });
+        getObjectRequest.setClientTraceId(this.clientTraceId);
         cosXmlService.internalGetObjectAsync(getObjectRequest, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
@@ -342,6 +350,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 }
             }
         });
+        headObjectRequest.setClientTraceId(this.clientTraceId);
 
         cosXmlService.headObjectAsync(headObjectRequest, new CosXmlResultListener() {
             @Override
