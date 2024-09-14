@@ -51,10 +51,15 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 
 import okhttp3.MediaType;
@@ -170,7 +175,6 @@ public class OtherTest {
     }
     
     @Test public void testPresignedRequest() {
-
         PresignedUrlRequest presignedUrlRequest = new PresignedUrlRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH) {
             @Override
             public RequestBodySerializer getRequestBody() throws CosXmlClientException {
@@ -198,6 +202,68 @@ public class OtherTest {
         }
     }
 
+    public void uploadFile(String targetUrl, String filePath) {
+        int retryCount = 0;
+        boolean success = false;
+
+        while (!success && retryCount < 3) {
+            HttpURLConnection connection = null;
+            DataOutputStream outputStream = null;
+            FileInputStream fileInputStream = null;
+
+            try {
+                fileInputStream = new FileInputStream(filePath);
+
+                URL url = new URL(targetUrl);
+                connection = (HttpURLConnection) url.openConnection();
+
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+                connection.setUseCaches(false);
+
+                connection.setRequestMethod("POST");
+
+                outputStream = new DataOutputStream(connection.getOutputStream());
+                int bytesRead;
+                byte[] buffer = new byte[8192];
+                while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+
+                outputStream.flush();
+
+                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    if (connection.getResponseCode() >= 500) {
+                        retryCount++;
+                        continue;
+                    } else {
+                        throw new RuntimeException("Server returned HTTP " + connection.getResponseCode()
+                                + " " + connection.getResponseMessage());
+                    }
+                }
+
+                success = true;
+            } catch (Exception e) {
+                retryCount++;
+            } finally {
+                try {
+                    if (outputStream != null)
+                        outputStream.close();
+                    if (fileInputStream != null)
+                        fileInputStream.close();
+                } catch (Exception ignored) {
+                }
+
+                if (connection != null)
+                    connection.disconnect();
+            }
+        }
+
+        if (!success) {
+            throw new RuntimeException("Failed to upload file after 3 attempts");
+        }
+    }
+
     @Test public void testPresignedDownload() {
         PresignedUrlRequest presignedUrlRequest = new PresignedUrlRequest(TestConst.PERSIST_BUCKET, "wechat.png");
         presignedUrlRequest.setCosPath("wechat.png");
@@ -209,9 +275,59 @@ public class OtherTest {
         try {
             String signUrl = defaultService.getPresignedURL(presignedUrlRequest);
             QCloudLogger.i("QCloudTest", signUrl);
+            new Thread(() -> {
+                String localPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/wechat.png";
+                downloadFile(signUrl, localPath);
+            }).start();
         } catch (CosXmlClientException clientException) {
             QCloudLogger.i("QCloudTest", clientException.getMessage());
             clientException.printStackTrace();
+        }
+    }
+    public void downloadFile(String fileUrl, String localPath) {
+        int retryCount = 0;
+        boolean success = false;
+        while (!success && retryCount < 3) {
+            HttpURLConnection connection = null;
+            InputStream input = null;
+            FileOutputStream output = null;
+            try {
+                URL url = new URL(fileUrl);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    if (connection.getResponseCode() >= 500) {
+                        retryCount++;
+                        continue;
+                    } else {
+                        throw new RuntimeException("Server returned HTTP " + connection.getResponseCode()
+                                + " " + connection.getResponseMessage());
+                    }
+                }
+                input = connection.getInputStream();
+                output = new FileOutputStream(localPath);
+                byte data[] = new byte[4096];
+                int count;
+                while ((count = input.read(data)) != -1) {
+                    output.write(data, 0, count);
+                }
+                success = true;
+            } catch (Exception e) {
+                retryCount++;
+            } finally {
+                try {
+                    if (output != null)
+                        output.close();
+                    if (input != null)
+                        input.close();
+                } catch (Exception ignored) {
+                }
+                if (connection != null)
+                    connection.disconnect();
+            }
+        }
+        if (!success) {
+            throw new RuntimeException("Failed to download file after 3 attempts");
         }
     }
 

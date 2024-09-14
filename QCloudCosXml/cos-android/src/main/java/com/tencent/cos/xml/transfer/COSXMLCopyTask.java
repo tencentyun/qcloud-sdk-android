@@ -53,6 +53,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -90,6 +91,10 @@ public final class COSXMLCopyTask extends COSXMLTask {
     private Object SYNC_UPLOAD_PART = new Object();
 
     private HttpTaskMetrics httpTaskMetrics = new HttpTaskMetrics();
+    /**
+     * 标记一次请求的客户端唯一标识，用于日志上报和本地日志记录
+     */
+    private String clientTraceId;
 
     private LargeCopyStateListener largeCopyStateListenerHandler = new LargeCopyStateListener(){
         @Override
@@ -137,6 +142,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         this.bucket = bucket;
         this.cosPath = cosPath;
         this.copySourceStruct = copySourceStruct;
+        this.clientTraceId = UUID.randomUUID().toString();
     }
 
     COSXMLCopyTask( CosXmlSimpleService cosXmlService, CopyObjectRequest copyObjectRequest){
@@ -164,6 +170,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
      * 复制操作
      */
     protected void copy(){
+        this.clientTraceId = UUID.randomUUID().toString();
         run();
     }
 
@@ -178,6 +185,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         if(onSignatureListener != null){
             copyObjectRequest.setSign(onSignatureListener.onGetSign(copyObjectRequest));
         }
+        copyObjectRequest.setClientTraceId(this.clientTraceId);
 
         getHttpMetrics(copyObjectRequest, "CopyObjectRequest");
 
@@ -229,6 +237,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         if(onSignatureListener != null){
             initMultipartUploadRequest.setSign(onSignatureListener.onGetSign(initMultipartUploadRequest));
         }
+        initMultipartUploadRequest.setClientTraceId(this.clientTraceId);
 
         getHttpMetrics(initMultipartUploadRequest, "InitMultipartUploadRequest");
 
@@ -287,6 +296,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         if(onSignatureListener != null){
             listPartsRequest.setSign(onSignatureListener.onGetSign(listPartsRequest));
         }
+        listPartsRequest.setClientTraceId(this.clientTraceId);
 
         getHttpMetrics(listPartsRequest, "ListPartsRequest");
 
@@ -348,6 +358,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 if(onSignatureListener != null){
                     uploadPartCopyRequest.setSign(onSignatureListener.onGetSign(uploadPartCopyRequest));
                 }
+                uploadPartCopyRequest.setClientTraceId(this.clientTraceId);
 
                 getHttpMetrics(uploadPartCopyRequest, "UploadPartCopyRequest");
 
@@ -404,6 +415,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         if(onSignatureListener != null){
             completeMultiUploadRequest.setSign(onSignatureListener.onGetSign(completeMultiUploadRequest));
         }
+        completeMultiUploadRequest.setClientTraceId(this.clientTraceId);
 
         getHttpMetrics(completeMultiUploadRequest, "CompleteMultiUploadRequest");
 
@@ -481,6 +493,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
         if(onSignatureListener != null){
             abortMultiUploadRequest.setSign(onSignatureListener.onGetSign(abortMultiUploadRequest));
         }
+        abortMultiUploadRequest.setClientTraceId(this.clientTraceId);
 
         getHttpMetrics(abortMultiUploadRequest, "AbortMultiUploadRequest");
 
@@ -601,6 +614,7 @@ public final class COSXMLCopyTask extends COSXMLTask {
                 updateState(TransferState.IN_PROGRESS, null, null, false);
             }
         });
+        headObjectRequest.setClientTraceId(this.clientTraceId);
         cosXmlService.headObjectAsync(headObjectRequest, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
