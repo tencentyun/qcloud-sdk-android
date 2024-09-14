@@ -87,7 +87,9 @@ public class HttpTaskMetrics {
     }
 
     void onHttpTaskEnd() {
-        httpTaskTookTime = System.nanoTime() - httpTaskStartTime;
+        if(httpTaskStartTime != 0){
+            httpTaskTookTime = System.nanoTime() - httpTaskStartTime;
+        }
     }
 
     void onCalculateMD5Start() {
@@ -265,7 +267,8 @@ public class HttpTaskMetrics {
 
     public void recordConnectAddress(InetAddress address) {
         if (address != null) {
-            domainName = address.getHostName();
+            // 耗时操作  要去掉
+//            domainName = address.getHostName();
             connectAddress = address;
         }
     }
