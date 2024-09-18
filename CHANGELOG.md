@@ -1,3 +1,7 @@
+## v5.9.34
+1. 解决ip反向查host耗时的问题
+2. 完善SDK质量日志相关逻辑
+
 ## v5.9.33
 1. 支持绕过ssl校验
 2. 增加重试headerx-cos-sdk-retry
