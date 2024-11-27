@@ -314,6 +314,10 @@ public final class QCloudHttpClient {
         List<String> prefetchHost = new LinkedList<>();
         boolean dnsCache = false;
         boolean verifySSLEnable = true;
+        boolean redirectEnable = false;
+
+        byte[] clientCertificateBytes;
+        char[] clientCertificatePassword;
 
         public Builder() {
         }
@@ -371,6 +375,22 @@ public final class QCloudHttpClient {
 
         public Builder setVerifySSLEnable(boolean verifySSLEnable) {
             this.verifySSLEnable = verifySSLEnable;
+            return this;
+        }
+
+        /**
+         * 设置tls客户端证书
+         * @param certificateBytes 客户端证书字节数组, 需要为BKS格式
+         * @param password BKS文件的密码，如果你的BKS文件没有密码，请传入null
+         */
+        public Builder setClientCertificate(byte[] certificateBytes, char[] password) {
+            this.clientCertificateBytes = certificateBytes;
+            this.clientCertificatePassword = password;
+            return this;
+        }
+
+        public Builder setRedirectEnable(boolean redirectEnable) {
+            this.redirectEnable = redirectEnable;
             return this;
         }
 
