@@ -10,6 +10,7 @@ import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.crypto.KMSEncryptionMaterialsProvider;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.test.R;
 import com.tencent.cos.xml.transfer.TransferConfig;
 import com.tencent.cos.xml.transfer.TransferManager;
 import com.tencent.cos.xml.transfer.TransferService;
@@ -27,6 +28,7 @@ import com.tencent.qcloud.core.http.HttpConfiguration;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.QCloudHttpRequest;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -94,6 +96,7 @@ public class ServiceFactory {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setDebuggable(true)
+                .setRedirectEnable(true)
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
 
@@ -226,6 +229,34 @@ public class ServiceFactory {
                 .builder();
 
         return new CosXmlSimpleService(getContext(), cosXmlServiceConfig);
+    }
+
+    public CosXmlSimpleService newDualCheckService() {
+        CosXmlServiceConfig cosXmlServiceConfig = null;
+
+        try {
+            // tls客户端证书字节数组, 需要为BKS格式
+            byte[] certificateBytes = TestUtils.inputStreamToByteArray(
+                    TestUtils.getContext().getResources().openRawResource(R.raw.client)
+            );
+            // BKS文件的密码，如果你的BKS文件没有密码，请传入null
+            String password = "123456";
+
+            cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                    .isHttps(true)
+                    .setDebuggable(true)
+                    .setConnectionTimeout(10000)
+                    .setSocketTimeout(10000)
+                    .setRegion(TestConst.DUALCHECK_PERSIST_BUCKET_REGION)
+                    .setHost("dual-check.mynewcos.com")
+                    // 设置tls客户端证书
+                    .setClientCertificate(certificateBytes, password)
+                    .builder();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return newService(cosXmlServiceConfig);
     }
 
     public TransferManager newDefaultTransferManager() {
@@ -429,6 +460,18 @@ public class ServiceFactory {
                 .build();
         Log.d(TestConst.UT_TAG, String.valueOf(transferConfig.getDivisionForCopy()));
         return new TransferManager(newDefaultService(), transferConfig);
+    }
+
+    public TransferManager newDualCheckTransferManager() {
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .setDivisionForUpload(2 * 1024 * 1024)
+                .setSliceSizeForUpload(1024 * 1024)
+                .setVerifyCRC64(true)
+                .setSliceSizeForCopy(5242880)
+                .setDividsionForCopy(5242880)
+                .build();
+        Log.d(TestConst.UT_TAG, String.valueOf(transferConfig.getDivisionForCopy()));
+        return new TransferManager(newDualCheckService(), transferConfig);
     }
 
 

@@ -722,4 +722,23 @@ public class DownloadTest {
             }
         }
     }
+
+    @Test public void testDualCheckSmallDownloadToUri() {
+        CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDualCheckService();
+
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.DUALCHECK_PERSIST_BUCKET,
+                "index.html",
+                Uri.fromFile(new File(smallFilePath())));
+        Assert.assertNotNull(getObjectRequest.getFileContentUri());
+        try {
+            cosXmlSimpleService.getObject(getObjectRequest);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+            return;
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+            return;
+        }
+        Assert.assertTrue(true);
+    }
 }

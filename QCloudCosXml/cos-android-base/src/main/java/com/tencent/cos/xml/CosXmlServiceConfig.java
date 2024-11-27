@@ -111,6 +111,10 @@ public class CosXmlServiceConfig implements Parcelable {
     private final int downloadMaxThreadCount;
     private final boolean domainSwitch;
     private final boolean verifySSLEnable;
+    private final boolean redirectEnable;
+
+    private final byte[] clientCertificateBytes;
+    private final char[] clientCertificatePassword;
 
     public CosXmlServiceConfig(Builder builder) {
         this.protocol = builder.protocol;
@@ -150,6 +154,9 @@ public class CosXmlServiceConfig implements Parcelable {
         this.downloadMaxThreadCount = builder.downloadMaxThreadCount;
         this.domainSwitch = builder.domainSwitch;
         this.verifySSLEnable = builder.verifySSLEnable;
+        this.clientCertificateBytes = builder.clientCertificateBytes;
+        this.clientCertificatePassword = builder.clientCertificatePassword;
+        this.redirectEnable = builder.redirectEnable;
     }
 
     public Builder newBuilder() {
@@ -443,6 +450,18 @@ public class CosXmlServiceConfig implements Parcelable {
         return verifySSLEnable;
     }
 
+    public byte[] getClientCertificateBytes() {
+        return clientCertificateBytes;
+    }
+
+    public char[] getClientCertificatePassword() {
+        return clientCertificatePassword;
+    }
+
+    public boolean isRedirectEnable() {
+        return redirectEnable;
+    }
+
     @Deprecated
     public String getEndpointSuffix() {
         return getEndpointSuffix(region, false);
@@ -648,6 +667,10 @@ public class CosXmlServiceConfig implements Parcelable {
         private int downloadMaxThreadCount;
         private boolean domainSwitch;
         private boolean verifySSLEnable;
+        private boolean redirectEnable;
+
+        private byte[] clientCertificateBytes;
+        private char[] clientCertificatePassword;
 
         public Builder() {
             protocol = HTTPS_PROTOCOL;
@@ -658,6 +681,9 @@ public class CosXmlServiceConfig implements Parcelable {
             downloadMaxThreadCount = TaskExecutors.DOWNLOAD_THREAD_COUNT;
             domainSwitch = true;
             verifySSLEnable = true;
+            clientCertificateBytes = null;
+            clientCertificatePassword = null;
+            redirectEnable = false;
         }
 
         public Builder(CosXmlServiceConfig config) {
@@ -698,6 +724,9 @@ public class CosXmlServiceConfig implements Parcelable {
             downloadMaxThreadCount = config.downloadMaxThreadCount;
             domainSwitch = config.domainSwitch;
             verifySSLEnable = config.verifySSLEnable;
+            clientCertificateBytes = config.clientCertificateBytes;
+            clientCertificatePassword = config.clientCertificatePassword;
+            redirectEnable = config.redirectEnable;
         }
 
         /**
@@ -755,10 +784,29 @@ public class CosXmlServiceConfig implements Parcelable {
         }
 
         /**
-         * 设置是否开启SSL证书校验，默认开启
+         * 设置是否开启TLS证书校验，默认开启
          */
         public Builder setVerifySSLEnable(boolean verifySSLEnable) {
             this.verifySSLEnable = verifySSLEnable;
+            return this;
+        }
+
+        /**
+         * 设置tls客户端证书
+         * @param certificateBytes 客户端证书字节数组, 需要为BKS格式
+         * @param password BKS文件的密码，如果你的BKS文件没有密码，请传入null
+         */
+        public Builder setClientCertificate(byte[] certificateBytes, String password) {
+            this.clientCertificateBytes = certificateBytes;
+            this.clientCertificatePassword = password.toCharArray();
+            return this;
+        }
+
+        /**
+         * 设置是否开启重定向，默认不开启
+         */
+        public Builder setRedirectEnable(boolean redirectEnable) {
+            this.redirectEnable = redirectEnable;
             return this;
         }
 
