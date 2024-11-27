@@ -165,6 +165,18 @@ public class TestUtils {
         return null;
     }
 
+    public static String big300mFilePath() {
+
+        String filePath = localPath(TestConst.PERSIST_BUCKET_BIG_300M_OBJECT_PATH);
+        try {
+            boolean success = createFile(filePath, TestConst.PERSIST_BUCKET_BIG_300M_OBJECT_SIZE);
+            return filePath;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static String bigPlusFilePath() {
 
         String filePath = localPath(TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);

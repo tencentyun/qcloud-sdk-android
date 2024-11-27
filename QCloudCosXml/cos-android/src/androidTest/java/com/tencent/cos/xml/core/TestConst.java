@@ -78,11 +78,13 @@ public class TestConst {
     public static final long PERSIST_BUCKET_SMALL_OBJECT_SIZE = 1024 * 1024;
     public static final long PERSIST_BUCKET_BIG_OBJECT_SIZE = 10 * 1024 * 1024;
     public static final long PERSIST_BUCKET_BIG_60M_OBJECT_SIZE = 60 * 1024 * 1024;
+    public static final long PERSIST_BUCKET_BIG_300M_OBJECT_SIZE = 300 * 1024 * 1024;
 
     public static final String PERSIST_BUCKET_SMALL_OBJECT_PATH = "do_not_remove/small_object";
     public static final String PERSIST_BUCKET_BIG_OBJECT_PATH = "do_not_remove/big_object";
     public static final String PERSIST_BUCKET_BATCH_OBJECT_PATH = "do_not_remove//batch/small_object";
     public static final String PERSIST_BUCKET_BIG_60M_OBJECT_PATH = "do_not_remove/big_60m_object";
+    public static final String PERSIST_BUCKET_BIG_300M_OBJECT_PATH = "do_not_remove/big_300m_object";
     public static final String PERSIST_BUCKET_BIG_1G_OBJECT_PATH = "do_not_remove/big_file.zip";
     public static final String PERSIST_BUCKET_CSE_SMALL_OBJECT_PATH = "do_not_remove/cse_small_object";
     public static final String PERSIST_BUCKET_CSE_BIG_OBJECT_PATH = "do_not_remove/cse_big_object";
@@ -111,4 +113,10 @@ public class TestConst {
     public static final String CALLBACK_SECRET_KEY = BuildConfig.CALLBACK_SECRET_KEY;
     public static final String CALLBACK_PERSIST_BUCKET_REGION = "ap-shanghai";
     public static final String CALLBACK_PERSIST_BUCKET = "test-callback-1252246555";
+
+    public static final String DUALCHECK_PERSIST_BUCKET_REGION = "ap-nanjing";
+    public static final String DUALCHECK_PERSIST_BUCKET = "dual-check-nj-1253960454";
+
+
+
 }
