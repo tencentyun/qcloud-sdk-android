@@ -211,17 +211,21 @@ public class CosXmlBaseService implements BaseCosXml {
             builder.setQCloudHttpRetryHandler(qCloudHttpRetryHandler);
         }
         builder.enableDebugLog(configuration.isDebuggable());
-        if(configuration.isEnableQuic()){
-            try {
-                Class clazz = Class.forName("com.tencent.qcloud.quic.QuicClientImpl");
-                builder.setNetworkClient((NetworkClient) clazz.newInstance());
-            } catch (Exception e) {
-                IllegalStateException illegalStateException = new IllegalStateException(e.getMessage(), e);
-                CosTrackService.getInstance().reportError(TAG, illegalStateException);
-                throw illegalStateException;
+        if(configuration.getCustomizeNetworkClient() != null){
+            builder.setNetworkClient(configuration.getCustomizeNetworkClient());
+        } else {
+            if(configuration.isEnableQuic()){
+                try {
+                    Class clazz = Class.forName("com.tencent.qcloud.quic.QuicClientImpl");
+                    builder.setNetworkClient((NetworkClient) clazz.newInstance());
+                } catch (Exception e) {
+                    IllegalStateException illegalStateException = new IllegalStateException(e.getMessage(), e);
+                    CosTrackService.getInstance().reportError(TAG, illegalStateException);
+                    throw illegalStateException;
+                }
+            }else {
+                builder.setNetworkClient(new OkHttpClientImpl());
             }
-        }else {
-            builder.setNetworkClient(new OkHttpClientImpl());
         }
         builder.dnsCache(configuration.isDnsCache());
         builder.addPrefetchHost(configuration.getEndpointSuffix());
