@@ -1,9 +1,11 @@
 package com.tencent.qcloud.network.sonar.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.os.Build;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -30,18 +32,21 @@ public class Utils {
 
     public static boolean isNetworkAvailable(Context context) {
         try {
-            ConnectivityManager mgr = (ConnectivityManager) context
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getApplicationContext()
                     .getSystemService(Context.CONNECTIVITY_SERVICE);
-            if (mgr == null) {
-                return false;
-            }
-            @SuppressLint("MissingPermission") @SuppressWarnings("deprecation") NetworkInfo[] info = mgr.getAllNetworkInfo();
-            if (info != null) {
-                for (NetworkInfo anInfo : info) {
-                    if (anInfo != null && anInfo.isConnected()) {
-                        return true;
-                    }
-                }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Network nw = connectivityManager.getActiveNetwork();
+                if (nw == null) return false;
+                NetworkCapabilities actNw = connectivityManager.getNetworkCapabilities(nw);
+                return actNw != null && (
+                        actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ||
+                                actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH)
+                );
+            } else {
+                NetworkInfo nwInfo = connectivityManager.getActiveNetworkInfo();
+                return nwInfo != null && nwInfo.isConnected();
             }
         } catch (Exception e) {
             //ignore

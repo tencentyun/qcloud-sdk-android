@@ -7,8 +7,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 10000
-        versionName "1.0.0"
+        versionCode 10001
+        versionName "1.0.1"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -42,3 +42,17 @@ project.extensions.add('archiveFilePath', 'outputs/aar/qcloud-network-sonar-rele
 
 
 apply from: '../../publishMavenCentral.gradle'
+
+//发布本地repo
+apply plugin: 'maven'
+uploadArchives {
+    repositories.mavenDeployer {
+        pom.project {
+            groupId 'com.qcloud.cos'
+            artifactId 'qcloud-network-sonar'
+            version android.defaultConfig.versionName
+            packaging 'aar'
+        }
+        repository(url: uri("${rootProject.projectDir}/repo"))
+    }
+}

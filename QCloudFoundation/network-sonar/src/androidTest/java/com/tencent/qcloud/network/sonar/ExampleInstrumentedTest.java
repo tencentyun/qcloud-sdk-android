@@ -47,6 +47,11 @@ public class ExampleInstrumentedTest {
             public void run() {
                 NetworkSonar.sonar(appContext, new SonarRequest(url), types, new NetworkSonarCallback() {
                     @Override
+                    public void onStart(SonarType type) {
+
+                    }
+
+                    @Override
                     public void onSuccess(SonarResult result) {
                         Log.d("sonar", "onSuccess: " + result.getType().toString());
                         switch (result.getType()) {
