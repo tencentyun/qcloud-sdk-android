@@ -46,14 +46,6 @@ import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.HttpRequest;
 import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
-import com.tencent.qcloud.network.sonar.NetworkSonar;
-import com.tencent.qcloud.network.sonar.NetworkSonarCallback;
-import com.tencent.qcloud.network.sonar.SonarRequest;
-import com.tencent.qcloud.network.sonar.SonarResult;
-import com.tencent.qcloud.network.sonar.SonarType;
-import com.tencent.qcloud.network.sonar.dns.DnsResult;
-import com.tencent.qcloud.network.sonar.ping.PingResult;
-import com.tencent.qcloud.network.sonar.traceroute.TracerouteResult;
 import com.tencent.qcloud.track.Constants;
 import com.tencent.qcloud.track.QCloudTrackService;
 import com.tencent.qcloud.track.cls.ClsLifecycleCredentialProvider;
@@ -61,8 +53,6 @@ import com.tencent.qcloud.track.service.BeaconTrackService;
 import com.tencent.qcloud.track.service.ClsTrackService;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -70,9 +60,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,9 +79,9 @@ public class CosTrackService {
     // 网络事件
     private static final String EVENT_CODE_TRACK_COS_SDK_HTTP = "qcloud_track_cos_sdk_http";
     // 常规网络探测事件
-    private static final String EVENT_CODE_TRACK_COS_SDK_SONAR = "qcloud_track_cos_sdk_sonar";
+    public static final String EVENT_CODE_TRACK_COS_SDK_SONAR = "qcloud_track_cos_sdk_sonar";
     // 错误网络探测事件
-    private static final String EVENT_CODE_TRACK_COS_SDK_SONAR_FAILURE = "qcloud_track_cos_sdk_sonar_failure";
+    public static final String EVENT_CODE_TRACK_COS_SDK_SONAR_FAILURE = "qcloud_track_cos_sdk_sonar_failure";
     private static final String EVENT_CODE_NEW_TRANSFER = "qcloud_track_cos_sdk_transfer";
 
     private static final String EVENT_PARAMS_SUCCESS = "Success";
@@ -105,12 +92,19 @@ public class CosTrackService {
     private static CosTrackService instance;
     //上报桥接来源
     private String bridge;
-    private Context applicationContext;
     private boolean isCloseReport;
+    public boolean isCloseReport() {
+        return isCloseReport;
+    }
 
-    // 常规探测
-    private final ScheduledExecutorService sonarScheduler = Executors.newScheduledThreadPool(1);
-    private final SonarHostsRandomQueue sonarHosts = new SonarHostsRandomQueue(3);
+    private final CosTrackSonarService sonarService = new CosTrackSonarService();
+    public CosTrackSonarService getSonarService() {
+        return sonarService;
+    }
+    private final CosTrackService.SonarHostsRandomQueue sonarHosts = new CosTrackService.SonarHostsRandomQueue(3);
+    public SonarHostsRandomQueue getSonarHosts() {
+        return sonarHosts;
+    }
 
     private CosTrackService() {
     }
@@ -123,7 +117,6 @@ public class CosTrackService {
             if (instance == null) {
                 instance = new CosTrackService();
                 instance.bridge = bridge;
-                instance.applicationContext = applicationContext;
                 instance.isCloseReport = isCloseReport;
                 if (BeaconTrackService.isInclude()) {
                     // 添加全部上报灯塔上报器
@@ -152,7 +145,8 @@ public class CosTrackService {
                 QCloudTrackService.getInstance().setIsCloseReport(isCloseReport);
 
                 CosTrackService.getInstance().reportSdkStart();
-                CosTrackService.getInstance().periodicSonar();
+                CosTrackService.getInstance().getSonarService().setContext(applicationContext);
+                CosTrackService.getInstance().getSonarService().periodicSonar();
 
 //                if (BeaconTrackService.isInclude()) {
 //                // 获取灯塔云控配置，决定是否要initBeacon
@@ -309,121 +303,6 @@ public class CosTrackService {
                 params.put("client_trace_id", request.getClientTraceId());
             }
             QCloudTrackService.getInstance().report(EVENT_CODE_TRACK_COS_SDK_HTTP, params);
-        } catch (Exception e) {
-            if(IS_DEBUG) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void periodicSonar(){
-        final Runnable sonar = () -> {
-            SonarHost sonarHost = sonarHosts.get();
-            if(sonarHost == null || sonarHost.getHost() == null) return;
-
-            long diffInMinutes = (System.currentTimeMillis() - sonarHosts.getSonarHostsAddTimestamp()) / (1000 * 60);
-            // 检查是否超过了15分钟
-            if (diffInMinutes > 15) return;
-
-            Map<String, String> extra = new HashMap<>();
-            extra.put("region", sonarHost.getRegion());
-            extra.put("bucket", sonarHost.getBucket());
-            sonar(EVENT_CODE_TRACK_COS_SDK_SONAR, sonarHost.getHost(), extra, true);
-        };
-        // 探测策略：起始延迟3分钟，每10分钟执行一次
-        sonarScheduler.scheduleWithFixedDelay(sonar, 3, 10, TimeUnit.MINUTES);
-    }
-
-
-    public void failSonar(String host, String region, String bucket, String clientTraceId){
-        if(host == null) return;
-        Map<String, String> extra = new HashMap<>();
-        extra.put("region", region);
-        extra.put("bucket", bucket);
-        extra.put("client_trace_id", clientTraceId);
-        sonar(EVENT_CODE_TRACK_COS_SDK_SONAR_FAILURE, host, extra, false);
-    }
-
-    private void sonar(String eventCode, String host, Map<String, String> extra, boolean periodic){
-        // 不做无谓的探测
-        if (instance.isCloseReport || !BeaconTrackService.isInclude()) {
-            return;
-        }
-
-        try {
-            Map<String, String> params = new HashMap<>(extra);
-            params.put("host", host);
-
-            SonarRequest sonarRequest;
-            List<SonarType> types = new ArrayList<>();
-            if(periodic){
-                types.add(SonarType.PING);
-                long startTime = System.currentTimeMillis();
-                InetAddress address = InetAddress.getByName(host);
-                String dnsIp = address.getHostAddress();
-                params.put("dns_ip", dnsIp);
-                params.put("dns_lookupTime", String.valueOf(System.currentTimeMillis() - startTime));
-                sonarRequest = new SonarRequest(host, dnsIp);
-            } else {
-                types.add(SonarType.DNS);
-                types.add(SonarType.PING);
-                types.add(SonarType.TRACEROUTE);
-                sonarRequest = new SonarRequest(host);
-            }
-            NetworkSonar.sonar(applicationContext, sonarRequest, types, new NetworkSonarCallback() {
-                @Override
-                public void onSuccess(SonarResult result) {
-                }
-
-                @Override
-                public void onFail(SonarResult result) {
-                }
-
-                @Override
-                public void onFinish(List<SonarResult> results) {
-                    if(results != null && !results.isEmpty()){
-                        for(SonarResult sonarResult : results){
-                            if(sonarResult == null || !sonarResult.isSuccess() || sonarResult.getResult() == null) continue;
-                            switch (sonarResult.getType()) {
-                                case DNS:
-                                    DnsResult dnsResult = (DnsResult) sonarResult.getResult();
-                                    params.put("dns_ip", dnsResult.ip);
-                                    params.put("dns_lookupTime", String.valueOf(dnsResult.lookupTime));
-                                    params.put("dns_a", dnsResult.a);
-                                    params.put("dns_cname", dnsResult.cname);
-                                    params.put("dns_result", dnsResult.response);
-                                    break;
-                                case PING:
-                                    PingResult pingResult = (PingResult) sonarResult.getResult();
-                                    params.put("ping_ip", pingResult.ip);
-                                    params.put("ping_size", String.valueOf(pingResult.size));
-                                    params.put("ping_interval", String.valueOf(pingResult.interval));
-                                    params.put("ping_count", String.valueOf(pingResult.count));
-                                    params.put("ping_loss", String.valueOf(pingResult.getLoss()));
-                                    params.put("ping_response_num", String.valueOf(pingResult.getResponseNum()));
-                                    params.put("ping_avg", String.valueOf(pingResult.avg));
-                                    params.put("ping_max", String.valueOf(pingResult.max));
-                                    params.put("ping_min", String.valueOf(pingResult.min));
-                                    params.put("ping_stddev", String.valueOf(pingResult.stddev));
-                                    break;
-                                case TRACEROUTE:
-                                    TracerouteResult tracerouteResult = (TracerouteResult) sonarResult.getResult();
-                                    params.put("traceroute_ip", tracerouteResult.getTargetIp());
-                                    params.put("traceroute_status", tracerouteResult.getCommandStatus().getName());
-                                    params.put("traceroute_hop_count", String.valueOf(tracerouteResult.getHopCount()));
-                                    params.put("traceroute_total_delay", String.valueOf(tracerouteResult.getTotalDelay()));
-                                    params.put("traceroute_avg_loss_rate", String.valueOf(tracerouteResult.getLossRate()));
-                                    params.put("traceroute_nodes", tracerouteResult.getNodeResultsString());
-                                    break;
-                            }
-                        }
-                        // 至少探测到一种网络情况才上报
-                        if(params.containsKey("dns_ip") || params.containsKey("ping_ip") || params.containsKey("traceroute_ip")){
-                            QCloudTrackService.getInstance().report(eventCode, params);
-                        }
-                    }
-                }
-            });
         } catch (Exception e) {
             if(IS_DEBUG) {
                 e.printStackTrace();
@@ -638,12 +517,14 @@ public class CosTrackService {
                 // 客户端网络异常sonar
                 if(returnClientException.exception.errorCode == ClientErrorCode.POOR_NETWORK.getCode() ||
                         returnClientException.exception.errorCode == ClientErrorCode.IO_ERROR.getCode()){
-                    failSonar(
-                            params.get("host"),
-                            params.get("region"),
-                            params.get("bucket"),
-                            request.getClientTraceId()
-                    );
+                    if(sonarService != null){
+                        sonarService.failSonar(
+                                params.get("host"),
+                                params.get("region"),
+                                params.get("bucket"),
+                                request.getClientTraceId()
+                        );
+                    }
                 }
             }
         } catch (Exception e) {
@@ -688,12 +569,14 @@ public class CosTrackService {
                 // 服务端网络异常sonar
                 if(returnServiceException.exception != null && ("RequestTimeout".equals(returnServiceException.exception.getErrorCode()) ||
                         "UserNetworkTooSlow".equals(returnServiceException.exception.getErrorCode()))){
-                    failSonar(
+                    if(sonarService != null){
+                        sonarService.failSonar(
                             params.get("host"),
                             params.get("region"),
                             params.get("bucket"),
                             request.getClientTraceId()
-                    );
+                        );
+                    }
                 }
             }
         } catch (Exception e){
@@ -967,7 +850,7 @@ public class CosTrackService {
         return !notReport;
     }
 
-    private static class SonarHostsRandomQueue {
+    public static class SonarHostsRandomQueue {
         private final List<SonarHost> list;
         private final int maxSize;
         private final Random random;
@@ -1003,7 +886,7 @@ public class CosTrackService {
         }
     }
 
-    private static class SonarHost {
+    public static class SonarHost {
         private final String host;
         private final String region;
         private final String bucket;
