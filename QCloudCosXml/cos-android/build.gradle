@@ -151,7 +151,7 @@ dependencies {
 //    androidTestImplementation 'android.arch.persistence.room:rxjava2:2.1.1'
     androidTestImplementation "androidx.room:room-rxjava2:2.5.1"
 
-    androidTestImplementation 'com.tencentcloudapi.cls:tencentcloud-cls-sdk-android:1.0.5'
+//    androidTestImplementation 'com.tencentcloudapi.cls:tencentcloud-cls-sdk-android:1.0.5'
     androidTestImplementation 'com.google.guava:guava:27.0.1-android'
 
 //    if (compileQuic() && false) {
@@ -166,6 +166,7 @@ dependencies {
     api project(':cos-android-base')
     api project(':qcloud-track')
     if(includeBeacon){
+        api project(':network-sonar')
         embed(name: 'beacon-android-release-4.2.86.7-hf1-official', ext: 'aar')
         embed(name: 'qimei-1.2.18.3', ext: 'aar')
         embed(name: 'qimei-core-1.2.18.3-normal', ext: 'aar')
@@ -174,7 +175,7 @@ dependencies {
 
     // 非lite版本引入gson库，万象部分功能需要
     if (!android.defaultPublishConfig.contains("slim")) {
-        implementation 'com.google.code.gson:gson:2.11.0'
+        implementation 'com.google.code.gson:gson:2.8.5'
     }
 
     // kms 加密

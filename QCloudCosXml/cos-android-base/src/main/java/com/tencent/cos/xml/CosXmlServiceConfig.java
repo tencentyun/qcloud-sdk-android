@@ -28,6 +28,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.tencent.qcloud.core.http.NetworkClient;
 import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
 import com.tencent.qcloud.core.task.RetryStrategy;
 import com.tencent.qcloud.core.task.TaskExecutors;
@@ -116,6 +117,8 @@ public class CosXmlServiceConfig implements Parcelable {
     private final byte[] clientCertificateBytes;
     private final char[] clientCertificatePassword;
 
+    private final NetworkClient customizeNetworkClient;
+
     public CosXmlServiceConfig(Builder builder) {
         this.protocol = builder.protocol;
         this.userAgentExtended = builder.userAgentExtended;
@@ -157,6 +160,7 @@ public class CosXmlServiceConfig implements Parcelable {
         this.clientCertificateBytes = builder.clientCertificateBytes;
         this.clientCertificatePassword = builder.clientCertificatePassword;
         this.redirectEnable = builder.redirectEnable;
+        this.customizeNetworkClient = builder.customizeNetworkClient;
     }
 
     public Builder newBuilder() {
@@ -458,6 +462,10 @@ public class CosXmlServiceConfig implements Parcelable {
         return clientCertificatePassword;
     }
 
+    public NetworkClient getCustomizeNetworkClient() {
+        return customizeNetworkClient;
+    }
+
     public boolean isRedirectEnable() {
         return redirectEnable;
     }
@@ -672,6 +680,8 @@ public class CosXmlServiceConfig implements Parcelable {
         private byte[] clientCertificateBytes;
         private char[] clientCertificatePassword;
 
+        private NetworkClient customizeNetworkClient;
+
         public Builder() {
             protocol = HTTPS_PROTOCOL;
             isDebuggable = false;
@@ -684,6 +694,7 @@ public class CosXmlServiceConfig implements Parcelable {
             clientCertificateBytes = null;
             clientCertificatePassword = null;
             redirectEnable = false;
+            customizeNetworkClient = null;
         }
 
         public Builder(CosXmlServiceConfig config) {
@@ -727,6 +738,7 @@ public class CosXmlServiceConfig implements Parcelable {
             clientCertificateBytes = config.clientCertificateBytes;
             clientCertificatePassword = config.clientCertificatePassword;
             redirectEnable = config.redirectEnable;
+            customizeNetworkClient = config.customizeNetworkClient;
         }
 
         /**
@@ -807,6 +819,11 @@ public class CosXmlServiceConfig implements Parcelable {
          */
         public Builder setRedirectEnable(boolean redirectEnable) {
             this.redirectEnable = redirectEnable;
+            return this;
+        }
+
+        public Builder setCustomizeNetworkClient(NetworkClient customizeNetworkClient) {
+            this.customizeNetworkClient = customizeNetworkClient;
             return this;
         }
 
