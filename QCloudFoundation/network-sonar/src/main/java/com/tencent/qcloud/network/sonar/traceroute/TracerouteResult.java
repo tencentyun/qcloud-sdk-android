@@ -83,7 +83,7 @@ public class TracerouteResult implements JsonSerializable {
                 total += node.lossRate();
             }
 
-            return Math.round(total / count);
+            return total / count;
         } else {
             return 1;
         }

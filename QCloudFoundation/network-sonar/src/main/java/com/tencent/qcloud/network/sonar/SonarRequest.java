@@ -8,6 +8,7 @@ package com.tencent.qcloud.network.sonar;
 public class SonarRequest {
     private String host;
     private String ip;
+    private boolean isNetworkAvailable;
 
     public SonarRequest(String host) {
         this.host = host;
@@ -28,5 +29,13 @@ public class SonarRequest {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public boolean isNetworkAvailable() {
+        return isNetworkAvailable;
+    }
+
+    public void setNetworkAvailable(boolean networkAvailable) {
+        isNetworkAvailable = networkAvailable;
     }
 }

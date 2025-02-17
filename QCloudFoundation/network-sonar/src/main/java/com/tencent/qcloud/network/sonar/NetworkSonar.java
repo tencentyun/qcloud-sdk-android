@@ -5,8 +5,8 @@ import android.content.Context;
 import com.tencent.qcloud.network.sonar.dns.AndroidDnsServerLookup;
 import com.tencent.qcloud.network.sonar.dns.DnsResult;
 import com.tencent.qcloud.network.sonar.dns.DnsSonar;
-import com.tencent.qcloud.network.sonar.info.InfoResult;
-import com.tencent.qcloud.network.sonar.info.InfoSonar;
+import com.tencent.qcloud.network.sonar.http.HttpResult;
+import com.tencent.qcloud.network.sonar.http.HttpSonar;
 import com.tencent.qcloud.network.sonar.ping.PingResult;
 import com.tencent.qcloud.network.sonar.ping.PingSonar;
 import com.tencent.qcloud.network.sonar.traceroute.TracerouteResult;
@@ -14,6 +14,9 @@ import com.tencent.qcloud.network.sonar.traceroute.TracerouteSonar;
 import com.tencent.qcloud.network.sonar.utils.Utils;
 
 import org.minidns.DnsClient;
+import org.minidns.dnsserverlookup.AndroidUsingExec;
+import org.minidns.dnsserverlookup.AndroidUsingReflection;
+import org.minidns.dnsserverlookup.UnixUsingEtcResolvConf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,44 +33,37 @@ public class NetworkSonar {
         synchronized (NetworkSonar.class) {
             if (NetworkSonar.appContext == null) {
                 NetworkSonar.appContext = appContext;
+                DnsClient.removeDNSServerLookupMechanism(AndroidUsingExec.INSTANCE);
+                DnsClient.removeDNSServerLookupMechanism(AndroidUsingReflection.INSTANCE);
+                DnsClient.removeDNSServerLookupMechanism(UnixUsingEtcResolvConf.INSTANCE);
                 DnsClient.addDnsServerLookupMechanism(new AndroidDnsServerLookup(appContext));
             }
         }
+        request.setNetworkAvailable(Utils.isNetworkAvailable(appContext));
 
-        SonarResult result = null;
         List<SonarResult> results = new ArrayList<>();
-        // 如果断网则直接完成 除NET_INFO
-        boolean isNetworkAvailable = Utils.isNetworkAvailable(appContext);
         for (int i = 0; i < types.size(); i++) {
+            SonarResult result = null;
             SonarType type = types.get(i);
+            callback.onStart(type);
             switch (type) {
-                case NET_INFO:
-                    result = sonarInfo(appContext, request);
-                    break;
                 case DNS:
-                    if (isNetworkAvailable) {
-                        result = sonarDns(request);
-                        // 拿到dns结果后 给request赋值ip
-                        if (result.isSuccess()) {
-                            DnsResult dnsResult = (DnsResult) result.getResult();
-                            request.setIp(dnsResult.ip);
-                        }
+                    result = sonarDns(request);
+                    // 拿到dns结果后 给request赋值ip
+                    if (result.isSuccess()) {
+                        DnsResult dnsResult = (DnsResult) result.getResult();
+                        request.setIp(dnsResult.ip);
                     }
                     break;
                 case PING:
-                    if (isNetworkAvailable) {
-                        result = sonarPing(request);
-                    }
+                    result = sonarPing(request);
                     break;
                 case TRACEROUTE:
-                    if (isNetworkAvailable) {
-                        result = sonarTraceroute(request);
-                    }
+                    result = sonarTraceroute(request);
                     break;
-            }
-            if (result == null) {
-                callback.onFail(new SonarResult(type, new Exception("result is null")));
-                continue;
+                case HTTP:
+                    result = sonarHttp(request);
+                    break;
             }
             if (result.isSuccess()) {
                 callback.onSuccess(result);
@@ -81,10 +77,6 @@ public class NetworkSonar {
         }
     }
 
-    public static SonarResult<InfoResult> sonarInfo(Context appContext, SonarRequest request) {
-        return (new InfoSonar(appContext)).start(request);
-    }
-
     public static SonarResult<DnsResult> sonarDns(SonarRequest request) {
         return (new DnsSonar()).start(request);
     }
@@ -95,6 +87,14 @@ public class NetworkSonar {
 
     public static SonarResult<TracerouteResult> sonarTraceroute(SonarRequest request) {
         return (new TracerouteSonar()).start(request);
+    }
+
+    public static SonarResult<HttpResult> sonarHttp(SonarRequest request) {
+        return sonarHttp(request, false);
+    }
+
+    public static SonarResult<HttpResult> sonarHttp(SonarRequest request, boolean bypassProxy) {
+        return (new HttpSonar(bypassProxy)).start(request);
     }
 
     public static Context getAppContext() {

@@ -13,7 +13,6 @@ import org.minidns.record.CNAME;
 import org.minidns.record.Data;
 import org.minidns.record.Record;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +23,10 @@ import java.util.List;
  */
 public class DnsSonar implements Sonar<DnsResult> {
     public SonarResult<DnsResult> start(SonarRequest request) {
+        if(!request.isNetworkAvailable()){
+            return new SonarResult<>(SonarType.DNS, new Exception(Sonar.ERROR_MSG_NO_NETWORK));
+        }
+
         DnsResult dnsResult = new DnsResult();
         try {
             long startTime = System.currentTimeMillis();
@@ -45,10 +48,13 @@ public class DnsSonar implements Sonar<DnsResult> {
             dnsResult.response = result.getDnsQueryResult().response.toString();
 
             long endTime = System.currentTimeMillis();
-            dnsResult.ip = aList.get(aList.size() - 1);
+            dnsResult.localHosts = Dns.getLocalHost();
             dnsResult.lookupTime = endTime - startTime;
+            if(!aList.isEmpty()){
+                dnsResult.ip = aList.get(aList.size() - 1);
+            }
             return new SonarResult<>(SonarType.DNS, dnsResult);
-        } catch (IOException e) {
+        } catch (Exception e) {
             if(SonarLog.openLog){
                 e.printStackTrace();
             }

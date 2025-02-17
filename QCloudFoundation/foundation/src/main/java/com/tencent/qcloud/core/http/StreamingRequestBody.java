@@ -273,7 +273,6 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
         } finally {
             if(inputStream != null) OkhttpInternalUtils.closeQuietly(inputStream);
             if(source != null) OkhttpInternalUtils.closeQuietly(source);
-            if(countingSink != null) OkhttpInternalUtils.closeQuietly(countingSink);
         }
     }
 
