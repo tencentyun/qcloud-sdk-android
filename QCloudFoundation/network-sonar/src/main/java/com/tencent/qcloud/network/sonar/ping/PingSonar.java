@@ -1,5 +1,7 @@
 package com.tencent.qcloud.network.sonar.ping;
 
+import android.text.TextUtils;
+
 import com.tencent.qcloud.network.sonar.Sonar;
 import com.tencent.qcloud.network.sonar.SonarCallback;
 import com.tencent.qcloud.network.sonar.SonarRequest;
@@ -25,8 +27,12 @@ public class PingSonar implements Sonar<PingResult> {
 
     @Override
     public SonarResult<PingResult> start(SonarRequest request) {
-        if(request.getIp() == null){
-            return new SonarResult<>(SonarType.PING, new Exception("request ip is null"));
+        if(!request.isNetworkAvailable()){
+            return new SonarResult<>(SonarType.PING, new Exception(Sonar.ERROR_MSG_NO_NETWORK));
+        }
+
+        if(TextUtils.isEmpty(request.getIp())){
+            return new SonarResult<>(SonarType.PING, new Exception(Sonar.ERROR_MSG_IP_IS_EMPTY));
         }
 
         long startTime = System.currentTimeMillis();
@@ -42,7 +48,7 @@ public class PingSonar implements Sonar<PingResult> {
         try {
             process = Runtime.getRuntime().exec(cmd);
             if (null == process) {
-                return new SonarResult<>(SonarType.PING, new Exception("ping process is null"));
+                return new SonarResult<>(SonarType.PING, new Exception(Sonar.ERROR_MSG_PING_PROCESS_IS_NULL));
             }
             reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;

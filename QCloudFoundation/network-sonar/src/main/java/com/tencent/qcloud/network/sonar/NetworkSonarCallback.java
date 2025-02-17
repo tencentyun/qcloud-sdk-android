@@ -8,6 +8,8 @@ import java.util.List;
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
 public interface NetworkSonarCallback {
+    void onStart(SonarType type);
+
     void onSuccess(SonarResult result);
 
     void onFail(SonarResult result);

@@ -22,11 +22,13 @@
 
 package com.tencent.qcloud.core.http;
 
+import com.tencent.qcloud.core.http.interceptor.QCloudRetryInterceptor;
+import com.tencent.qcloud.core.http.interceptor.QCloudTrafficControlInterceptor;
 import com.tencent.qcloud.core.task.RetryStrategy;
-import okhttp3.Dns;
 
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSocketFactory;
+
+import okhttp3.Dns;
 
 public abstract class NetworkClient {
 
@@ -34,6 +36,15 @@ public abstract class NetworkClient {
     protected HttpLogger httpLogger;
     protected boolean enableDebugLog;
     protected Dns dns;
+
+    private QCloudRetryInterceptor retryInterceptor;
+
+    /**
+     * 开启业务拦截器：重试、流量控制
+     */
+    public void enableQCloudInterceptor() {
+        retryInterceptor = new QCloudRetryInterceptor(retryStrategy, new QCloudTrafficControlInterceptor());
+    }
 
     public void init(QCloudHttpClient.Builder b, HostnameVerifier hostnameVerifier,
                      Dns dns, HttpLogger httpLogger){
@@ -45,4 +56,9 @@ public abstract class NetworkClient {
 
     public abstract NetworkProxy getNetworkProxy();
 
+    public NetworkProxy getNetworkProxyWrapper(){
+        NetworkProxy networkProxy = getNetworkProxy();
+        networkProxy.setRetryInterceptor(retryInterceptor);
+        return networkProxy;
+    }
 }

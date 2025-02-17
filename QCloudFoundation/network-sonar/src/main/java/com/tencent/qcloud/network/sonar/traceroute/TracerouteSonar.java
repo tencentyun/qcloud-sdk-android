@@ -30,8 +30,12 @@ public class TracerouteSonar implements Sonar<TracerouteResult> {
 
     @Override
     public SonarResult<TracerouteResult> start(SonarRequest request) {
-        if(request.getIp() == null){
-            return new SonarResult<>(SonarType.TRACEROUTE, new Exception("request ip is null"));
+        if(!request.isNetworkAvailable()){
+            return new SonarResult<>(SonarType.TRACEROUTE, new Exception(Sonar.ERROR_MSG_NO_NETWORK));
+        }
+
+        if(TextUtils.isEmpty(request.getIp())){
+            return new SonarResult<>(SonarType.TRACEROUTE, new Exception(Sonar.ERROR_MSG_IP_IS_EMPTY));
         }
 
         long startTime = System.currentTimeMillis();
@@ -61,7 +65,7 @@ public class TracerouteSonar implements Sonar<TracerouteResult> {
                 countUnreachable = 0;
             }
 
-            if (countUnreachable == 5) {
+            if (countUnreachable == 10) {
                 break;
             }
         }

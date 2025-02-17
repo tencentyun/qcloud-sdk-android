@@ -225,6 +225,11 @@ public final class QCloudHttpClient {
             int hashCode = networkClientType.hashCode();
             if(!networkClientMap.containsKey(hashCode)){
                 networkClient.init(b, hostnameVerifier(), mDns, httpLogger);
+                // 如果是自定义的网络库则需要在业务层实现流量控制和重试
+                // quic暂时保持原样，后续重构quic时放开这里，把quic也当做自定义网络层处理
+                if(!"com.tencent.qcloud.quic.QuicClientImpl".equals(networkClientType)) {
+                    networkClient.enableQCloudInterceptor();
+                }
                 networkClientMap.put(hashCode, networkClient);
             }
         }
@@ -245,6 +250,11 @@ public final class QCloudHttpClient {
                 int hashCode = networkClientType.hashCode();
                 if(!networkClientMap.containsKey(hashCode)){
                     networkClient.init(b, hostnameVerifier(), mDns, httpLogger);
+                    // 如果是自定义的网络库则需要在业务层实现流量控制和重试
+                    // quic暂时保持原样，后续重构quic时放开这里，把quic也当做自定义网络层处理
+                    if(!"com.tencent.qcloud.quic.QuicClientImpl".equals(networkClientType)) {
+                        networkClient.enableQCloudInterceptor();
+                    }
                     networkClientMap.put(hashCode, networkClient);
                 }
             }

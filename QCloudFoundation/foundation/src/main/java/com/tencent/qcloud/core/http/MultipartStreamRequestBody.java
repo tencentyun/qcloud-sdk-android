@@ -143,11 +143,7 @@ public class MultipartStreamRequestBody extends RequestBody implements ProgressB
 
     @Override
     public void writeTo(BufferedSink sink) throws IOException {
-       try {
-           multipartBody.writeTo(sink);
-       }finally {
-           if(streamingRequestBody.countingSink != null) OkhttpInternalUtils.closeQuietly(streamingRequestBody.countingSink);
-       }
+        multipartBody.writeTo(sink);
     }
 
     @Override

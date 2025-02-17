@@ -72,7 +72,7 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
         super("HttpTask-" + httpRequest.tag() + "-" + increments.getAndIncrement(), httpRequest.tag());
         this.httpRequest = httpRequest;
         this.credentialProvider = credentialProvider;
-        this.networkProxy = networkClient.getNetworkProxy();
+        this.networkProxy = networkClient.getNetworkProxyWrapper();
         this.networkProxy.identifier = this.getIdentifier();
         this.networkProxy.mProgressListener = mProgressListener;
     }

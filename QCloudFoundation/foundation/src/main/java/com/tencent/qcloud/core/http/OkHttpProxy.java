@@ -126,6 +126,12 @@ public class OkHttpProxy<T> extends NetworkProxy<T> {
         }
     }
 
+    @Override
+    public Response callHttpRequest(Request okHttpRequest) throws IOException {
+        // 如果重写了executeHttpRequest，则不需要再调用callHttpRequest
+        return null;
+    }
+
     private void recordDns(String host, CallMetricsListener eventListener) {
 
         List<InetAddress> dnsRecord = null;
@@ -139,14 +145,5 @@ public class OkHttpProxy<T> extends NetworkProxy<T> {
         return response != null && "tencent-cos".equalsIgnoreCase(response.header("Server"));
     }
 
-    @Override
-    protected HttpResult<T> convertResponse(HttpRequest<T> request, Response response) throws QCloudClientException, QCloudServiceException {
-        HttpResponse<T> httpResponse = new HttpResponse<>(request, response);
-        ResponseBodyConverter<T> converter = request.getResponseBodyConverter();
-        if (converter instanceof ProgressBody) {
-            ((ProgressBody) converter).setProgressListener(mProgressListener);
-        }
-        T content = converter.convert(httpResponse);
-        return new HttpResult<T>(httpResponse, content);
-    }
+
 }
