@@ -59,7 +59,6 @@ public class DescribeFileMetaIndexRequest extends AppIdRequest {
      */
     public DescribeFileMetaIndexRequest(@NonNull String appid) {
         super(appid);
-        addNoSignHeader("Content-Type");
 		addHeader(HttpConstants.Header.ACCEPT, HttpConstants.ContentType.JSON);
     }
     

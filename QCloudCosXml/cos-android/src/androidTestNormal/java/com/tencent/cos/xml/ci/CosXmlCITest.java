@@ -118,6 +118,7 @@ public class CosXmlCITest {
     @Test
     public void testQRCodeUploadByUrl() throws MalformedURLException {
         CIService ciService = NormalServiceFactory.INSTANCE.newCIService();
+//        QRCodeUploadRequest request = new QRCodeUploadRequest("test-1257101689", TestConst.PERSIST_BUCKET_QR_PATH,
         QRCodeUploadRequest request = new QRCodeUploadRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_QR_PATH,
                 new URL(TestConst.PERSIST_BUCKET_QR_URL));
         qRCodeUpload(ciService, request);

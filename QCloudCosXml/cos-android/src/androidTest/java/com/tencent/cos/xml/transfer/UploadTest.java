@@ -439,7 +439,7 @@ public class UploadTest {
         } catch (CosXmlClientException e) {
             e.printStackTrace();
         }
-        putObjectRequest.addNoSignHeader("Host");
+//        putObjectRequest.addNoSignHeader("Host");
         putObjectRequest.setPriorityLow();
 
         File file = new File(putObjectRequest.getSrcPath());
@@ -1429,7 +1429,7 @@ public class UploadTest {
         } catch (CosXmlClientException e) {
             throw new RuntimeException(e);
         }
-        request.setSignInUrl(true);
+//        request.setSignInUrl(true);
         request.isSupportAccelerate(true);
         Assert.assertTrue(request.isSupportAccelerate());
         request.setSignSourceProvider(new COSXmlSignSourceProvider());

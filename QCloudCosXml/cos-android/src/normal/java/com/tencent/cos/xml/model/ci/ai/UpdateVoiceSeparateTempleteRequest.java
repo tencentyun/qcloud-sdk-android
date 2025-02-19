@@ -33,6 +33,10 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 /**
  * 更新模板
  * <a href="https://cloud.tencent.com/document/product/460/84757">更新模板</a>
@@ -52,8 +56,6 @@ public class UpdateVoiceSeparateTempleteRequest extends BucketRequest {
     public UpdateVoiceSeparateTempleteRequest(@NonNull String bucket , @NonNull String templateId) {
         super(bucket);
         this.templateId = templateId;
-        addNoSignHeader("Content-Type");
-        addNoSignHeader("Content-Length");
     }
     /**
      * 设置 更新模板
@@ -68,10 +70,10 @@ public class UpdateVoiceSeparateTempleteRequest extends BucketRequest {
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
         return "/template" + "/" + templateId;
     }
+
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                QCloudXmlUtils.toXml(this.updateVoiceSeparateTemplete));
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
+        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.updateVoiceSeparateTemplete).getBytes("utf-8"));
     }
     @Override
     public String getMethod() {

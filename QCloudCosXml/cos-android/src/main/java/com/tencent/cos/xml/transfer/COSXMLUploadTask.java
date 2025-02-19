@@ -23,9 +23,12 @@
 package com.tencent.cos.xml.transfer;
 
 
+import static com.tencent.qcloud.core.http.HttpConstants.Header.CONTENT_TYPE;
+
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 
 import androidx.annotation.Nullable;
 
@@ -64,6 +67,7 @@ import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.util.ContextHolder;
+import com.tencent.qcloud.core.util.QCloudStringUtils;
 import com.tencent.qcloud.core.util.QCloudUtils;
 
 import java.io.File;
@@ -434,6 +438,23 @@ public final class COSXMLUploadTask extends COSXMLTask {
         initMultipartUploadRequest.setRequestHeaders(headers);
         initMultipartUploadRequest.addNoSignHeader(noSignHeaders);
         initMultipartUploadRequest.setCredentialProvider(credentialProvider);
+
+        if(getContentTypeByHeaders(headers) == null){
+            // 添加自动获取的content type
+            String contentType = null;
+            if (url != null) {
+                String extension = MimeTypeMap.getFileExtensionFromUrl(url.toString());
+                contentType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            } else if(srcPath != null) {
+                String extension = QCloudStringUtils.getExtension(srcPath);
+                contentType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            }
+            if(contentType != null){
+                try {
+                    initMultipartUploadRequest.setRequestHeaders(CONTENT_TYPE, contentType, false);
+                } catch (CosXmlClientException ignored) {}
+            }
+        }
 
         if(onSignatureListener != null){
             initMultipartUploadRequest.setSign(onSignatureListener.onGetSign(initMultipartUploadRequest));
@@ -1346,5 +1367,19 @@ public final class COSXMLUploadTask extends COSXMLTask {
         Map<String, List<String>> headers = new HashMap<>(customHeaders);
         headers.remove(HttpConstants.Header.CONTENT_TYPE);
         return headers;
+    }
+
+    private String getContentTypeByHeaders(Map<String, List<String>> headers) {
+        if(headers == null || headers.isEmpty()) return null;
+
+        List<String> contentType = headers.get("Content-Type");
+        if (contentType == null || contentType.isEmpty()) {
+            contentType = headers.get("content-type");
+        }
+        if (contentType == null || contentType.isEmpty()) {
+            contentType = headers.get("Content-type");
+        }
+
+        return contentType != null && !contentType.isEmpty() ? contentType.get(0) : null;
     }
 }
