@@ -23,6 +23,8 @@
 package com.tencent.qcloud.core.http;
 
 
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
@@ -211,15 +213,22 @@ public final class QCloudHttpClient {
         this.connectionRepository = ConnectionRepository.getInstance();
         httpLogger = new HttpLogger(false);
         setDebuggable(false);
+
+        // 默认的okhttp可以用来兜底
+        this.okhttpNetworkClient = new OkHttpClientImpl();
+        this.okhttpNetworkClient.init(b, hostnameVerifier(), mDns, httpLogger);
+
         NetworkClient networkClient = b.networkClient;
         if(networkClient == null){
             networkClient = new OkHttpClientImpl();
         }
         networkClientType = networkClient.getClass().getName();
         if(OkHttpClientImpl.class.getName().equals(networkClientType) && networkClient instanceof OkHttpClientImpl){
-            // 如果是默认的okhttp 则不缓存 支持外部各service不同配置
-            this.okhttpNetworkClient = (OkHttpClientImpl) networkClient;
-            this.okhttpNetworkClient.init(b, hostnameVerifier(), mDns, httpLogger);
+            if(this.okhttpNetworkClient == null){
+                // 如果是默认的okhttp 则不缓存 支持外部各service不同配置
+                this.okhttpNetworkClient = (OkHttpClientImpl) networkClient;
+                this.okhttpNetworkClient.init(b, hostnameVerifier(), mDns, httpLogger);
+            }
         } else {
             // 如果不是okhttp，例如quic，由于资源消耗问题，进行缓存，不支持外部各service不同配置
             int hashCode = networkClientType.hashCode();
@@ -238,13 +247,19 @@ public final class QCloudHttpClient {
     }
 
     public void setNetworkClientType(Builder b){
+        // 默认的okhttp可以用来兜底
+        this.okhttpNetworkClient = new OkHttpClientImpl();
+        this.okhttpNetworkClient.init(b, hostnameVerifier(), mDns, httpLogger);
+
         NetworkClient networkClient = b.networkClient;
         if(networkClient != null){
             networkClientType = networkClient.getClass().getName();
             if(OkHttpClientImpl.class.getName().equals(networkClientType) && networkClient instanceof OkHttpClientImpl){
-                // 如果是默认的okhttp 则不缓存 支持外部各service不同配置
-                this.okhttpNetworkClient = (OkHttpClientImpl) networkClient;
-                this.okhttpNetworkClient.init(b, hostnameVerifier(), mDns, httpLogger);
+                if(this.okhttpNetworkClient == null) {
+                    // 如果是默认的okhttp 则不缓存 支持外部各service不同配置
+                    this.okhttpNetworkClient = (OkHttpClientImpl) networkClient;
+                    this.okhttpNetworkClient.init(b, hostnameVerifier(), mDns, httpLogger);
+                }
             } else {
                 // 如果不是okhttp，例如quic，由于资源消耗问题，进行缓存，不支持外部各service不同配置
                 int hashCode = networkClientType.hashCode();
@@ -278,21 +293,34 @@ public final class QCloudHttpClient {
     }
 
     public <T> HttpTask<T> resolveRequest(HttpRequest<T> request) {
-        return handleRequest(request, null);
+        return handleRequest(request, null, null);
+    }
+
+    public <T> HttpTask<T> resolveRequest(HttpRequest<T> request, String networkClientType) {
+        return handleRequest(request, null, networkClientType);
     }
 
     public <T> HttpTask<T> resolveRequest(QCloudHttpRequest<T> request,
                                           QCloudCredentialProvider credentialProvider) {
-        return handleRequest(request, credentialProvider);
+        return handleRequest(request, credentialProvider, null);
+    }
+
+    public <T> HttpTask<T> resolveRequest(QCloudHttpRequest<T> request,
+                                          QCloudCredentialProvider credentialProvider, String networkClientType) {
+        return handleRequest(request, credentialProvider, networkClientType);
     }
 
     private HostnameVerifier hostnameVerifier() {
         return mHostnameVerifier;
     }
 
-
     private <T> HttpTask<T> handleRequest(HttpRequest<T> request,
-                                            QCloudCredentialProvider credentialProvider) {
+                                          QCloudCredentialProvider credentialProvider,
+                                          String networkClientType) {
+        if(TextUtils.isEmpty(networkClientType)){
+            networkClientType = this.networkClientType;
+        }
+
         if(OkHttpClientImpl.class.getName().equals(networkClientType)){
             return new HttpTask<T>(request, credentialProvider, this.okhttpNetworkClient);
         } else {
