@@ -101,6 +101,8 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         this.queries = getObjectRequest.getQueryString();
         this.headers = getObjectRequest.getRequestHeaders();
         this.noSignHeaders = getObjectRequest.getNoSignHeaders();
+        this.networkType = getObjectRequest.getNetworkType();
+        this.host = getObjectRequest.getHost();
         this.credentialProvider = getObjectRequest.getCredentialProvider();
         this.objectKeySimplifyCheck = getObjectRequest.isObjectKeySimplifyCheck();
         this.isNeedMd5 = getObjectRequest.isNeedMD5();
@@ -152,9 +154,13 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         getObjectRequest.setRequestHeaders(headers);
         getObjectRequest.setObjectKeySimplifyCheck(objectKeySimplifyCheck);
         getObjectRequest.addNoSignHeader(noSignHeaders);
+        getObjectRequest.setNetworkType(networkType);
+        getObjectRequest.setHost(host);
         getObjectRequest.setCredentialProvider(credentialProvider);
         if(rangeEnd > 0 || rangeStart > 0){
             getObjectRequest.setRange(rangeStart, rangeEnd);
+            //下载重试时会改变request的range，因此不能让range参与签名
+            getObjectRequest.addNoSignHeader(COSRequestHeaderKey.RANGE);
         }
 
         if(onSignatureListener != null){
@@ -178,7 +184,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 if(request != getObjectRequest){
                     return;
                 }
-                CosTrackService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
+                CosTrackService.getInstance().reportDownloadTaskSuccess(getObjectRequest, getCosXmlServiceConfigTrackParams());
 
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
@@ -193,14 +199,14 @@ public final class COSXMLDownloadTask extends COSXMLTask{
 
                 Exception causeException = null;
                 if (clientException != null && taskState != TransferState.PAUSED && taskState != TransferState.CANCELED) {
-                    CosTrackService.getInstance().reportDownloadTaskClientException(request, clientException);
+                    CosTrackService.getInstance().reportDownloadTaskClientException(request, clientException, getCosXmlServiceConfigTrackParams());
                     causeException = clientException;
                 }
 
                 if (serviceException != null && taskState != TransferState.PAUSED && taskState != TransferState.CANCELED) {
                     // BeaconService.getInstance().reportDownload(region, BeaconService.EVENT_PARAMS_NODE_GET, serviceException);
                     // CosTrackService.getInstance().reportDownload(region, CosTrackService.EVENT_PARAMS_NODE_GET, serviceException);
-                    CosTrackService.getInstance().reportDownloadTaskServiceException(request, serviceException);
+                    CosTrackService.getInstance().reportDownloadTaskServiceException(request, serviceException, getCosXmlServiceConfigTrackParams());
                     causeException = serviceException;
                 }
                 // causeException.printStackTrace();
@@ -328,6 +334,8 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         headObjectRequest = new HeadObjectRequest(bucket, cosPath);
         headObjectRequest.setRequestHeaders(headers);
         headObjectRequest.addNoSignHeader(noSignHeaders);
+        headObjectRequest.setNetworkType(networkType);
+        headObjectRequest.setHost(host);
         headObjectRequest.setCredentialProvider(credentialProvider);
         headObjectRequest.setQueryParameters(queries);
         headObjectRequest.setRegion(region);
@@ -415,7 +423,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
     @Override
     protected void internalPause(boolean now) {
         if (getObjectRequest != null) {
-            CosTrackService.getInstance().reportDownloadTaskSuccess(getObjectRequest);
+            CosTrackService.getInstance().reportDownloadTaskSuccess(getObjectRequest, getCosXmlServiceConfigTrackParams());
         }
         cancelAllRequest(now);
     }

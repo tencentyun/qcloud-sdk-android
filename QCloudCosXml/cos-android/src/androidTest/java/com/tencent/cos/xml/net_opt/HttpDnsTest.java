@@ -5,6 +5,7 @@ import static com.tencent.cos.xml.core.TestUtils.smallFilePath;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.ServiceFactory;
@@ -20,15 +21,21 @@ import com.tencent.cos.xml.model.object.BasePutObjectResult;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 
 import org.junit.Assert;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 /**
  * <p>
  * Created by jordanqin on 2025/1/17 22:07.
  * Copyright 2010-2025 Tencent Cloud. All Rights Reserved.
  */
+@RunWith(AndroidJUnit4.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class HttpDnsTest {
     private static final String TAG = "HttpDnsTest";
-//    @Test
+    @Test
     public void testBasePutObject() {
         CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newDnsService();
         PutObjectRequest request = new PutObjectRequest(TestConst.PERSIST_BUCKET,

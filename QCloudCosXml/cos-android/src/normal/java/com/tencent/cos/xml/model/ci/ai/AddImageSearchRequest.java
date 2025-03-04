@@ -23,7 +23,6 @@
 package com.tencent.cos.xml.model.ci.ai;
 
 import androidx.annotation.NonNull;
-
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -32,11 +31,8 @@ import com.tencent.cos.xml.model.bucket.BucketRequest;
 import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 import java.util.Map;
+import com.tencent.cos.xml.model.ci.ai.AddImageSearch;
 
 /**
  * 添加图库图片
@@ -65,6 +61,7 @@ public class AddImageSearchRequest extends BucketRequest {
     public AddImageSearchRequest(@NonNull String bucket , @NonNull String objectKey) {
         super(bucket);
         this.objectKey = objectKey;
+		addNoSignHeader("Content-Type");
     }
     /**
      * 设置 添加图库图片
@@ -84,12 +81,11 @@ public class AddImageSearchRequest extends BucketRequest {
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
         return "/" + objectKey;
     }
-
     @Override
-    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
-        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.addImageSearch).getBytes("utf-8"));
+    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
+                QCloudXmlUtils.toXml(this.addImageSearch));
     }
-
     @Override
     public String getMethod() {
         return HttpConstants.RequestMethod.POST;

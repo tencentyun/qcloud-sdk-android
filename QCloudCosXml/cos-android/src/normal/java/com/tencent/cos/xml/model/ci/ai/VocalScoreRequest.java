@@ -23,19 +23,18 @@
 package com.tencent.cos.xml.model.ci.ai;
 
 import androidx.annotation.NonNull;
-
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.bucket.BucketRequest;
+import com.tencent.cos.xml.model.appid.AppIdRequest;
 import com.tencent.cos.xml.utils.QCloudXmlUtils;
+import com.tencent.cos.xml.utils.QCloudJsonUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
+import com.tencent.cos.xml.model.ci.ai.VocalScore;
 
 /**
  * 提交任务
@@ -54,6 +53,7 @@ public class VocalScoreRequest extends BucketRequest {
      */
     public VocalScoreRequest(@NonNull String bucket) {
         super(bucket);
+        addNoSignHeader("Content-Type");
     }
     /**
      * 设置 提交任务
@@ -68,11 +68,11 @@ public class VocalScoreRequest extends BucketRequest {
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
         return "/jobs";
     }
-
     @Override
-    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
-        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.vocalScore).getBytes("utf-8"));
-    }
+            public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+                return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
+                        QCloudXmlUtils.toXml(this.vocalScore));
+            }
     @Override
     public String getMethod() {
         return HttpConstants.RequestMethod.POST;

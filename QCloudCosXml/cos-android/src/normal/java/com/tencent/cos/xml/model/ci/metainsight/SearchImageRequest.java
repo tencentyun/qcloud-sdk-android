@@ -32,10 +32,6 @@ import com.tencent.cos.xml.utils.QCloudJsonUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-
 /**
  * 图像检索
  * <a href="https://cloud.tencent.com/document/product/460/106376">图像检索</a>
@@ -53,6 +49,7 @@ public class SearchImageRequest extends AppIdRequest {
      */
     public SearchImageRequest(@NonNull String appid) {
         super(appid);
+        addNoSignHeader("Content-Type");
 		addHeader(HttpConstants.Header.ACCEPT, HttpConstants.ContentType.JSON);
     }
     /**
@@ -68,12 +65,11 @@ public class SearchImageRequest extends AppIdRequest {
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
         return "/datasetquery" + "/imagesearch";
     }
-
     @Override
-    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
-        return RequestBodySerializer.bytes(HttpConstants.ContentType.JSON, QCloudJsonUtils.toJson(this.searchImage).getBytes("utf-8"));
-    }
-
+            public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+                return RequestBodySerializer.string(HttpConstants.ContentType.JSON,
+                        QCloudJsonUtils.toJson(this.searchImage));
+            }
     @Override
     public String getMethod() {
         return HttpConstants.RequestMethod.POST;

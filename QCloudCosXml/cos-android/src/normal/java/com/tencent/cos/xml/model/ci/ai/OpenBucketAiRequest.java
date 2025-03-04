@@ -1,18 +1,12 @@
 package com.tencent.cos.xml.model.ci.ai;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
-import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.bucket.BucketRequest;
-import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 /**
  * 开通AI 内容识别服务并生成队列的请求.
@@ -27,6 +21,8 @@ public class OpenBucketAiRequest extends BucketRequest {
     public OpenBucketAiRequest(String bucket, String region) {
         super(bucket);
         this.region = region;
+        addNoSignHeader("Content-Type");
+        addNoSignHeader("Content-Length");
     }
 
     @Override
@@ -45,7 +41,7 @@ public class OpenBucketAiRequest extends BucketRequest {
     }
 
     @Override
-    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
-        return RequestBodySerializer.bytes(COSRequestHeaderKey.TEXT_PLAIN, "".getBytes("utf-8"));
+    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+        return RequestBodySerializer.string(HttpConstants.ContentType.TEXT_PLAIN, "");
     }
 }

@@ -29,14 +29,9 @@ import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.bucket.BucketRequest;
-import com.tencent.cos.xml.utils.QCloudJsonUtils;
 import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 /**
  * 添加文本库关键词
@@ -57,6 +52,7 @@ public class AddAuditTextlibKeywordRequest extends BucketRequest {
      */
     public AddAuditTextlibKeywordRequest(@NonNull String bucket, @NonNull String libID) {
         super(bucket);
+        addNoSignHeader("Content-Type");
         this.libID = libID;
     }
 
@@ -74,8 +70,9 @@ public class AddAuditTextlibKeywordRequest extends BucketRequest {
     }
 
     @Override
-    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
-        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.createAuditTextlibKeyword).getBytes("utf-8"));
+    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
+                QCloudXmlUtils.toXml(this.createAuditTextlibKeyword));
     }
 
     @Override

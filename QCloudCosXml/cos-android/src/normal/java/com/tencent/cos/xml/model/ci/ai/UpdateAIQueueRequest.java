@@ -33,10 +33,6 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-
 /**
  * 更新AI内容识别队列
  * <a href="https://cloud.tencent.com/document/product/460/79397">更新AI内容识别队列</a>
@@ -56,6 +52,8 @@ public class UpdateAIQueueRequest extends BucketRequest {
     public UpdateAIQueueRequest(@NonNull String bucket , @NonNull String queueId) {
         super(bucket);
         this.queueId = queueId;
+        addNoSignHeader("Content-Type");
+        addNoSignHeader("Content-Length");
     }
     /**
      * 设置 更新AI内容识别队列
@@ -70,10 +68,10 @@ public class UpdateAIQueueRequest extends BucketRequest {
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
         return "/ai_queue" + "/" + queueId;
     }
-
     @Override
-    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
-        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.updateAIQueue).getBytes("utf-8"));
+    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
+                QCloudXmlUtils.toXml(this.updateAIQueue));
     }
     @Override
     public String getMethod() {

@@ -50,6 +50,7 @@ public class OpenAsrBucketRequest extends BucketRequest {
      */
     public OpenAsrBucketRequest(@NonNull String bucket ) {
         super(bucket);
+        		addNoSignHeader("Content-Type");
     }
     
     

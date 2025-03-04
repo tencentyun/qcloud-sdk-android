@@ -1,6 +1,5 @@
 package com.tencent.cos.xml.net_opt;
 
-import static com.tencent.cos.xml.core.TestConst.NET_BUCKET_REGION_ARR;
 import static com.tencent.cos.xml.core.TestConst.PERSIST_BUCKET_BIG_OBJECT_SIZE;
 import static com.tencent.cos.xml.core.TestConst.PERSIST_BUCKET_SMALL_OBJECT_SIZE;
 
@@ -17,7 +16,6 @@ import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
-import com.tencent.qcloud.core.http.HttpTaskMetrics;
 
 import org.dhatim.fastexcel.Workbook;
 import org.dhatim.fastexcel.Worksheet;
@@ -42,8 +40,15 @@ import java.util.ArrayList;
  */
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class NetworkLinkTest {
-    private static final String TAG = "NetworkLinkTest";
+public class NetworkQuicTest {
+    private static final String TAG = "NetworkQuicTest";
+    public static final String[] NET_BUCKET_REGION_ARR = new String[]{
+//            "ap-hongkong",
+//            "ap-tokyo",
+            "na-siliconvalley",
+//            "eu-frankfurt",
+//            "sa-saopaulo"
+    };
     private static final int requestCount = 1;
     private static final String[] NET_BUCKET_ARR = new String[NET_BUCKET_REGION_ARR.length];
     private static final ArrayList<NetMetrics> NET_METRICS_ARR = new ArrayList<>();
@@ -61,7 +66,7 @@ public class NetworkLinkTest {
 
     @After
     public void after() {
-        File file = new File(TestUtils.localParentPath(), "MyExcelFile.xls");
+        File file = new File(TestUtils.getContext().getApplicationContext().getFilesDir().getAbsolutePath(), "MyExcelFile.xls");
         if (file.exists()) {
             file.delete();
         }
@@ -74,14 +79,6 @@ public class NetworkLinkTest {
 //            ws.value(0, 2, "region");
 //            ws.value(0, 3, "timeConsuming");
 //            ws.value(0, 4, "successRate");
-//            ws.value(0, 5, "httpTookTime");
-//            ws.value(0, 6, "dnsLookupTookTime");
-//            ws.value(0, 7, "httpConnect");
-//            ws.value(0, 8, "httpSecureConnect");
-//            ws.value(0, 9, "httpReadHeader");
-//            ws.value(0, 10, "httpReadBody");
-//            ws.value(0, 11, "httpWriteHeader");
-//            ws.value(0, 12, "httpWriteBody");
 
             for (int i = 0; i < NET_METRICS_ARR.size(); i++) {
                 NetMetrics netMetrics = NET_METRICS_ARR.get(i);
@@ -90,14 +87,6 @@ public class NetworkLinkTest {
                 ws.value(i, 2, netMetrics.region);
                 ws.value(i, 3, netMetrics.timeConsuming);
                 ws.value(i, 4, netMetrics.successRate);
-                ws.value(i, 5, netMetrics.httpTookTime);
-                ws.value(i, 6, netMetrics.dnsLookupTookTime);
-                ws.value(i, 7, netMetrics.httpConnect);
-                ws.value(i, 8, netMetrics.httpSecureConnect);
-                ws.value(i, 9, netMetrics.httpReadHeader);
-                ws.value(i, 10, netMetrics.httpReadBody);
-                ws.value(i, 11, netMetrics.httpWriteHeader);
-                ws.value(i, 12, netMetrics.httpWriteBody);
             }
             wb.finish();
         } catch (IOException e) {
@@ -113,54 +102,32 @@ public class NetworkLinkTest {
                 .builder();
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newMeService(cosXmlServiceConfig);
 
-        testPutObject(cosXmlService, true, "默认");
-//        testPutObject(cosXmlService, false, "默认");
+//        testPutObject(cosXmlService, true, "默认");
+        testPutObject(cosXmlService, false, "默认");
 //        testGetObject(cosXmlService, true, "默认");
 //        testGetObject(cosXmlService, false, "默认");
     }
 
     @Test
-    public void testAccelerate() {
-        CosXmlServiceConfig cosXmlServiceConfigAccelerate = new CosXmlServiceConfig.Builder()
-                .setDebuggable(true)
-                .setAccelerate(true)
-                .setRegion(TestConst.PERSIST_BUCKET_REGION)
-                .builder();
-        CosXmlSimpleService cosXmlServiceAccelerate = ServiceFactory.INSTANCE.newMeService(cosXmlServiceConfigAccelerate);
-
-        testPutObject(cosXmlServiceAccelerate, true, "全球加速");
-//        testPutObject(cosXmlServiceAccelerate, false, "全球加速");
-//        testGetObject(cosXmlServiceAccelerate, true, "全球加速");
-//        testGetObject(cosXmlServiceAccelerate, false, "全球加速");
-    }
-
-    @Test
     public void testEo() {
-        testPutObject(null, true, "EO");
-//        testPutObject(null, false, "EO");
+//        testPutObject(null, true, "EO");
+        testPutObject(null, false, "EO");
 //        testGetObject(null, true, "EO");
 //        testGetObject(null, false, "EO");
     }
 
     @Test
-    public void testEoAccelerate() {
-        testPutObject(null, true, "EOAccelerate");
-//        testPutObject(null, false, "EOAccelerate");
-//        testGetObject(null, true, "EOAccelerate");
-//        testGetObject(null, false, "EOAccelerate");
+    public void testEoNoQuic() {
+//        testPutObject(null, true, "EONoQuic");
+        testPutObject(null, false, "EONoQuic");
+//        testGetObject(null, true, "EONoQuic");
+//        testGetObject(null, false, "EONoQuic");
     }
 
     private void testPutObject(CosXmlSimpleService cosXmlService, boolean isBig, String type) {
         for (int r = 0; r < NET_BUCKET_REGION_ARR.length; r++) {
             String region = NET_BUCKET_REGION_ARR[r];
             String bucket = NET_BUCKET_ARR[r];
-
-            if ("全球加速".equals(type) || "EOAccelerate".equals(type)) {
-                // 下面两个地域不支持全球加速
-                if ("net-jakarta-1257101689".equals(bucket) || "net-saopaulo-1257101689".equals(bucket)) {
-                    continue;
-                }
-            }
 
             if (type.startsWith("EO")) {
                 // EO 目前只测试境外地域
@@ -170,18 +137,13 @@ public class NetworkLinkTest {
                     continue;
                 }
 
-                String host;
-                if("EOAccelerate".equals(type)){
-                    host = "accelerate." + bucket.split("-")[1]+".jordanqin.online";
-                } else {
-                    host = bucket.split("-")[1]+".jordanqin.online";
-                }
-
                 CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                         .setDebuggable(true)
-                        .setHost(host)
+                        .enableQuic("EO".equals(type))
+                        .setHost(bucket.split("-")[1]+".jordanqin.online")
                         .addNoSignHeaders("Host")
                         .setRegion(region)
+//                        .setNetworkSwitchStrategy(CosXmlServiceConfig.RequestNetworkStrategy.Conservative)
                         .builder();
                 cosXmlService = ServiceFactory.INSTANCE.newMeService(cosXmlServiceConfig);
             }
@@ -194,33 +156,16 @@ public class NetworkLinkTest {
             }
             int successCount = 0;
             long successTimeConsuming = 0;
-            double http_took_time = 0;
-            double dnsLookupTookTime = 0;
-            double http_connect = 0;
-            double http_secure_connect = 0;
-            double http_read_header = 0;
-            double http_read_body = 0;
-            double http_write_header = 0;
-            double http_write_body = 0;
             for (int i = 0; i < requestCount; i++) {
                 Log.d(TAG, "testPutObject" + (isBig ? "Big" : "Small") + i + " Start: " + region + " " + bucket);
                 long startTime = System.currentTimeMillis();
                 PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, isBig ? TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH : TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH, localPath);
+//                putObjectRequest.setNetworkType(CosXmlRequest.RequestNetworkType.OKHTTP);
                 putObjectRequest.setRegion(region);
                 try {
                     cosXmlService.putObject(putObjectRequest);
                     successCount++;
                     successTimeConsuming += System.currentTimeMillis() - startTime;
-
-                    HttpTaskMetrics httpTaskMetrics = putObjectRequest.getMetrics();
-                    http_took_time += httpTaskMetrics.httpTaskFullTime() * 1000;
-                    dnsLookupTookTime += httpTaskMetrics.dnsLookupTookTime() * 1000;
-                    http_connect += httpTaskMetrics.connectTookTime() * 1000;
-                    http_secure_connect += httpTaskMetrics.secureConnectTookTime() * 1000;
-                    http_read_header += httpTaskMetrics.readResponseHeaderTookTime() * 1000;
-                    http_read_body += httpTaskMetrics.readResponseBodyTookTime() * 1000;
-                    http_write_header += httpTaskMetrics.writeRequestHeaderTookTime() * 1000;
-                    http_write_body += httpTaskMetrics.writeRequestBodyTookTime() * 1000;
                 } catch (CosXmlClientException | CosXmlServiceException e) {
                     Log.e(TAG, "testPutObject" + (isBig ? "Big" : "Small") + i + " Error: " + region + " " + bucket + " " + e.getMessage());
                     e.printStackTrace();
@@ -229,22 +174,12 @@ public class NetworkLinkTest {
             try {
                 DecimalFormat df = new DecimalFormat("#.##");
                 Log.d(TAG, type + " testPutObject" + (isBig ? "Big" : "Small") + " End: \t " + region + "\t 平均耗时：" + successTimeConsuming / successCount + "\t 成功率：" + successCount + "/" + requestCount);
-                Log.d(TAG, type + " testPutObject" + (isBig ? "Big" : "Small") + " End: \t " + region + "\t http平均耗时：" + df.format(http_took_time / successCount) + "\t dns平均耗时：" + df.format(dnsLookupTookTime / successCount) + "\t 连接平均耗时：" + df.format(http_connect / successCount) + "\t 安全连接平均耗时：" + df.format(http_secure_connect / successCount) +
-                        "\t 读header平均耗时：" + df.format(http_read_header / successCount) + "\t 读body平均耗时：" + df.format(http_read_body / successCount) + "\t 写header平均耗时：" + df.format(http_write_header / successCount) + "\t 写body平均耗时：" + df.format(http_write_body / successCount));
                 NET_METRICS_ARR.add(new NetMetrics(
                         type,
                         "PutObject" + (isBig ? "Big" : "Small"),
                         region,
                         decimalFormat((double) successTimeConsuming / successCount),
-                        decimalFormat((double) successCount / requestCount),
-                        decimalFormat(http_took_time / successCount),
-                        decimalFormat(dnsLookupTookTime / successCount),
-                        decimalFormat(http_connect / successCount),
-                        decimalFormat(http_secure_connect / successCount),
-                        decimalFormat(http_read_header / successCount),
-                        decimalFormat(http_read_body / successCount),
-                        decimalFormat(http_write_header / successCount),
-                        decimalFormat(http_write_body / successCount)
+                        decimalFormat((double) successCount / requestCount)
                 ));
             } catch (Exception e) {
             }
@@ -256,13 +191,6 @@ public class NetworkLinkTest {
             String region = NET_BUCKET_REGION_ARR[r];
             String bucket = NET_BUCKET_ARR[r];
 
-            if ("全球加速".equals(type)) {
-                // 下面两个地域不支持全球加速
-                if ("net-jakarta-1257101689".equals(bucket) || "net-saopaulo-1257101689".equals(bucket)) {
-                    continue;
-                }
-            }
-
             if (type.startsWith("EO")) {
                 // EO 目前只测试境外地域
                 if (!("net-tokyo-1257101689".equals(bucket) || "net-singapore-1257101689".equals(bucket) || "net-siliconvall-1257101689".equals(bucket) ||
@@ -271,16 +199,10 @@ public class NetworkLinkTest {
                     continue;
                 }
 
-                String host;
-                if("EOAccelerate".equals(type)){
-                    host = "accelerate." + bucket.split("-")[1]+".jordanqin.online";
-                } else {
-                    host = bucket.split("-")[1]+".jordanqin.online";
-                }
-
                 CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                         .setDebuggable(true)
-                        .setHost(host)
+                        .enableQuic("EO".equals(type))
+                        .setHost(bucket.split("-")[1]+".jordanqin.online")
                         .addNoSignHeaders("Host")
                         .setRegion(region)
                         .builder();
@@ -289,14 +211,6 @@ public class NetworkLinkTest {
 
             int successCount = 0;
             long successTimeConsuming = 0;
-            double http_took_time = 0;
-            double dnsLookupTookTime = 0;
-            double http_connect = 0;
-            double http_secure_connect = 0;
-            double http_read_header = 0;
-            double http_read_body = 0;
-            double http_write_header = 0;
-            double http_write_body = 0;
             for (int i = 0; i < requestCount; i++) {
                 Log.d(TAG, "testGetObject" + (isBig ? "Big" : "Small") + i + " Start: " + region + " " + bucket);
                 long startTime = System.currentTimeMillis();
@@ -306,16 +220,6 @@ public class NetworkLinkTest {
                     cosXmlService.getObject(getObjectRequest);
                     successCount++;
                     successTimeConsuming += System.currentTimeMillis() - startTime;
-
-                    HttpTaskMetrics httpTaskMetrics = getObjectRequest.getMetrics();
-                    http_took_time += httpTaskMetrics.httpTaskFullTime() * 1000;
-                    dnsLookupTookTime += httpTaskMetrics.dnsLookupTookTime() * 1000;
-                    http_connect += httpTaskMetrics.connectTookTime() * 1000;
-                    http_secure_connect += httpTaskMetrics.secureConnectTookTime() * 1000;
-                    http_read_header += httpTaskMetrics.readResponseHeaderTookTime() * 1000;
-                    http_read_body += httpTaskMetrics.readResponseBodyTookTime() * 1000;
-                    http_write_header += httpTaskMetrics.writeRequestHeaderTookTime() * 1000;
-                    http_write_body += httpTaskMetrics.writeRequestBodyTookTime() * 1000;
                 } catch (CosXmlClientException | CosXmlServiceException e) {
                     Log.e(TAG, "testGetObject" + (isBig ? "Big" : "Small") + i + " Error: " + region + " " + bucket + " " + e.getMessage());
                     e.printStackTrace();
@@ -324,22 +228,12 @@ public class NetworkLinkTest {
             try {
                 DecimalFormat df = new DecimalFormat("#.##");
                 Log.d(TAG, type + " testGetObject" + (isBig ? "Big" : "Small") + " End: \t " + region + "\t 平均耗时：" + successTimeConsuming / successCount + "\t 成功率：" + successCount + "/" + requestCount);
-                Log.d(TAG, type + " testGetObject" + (isBig ? "Big" : "Small") + " End: \t " + region + "\t http平均耗时：" + df.format(http_took_time / successCount) + "\t dns平均耗时：" + df.format(dnsLookupTookTime / successCount) + "\t 连接平均耗时：" + df.format(http_connect / successCount) + "\t 安全连接平均耗时：" + df.format(http_secure_connect / successCount) +
-                        "\t 读header平均耗时：" + df.format(http_read_header / successCount) + "\t 读body平均耗时：" + df.format(http_read_body / successCount) + "\t 写header平均耗时：" + df.format(http_write_header / successCount) + "\t 写body平均耗时：" + df.format(http_write_body / successCount));
                 NET_METRICS_ARR.add(new NetMetrics(
                         type,
                         "GetObject" + (isBig ? "Big" : "Small"),
                         region,
                         decimalFormat((double) successTimeConsuming / successCount),
-                        decimalFormat((double) successCount / requestCount),
-                        decimalFormat(http_took_time / successCount),
-                        decimalFormat(dnsLookupTookTime / successCount),
-                        decimalFormat(http_connect / successCount),
-                        decimalFormat(http_secure_connect / successCount),
-                        decimalFormat(http_read_header / successCount),
-                        decimalFormat(http_read_body / successCount),
-                        decimalFormat(http_write_header / successCount),
-                        decimalFormat(http_write_body / successCount)
+                        decimalFormat((double) successCount / requestCount)
                 ));
             } catch (Exception e) {
             }
@@ -357,29 +251,13 @@ public class NetworkLinkTest {
         public String region;
         public double timeConsuming;
         public double successRate;
-        public double httpTookTime;
-        public double dnsLookupTookTime;
-        public double httpConnect;
-        public double httpSecureConnect;
-        public double httpReadHeader;
-        public double httpReadBody;
-        public double httpWriteHeader;
-        public double httpWriteBody;
 
-        public NetMetrics(String type, String action, String region, double timeConsuming, double successRate, double httpTookTime, double dnsLookupTookTime, double httpConnect, double httpSecureConnect, double httpReadHeader, double httpReadBody, double httpWriteHeader, double httpWriteBody) {
+        public NetMetrics(String type, String action, String region, double timeConsuming, double successRate) {
             this.type = type;
             this.action = action;
             this.region = region;
             this.timeConsuming = timeConsuming;
             this.successRate = successRate;
-            this.httpTookTime = httpTookTime;
-            this.dnsLookupTookTime = dnsLookupTookTime;
-            this.httpConnect = httpConnect;
-            this.httpSecureConnect = httpSecureConnect;
-            this.httpReadHeader = httpReadHeader;
-            this.httpReadBody = httpReadBody;
-            this.httpWriteHeader = httpWriteHeader;
-            this.httpWriteBody = httpWriteBody;
         }
     }
 }

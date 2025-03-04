@@ -32,10 +32,6 @@ import com.tencent.cos.xml.utils.QCloudJsonUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-
 /**
  * 更新数据集
  * <a href="https://cloud.tencent.com/document/product/460/106156">更新数据集</a>
@@ -53,6 +49,7 @@ public class UpdateDatasetRequest extends AppIdRequest {
      */
     public UpdateDatasetRequest(@NonNull String appid) {
         super(appid);
+        addNoSignHeader("Content-Type");
 		addHeader(HttpConstants.Header.ACCEPT, HttpConstants.ContentType.JSON);
     }
     /**
@@ -68,12 +65,11 @@ public class UpdateDatasetRequest extends AppIdRequest {
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
         return "/dataset";
     }
-
     @Override
-    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
-        return RequestBodySerializer.bytes(HttpConstants.ContentType.JSON, QCloudJsonUtils.toJson(this.updateDataset).getBytes("utf-8"));
-    }
-
+            public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+                return RequestBodySerializer.string(HttpConstants.ContentType.JSON,
+                        QCloudJsonUtils.toJson(this.updateDataset));
+            }
     @Override
     public String getMethod() {
         return HttpConstants.RequestMethod.PUT;

@@ -63,6 +63,7 @@ public class TriggerWorkflowRequest extends BucketRequest {
      */
     public TriggerWorkflowRequest(@NonNull String bucket, String workflowId, String object) {
         super(bucket);
+        addNoSignHeader("Content-Type");
         this.workflowId = workflowId;
         this.object = object;
     }

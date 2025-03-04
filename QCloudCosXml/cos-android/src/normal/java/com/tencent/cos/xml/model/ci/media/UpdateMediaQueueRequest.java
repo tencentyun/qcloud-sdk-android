@@ -33,10 +33,6 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-
 /**
  * 更新媒体处理队列
  * <a href="https://cloud.tencent.com/document/product/460/42324">更新媒体处理队列</a>
@@ -74,8 +70,9 @@ public class UpdateMediaQueueRequest extends BucketRequest {
     }
 
     @Override
-    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
-        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.updateMediaQueue).getBytes("utf-8"));
+    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
+                QCloudXmlUtils.toXml(this.updateMediaQueue));
     }
 
     @Override

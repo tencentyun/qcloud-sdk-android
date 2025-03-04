@@ -25,15 +25,12 @@ package com.tencent.cos.xml.model.ci.metainsight;
 import androidx.annotation.NonNull;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.appid.AppIdRequest;
 import com.tencent.cos.xml.utils.QCloudJsonUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
-
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 /**
  * 创建数据集
@@ -52,6 +49,7 @@ public class CreateDatasetRequest extends AppIdRequest {
      */
     public CreateDatasetRequest(@NonNull String appid) {
         super(appid);
+        addNoSignHeader("Content-Type");
 		addHeader(HttpConstants.Header.ACCEPT, HttpConstants.ContentType.JSON);
     }
     /**
@@ -67,12 +65,11 @@ public class CreateDatasetRequest extends AppIdRequest {
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
         return "/dataset";
     }
-
     @Override
-    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
-        return RequestBodySerializer.bytes(HttpConstants.ContentType.JSON, QCloudJsonUtils.toJson(this.createDataset).getBytes("utf-8"));
-    }
-
+            public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+                return RequestBodySerializer.string(HttpConstants.ContentType.JSON,
+                        QCloudJsonUtils.toJson(this.createDataset));
+            }
     @Override
     public String getMethod() {
         return HttpConstants.RequestMethod.POST;

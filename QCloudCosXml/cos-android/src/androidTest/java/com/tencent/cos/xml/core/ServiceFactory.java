@@ -296,6 +296,17 @@ public class ServiceFactory {
         return new TransferManager(newTencentcosService(), transferConfig);
     }
 
+    public TransferManager newNetworkSwitchTransferManager() {
+        TransferConfig transferConfig = new TransferConfig.Builder()
+                .build();
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .setDebuggable(true)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
+                .enableQuic(true)
+                .setNetworkSwitchStrategy(CosXmlServiceConfig.RequestNetworkStrategy.Conservative)
+                .builder();
+        return new TransferManager(newService(cosXmlServiceConfig), transferConfig);
+    }
 
     public TransferManager newDefaultTransferManagerBySessionCredentials() {
         TransferConfig transferConfig = new TransferConfig.Builder()
@@ -486,6 +497,12 @@ public class ServiceFactory {
     public CosXmlSimpleService newService(CosXmlServiceConfig cosXmlServiceConfig) {
         return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
+
+    }
+
+    public CosXmlSimpleService newMeService(CosXmlServiceConfig cosXmlServiceConfig) {
+        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,
+                new ShortTimeCredentialProvider(TestConst.ME_SECRET_ID, TestConst.ME_SECRET_KEY,60000) );
 
     }
 

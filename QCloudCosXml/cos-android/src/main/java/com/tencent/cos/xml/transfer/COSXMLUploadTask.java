@@ -249,6 +249,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
         this.headers = putObjectRequest.getRequestHeaders();
         this.noSignHeaders = putObjectRequest.getNoSignHeaders();
         this.isNeedMd5 = putObjectRequest.isNeedMD5();
+        this.networkType = putObjectRequest.getNetworkType();
+        this.host = putObjectRequest.getHost();
         this.credentialProvider = putObjectRequest.getCredentialProvider();
         this.uploadId = uploadId;
         this.priorityLow = putObjectRequest.isPriorityLow();
@@ -353,6 +355,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
         }
         putObjectRequest.setRequestHeaders(headers);
         putObjectRequest.addNoSignHeader(noSignHeaders);
+        putObjectRequest.setNetworkType(networkType);
+        putObjectRequest.setHost(host);
         putObjectRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
@@ -391,7 +395,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 IS_EXIT.set(true);
                 //BeaconService.getInstance().reportUpload(region, simpleAlreadySendDataLen, TimeUtils.getTookTime(startTime));
                 //CosTrackService.getInstance().reportUpload(region, simpleAlreadySendDataLen, TimeUtils.getTookTime(startTime));
-                CosTrackService.getInstance().reportUploadTaskSuccess(request);
+                CosTrackService.getInstance().reportUploadTaskSuccess(request, getCosXmlServiceConfigTrackParams());
                 updateState(TransferState.COMPLETED, null, result, false);
             }
 
@@ -414,10 +418,10 @@ public final class COSXMLUploadTask extends COSXMLTask {
         }
         
         if (clientException != null) {
-            CosTrackService.getInstance().reportUploadTaskClientException(request, clientException);
+            CosTrackService.getInstance().reportUploadTaskClientException(request, clientException, getCosXmlServiceConfigTrackParams());
         }
         if (serviceException != null) {
-            CosTrackService.getInstance().reportUploadTaskServiceException(request, serviceException);
+            CosTrackService.getInstance().reportUploadTaskServiceException(request, serviceException, getCosXmlServiceConfigTrackParams());
         }
 
     }
@@ -437,6 +441,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
         initMultipartUploadRequest.setRequestHeaders(headers);
         initMultipartUploadRequest.addNoSignHeader(noSignHeaders);
+        initMultipartUploadRequest.setNetworkType(networkType);
+        initMultipartUploadRequest.setHost(host);
         initMultipartUploadRequest.setCredentialProvider(credentialProvider);
 
         if(getContentTypeByHeaders(headers) == null){
@@ -552,6 +558,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
         listPartsRequest.setRegion(region);
         listPartsRequest.setRequestHeaders(headers);
         listPartsRequest.addNoSignHeader(noSignHeaders);
+        listPartsRequest.setNetworkType(networkType);
+        listPartsRequest.setHost(host);
         listPartsRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
@@ -777,6 +785,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 }
                 uploadPartRequest.setRequestHeaders(headers);
                 uploadPartRequest.addNoSignHeader(noSignHeaders);
+                uploadPartRequest.setNetworkType(networkType);
+                uploadPartRequest.setHost(host);
                 uploadPartRequest.setCredentialProvider(credentialProvider);
                 uploadPartRequest.setOnRequestWeightListener(new CosXmlRequest.OnRequestWeightListener() {
                     @Override
@@ -859,6 +869,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
         completeMultiUploadRequest.setNeedMD5(isNeedMd5);
         completeMultiUploadRequest.setRequestHeaders(getCustomCompleteHeaders(headers));
         completeMultiUploadRequest.addNoSignHeader(noSignHeaders);
+        completeMultiUploadRequest.setNetworkType(networkType);
+        completeMultiUploadRequest.setHost(host);
         completeMultiUploadRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
@@ -915,7 +927,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         request.attachMetrics(httpTaskMetrics);
         if(IS_EXIT.get())return;
         IS_EXIT.set(true);
-        CosTrackService.getInstance().reportUploadTaskSuccess(request);
+        CosTrackService.getInstance().reportUploadTaskSuccess(request, getCosXmlServiceConfigTrackParams());
         multiUploadsStateListenerHandler.onCompleted(request, result);
     }
 
@@ -934,7 +946,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
     protected void internalPause(boolean now) {
         CosXmlRequest request = buildCOSXMLTaskRequest();
         request.attachMetrics(httpTaskMetrics);
-        CosTrackService.getInstance().reportUploadTaskSuccess(request);
+        CosTrackService.getInstance().reportUploadTaskSuccess(request, getCosXmlServiceConfigTrackParams());
         cancelAllRequest(cosXmlService, now);
     }
 

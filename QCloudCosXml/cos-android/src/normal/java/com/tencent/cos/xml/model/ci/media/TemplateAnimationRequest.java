@@ -33,10 +33,6 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-
 /**
  * 视频转动图
  * <a href="https://cloud.tencent.com/document/product/460/84729">视频转动图</a>
@@ -55,6 +51,7 @@ public class TemplateAnimationRequest extends BucketRequest {
      */
     public TemplateAnimationRequest(@NonNull String bucket ) {
         super(bucket);
+        addNoSignHeader("Content-Type");
     }
 
     /**
@@ -72,8 +69,9 @@ public class TemplateAnimationRequest extends BucketRequest {
     }
 
     @Override
-    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
-        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.templateAnimation).getBytes("utf-8"));
+    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
+                QCloudXmlUtils.toXml(this.templateAnimation));
     }
 
     @Override

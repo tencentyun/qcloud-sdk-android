@@ -49,6 +49,8 @@ public class CancelLiveVideoAuditRequest extends BucketRequest {
     public CancelLiveVideoAuditRequest(@NonNull String bucket , @NonNull String jobId) {
         super(bucket);
         this.jobId = jobId;
+
+        addNoSignHeader("Content-Type");
     }
 
     @Override

@@ -63,6 +63,7 @@ public class DescribeDatasetsRequest extends AppIdRequest {
      */
     public DescribeDatasetsRequest(@NonNull String appid) {
         super(appid);
+        addNoSignHeader("Content-Type");
 		addHeader(HttpConstants.Header.ACCEPT, HttpConstants.ContentType.JSON);
     }
     

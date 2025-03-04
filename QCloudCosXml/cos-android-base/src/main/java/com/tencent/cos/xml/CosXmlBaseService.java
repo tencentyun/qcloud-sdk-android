@@ -26,6 +26,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.base.BuildConfig;
 import com.tencent.cos.xml.common.ClientErrorCode;
@@ -287,7 +288,9 @@ public class CosXmlBaseService implements BaseCosXml {
     }
 
     protected String getRequestHost(CosXmlRequest request) throws CosXmlClientException {
-
+        if (!TextUtils.isEmpty(request.getHost())) {
+            return request.getHost();
+        }
 
         if (!TextUtils.isEmpty(requestDomain)) {
             return requestDomain;
@@ -302,10 +305,10 @@ public class CosXmlBaseService implements BaseCosXml {
      * Header 数据优先级：request、config、默认
      */
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> QCloudHttpRequest buildHttpRequest
-    (T1 cosXmlRequest, T2 cosXmlResult) throws CosXmlClientException {
+    (T1 cosXmlRequest, T2 cosXmlResult, boolean isNetworkSwitch, String networkClientType) throws CosXmlClientException {
         QCloudHttpRequest.Builder<T2> httpRequestBuilder = new QCloudHttpRequest.Builder<T2>()
                 .method(cosXmlRequest.getMethod())
-                .userAgent(getUserAgent())
+                .userAgent(getUserAgent(networkClientType))
                 .tag(tag);
 
         httpRequestBuilder.addNoSignHeaderKeys(config.getNoSignHeaders());
@@ -314,7 +317,18 @@ public class CosXmlBaseService implements BaseCosXml {
 
         //add url
         String requestURL = cosXmlRequest.getRequestURL();
-        final String host = getRequestHost(cosXmlRequest);
+        String host = getRequestHost(cosXmlRequest);
+        if(TextUtils.isEmpty(cosXmlRequest.getHost())){
+            if(config.networkSwitchStrategy() == CosXmlServiceConfig.RequestNetworkStrategy.Aggressive){
+                if(isNetworkSwitch){
+                    host = config.getDefaultRequestHost(cosXmlRequest.getRegion(), cosXmlRequest.getBucket());
+                }
+            } else if(config.networkSwitchStrategy() == CosXmlServiceConfig.RequestNetworkStrategy.Conservative){
+                if(!isNetworkSwitch){
+                    host = config.getDefaultRequestHost(cosXmlRequest.getRegion(), cosXmlRequest.getBucket());
+                }
+            }
+        }
         if (requestURL != null) {
             try {
                 httpRequestBuilder.url(new URL(requestURL));
@@ -421,6 +435,67 @@ public class CosXmlBaseService implements BaseCosXml {
         return false;
     }
 
+    private  <T1 extends CosXmlRequest, T2 extends CosXmlResult> HttpTask buildHttpTask
+            (T1 cosXmlRequest, T2 cosXmlResult, boolean isNetworkSwitch) throws CosXmlClientException {
+        // 如果有值 说明是task传入的 则以task为准
+        if(TextUtils.isEmpty(cosXmlRequest.getClientTraceId())){
+            cosXmlRequest.setClientTraceId(UUID.randomUUID().toString());
+        }
+
+        if(TextUtils.isEmpty(cosXmlRequest.getRegion()) && config != null){
+            cosXmlRequest.setRegion(config.getRegion());
+        }
+
+        if (cosXmlRequest.getMetrics() == null) {
+            cosXmlRequest.attachMetrics(new HttpTaskMetrics());
+        }
+
+        String networkClientType = null;
+        if(config.isEnableQuic()) {
+            if(cosXmlRequest.getNetworkType() == null){
+                if(config.networkSwitchStrategy() == CosXmlServiceConfig.RequestNetworkStrategy.Aggressive){
+                    if(isNetworkSwitch){
+                        networkClientType = OkHttpClientImpl.class.getName();
+                    } else {
+                        networkClientType = "com.tencent.qcloud.quic.QuicClientImpl";
+                    }
+                } else if(config.networkSwitchStrategy() == CosXmlServiceConfig.RequestNetworkStrategy.Conservative){
+                    if(isNetworkSwitch){
+                        networkClientType = "com.tencent.qcloud.quic.QuicClientImpl";
+                    } else {
+                        networkClientType = OkHttpClientImpl.class.getName();
+                    }
+                }
+            } else {
+                if(cosXmlRequest.getNetworkType() == CosXmlRequest.RequestNetworkType.OKHTTP){
+                    networkClientType = OkHttpClientImpl.class.getName();
+                } else if(cosXmlRequest.getNetworkType() == CosXmlRequest.RequestNetworkType.QUIC){
+                    networkClientType = "com.tencent.qcloud.quic.QuicClientImpl";
+                }
+            }
+        } else {
+            networkClientType = OkHttpClientImpl.class.getName();
+        }
+
+        QCloudHttpRequest<T2> httpRequest = buildHttpRequest(cosXmlRequest, cosXmlResult, isNetworkSwitch, networkClientType);
+        HttpTask<T2> httpTask;
+
+        // 单次临时密钥优先级比service中的密钥提供器高
+        if(cosXmlRequest.getCredentialProvider() != null){
+            httpTask = client.resolveRequest(httpRequest, cosXmlRequest.getCredentialProvider(), networkClientType);
+        } else {
+            httpTask = client.resolveRequest(httpRequest, credentialProvider, networkClientType);
+        }
+
+        httpTask.setTransferThreadControl(config.isTransferThreadControl());
+        httpTask.setUploadMaxThreadCount(config.getUploadMaxThreadCount());
+        httpTask.setDownloadMaxThreadCount(config.getDownloadMaxThreadCount());
+        httpTask.setDomainSwitch(config.isDomainSwitch());
+        cosXmlRequest.setTask(httpTask);
+
+        return httpTask;
+    }
+
     /**
      * 同步执行
      */
@@ -433,49 +508,40 @@ public class CosXmlBaseService implements BaseCosXml {
      */
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> T2 execute(T1 cosXmlRequest, T2 cosXmlResult, boolean internal)
             throws CosXmlClientException, CosXmlServiceException {
+        return this.execute(cosXmlRequest, cosXmlResult, internal, false);
+    }
+
+    protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> T2 execute(T1 cosXmlRequest, T2 cosXmlResult,
+                                                                             boolean internal, boolean isNetworkSwitch)
+            throws CosXmlClientException, CosXmlServiceException {
         try {
-            // 如果有值 说明是task传入的 则以task为准
-            if(TextUtils.isEmpty(cosXmlRequest.getClientTraceId())){
-                cosXmlRequest.setClientTraceId(UUID.randomUUID().toString());
-            }
-
-            if(TextUtils.isEmpty(cosXmlRequest.getRegion()) && config != null){
-                cosXmlRequest.setRegion(config.getRegion());
-            }
-
-            if (cosXmlRequest.getMetrics() == null) {
-                cosXmlRequest.attachMetrics(new HttpTaskMetrics());
-            }
-            QCloudHttpRequest<T2> httpRequest = buildHttpRequest(cosXmlRequest, cosXmlResult);
-            HttpTask<T2> httpTask;
-
-            // 单次临时密钥优先级比service中的密钥提供器高
-            if(cosXmlRequest.getCredentialProvider() != null){
-                httpTask = client.resolveRequest(httpRequest, cosXmlRequest.getCredentialProvider());
-            } else {
-                httpTask = client.resolveRequest(httpRequest, credentialProvider);
-            }
-            httpTask.setTransferThreadControl(config.isTransferThreadControl());
-            httpTask.setUploadMaxThreadCount(config.getUploadMaxThreadCount());
-            httpTask.setDownloadMaxThreadCount(config.getDownloadMaxThreadCount());
-            httpTask.setDomainSwitch(config.isDomainSwitch());
-            cosXmlRequest.setTask(httpTask);
-
+            HttpTask<T2> httpTask = buildHttpTask(cosXmlRequest, cosXmlResult, isNetworkSwitch);
             setProgressListener(cosXmlRequest, httpTask, false);
 
             HttpResult<T2> httpResult = httpTask.executeNow();
 
-            CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest, internal);
+            CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest, internal, config.getTrackParams());
             CosTrackService.getInstance().reportHttpMetrics(cosXmlRequest);
             logRequestMetrics(cosXmlRequest);
 
             return httpResult != null ? httpResult.content() : null;
         } catch (QCloudServiceException e) {
             CosTrackService.getInstance().reportHttpMetrics(cosXmlRequest);
-            throw CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, e, internal);
+            CosXmlServiceException cosXmlServiceException = CosTrackService.getInstance().convertServerException(e);
+            // 网络异常
+            if(config.networkSwitchStrategy() != null && !isNetworkSwitch && ("RequestTimeout".equals(cosXmlServiceException.getErrorCode()) || "UserNetworkTooSlow".equals(cosXmlServiceException.getErrorCode()))){
+                return this.execute(cosXmlRequest, cosXmlResult, internal, true);
+            }
+            throw CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, e, internal, config.getTrackParams());
         } catch (QCloudClientException e) {
             CosTrackService.getInstance().reportHttpMetrics(cosXmlRequest);
-            throw CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e, internal);
+            CosXmlClientException cosXmlClientException = CosTrackService.getInstance().convertClientException(e);
+            // 网络异常
+            if(config.networkSwitchStrategy() != null && !isNetworkSwitch && (cosXmlClientException.errorCode == ClientErrorCode.POOR_NETWORK.getCode() ||
+                    cosXmlClientException.errorCode == ClientErrorCode.IO_ERROR.getCode())){
+                return this.execute(cosXmlRequest, cosXmlResult, internal, true);
+            }
+            throw CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e, internal, config.getTrackParams());
         }
     }
 
@@ -488,10 +554,16 @@ public class CosXmlBaseService implements BaseCosXml {
      */
     protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> void schedule(final T1 cosXmlRequest, T2 cosXmlResult,
                                                                                 final CosXmlResultListener cosXmlResultListener, boolean internal) {
+        this.schedule(cosXmlRequest, cosXmlResult, cosXmlResultListener, internal, false);
+    }
+
+    protected <T1 extends CosXmlRequest, T2 extends CosXmlResult> void schedule(final T1 cosXmlRequest, T2 cosXmlResult,
+                                                                                final CosXmlResultListener cosXmlResultListener,
+                                                                                boolean internal, boolean isNetworkSwitch) {
         QCloudResultListener<HttpResult<T2>> qCloudResultListener = new QCloudResultListener<HttpResult<T2>>() {
             @Override
             public void onSuccess(HttpResult<T2> result) {
-                CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest, internal);
+                CosTrackService.getInstance().reportRequestSuccess(cosXmlRequest, internal, config.getTrackParams());
                 CosTrackService.getInstance().reportHttpMetrics(cosXmlRequest);
                 logRequestMetrics(cosXmlRequest);
                 cosXmlResultListener.onSuccess(cosXmlRequest, result.content());
@@ -502,43 +574,29 @@ public class CosXmlBaseService implements BaseCosXml {
                 CosTrackService.getInstance().reportHttpMetrics(cosXmlRequest);
                 logRequestMetrics(cosXmlRequest);
                 if (clientException != null) {
-                    CosXmlClientException xmlClientException = CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, clientException, internal);
-                    cosXmlResultListener.onFail(cosXmlRequest, xmlClientException,null);
+                    CosXmlClientException xmlClientException = CosTrackService.getInstance().convertClientException(clientException);
+                    // 网络异常
+                    if(config.networkSwitchStrategy() != null && !isNetworkSwitch && (xmlClientException.errorCode == ClientErrorCode.POOR_NETWORK.getCode() ||
+                            xmlClientException.errorCode == ClientErrorCode.IO_ERROR.getCode())){
+                        schedule(cosXmlRequest, cosXmlResult, cosXmlResultListener, internal, true);
+                    }
+                    cosXmlResultListener.onFail(cosXmlRequest,
+                            CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, clientException, internal, config.getTrackParams()),
+                            null);
                 } else if (serviceException != null) {
-                    CosXmlServiceException xmlServiceException = CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, serviceException, internal);
-                    cosXmlResultListener.onFail(cosXmlRequest, null, xmlServiceException);
+                    CosXmlServiceException xmlServiceException = CosTrackService.getInstance().convertServerException(serviceException);
+                    // 网络异常
+                    if(config.networkSwitchStrategy() != null && !isNetworkSwitch && ("RequestTimeout".equals(xmlServiceException.getErrorCode()) || "UserNetworkTooSlow".equals(xmlServiceException.getErrorCode()))){
+                        schedule(cosXmlRequest, cosXmlResult, cosXmlResultListener, internal, true);
+                    }
+                    cosXmlResultListener.onFail(cosXmlRequest, null,
+                            CosTrackService.getInstance().reportRequestServiceException(cosXmlRequest, serviceException, internal, config.getTrackParams()));
                 }
             }
         };
 
         try {
-            if(TextUtils.isEmpty(cosXmlRequest.getClientTraceId())){
-                cosXmlRequest.setClientTraceId(UUID.randomUUID().toString());
-            }
-
-            if(TextUtils.isEmpty(cosXmlRequest.getRegion()) && config != null){
-                cosXmlRequest.setRegion(config.getRegion());
-            }
-
-            if (cosXmlRequest.getMetrics() == null) {
-                cosXmlRequest.attachMetrics(new HttpTaskMetrics());
-            }
-            QCloudHttpRequest<T2> httpRequest = buildHttpRequest(cosXmlRequest, cosXmlResult);
-
-            HttpTask<T2> httpTask;
-            // 单次临时密钥优先级比service中的密钥提供器高
-            if(cosXmlRequest.getCredentialProvider() != null){
-                httpTask = client.resolveRequest(httpRequest, cosXmlRequest.getCredentialProvider());
-            } else {
-                httpTask = client.resolveRequest(httpRequest, credentialProvider);
-            }
-
-            httpTask.setTransferThreadControl(config.isTransferThreadControl());
-            httpTask.setUploadMaxThreadCount(config.getUploadMaxThreadCount());
-            httpTask.setDownloadMaxThreadCount(config.getDownloadMaxThreadCount());
-            httpTask.setDomainSwitch(config.isDomainSwitch());
-            cosXmlRequest.setTask(httpTask);
-
+            HttpTask<T2> httpTask = buildHttpTask(cosXmlRequest, cosXmlResult, isNetworkSwitch);
             setProgressListener(cosXmlRequest, httpTask, true);
 
             Executor executor = config.getExecutor();
@@ -557,8 +615,14 @@ public class CosXmlBaseService implements BaseCosXml {
             }
 
         } catch (QCloudClientException e) {
-            CosXmlClientException clientException = CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e, internal);
-            cosXmlResultListener.onFail(cosXmlRequest, clientException,null);
+            CosXmlClientException clientException = CosTrackService.getInstance().convertClientException(e);
+            // 网络异常
+            if(config.networkSwitchStrategy() != null && !isNetworkSwitch && (clientException.errorCode == ClientErrorCode.POOR_NETWORK.getCode() ||
+                    clientException.errorCode == ClientErrorCode.IO_ERROR.getCode())){
+                schedule(cosXmlRequest, cosXmlResult, cosXmlResultListener, internal, true);
+            }
+            cosXmlResultListener.onFail(cosXmlRequest,
+                    CosTrackService.getInstance().reportRequestClientException(cosXmlRequest, e, internal, config.getTrackParams()),null);
         }
     }
 
@@ -641,7 +705,7 @@ public class CosXmlBaseService implements BaseCosXml {
 
             QCloudSigner signer = SignerFactory.getSigner(signerTypeCompat(signerType, cosXmlRequest));
 
-            QCloudHttpRequest request = buildHttpRequest(cosXmlRequest, null);
+            QCloudHttpRequest request = buildHttpRequest(cosXmlRequest, null, false, null);
             signer.sign(request, credentials);
             String sign = request.header(HttpConstants.Header.AUTHORIZATION);
             String token = request.header("x-cos-security-token");
@@ -834,14 +898,20 @@ public class CosXmlBaseService implements BaseCosXml {
      * 获取UserAgent
      * @return UserAgent
      */
-    public String getUserAgent() {
+    public String getUserAgent(@Nullable String networkClientType) {
         if(config == null){
             return VersionInfo.getUserAgent();
         }
 
         String userAgent;
         if(config.isEnableQuic()) {
-            userAgent = VersionInfo.getQuicUserAgent();
+            if(OkHttpClientImpl.class.getName().equals(networkClientType)){
+                userAgent = VersionInfo.getUserAgent();
+            } else if("com.tencent.qcloud.quic.QuicClientImpl".equals(networkClientType)) {
+                userAgent = VersionInfo.getQuicUserAgent();
+            } else {
+                userAgent = VersionInfo.getQuicUserAgent();
+            }
         } else {
             userAgent = VersionInfo.getUserAgent();
         }
