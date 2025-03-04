@@ -161,10 +161,9 @@ public class QuicProxy<T> extends NetworkProxy<T> {
 
                 RequestBody requestBody = httpRequest.getRequestBody();
                 if (httpRequest.getRequestBody() != null) {
-                    String contentType = httpRequest.contentType();
-                    if(contentType != null){
-                        quicRequest.addHeader("Content-Type".toLowerCase(Locale.ROOT), contentType);
-                    }
+                    String contentType = requestBody.contentType() != null ?
+                            requestBody.contentType().toString() : "application/octet-stream";
+                    quicRequest.addHeader("Content-Type".toLowerCase(Locale.ROOT), contentType);
                     quicRequest.addHeader("Content-Length".toLowerCase(Locale.ROOT), String.valueOf(requestBody.contentLength()));
                 }
 
