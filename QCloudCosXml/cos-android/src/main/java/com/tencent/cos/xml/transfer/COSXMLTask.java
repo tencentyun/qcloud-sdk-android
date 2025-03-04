@@ -45,6 +45,7 @@ import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -87,6 +88,8 @@ public abstract class COSXMLTask {
     protected Set<String> noSignHeaders;
     /** 是否需要计算 MD5 */
     protected boolean isNeedMd5 = true;
+    protected CosXmlRequest.RequestNetworkType networkType = null;
+    protected String host;
     /** 请求的密钥提供器 */
     protected QCloudCredentialProvider credentialProvider;
     /** 进度回调监听器 */
@@ -478,5 +481,13 @@ public abstract class COSXMLTask {
 
     void setInternalInitMultipleUploadListener(InitMultipleUploadListener internalInitMultipleUploadListener) {
         this.internalInitMultipleUploadListener = internalInitMultipleUploadListener;
+    }
+
+    protected Map<String, String> getCosXmlServiceConfigTrackParams() {
+        Map<String, String> params = new HashMap<>();
+        if(cosXmlService != null && cosXmlService.getConfig() != null){
+            params.putAll(cosXmlService.getConfig().getTrackParams());
+        }
+        return params;
     }
 }

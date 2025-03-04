@@ -282,7 +282,7 @@ public class QuicTest {
         downloadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
             @Override
             public void onProgress(long complete, long target) {
-                QCloudLogger.i("QCloudTest", "transfer progress is %d/%d", complete, target);
+//                QCloudLogger.i("QCloudTest", "transfer progress is %d/%d", complete, target);
             }
         });
         downloadTask.setCosXmlResultListener(new CosXmlResultListener() {

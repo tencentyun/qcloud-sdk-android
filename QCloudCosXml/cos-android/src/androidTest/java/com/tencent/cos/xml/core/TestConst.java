@@ -117,6 +117,17 @@ public class TestConst {
     public static final String DUALCHECK_PERSIST_BUCKET_REGION = "ap-nanjing";
     public static final String DUALCHECK_PERSIST_BUCKET = "dual-check-nj-1253960454";
 
+    public static final String ME_SECRET_ID = BuildConfig.ME_SECRET_ID;
+    public static final String ME_SECRET_KEY = BuildConfig.ME_SECRET_KEY;
+//    public static final String[] NET_BUCKET_REGION_ARR = new String[]{
+//            "ap-beijing", "ap-guangzhou", "ap-shanghai", "ap-nanjing", "ap-chengdu", "ap-chongqing",
+//            "ap-hongkong", "ap-singapore", "ap-jakarta", "ap-seoul", "ap-tokyo", "ap-bangkok",
+//            "na-siliconvalley", "na-ashburn",
+//            "eu-frankfurt",
+//            "sa-saopaulo",
+//    };
 
-
+    public static final String[] NET_BUCKET_REGION_ARR = new String[]{
+            "eu-frankfurt"
+    };
 }
