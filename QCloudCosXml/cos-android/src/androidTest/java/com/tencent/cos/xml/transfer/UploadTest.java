@@ -831,6 +831,10 @@ public class UploadTest {
         testUploadBigFileByPath(ServiceFactory.INSTANCE.newTencentcosTransferManager());
     }
 
+    @Test public void testNetworkSwitchUploadBigFileByPath() {
+        testUploadBigFileByPath(ServiceFactory.INSTANCE.newNetworkSwitchTransferManager());
+    }
+
     @Test public void testUploadBigFileForceSimpleUploadByPath() {
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newForceSimpleUploadTransferManager();

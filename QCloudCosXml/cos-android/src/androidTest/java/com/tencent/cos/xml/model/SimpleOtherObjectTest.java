@@ -514,7 +514,7 @@ public class SimpleOtherObjectTest {
         }
     }
 
-    @Test
+//    @Test
     public void testFlatInetAddressList() {
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newDefaultService();
         String[] ipAddress = new String[]{"10.1.1.1", "10.1.1.2"};

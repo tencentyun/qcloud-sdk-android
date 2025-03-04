@@ -23,9 +23,12 @@
 package com.tencent.cos.xml.transfer;
 
 
+import static com.tencent.qcloud.core.http.HttpConstants.Header.CONTENT_TYPE;
+
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 
 import androidx.annotation.Nullable;
 
@@ -64,6 +67,7 @@ import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.util.ContextHolder;
+import com.tencent.qcloud.core.util.QCloudStringUtils;
 import com.tencent.qcloud.core.util.QCloudUtils;
 
 import java.io.File;
@@ -245,6 +249,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
         this.headers = putObjectRequest.getRequestHeaders();
         this.noSignHeaders = putObjectRequest.getNoSignHeaders();
         this.isNeedMd5 = putObjectRequest.isNeedMD5();
+        this.networkType = putObjectRequest.getNetworkType();
+        this.host = putObjectRequest.getHost();
         this.credentialProvider = putObjectRequest.getCredentialProvider();
         this.uploadId = uploadId;
         this.priorityLow = putObjectRequest.isPriorityLow();
@@ -349,6 +355,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
         }
         putObjectRequest.setRequestHeaders(headers);
         putObjectRequest.addNoSignHeader(noSignHeaders);
+        putObjectRequest.setNetworkType(networkType);
+        putObjectRequest.setHost(host);
         putObjectRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
@@ -387,7 +395,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 IS_EXIT.set(true);
                 //BeaconService.getInstance().reportUpload(region, simpleAlreadySendDataLen, TimeUtils.getTookTime(startTime));
                 //CosTrackService.getInstance().reportUpload(region, simpleAlreadySendDataLen, TimeUtils.getTookTime(startTime));
-                CosTrackService.getInstance().reportUploadTaskSuccess(request);
+                CosTrackService.getInstance().reportUploadTaskSuccess(request, getCosXmlServiceConfigTrackParams());
                 updateState(TransferState.COMPLETED, null, result, false);
             }
 
@@ -410,10 +418,10 @@ public final class COSXMLUploadTask extends COSXMLTask {
         }
         
         if (clientException != null) {
-            CosTrackService.getInstance().reportUploadTaskClientException(request, clientException);
+            CosTrackService.getInstance().reportUploadTaskClientException(request, clientException, getCosXmlServiceConfigTrackParams());
         }
         if (serviceException != null) {
-            CosTrackService.getInstance().reportUploadTaskServiceException(request, serviceException);
+            CosTrackService.getInstance().reportUploadTaskServiceException(request, serviceException, getCosXmlServiceConfigTrackParams());
         }
 
     }
@@ -433,7 +441,26 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
         initMultipartUploadRequest.setRequestHeaders(headers);
         initMultipartUploadRequest.addNoSignHeader(noSignHeaders);
+        initMultipartUploadRequest.setNetworkType(networkType);
+        initMultipartUploadRequest.setHost(host);
         initMultipartUploadRequest.setCredentialProvider(credentialProvider);
+
+        if(getContentTypeByHeaders(headers) == null){
+            // 添加自动获取的content type
+            String contentType = null;
+            if (url != null) {
+                String extension = MimeTypeMap.getFileExtensionFromUrl(url.toString());
+                contentType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            } else if(srcPath != null) {
+                String extension = QCloudStringUtils.getExtension(srcPath);
+                contentType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            }
+            if(contentType != null){
+                try {
+                    initMultipartUploadRequest.setRequestHeaders(CONTENT_TYPE, contentType, false);
+                } catch (CosXmlClientException ignored) {}
+            }
+        }
 
         if(onSignatureListener != null){
             initMultipartUploadRequest.setSign(onSignatureListener.onGetSign(initMultipartUploadRequest));
@@ -531,6 +558,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
         listPartsRequest.setRegion(region);
         listPartsRequest.setRequestHeaders(headers);
         listPartsRequest.addNoSignHeader(noSignHeaders);
+        listPartsRequest.setNetworkType(networkType);
+        listPartsRequest.setHost(host);
         listPartsRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
@@ -756,6 +785,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 }
                 uploadPartRequest.setRequestHeaders(headers);
                 uploadPartRequest.addNoSignHeader(noSignHeaders);
+                uploadPartRequest.setNetworkType(networkType);
+                uploadPartRequest.setHost(host);
                 uploadPartRequest.setCredentialProvider(credentialProvider);
                 uploadPartRequest.setOnRequestWeightListener(new CosXmlRequest.OnRequestWeightListener() {
                     @Override
@@ -838,6 +869,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
         completeMultiUploadRequest.setNeedMD5(isNeedMd5);
         completeMultiUploadRequest.setRequestHeaders(getCustomCompleteHeaders(headers));
         completeMultiUploadRequest.addNoSignHeader(noSignHeaders);
+        completeMultiUploadRequest.setNetworkType(networkType);
+        completeMultiUploadRequest.setHost(host);
         completeMultiUploadRequest.setCredentialProvider(credentialProvider);
 
         if(onSignatureListener != null){
@@ -894,7 +927,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         request.attachMetrics(httpTaskMetrics);
         if(IS_EXIT.get())return;
         IS_EXIT.set(true);
-        CosTrackService.getInstance().reportUploadTaskSuccess(request);
+        CosTrackService.getInstance().reportUploadTaskSuccess(request, getCosXmlServiceConfigTrackParams());
         multiUploadsStateListenerHandler.onCompleted(request, result);
     }
 
@@ -913,7 +946,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
     protected void internalPause(boolean now) {
         CosXmlRequest request = buildCOSXMLTaskRequest();
         request.attachMetrics(httpTaskMetrics);
-        CosTrackService.getInstance().reportUploadTaskSuccess(request);
+        CosTrackService.getInstance().reportUploadTaskSuccess(request, getCosXmlServiceConfigTrackParams());
         cancelAllRequest(cosXmlService, now);
     }
 
@@ -1346,5 +1379,19 @@ public final class COSXMLUploadTask extends COSXMLTask {
         Map<String, List<String>> headers = new HashMap<>(customHeaders);
         headers.remove(HttpConstants.Header.CONTENT_TYPE);
         return headers;
+    }
+
+    private String getContentTypeByHeaders(Map<String, List<String>> headers) {
+        if(headers == null || headers.isEmpty()) return null;
+
+        List<String> contentType = headers.get("Content-Type");
+        if (contentType == null || contentType.isEmpty()) {
+            contentType = headers.get("content-type");
+        }
+        if (contentType == null || contentType.isEmpty()) {
+            contentType = headers.get("Content-type");
+        }
+
+        return contentType != null && !contentType.isEmpty() ? contentType.get(0) : null;
     }
 }

@@ -53,7 +53,6 @@ import com.tencent.qcloud.track.service.BeaconTrackService;
 import com.tencent.qcloud.track.service.ClsTrackService;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -315,13 +314,13 @@ public class CosTrackService {
      *
      * @param request request
      */
-    public void reportRequestSuccess(CosXmlRequest request) {
-        reportRequestSuccess(request, false);
-    }
-    public void reportRequestSuccess(CosXmlRequest request, boolean internal) {
+    public void reportRequestSuccess(CosXmlRequest request, boolean internal, Map<String, String> configExtra) {
+        Map<String, String> params = new HashMap<>();
+        params.put("request_name", getRequestName(request));
+        params.putAll(configExtra);
         reportRequestSuccess(
                 request,
-                Collections.singletonMap("request_name", getRequestName(request)),
+                params,
                 internal
         );
     }
@@ -329,14 +328,14 @@ public class CosTrackService {
     /**
      * 上报base_service事件 ClientException
      */
-    public CosXmlClientException reportRequestClientException(CosXmlRequest request, QCloudClientException clientException) {
-        return reportRequestClientException(request, clientException, false);
-    }
-    public CosXmlClientException reportRequestClientException(CosXmlRequest request, QCloudClientException clientException, boolean internal) {
+    public CosXmlClientException reportRequestClientException(CosXmlRequest request, QCloudClientException clientException, boolean internal, Map<String, String> configExtra) {
+        Map<String, String> params = new HashMap<>();
+        params.put("request_name", getRequestName(request));
+        params.putAll(configExtra);
         return reportClientException(
                 request,
                 clientException,
-                Collections.singletonMap("request_name", getRequestName(request)),
+                params,
                 internal
         );
     }
@@ -344,14 +343,14 @@ public class CosTrackService {
     /**
      * 上报base_service事件 ServiceException
      */
-    public CosXmlServiceException reportRequestServiceException(CosXmlRequest request, QCloudServiceException serviceException) {
-        return reportRequestServiceException(request, serviceException, false);
-    }
-    public CosXmlServiceException reportRequestServiceException(CosXmlRequest request, QCloudServiceException serviceException, boolean internal) {
+    public CosXmlServiceException reportRequestServiceException(CosXmlRequest request, QCloudServiceException serviceException, boolean internal, Map<String, String> configExtra) {
+        Map<String, String> params = new HashMap<>();
+        params.put("request_name", getRequestName(request));
+        params.putAll(configExtra);
         return reportServiceException(
                 request,
                 serviceException,
-                Collections.singletonMap("request_name", getRequestName(request)),
+                params,
                 internal
         );
     }
@@ -361,26 +360,30 @@ public class CosTrackService {
      *
      * @param request request
      */
-    public void reportUploadTaskSuccess(CosXmlRequest request) {
+    public void reportUploadTaskSuccess(CosXmlRequest request, Map<String, String> configExtra) {
         // 只需要一个 PutObjectRequest 壳，带上 HttpTaskMetrics 信息
-        reportRequestSuccess(request,
-                Collections.singletonMap("request_name", "UploadTask"), false);
+        Map<String, String> params = new HashMap<>();
+        params.put("request_name", "UploadTask");
+        params.putAll(configExtra);
+        reportRequestSuccess(request, params, false);
     }
 
     /**
      * 上报cos_upload事件 ClientException
      */
-    public void reportUploadTaskClientException(CosXmlRequest request, QCloudClientException clientException) {
-        reportClientException(request, clientException,
-                createTransferExtra("UploadTask", request), false);
+    public void reportUploadTaskClientException(CosXmlRequest request, QCloudClientException clientException, Map<String, String> configExtra) {
+        Map<String, String> params = createTransferExtra("UploadTask", request);
+        params.putAll(configExtra);
+        reportClientException(request, clientException, params, false);
     }
 
     /**
      * 上报cos_upload事件 ServiceException
      */
-    public void reportUploadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException) {
-        reportServiceException(request, serviceException,
-                createTransferExtra("UploadTask", request), false);
+    public void reportUploadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException, Map<String, String> configExtra) {
+        Map<String, String> params = createTransferExtra("UploadTask", request);
+        params.putAll(configExtra);
+        reportServiceException(request, serviceException, params, false);
     }
 
     /**
@@ -388,26 +391,33 @@ public class CosTrackService {
      *
      * @param request request
      */
-    public void reportDownloadTaskSuccess(CosXmlRequest request) {
+    public void reportDownloadTaskSuccess(CosXmlRequest request, Map<String, String> configExtra) {
         // 只需要一个 GetObjectRequest 壳，带上 HttpTaskMetrics 信息
+        Map<String, String> params = new HashMap<>();
+        params.put("request_name", "DownloadTask");
+        params.putAll(configExtra);
         reportRequestSuccess(request,
-                Collections.singletonMap("request_name", "DownloadTask"), false);
+                params, false);
     }
 
     /**
      * 上报cos_download事件 ClientException
      */
-    public void reportDownloadTaskClientException(CosXmlRequest request, QCloudClientException clientException) {
+    public void reportDownloadTaskClientException(CosXmlRequest request, QCloudClientException clientException, Map<String, String> configExtra) {
+        Map<String, String> params = createTransferExtra("DownloadTask", request);
+        params.putAll(configExtra);
         reportClientException(request, clientException,
-                createTransferExtra("DownloadTask", request), false);
+                params, false);
     }
 
     /**
      * 上报cos_download事件 ServiceException
      */
-    public void reportDownloadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException) {
+    public void reportDownloadTaskServiceException(CosXmlRequest request, QCloudServiceException serviceException, Map<String, String> configExtra) {
+        Map<String, String> params = createTransferExtra("DownloadTask", request);
+        params.putAll(configExtra);
         reportServiceException(request, serviceException,
-                createTransferExtra("DownloadTask", request), false);
+                params, false);
     }
 
     /**
@@ -415,26 +425,33 @@ public class CosTrackService {
      *
      * @param request request
      */
-    public void reportCopyTaskSuccess(CosXmlRequest request) {
+    public void reportCopyTaskSuccess(CosXmlRequest request, Map<String, String> configExtra) {
         // 只需要一个 CopyObjectRequest 壳，带上 HttpTaskMetrics 信息
+        Map<String, String> params = new HashMap<>();
+        params.put("request_name", "CopyTask");
+        params.putAll(configExtra);
         reportRequestSuccess(request,
-                Collections.singletonMap("request_name", "CopyTask"), false);
+                params, false);
     }
 
     /**
      * 上报cos_copy事件 ClientException
      */
-    public void reportCopyTaskClientException(CosXmlRequest request, CosXmlClientException clientException) {
+    public void reportCopyTaskClientException(CosXmlRequest request, CosXmlClientException clientException, Map<String, String> configExtra) {
+        Map<String, String> params = createTransferExtra("CopyTask", request);
+        params.putAll(configExtra);
         reportClientException(request, clientException,
-                createTransferExtra("CopyTask", request), false);
+                params, false);
     }
 
     /**
      * 上报cos_copy事件 ServiceException
      */
-    public void reportCopyTaskServiceException(CosXmlRequest request, CosXmlServiceException serviceException) {
+    public void reportCopyTaskServiceException(CosXmlRequest request, CosXmlServiceException serviceException, Map<String, String> configExtra) {
+        Map<String, String> params = createTransferExtra("CopyTask", request);
+        params.putAll(configExtra);
         reportServiceException(request, serviceException,
-                createTransferExtra("CopyTask", request), false);
+                params, false);
     }
 
     /**
@@ -805,12 +822,12 @@ public class CosTrackService {
         }
     }
 
-    private CosXmlServiceException convertServerException(QCloudServiceException e) {
+    public CosXmlServiceException convertServerException(QCloudServiceException e) {
         return e instanceof CosXmlServiceException ? (CosXmlServiceException) e
                 : new CosXmlServiceException(e);
     }
 
-    private CosXmlClientException convertClientException(QCloudClientException e) {
+    public CosXmlClientException convertClientException(QCloudClientException e) {
         CosXmlClientException xmlClientException;
         if (e instanceof CosXmlClientException) {
             xmlClientException = (CosXmlClientException) e;

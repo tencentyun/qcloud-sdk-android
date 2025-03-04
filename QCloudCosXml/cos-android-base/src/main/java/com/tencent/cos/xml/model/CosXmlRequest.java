@@ -88,6 +88,9 @@ public abstract class CosXmlRequest{
     private boolean isNeedMD5 = false;
     private boolean isSupportAccelerate = false;
 
+    private RequestNetworkType networkType = null;
+    private String host;
+
     protected int priority = -1;
     /**
      * 存储桶
@@ -405,6 +408,9 @@ public abstract class CosXmlRequest{
      * @return 请求host
      */
     public String getRequestHost(CosXmlServiceConfig config) {
+        if(!TextUtils.isEmpty(host)){
+            return host;
+        }
         return config.getRequestHost(region, bucket, isSupportAccelerate);
     }
 
@@ -617,10 +623,38 @@ public abstract class CosXmlRequest{
         this.clientTraceId = clientTraceId;
     }
 
+    public RequestNetworkType getNetworkType() {
+        return networkType;
+    }
+
+    /**
+     * 业务层配置网络类型：RequestNetworkType
+     * 选择quic的话需要先按照官网文档“弱网优化”中操作开启quic
+     */
+    public void setNetworkType(RequestNetworkType networkType) {
+        this.networkType = networkType;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    /**
+     * 业务层配置host
+     */
+    public void setHost(String host) {
+        this.host = host;
+    }
+
     /**
      * 获取请求重量级的监听接口
      */
     public interface OnRequestWeightListener {
         int onWeight();
+    }
+
+    public enum RequestNetworkType {
+        OKHTTP,
+        QUIC,
     }
 }

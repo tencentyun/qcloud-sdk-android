@@ -69,6 +69,9 @@ android {
 
             it.buildConfigField 'String', 'CALLBACK_SECRET_ID', quotWrapper(System.getenv("CALLBACK_SECRET_ID"))
             it.buildConfigField 'String', 'CALLBACK_SECRET_KEY', quotWrapper(System.getenv("CALLBACK_SECRET_KEY"))
+
+            it.buildConfigField 'String', 'ME_SECRET_ID', quotWrapper(System.getenv("ME_SECRET_ID"))
+            it.buildConfigField 'String', 'ME_SECRET_KEY', quotWrapper(System.getenv("ME_SECRET_KEY"))
         }
 
         release {
@@ -92,8 +95,8 @@ android {
     }
 
     // 切换发 normal 或者 slim 包，需要同步修改 pom.artifactId 信息
-    defaultPublishConfig "normalRelease"
-//      defaultPublishConfig  "slimRelease"
+//    defaultPublishConfig "normalRelease"
+      defaultPublishConfig  "slimRelease"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -153,6 +156,8 @@ dependencies {
 
 //    androidTestImplementation 'com.tencentcloudapi.cls:tencentcloud-cls-sdk-android:1.0.5'
     androidTestImplementation 'com.google.guava:guava:27.0.1-android'
+
+    androidTestImplementation 'org.dhatim:fastexcel:0.18.4'
 
 //    if (compileQuic() && false) {
 //        api project(path: ':quic')

@@ -89,6 +89,8 @@ public class CosXmlServiceConfig implements Parcelable {
 
     private final boolean isQuic;
 
+    private final RequestNetworkStrategy networkSwitchStrategy;
+
     private List<String> prefetchHosts;
 
     private final Map<String, List<String>> commonHeaders;
@@ -148,6 +150,7 @@ public class CosXmlServiceConfig implements Parcelable {
         this.executor = builder.executor;
         this.observeExecutor = builder.observeExecutor;
         this.isQuic = builder.isQuic;
+        this.networkSwitchStrategy = builder.networkSwitchStrategy;
         this.accelerate = builder.accelerate;
 
         this.dnsCache = builder.dnsCache;
@@ -593,8 +596,24 @@ public class CosXmlServiceConfig implements Parcelable {
         return isQuic;
     }
 
+    public RequestNetworkStrategy networkSwitchStrategy() {
+        return networkSwitchStrategy;
+    }
+
     public String getUserAgentExtended() {
         return userAgentExtended;
+    }
+
+    public Map<String, String> getTrackParams() {
+        Map<String, String> params = new HashMap<>();
+        if(!TextUtils.isEmpty(host)){
+            params.put("cos_config_host", host);
+        }
+        params.put("cos_config_quic", String.valueOf(isEnableQuic()));
+        if(networkSwitchStrategy() != null){
+            params.put("cos_config_network_switch_strategy", networkSwitchStrategy().toString());
+        }
+        return params;
     }
 
     @Override
@@ -659,6 +678,7 @@ public class CosXmlServiceConfig implements Parcelable {
         private Executor observeExecutor;
 
         private boolean isQuic = false;
+        private RequestNetworkStrategy networkSwitchStrategy;
         private boolean dnsCache = true;
 
         private Map<String, List<String>> commonHeaders = new HashMap<>();
@@ -720,6 +740,7 @@ public class CosXmlServiceConfig implements Parcelable {
             observeExecutor = config.observeExecutor;
 
             isQuic = config.isQuic;
+            networkSwitchStrategy = config.networkSwitchStrategy;
             dnsCache = config.dnsCache;
 
             commonHeaders = config.commonHeaders;
@@ -1032,6 +1053,16 @@ public class CosXmlServiceConfig implements Parcelable {
         }
 
         /**
+         * 配置网络切换策略，包括Quic协议、加速Host
+         * 一般用于降低成本
+         * @return Builder 对象
+         */
+        public Builder setNetworkSwitchStrategy(RequestNetworkStrategy networkSwitchStrategy) {
+            this.networkSwitchStrategy = networkSwitchStrategy;
+            return this;
+        }
+
+        /**
          * 设置ua拓展参数
          * @param userAgentExtended ua拓展参数()会拼接在ua后面
          */
@@ -1088,5 +1119,16 @@ public class CosXmlServiceConfig implements Parcelable {
             noSignHeaders.add(key);
             return this;
         }
+    }
+
+    public enum RequestNetworkStrategy {
+        /**
+         * 激进策略
+         */
+        Aggressive,
+        /**
+         * 保守策略
+         */
+        Conservative,
     }
 }
