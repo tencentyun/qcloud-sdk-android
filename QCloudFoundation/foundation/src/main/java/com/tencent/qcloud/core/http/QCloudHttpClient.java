@@ -60,6 +60,7 @@ public final class QCloudHttpClient {
     private String networkClientType = OkHttpClientImpl.class.getName();
     private static Map<Integer, NetworkClient> networkClientMap = new ConcurrentHashMap<>(2);
     private static OkHttpClient.Builder okHttpClientBuilder;
+    public static final Object okHttpClientBuilderLock = new Object();
     private OkHttpClientImpl okhttpNetworkClient;
     private final TaskManager taskManager;
     private final HttpLogger httpLogger;
@@ -439,14 +440,15 @@ public final class QCloudHttpClient {
             if(qCloudHttpRetryHandler != null){
                 retryStrategy.setRetryHandler(qCloudHttpRetryHandler);
             }
-            if (mBuilder == null) {
-                // 复用okhttp底层资源（线程池、连接池等）
-                if(QCloudHttpClient.okHttpClientBuilder == null){
-                    QCloudHttpClient.okHttpClientBuilder = new OkHttpClient.Builder();
+            synchronized (okHttpClientBuilderLock){
+                if (mBuilder == null) {
+                    // 复用okhttp底层资源（线程池、连接池等）
+                    if(QCloudHttpClient.okHttpClientBuilder == null){
+                        QCloudHttpClient.okHttpClientBuilder = new OkHttpClient.Builder();
+                    }
+                    mBuilder = QCloudHttpClient.okHttpClientBuilder;
                 }
-                mBuilder = QCloudHttpClient.okHttpClientBuilder;
             }
-
             return new QCloudHttpClient(this);
         }
     }

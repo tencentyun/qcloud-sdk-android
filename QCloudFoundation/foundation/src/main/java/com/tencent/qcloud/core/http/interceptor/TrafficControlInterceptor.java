@@ -77,6 +77,7 @@ public class TrafficControlInterceptor implements Interceptor {
             this.maxConcurrent = maxConcurrent;
             controller = new ResizableSemaphore(concurrent, true);
             this.concurrent = new AtomicInteger(concurrent);
+            this.boostModeExhaustedTime = System.nanoTime() + BOOST_MODE_DURATION;
             QCloudLogger.d(HTTP_LOG_TAG, name + " init concurrent is " + concurrent);
         }
 
