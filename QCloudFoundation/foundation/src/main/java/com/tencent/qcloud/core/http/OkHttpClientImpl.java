@@ -60,97 +60,99 @@ public class OkHttpClientImpl extends NetworkClient {
     public void init(QCloudHttpClient.Builder b, HostnameVerifier hostnameVerifier,
                      final Dns dns, HttpLogger httpLogger) {
         super.init(b, hostnameVerifier, dns, httpLogger);
-        HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(httpLogger);
-        if(BuildConfig.DEBUG){
-            logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        } else {
-            logInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
-        }
-        OkHttpClient.Builder builder = b.mBuilder;
-        builder.interceptors().clear();
-        RedirectInterceptor redirectInterceptor = new RedirectInterceptor();
-        builder.followRedirects(false)
-                .followSslRedirects(true)
-                .hostnameVerifier(hostnameVerifier)
-                .dns(dns)
-                .connectTimeout(b.connectionTimeout, TimeUnit.MILLISECONDS)
-                .readTimeout(b.socketTimeout, TimeUnit.MILLISECONDS)
-                .writeTimeout(b.socketTimeout, TimeUnit.MILLISECONDS)
-                .eventListenerFactory(mEventListenerFactory)
+        synchronized (QCloudHttpClient.okHttpClientBuilderLock){
+            HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(httpLogger);
+            if(BuildConfig.DEBUG){
+                logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            } else {
+                logInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+            }
+            OkHttpClient.Builder builder = b.mBuilder;
+            builder.interceptors().clear();
+            RedirectInterceptor redirectInterceptor = new RedirectInterceptor();
+            builder.followRedirects(false)
+                    .followSslRedirects(true)
+                    .hostnameVerifier(hostnameVerifier)
+                    .dns(dns)
+                    .connectTimeout(b.connectionTimeout, TimeUnit.MILLISECONDS)
+                    .readTimeout(b.socketTimeout, TimeUnit.MILLISECONDS)
+                    .writeTimeout(b.socketTimeout, TimeUnit.MILLISECONDS)
+                    .eventListenerFactory(mEventListenerFactory)
 //                .addNetworkInterceptor(new HttpMetricsInterceptor())
-                .addInterceptor(logInterceptor)
-                .addInterceptor(new RetryInterceptor(b.retryStrategy))
-                .addInterceptor(new TrafficControlInterceptor());
-        // 设置重定向
-        if(b.redirectEnable){
-            builder.addInterceptor(redirectInterceptor);
-        }
-        // 绕过ssl
-        if(!b.verifySSLEnable){
-            try {
-                builder.hostnameVerifier(new HostnameVerifier() {
-                    @Override
-                    public boolean verify(String hostname, SSLSession session) {
-                        return true;
-                    }
-                });
-                // 创建一个TrustManager，绕过证书校验
-                final TrustManager[] trustAllCerts = new TrustManager[]{
-                        new X509TrustManager() {
-                            @Override
-                            public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-                            }
-
-                            @Override
-                            public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-                            }
-
-                            @Override
-                            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                                return new java.security.cert.X509Certificate[]{};
-                            }
+                    .addInterceptor(logInterceptor)
+                    .addInterceptor(new RetryInterceptor(b.retryStrategy))
+                    .addInterceptor(new TrafficControlInterceptor());
+            // 设置重定向
+            if(b.redirectEnable){
+                builder.addInterceptor(redirectInterceptor);
+            }
+            // 绕过ssl
+            if(!b.verifySSLEnable){
+                try {
+                    builder.hostnameVerifier(new HostnameVerifier() {
+                        @Override
+                        public boolean verify(String hostname, SSLSession session) {
+                            return true;
                         }
-                };
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-                builder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager)trustAllCerts[0]);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-        }
+                    });
+                    // 创建一个TrustManager，绕过证书校验
+                    final TrustManager[] trustAllCerts = new TrustManager[]{
+                            new X509TrustManager() {
+                                @Override
+                                public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                                }
 
-        // 设置客户端证书
-        if(b.clientCertificateBytes != null) {
-            try {
-                // 加载客户端证书
-                KeyStore clientKeyStore = KeyStore.getInstance("BKS");
-                if (b.clientCertificateBytes != null) {
-                    clientKeyStore.load(new ByteArrayInputStream(b.clientCertificateBytes), b.clientCertificatePassword);
-                } else {
-                    throw new IllegalStateException("No client certificate provided");
+                                @Override
+                                public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                                }
+
+                                @Override
+                                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                                    return new java.security.cert.X509Certificate[]{};
+                                }
+                            }
+                    };
+                    SSLContext sslContext = SSLContext.getInstance("TLS");
+                    sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+                    builder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager)trustAllCerts[0]);
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
-
-                // 创建一个KeyManager，用于提供客户端证书
-                KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-                keyManagerFactory.init(clientKeyStore, b.clientCertificatePassword);
-                KeyManager[] keyManagers = keyManagerFactory.getKeyManagers();
-
-                // 创建一个TrustManager，用于信任服务器证书
-                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                trustManagerFactory.init((KeyStore) null);
-                TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
-
-                // 创建一个SSLContext，并设置KeyManager和TrustManager
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                sslContext.init(keyManagers, trustManagers, new SecureRandom());
-                builder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustManagers[0]);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-        }
 
-        okHttpClient = builder.build();
-        redirectInterceptor.setClient(okHttpClient);
+            // 设置客户端证书
+            if(b.clientCertificateBytes != null) {
+                try {
+                    // 加载客户端证书
+                    KeyStore clientKeyStore = KeyStore.getInstance("BKS");
+                    if (b.clientCertificateBytes != null) {
+                        clientKeyStore.load(new ByteArrayInputStream(b.clientCertificateBytes), b.clientCertificatePassword);
+                    } else {
+                        throw new IllegalStateException("No client certificate provided");
+                    }
+
+                    // 创建一个KeyManager，用于提供客户端证书
+                    KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                    keyManagerFactory.init(clientKeyStore, b.clientCertificatePassword);
+                    KeyManager[] keyManagers = keyManagerFactory.getKeyManagers();
+
+                    // 创建一个TrustManager，用于信任服务器证书
+                    TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                    trustManagerFactory.init((KeyStore) null);
+                    TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
+
+                    // 创建一个SSLContext，并设置KeyManager和TrustManager
+                    SSLContext sslContext = SSLContext.getInstance("TLS");
+                    sslContext.init(keyManagers, trustManagers, new SecureRandom());
+                    builder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustManagers[0]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            okHttpClient = builder.build();
+            redirectInterceptor.setClient(okHttpClient);
+        }
     }
 
     @Override
