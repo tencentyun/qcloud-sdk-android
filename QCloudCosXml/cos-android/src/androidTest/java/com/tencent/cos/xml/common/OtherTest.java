@@ -45,7 +45,9 @@ import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.util.Base64Utils;
 import com.tencent.qcloud.core.util.DomainSwitchUtils;
+import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -61,6 +63,9 @@ import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -173,17 +178,60 @@ public class OtherTest {
         QCloudLogger.i("QCloudTest", url);
         Assert.assertEquals("https://bucket.cos.ap-shanghai.myqcloud.com/objectexample", url);
     }
-    
+
+    public String onGetMd5(String filePath) throws IOException {
+        InputStream inputStream = null;
+        try{
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+            File file = new File(filePath);
+            inputStream = new FileInputStream(file);
+            byte[] buff = new byte[8 * 1024];
+            int readLen;
+            long remainLength = file.length();
+            while (remainLength > 0L && (readLen = inputStream.read(buff, 0,
+                    (buff.length > remainLength ? (int) remainLength : buff.length)))!= -1){
+                messageDigest.update(buff, 0, readLen);
+                remainLength -= readLen;
+            }
+            return Base64Utils.encode(messageDigest.digest());
+        } catch (IOException e) {
+            throw e;
+        } catch (NoSuchAlgorithmException e) {
+            throw new IOException("unSupport Md5 algorithm", e);
+        } finally {
+            if(inputStream != null) OkhttpInternalUtils.closeQuietly(inputStream);
+        }
+    }
+
     @Test public void testPresignedRequest() {
+        String filePath = TestUtils.smallFilePath();
         PresignedUrlRequest presignedUrlRequest = new PresignedUrlRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH) {
             @Override
             public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-                return RequestBodySerializer.file("image/png", new File(TestUtils.smallFilePath()));
+                return RequestBodySerializer.file("image/png", new File(filePath));
             }
         };
         presignedUrlRequest.setRequestMethod("PUT");
         presignedUrlRequest.setSignKeyTime(3600);
         presignedUrlRequest.addNoSignHeader("Host");
+        String md5;
+//        try {
+//            md5 = DigestUtils.getMD5(filePath);
+//        } catch (CosXmlClientException e) {
+//            throw new RuntimeException(e);
+//        }
+
+        try {
+            md5 = onGetMd5(filePath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+//        try {
+//            presignedUrlRequest.setRequestHeaders(HttpConstants.Header.CONTENT_MD5, md5);
+//        } catch (CosXmlClientException e) {
+//            throw new RuntimeException(e);
+//        }
         CosXmlSimpleService defaultService = ServiceFactory.INSTANCE.newDefaultService();
         try {
             String signUrl = defaultService.getPresignedURL(presignedUrlRequest);
@@ -191,6 +239,7 @@ public class OtherTest {
             MediaType imageType = MediaType.parse("image/png");
             Request request = new Request.Builder()
                     .url(signUrl)
+//                    .header(HttpConstants.Header.CONTENT_MD5, md5)
                     .put(RequestBody.create(imageType, new File(TestUtils.smallFilePath())))
                     .build();
             Response response = new OkHttpClient().newCall(request).execute();
@@ -423,5 +472,36 @@ public class OtherTest {
         assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[4]));
         assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[5]));
         assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[6]));
+    }
+
+    @Test
+    public void testMultiThreadedCosXmlService() {
+        try {
+            // 线程数常量
+            int  THREAD_COUNT = 10000;
+            Thread[] threads = new Thread[THREAD_COUNT];
+            ArrayList<Throwable> exceptions = new ArrayList<>();
+            for (int i = 0; i < THREAD_COUNT; i++) {
+                threads[i] = new Thread(() -> {
+                    CosXmlSimpleService service = ServiceFactory.INSTANCE.newDefaultService();
+                    service.getConfig();
+                });
+                threads[i].setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                    @Override
+                    public void uncaughtException(Thread t, Throwable e) {
+                        e.printStackTrace();
+                        exceptions.add(e);
+                    }
+                });
+                threads[i].start();
+            }
+            for (int i = 0; i < THREAD_COUNT; i++) {
+                threads[i].join();
+            }
+            assertTrue(exceptions.isEmpty());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
     }
 }
