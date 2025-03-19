@@ -415,12 +415,13 @@ public class UploadTest {
     }
 
     @Test public void testUploadSmallFileByPath() {
+        String filePath = TestUtils.smallFilePath();
 
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
         // String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/deviceId.mp3";
         PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
-                TestUtils.filePath("N好.", 1024));
+                filePath);
 
 //        try {
 //            // 设置 content-type
