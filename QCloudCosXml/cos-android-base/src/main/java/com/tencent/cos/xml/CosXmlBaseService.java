@@ -451,30 +451,34 @@ public class CosXmlBaseService implements BaseCosXml {
         }
 
         String networkClientType = null;
-        if(config.isEnableQuic()) {
-            if(cosXmlRequest.getNetworkType() == null){
-                if(config.networkSwitchStrategy() == CosXmlServiceConfig.RequestNetworkStrategy.Aggressive){
-                    if(isNetworkSwitch){
-                        networkClientType = OkHttpClientImpl.class.getName();
-                    } else {
-                        networkClientType = "com.tencent.qcloud.quic.QuicClientImpl";
+        if(config.getCustomizeNetworkClient() != null){
+            networkClientType = config.getCustomizeNetworkClient().getClass().getName();
+        } else {
+            if(config.isEnableQuic()) {
+                if(cosXmlRequest.getNetworkType() == null){
+                    if(config.networkSwitchStrategy() == CosXmlServiceConfig.RequestNetworkStrategy.Aggressive){
+                        if(isNetworkSwitch){
+                            networkClientType = OkHttpClientImpl.class.getName();
+                        } else {
+                            networkClientType = "com.tencent.qcloud.quic.QuicClientImpl";
+                        }
+                    } else if(config.networkSwitchStrategy() == CosXmlServiceConfig.RequestNetworkStrategy.Conservative){
+                        if(isNetworkSwitch){
+                            networkClientType = "com.tencent.qcloud.quic.QuicClientImpl";
+                        } else {
+                            networkClientType = OkHttpClientImpl.class.getName();
+                        }
                     }
-                } else if(config.networkSwitchStrategy() == CosXmlServiceConfig.RequestNetworkStrategy.Conservative){
-                    if(isNetworkSwitch){
-                        networkClientType = "com.tencent.qcloud.quic.QuicClientImpl";
-                    } else {
+                } else {
+                    if(cosXmlRequest.getNetworkType() == CosXmlRequest.RequestNetworkType.OKHTTP){
                         networkClientType = OkHttpClientImpl.class.getName();
+                    } else if(cosXmlRequest.getNetworkType() == CosXmlRequest.RequestNetworkType.QUIC){
+                        networkClientType = "com.tencent.qcloud.quic.QuicClientImpl";
                     }
                 }
             } else {
-                if(cosXmlRequest.getNetworkType() == CosXmlRequest.RequestNetworkType.OKHTTP){
-                    networkClientType = OkHttpClientImpl.class.getName();
-                } else if(cosXmlRequest.getNetworkType() == CosXmlRequest.RequestNetworkType.QUIC){
-                    networkClientType = "com.tencent.qcloud.quic.QuicClientImpl";
-                }
+                networkClientType = OkHttpClientImpl.class.getName();
             }
-        } else {
-            networkClientType = OkHttpClientImpl.class.getName();
         }
 
         QCloudHttpRequest<T2> httpRequest = buildHttpRequest(cosXmlRequest, cosXmlResult, isNetworkSwitch, networkClientType);
