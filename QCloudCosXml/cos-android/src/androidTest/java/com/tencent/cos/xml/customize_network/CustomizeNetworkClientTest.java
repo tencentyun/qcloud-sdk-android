@@ -1,8 +1,8 @@
 package com.tencent.cos.xml.customize_network;
 
 import static com.tencent.cos.xml.core.TestConst.PERSIST_BUCKET_BIG_OBJECT_SIZE;
+import static com.tencent.cos.xml.core.TestUtils.filePath;
 import static com.tencent.cos.xml.core.TestUtils.getContext;
-import static com.tencent.cos.xml.core.TestUtils.smallFilePath;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -63,7 +63,7 @@ public class CustomizeNetworkClientTest {
         CosXmlSimpleService cosXmlSimpleService = newCustomizeNetworkService();
         PutObjectRequest request = new PutObjectRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
-                smallFilePath());
+                filePath("do_not_remove/small_object.jpg", 1024 * 1024));
         final TestLocker testLocker = new TestLocker();
         cosXmlSimpleService.basePutObjectAsync(request, new CosXmlResultListener() {
             @Override
