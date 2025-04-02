@@ -41,6 +41,7 @@ import androidx.collection.ArraySet;
 import androidx.core.content.FileProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.MyOnSignatureListener;
@@ -65,21 +66,27 @@ import com.tencent.cos.xml.model.tag.pic.PicOperations;
 import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.cos.xml.utils.UrlUtil;
 import com.tencent.qcloud.core.auth.COSXmlSignSourceProvider;
+import com.tencent.qcloud.core.auth.SessionQCloudCredentials;
 import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.util.Base64Utils;
 import com.tencent.qcloud.core.util.QCloudStringUtils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.runner.RunWith;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -1878,5 +1885,118 @@ public class UploadTest {
 
         uploadLocker.lock();
         TestUtils.assertCOSXMLTaskSuccess(cosxmlUploadTask);
+    }
+
+    public void testKeyAndCredentialsUpload() throws JSONException {
+        // 假设需要上传的文件本地路径为filePath
+        String filePath = "/path/to/your/file.txt";
+
+// 1、从服务端请求上传和签名信息
+        File file = new File(filePath);
+// getKeyAndCredentials方法见下一个代码块
+        JSONObject keyAndCredentials = getKeyAndCredentials(file.getName());
+        String region = keyAndCredentials.getString("region");
+        String bucket = keyAndCredentials.getString("bucket");
+        String cosKey = keyAndCredentials.getString("key");
+        long startTime = keyAndCredentials.getLong("startTime");
+        long expiredTime = keyAndCredentials.getLong("expiredTime");
+        JSONObject credentials = keyAndCredentials.getJSONObject("credentials");
+        String tmpSecretId = credentials.getString("tmpSecretId");
+        String tmpSecretKey = credentials.getString("tmpSecretKey");
+        String sessionToken = credentials.getString("sessionToken");
+
+// 2、初始化 COS SDK: CosXmlService和TransferManager
+// 创建 CosXmlServiceConfig 对象，根据需要修改默认的配置参数
+        CosXmlServiceConfig serviceConfig = new CosXmlServiceConfig.Builder()
+                .setRegion(region)
+                .isHttps(true) // 使用 HTTPS 请求, 默认为 HTTP 请求
+                .builder();
+// 初始化一个 CosXmlService 的实例，可以不设置临时密钥回调
+        CosXmlService cosXmlService = new CosXmlService(getContext(), serviceConfig);
+// 初始化 TransferConfig，这里使用默认配置，如果需要定制，请参考 SDK 接口文档
+        TransferConfig transferConfig = new TransferConfig.Builder().build();
+// 初始化 TransferManager
+        TransferManager transferManager = new TransferManager(cosXmlService, transferConfig);
+
+// 3、进行上传
+        PutObjectRequest putRequest = new PutObjectRequest(bucket, cosKey, filePath);
+        SessionQCloudCredentials sessionQCloudCredentials = new SessionQCloudCredentials(tmpSecretId, tmpSecretKey,
+                sessionToken, startTime, expiredTime);
+        putRequest.setCredential(sessionQCloudCredentials);
+        COSXMLUploadTask uploadTask = transferManager.upload(putRequest, null);
+//设置上传进度回调
+        uploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                // todo Do something to update progress...
+            }
+        });
+//设置返回结果回调
+        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                COSXMLUploadTask.COSXMLUploadTaskResult uploadResult =
+                        (COSXMLUploadTask.COSXMLUploadTaskResult) result;
+            }
+
+            // 如果您使用 kotlin 语言来调用，请注意回调方法中的异常是可空的，否则不会回调 onFail 方法，即：
+            // clientException 的类型为 CosXmlClientException?，serviceException 的类型为 CosXmlServiceException?
+            @Override
+            public void onFail(CosXmlRequest request,
+                               @Nullable CosXmlClientException clientException,
+                               @Nullable CosXmlServiceException serviceException) {
+                if (clientException != null) {
+                    clientException.printStackTrace();
+                } else {
+                    serviceException.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
+     * 获取上传和签名信息
+     *
+     * @param filename 文件名
+     * @return 上传和签名信息
+     */
+    private JSONObject getKeyAndCredentials(String filename) {
+        // 获取上传和签名信息
+        HttpURLConnection getConnection = null;
+        try {
+            //上面搭建的临时密钥服务（正式环境 请替换成正式的业务url）
+            URL url = new URL("http://X.X.X.X:3000/getKeyAndCredentials?filename=" + filename);
+            getConnection = (HttpURLConnection) url.openConnection();
+            getConnection.setRequestMethod("GET");
+
+            int responseCode = getConnection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(getConnection.getInputStream()));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                reader.close();
+                JSONObject jsonObject;
+                try {
+                    // 服务端接口需要返回：上传的存储桶、地域、随机路径的对象键、临时密钥
+                    jsonObject = new JSONObject(stringBuilder.toString());
+                    return jsonObject;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Log.e("getKeyAndCredentials", "getKeyAndCredentials HTTP error code: " + responseCode);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("getKeyAndCredentials", "getKeyAndCredentials Error sending GET request: " + e.getMessage());
+        } finally {
+            if (getConnection != null) {
+                getConnection.disconnect();
+            }
+        }
+        return null;
     }
 }
