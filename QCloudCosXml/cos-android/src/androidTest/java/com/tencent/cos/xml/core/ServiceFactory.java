@@ -247,7 +247,7 @@ public class ServiceFactory {
                     .setConnectionTimeout(10000)
                     .setSocketTimeout(10000)
                     .setRegion(TestConst.DUALCHECK_PERSIST_BUCKET_REGION)
-                    .setHost("dual-check.mynewcos.com")
+                    .setHost("dual-check.stor-helper.com")
                     // 设置tls客户端证书
                     .setClientCertificate(certificateBytes, password)
                     .builder();
