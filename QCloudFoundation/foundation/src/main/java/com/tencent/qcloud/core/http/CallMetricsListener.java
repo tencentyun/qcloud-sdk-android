@@ -24,7 +24,7 @@ package com.tencent.qcloud.core.http;
 
 import androidx.annotation.NonNull;
 
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -96,7 +96,7 @@ public class CallMetricsListener extends EventListener {
             }
         }
         ipList.append("}");
-        QCloudLogger.i(QCloudHttpClient.HTTP_LOG_TAG, "dns: " + domainName + ":" + ipList.toString());
+        COSLogger.iNetwork(QCloudHttpClient.HTTP_LOG_TAG, "dns: " + domainName + ":" + ipList.toString());
         dnsLookupTookTime += System.nanoTime() - dnsStartTime;
         this.dnsInetAddressList = inetAddressList;
     }

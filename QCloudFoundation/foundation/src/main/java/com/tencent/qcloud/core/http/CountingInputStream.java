@@ -23,7 +23,7 @@
 package com.tencent.qcloud.core.http;
 
 import com.tencent.qcloud.core.common.QCloudProgressListener;
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -110,6 +110,6 @@ class CountingInputStream extends FilterInputStream {
     @Override
     public void close() throws IOException {
         super.close();
-        QCloudLogger.i("Test", "CountingInputStream is closed");
+        COSLogger.iProcess("Test", "CountingInputStream is closed");
     }
 }

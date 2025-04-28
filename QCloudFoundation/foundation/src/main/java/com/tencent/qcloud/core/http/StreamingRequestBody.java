@@ -27,7 +27,7 @@ import android.net.Uri;
 
 import com.tencent.qcloud.core.common.QCloudDigistListener;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.util.Base64Utils;
 import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 import com.tencent.qcloud.core.util.QCloudUtils;
@@ -218,7 +218,7 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
         if(url == null && inputStream != null && offset > 0) {
             long skiped = inputStream.skip(offset);
             if (skiped < offset) {
-                QCloudLogger.w(QCloudHttpClient.HTTP_LOG_TAG, "skip  %d is small than offset %d",
+                COSLogger.wNetwork(QCloudHttpClient.HTTP_LOG_TAG, "skip  %d is small than offset %d",
                         skiped, offset);
             }
         }

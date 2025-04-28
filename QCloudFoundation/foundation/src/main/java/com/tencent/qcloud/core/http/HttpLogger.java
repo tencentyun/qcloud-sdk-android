@@ -22,35 +22,18 @@
 
 package com.tencent.qcloud.core.http;
 
-import com.tencent.qcloud.core.logger.FileLogAdapter;
-import com.tencent.qcloud.core.logger.QCloudLogger;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import okhttp3.Response;
 
 public class HttpLogger implements HttpLoggingInterceptor.Logger {
-
-    private boolean debuggable;
-    private FileLogAdapter fileLogAdapter;
-    private List<String> mRequestBufferLogs;
-
     private String tag;
-
-    public HttpLogger(boolean debuggable, String tag) {
-
-        this.debuggable = debuggable;
+    public HttpLogger(String tag) {
         this.tag = tag;
-        mRequestBufferLogs = new ArrayList<>(10);
     }
 
-    HttpLogger(boolean debuggable) {
-        this(debuggable, QCloudHttpClient.HTTP_LOG_TAG);
-    }
-
-    public void setDebug(boolean debuggable) {
-        this.debuggable = debuggable;
+    HttpLogger() {
+        this(QCloudHttpClient.HTTP_LOG_TAG);
     }
 
     public void setTag(String tag) {
@@ -59,56 +42,16 @@ public class HttpLogger implements HttpLoggingInterceptor.Logger {
 
     @Override
     public void logRequest(String message) {
-        if (debuggable) {
-            QCloudLogger.i(tag, message);
-        }
-        fileLogAdapter = QCloudLogger.getAdapter(FileLogAdapter.class);
-        if (fileLogAdapter != null) {
-            synchronized (mRequestBufferLogs){
-                mRequestBufferLogs.add(message);
-            }
-        }
+        COSLogger.iNetwork(tag, message);
     }
 
     @Override
     public void logResponse(Response response, String message) {
-        if (debuggable) {
-            QCloudLogger.i(tag, message);
-        }
-        if (fileLogAdapter != null && response != null && !response.isSuccessful()) {
-            flushRequestBufferLogs();
-            fileLogAdapter.log(QCloudLogger.INFO, tag,
-                    message, null);
-        } else {
-            synchronized (mRequestBufferLogs){
-                mRequestBufferLogs.clear();
-            }
-        }
+        COSLogger.iNetwork(tag, message);
     }
 
     @Override
     public void logException(Exception exception, String message) {
-        QCloudLogger.i(tag, message);
-        if (fileLogAdapter != null && exception != null) {
-            flushRequestBufferLogs();
-            fileLogAdapter.log(QCloudLogger.INFO, tag,
-                    message, exception);
-        } else {
-            synchronized (mRequestBufferLogs){
-                mRequestBufferLogs.clear();
-            }
-        }
-    }
-
-    private synchronized void flushRequestBufferLogs() {
-        synchronized (mRequestBufferLogs){
-            if (fileLogAdapter != null && mRequestBufferLogs.size() > 0) {
-                for (String requestLog : mRequestBufferLogs) {
-                    fileLogAdapter.log(QCloudLogger.INFO, tag,
-                            requestLog, null);
-                }
-                mRequestBufferLogs.clear();
-            }
-        }
+        COSLogger.iNetwork(tag, message);
     }
 }

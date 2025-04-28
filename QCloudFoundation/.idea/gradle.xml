@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/foundation" />
             <option value="$PROJECT_DIR$/network-sonar" />
+            <option value="$PROJECT_DIR$/qcloud-log" />
             <option value="$PROJECT_DIR$/qcloud-track" />
             <option value="$PROJECT_DIR$/quic" />
           </set>
