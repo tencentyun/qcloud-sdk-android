@@ -165,6 +165,25 @@ public class QCloudHttpUtils {
         return null;
     }
 
+    // 先替换加号为特殊编码，再解码，最后还原加号
+    public static String decodePreservingPlus(String source) {
+        // 1. 将原始字符串中的加号临时替换为"%2B"（加号的URL编码）
+        String temp = source.replace("+", "%2B");
+
+        String decoded;
+        try {
+            // 2. 使用URLDecoder进行标准解码
+            decoded = URLDecoder.decode(temp, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        // 3. 将临时替换的"%2B"还原为加号
+        return decoded.replace("%2B", "+");
+
+    }
+
     public static String queryParametersString(Map<String, String> keyValues) {
 
         if (keyValues == null) {

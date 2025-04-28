@@ -7,8 +7,8 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionCode 10574
-        versionName "1.5.73"
+        versionCode 10575
+        versionName "1.5.74"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -29,6 +29,11 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 }
 
 
@@ -46,6 +51,8 @@ dependencies {
     testCompileOnly 'org.mockito:mockito-core:1.10.19'
 
     compileOnly 'androidx.appcompat:appcompat:1.0.0'
+
+    compileOnly project(':qcloud-track')
 }
 
 project.extensions.add('artifactId', 'qcloud-foundation')

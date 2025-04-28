@@ -26,7 +26,7 @@ import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
 
 import com.tencent.qcloud.core.http.HttpRequest;
 import com.tencent.qcloud.core.http.HttpTask;
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.task.TaskManager;
 
 import java.io.IOException;
@@ -112,7 +112,7 @@ public class CircuitBreakerInterceptor implements Interceptor {
 
         if (state == State.OPEN && (task.isDownloadTask() || task.isUploadTask()) && !isFreshTask) {
             // circuit breaker denied
-            QCloudLogger.i(HTTP_LOG_TAG, "CircuitBreaker deny %s", request);
+            COSLogger.iNetwork(HTTP_LOG_TAG, "CircuitBreaker deny %s", request);
             throw new CircuitBreakerDeniedException("too many continuous errors.");
         }
 
@@ -121,11 +121,11 @@ public class CircuitBreakerInterceptor implements Interceptor {
             synchronized (CircuitBreakerInterceptor.class) {
                 if (state == State.HALF_OPENED && successCount.incrementAndGet() >=
                         THRESHOLD_STATE_SWITCH_FOR_CONTINUOUS_SUCCESS) {
-                    QCloudLogger.i(HTTP_LOG_TAG, "CircuitBreaker is CLOSED.");
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "CircuitBreaker is CLOSED.");
                     state = State.CLOSED;
                     failedCount.set(0);
                 } else if (state == State.OPEN) {
-                    QCloudLogger.i(HTTP_LOG_TAG, "CircuitBreaker is HALF_OPENED.");
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "CircuitBreaker is HALF_OPENED.");
                     state = State.HALF_OPENED;
                     successCount.set(1);
                 } else if (state == State.CLOSED){
@@ -133,7 +133,7 @@ public class CircuitBreakerInterceptor implements Interceptor {
                     if (f > 0) {
                         failedCount.set(Math.max(f - 2, 0));
                     }
-                    QCloudLogger.i(HTTP_LOG_TAG, "CircuitBreaker get success");
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "CircuitBreaker get success");
                 }
             }
 
@@ -143,15 +143,15 @@ public class CircuitBreakerInterceptor implements Interceptor {
                 recentErrorTimestamp = System.nanoTime();
                 if (state == State.CLOSED && failedCount.incrementAndGet() >=
                     THRESHOLD_STATE_SWITCH_FOR_CONTINUOUS_FAIL) {
-                    QCloudLogger.i(HTTP_LOG_TAG, "CircuitBreaker is OPEN.");
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "CircuitBreaker is OPEN.");
                     state = State.OPEN;
                     entryOpenStateTimestamp = System.nanoTime();
                 } else if (state == State.HALF_OPENED) {
-                    QCloudLogger.i(HTTP_LOG_TAG, "CircuitBreaker is OPEN.");
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "CircuitBreaker is OPEN.");
                     state = State.OPEN;
                     entryOpenStateTimestamp = System.nanoTime();
                 } else {
-                    QCloudLogger.i(HTTP_LOG_TAG, "CircuitBreaker get fail: %d",
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "CircuitBreaker get fail: %d",
                             failedCount.get());
                 }
             }

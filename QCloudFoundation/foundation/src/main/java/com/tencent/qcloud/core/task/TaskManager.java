@@ -22,7 +22,7 @@
 
 package com.tencent.qcloud.core.task;
 
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,12 +55,12 @@ public final class TaskManager {
 
     void add(QCloudTask task) {
         taskPool.put(task.getIdentifier(), task);
-        QCloudLogger.d(TASK_LOG_TAG, "[Pool] ADD %s, %d cached", task.getIdentifier(), taskPool.size());
+        COSLogger.dProcess(TASK_LOG_TAG, "[Pool] ADD %s, %d cached", task.getIdentifier(), taskPool.size());
     }
 
     void remove(QCloudTask task) {
         if (taskPool.remove(task.getIdentifier()) != null) {
-            QCloudLogger.d(TASK_LOG_TAG, "[Pool] REMOVE %s, %d cached",
+            COSLogger.dProcess(TASK_LOG_TAG, "[Pool] REMOVE %s, %d cached",
                     task.getIdentifier(), taskPool.size());
         }
     }
@@ -78,7 +78,7 @@ public final class TaskManager {
     }
 
     void evict() {
-        QCloudLogger.d(TASK_LOG_TAG, "[Pool] CLEAR %d", taskPool.size());
+        COSLogger.dProcess(TASK_LOG_TAG, "[Pool] CLEAR %d", taskPool.size());
         taskPool.clear();
     }
 }

@@ -20,15 +20,17 @@
  *  SOFTWARE.
  */
 
-package com.tencent.qcloud.core.logger;
+package com.tencent.qcloud.core.logger.channel;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
+import com.tencent.qcloud.core.logger.LogEntity;
+
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -42,11 +44,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-public class FileLogAdapter implements LogAdapter {
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
-    private String alias;
-    private int minPriority;
-
+public class FileChannel extends BaseLogChannel {
     private static final String LOG_DIR = "QCloudLogs";
 
     private static final int MAX_FILE_SIZE = 3 * 1024 * 1024; // Log文件大小
@@ -55,49 +57,44 @@ public class FileLogAdapter implements LogAdapter {
     private static final int MAX_FILE_COUNT = 30; // 最多日志文件
 
     //log根目录
-    private File logRootDir;
+    private final File logRootDir;
     private File latestLogFile;
 
     private static final int MSG_FLUSH_ALL = 0;
     private static final int MSG_FLUSH_CONTENT = 1;
     // 处理log者
-    private Handler handler;
+    private final Handler handler;
     //buffer
-    private List<FileLogItem> bufferRecord = Collections.synchronizedList(new ArrayList<FileLogItem>());
+    private final List<LogEntity> bufferRecord = Collections.synchronizedList(new ArrayList<>());
     private volatile long mBufferSize = 0;
 
     private static final byte[] object = new byte[0];
 
-    private static FileLogAdapter instance;
+    private byte[] encryptionKey = null; // 默认不加密
+    private byte[] ivParameter = null;
+
+    private static FileChannel instance;
 
     /**
-     * 实例化一个文件日志记录器。默认写入 {@link QCloudLogger#INFO} 级别以上的日志。
+     * 实例化一个文件日志记录器。
      *
      * @param context 上下文
-     * @param alias   logger 文件别名
      */
-    public static FileLogAdapter getInstance(Context context, String alias){
-        return getInstance(context, alias, QCloudLogger.INFO);
-    }
-
-    public static FileLogAdapter getInstance(Context context, String alias, int minPriority){
-        synchronized (FileLogAdapter.class){
-            if(instance == null){
-                instance = new FileLogAdapter(context, alias, minPriority);
+    public static FileChannel getInstance(Context context) {
+        synchronized (FileChannel.class) {
+            if (instance == null) {
+                instance = new FileChannel(context);
             }
         }
         return instance;
     }
+
     /**
      * 实例化一个文件日志记录器
      *
-     * @param context     上下文
-     * @param alias       logger 文件别名
-     * @param minPriority 最小的日志级别，低于这个级别的日志将不会被保存。
+     * @param context 上下文
      */
-    private FileLogAdapter(Context context, String alias, int minPriority) {
-        this.alias = alias;
-        this.minPriority = minPriority;
+    private FileChannel(Context context) {
         this.logRootDir = new File(context.getExternalCacheDir() + File.separator + LOG_DIR);
 
         HandlerThread handlerThread = new HandlerThread("log_handlerThread", Thread.MIN_PRIORITY);
@@ -122,18 +119,20 @@ public class FileLogAdapter implements LogAdapter {
     }
 
     @Override
-    public boolean isLoggable(int priority, @Nullable String tag) {
-        return priority >= minPriority;
-    }
-
-    @Override
-    public synchronized void log(int priority, @NonNull String tag, @NonNull String message, @Nullable Throwable tr) {
-        FileLogItem r = new FileLogItem(tag, priority, message, tr);
-        bufferRecord.add(r);
-        mBufferSize += r.getLength();
+    public synchronized void log(LogEntity entity) {
+        if (!isLoggable(entity)) {
+            return;
+        }
+        bufferRecord.add(entity);
+        mBufferSize += entity.getLength();
         //有消息进入，发送一个通知
         handler.removeMessages(MSG_FLUSH_CONTENT);
         handler.sendEmptyMessageDelayed(MSG_FLUSH_CONTENT, 500);
+    }
+
+    public boolean isLoggable(LogEntity entity) {
+        if (!isEnabled() || entity == null) return false;
+        return entity.getLevel().isLoggable(getMinLevel());
     }
 
     private String formatDateString(long times) {
@@ -171,6 +170,10 @@ public class FileLogAdapter implements LogAdapter {
         return null;
     }
 
+    public String getLogRootDir() {
+        return logRootDir.getAbsolutePath();
+    }
+
     //log 文件(最新的）
     private File getLogFile(long times) {
         File[] logFiles = logRootDir.listFiles();
@@ -185,19 +188,33 @@ public class FileLogAdapter implements LogAdapter {
                         return Long.valueOf(rhs.lastModified()).compareTo(Long.valueOf(lhs.lastModified()));
                     }
                 });
-                latestLogFile = logFiles[0];
+                // 查找匹配当前加密状态的最新文件
+                for (File file : logFiles) {
+                    boolean isEncryptedFile = file.getName().contains("_encrypt");
+                    if ((encryptionKey != null && isEncryptedFile) ||
+                        (encryptionKey == null && !isEncryptedFile)) {
+                        latestLogFile = file;
+                        break;
+                    }
+                }
             }
         }
-        // 如果是同一天且文件没有超过最大大小，返回最新日志文件
+        // 如果是同一天、相同加密状态且文件没有超过最大大小，返回最新日志文件
         if (latestLogFile != null && latestLogFile.length() < MAX_FILE_SIZE) {
-            String fileLogDate = latestLogFile.getName().replace(".log", "");
+            String fileName = latestLogFile.getName();
+            String fileLogDate = fileName.replace("_encrypt.log", "").replace(".log", "");
             if (isSameDay(fileLogDate, times)) {
-                return latestLogFile;
+                boolean isEncryptedFile = fileName.contains("_encrypt");
+                if ((encryptionKey != null && isEncryptedFile) ||
+                    (encryptionKey == null && !isEncryptedFile)) {
+                    return latestLogFile;
+                }
             }
         }
 
-        // 创建一个新文件
-        latestLogFile = new File(logRootDir + File.separator + formatDateString(times) + ".log");
+        // 创建一个新文件，根据加密状态添加后缀
+        String fileName = formatDateString(times) + (encryptionKey != null ? "_encrypt" : "") + ".log";
+        latestLogFile = new File(logRootDir + File.separator + fileName);
         // 清除过时文件
         cleanFilesIfNecessary(logFiles);
         return latestLogFile;
@@ -210,28 +227,40 @@ public class FileLogAdapter implements LogAdapter {
     }
 
     //写入日志(同步)
-    private void write(List<FileLogItem> listInfo) {
+    private void write(List<LogEntity> listInfo) {
         synchronized (object) {
             if (listInfo == null) return;
-            FileOutputStream fos = null;
-            //noinspection TryWithIdenticalCatches
+            DataOutputStream dos = null;
             try {
                 File file = getLogFile(System.currentTimeMillis());
                 if (file != null) {
-                    fos = new FileOutputStream(file, true);
+                    // 使用8KB缓冲区的BufferedOutputStream包装
+                    dos = new DataOutputStream(new BufferedOutputStream(
+                            new FileOutputStream(file, true), 8192));
                     for (int i = 0; i < listInfo.size(); i++) {
-                        fos.write(listInfo.get(i).toString().getBytes("UTF-8"));
+                        byte[] logBytes = listInfo.get(i).toString().getBytes("UTF-8");
+                        if (encryptionKey != null) {
+                            try {
+                                appendEncryptedLog(dos, logBytes);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                // 加密失败放弃本次日志
+                            }
+                        } else {
+                            dos.write(logBytes);
+                        }
                     }
-                    fos.flush();
+                    // 确保缓冲区数据写入磁盘
+                    dos.flush();
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (fos != null) {
+                if (dos != null) {
                     try {
-                        fos.close();
+                        dos.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -251,5 +280,37 @@ public class FileLogAdapter implements LogAdapter {
         if (mBufferSize > BUFFER_SIZE) {
             flush();
         }
+    }
+
+    /**
+     * 设置加密密钥
+     *
+     * @param key 加密密钥(16/24/32字节对应AES-128/192/256)
+     * @param iv  初始化向量(16字节)
+     */
+    public void setEncryptionKey(byte[] key, byte[] iv) {
+        encryptionKey = key != null ? key.clone() : null;
+        ivParameter = iv != null ? iv.clone() : null;
+    }
+
+    private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
+
+    // [4字节长度头][密文数据][4字节长度头][密文数据]...
+    public void appendEncryptedLog(DataOutputStream dos, byte[] logBytes) throws Exception {
+        javax.crypto.spec.IvParameterSpec ivSpec = new javax.crypto.spec.IvParameterSpec(ivParameter);
+        javax.crypto.spec.SecretKeySpec keySpec = new javax.crypto.spec.SecretKeySpec(encryptionKey, "AES");
+
+        byte[] encrypted = encryptSingle(logBytes, keySpec, ivSpec);
+
+        // 追加写入：先写长度头(4字节)，再写密文
+        dos.writeInt(encrypted.length);
+        dos.write(encrypted);
+    }
+
+    // 单条日志加密（私有方法）
+    private byte[] encryptSingle(byte[] plaintext, SecretKeySpec keySpec, IvParameterSpec ivSpec) throws Exception {
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+        return cipher.doFinal(plaintext);
     }
 }

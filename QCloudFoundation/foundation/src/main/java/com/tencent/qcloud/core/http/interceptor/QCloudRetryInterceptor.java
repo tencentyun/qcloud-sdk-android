@@ -38,7 +38,7 @@ import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
 import com.tencent.qcloud.core.http.NetworkProxy;
 import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.task.RetryStrategy;
 import com.tencent.qcloud.core.task.TaskManager;
 import com.tencent.qcloud.core.util.DomainSwitchUtils;
@@ -188,7 +188,7 @@ public class QCloudRetryInterceptor {
                         .build();
             }
 
-            QCloudLogger.i(HTTP_LOG_TAG, "%s start to execute, attempts is %d", request, attempts);
+            COSLogger.iNetwork(HTTP_LOG_TAG, "%s start to execute, attempts is %d", request, attempts);
 
             //记录重试次数
             HttpTaskMetrics metrics = task.metrics();
@@ -244,7 +244,7 @@ public class QCloudRetryInterceptor {
                 String server = response.header(HttpConstants.Header.SERVER);
                 if(HttpConstants.TENCENT_COS_SERVER.equals(server)){
                     serverDate = response.header(HttpConstants.Header.DATE);
-                    QCloudLogger.i(HTTP_LOG_TAG, "serverDate is %s", serverDate);
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "serverDate is %s", serverDate);
                 }
             }
 
@@ -260,7 +260,7 @@ public class QCloudRetryInterceptor {
 
             String clockSkewError = getClockSkewError(response, statusCode);
             if (clockSkewError != null) {
-                QCloudLogger.i(HTTP_LOG_TAG, "%s failed for %s", request, clockSkewError);
+                COSLogger.iNetwork(HTTP_LOG_TAG, "%s failed for %s", request, clockSkewError);
                 long minTimeOffsetDeltaInMill = 2; // 2s 内的校准偏移不会重试
                 if (serverDate != null && HttpConfiguration
                         .calculateGlobalTimeOffset(serverDate, new Date()) > minTimeOffsetDeltaInMill) {
@@ -269,10 +269,10 @@ public class QCloudRetryInterceptor {
                 }
                 break;
             } else if (shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled()) {
-                QCloudLogger.i(HTTP_LOG_TAG, "%s failed for %s, code is %d", request, e, statusCode);
+                COSLogger.iNetwork(HTTP_LOG_TAG, "%s failed for %s, code is %d", request, e, statusCode);
                 retryStrategy.onTaskEnd(false, e);
             } else {
-                QCloudLogger.i(HTTP_LOG_TAG, "%s ends for %s, code is %d", request, e, statusCode);
+                COSLogger.iNetwork(HTTP_LOG_TAG, "%s ends for %s, code is %d", request, e, statusCode);
                 break;
             }
         }
@@ -404,7 +404,7 @@ public class QCloudRetryInterceptor {
 
         int reliable = getHostReliable(request.url().host());
         int retryAddition = additionComputer.getRetryAddition(weight, reliable);
-        QCloudLogger.i(HTTP_LOG_TAG, String.format(Locale.ENGLISH, "attempts = %d, weight = %d, reliable = %d, addition = %d",
+        COSLogger.iNetwork(HTTP_LOG_TAG, String.format(Locale.ENGLISH, "attempts = %d, weight = %d, reliable = %d, addition = %d",
                 attempts, weight, reliable, retryAddition));
 
         if (!retryStrategy.shouldRetry(attempts, System.nanoTime() - startTime, retryAddition)) {

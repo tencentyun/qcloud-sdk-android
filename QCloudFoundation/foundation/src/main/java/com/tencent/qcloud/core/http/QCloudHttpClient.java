@@ -28,7 +28,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.task.RetryStrategy;
 import com.tencent.qcloud.core.task.TaskManager;
@@ -126,7 +126,7 @@ public final class QCloudHttpClient {
                     dns = Dns.SYSTEM.lookup(hostname);
                 } catch (UnknownHostException e) {
                     // e.printStackTrace();
-                    QCloudLogger.w(HTTP_LOG_TAG, "system dns failed, retry cache dns records.");
+                    COSLogger.wNetwork(HTTP_LOG_TAG, "system dns failed, retry cache dns records.");
                 }
             }
 
@@ -139,7 +139,7 @@ public final class QCloudHttpClient {
                 try {
                     dns = connectionRepository.getDnsRecord(hostname);
                 } catch (UnknownHostException e) {
-                    QCloudLogger.w(HTTP_LOG_TAG, "Not found dns in cache records.");
+                    COSLogger.wNetwork(HTTP_LOG_TAG, "Not found dns in cache records.");
                 }
             }
 
@@ -202,18 +202,13 @@ public final class QCloudHttpClient {
         dnsFetchs.add(dnsFetch);
     }
 
-    public void setDebuggable(boolean debuggable) {
-        httpLogger.setDebug(debuggable);
-    }
-
     private QCloudHttpClient(Builder b) {
         this.verifiedHost = new HashSet<>(5);
         this.dnsMap = new ConcurrentHashMap<>(3);
         this.dnsFetchs = new ArrayList<>(3);
         this.taskManager = TaskManager.getInstance();
         this.connectionRepository = ConnectionRepository.getInstance();
-        httpLogger = new HttpLogger(false);
-        setDebuggable(false);
+        httpLogger = new HttpLogger();
 
         // 默认的okhttp可以用来兜底
         this.okhttpNetworkClient = new OkHttpClientImpl();
@@ -349,7 +344,6 @@ public final class QCloudHttpClient {
         QCloudHttpRetryHandler qCloudHttpRetryHandler;
         OkHttpClient.Builder mBuilder;
         NetworkClient networkClient;
-        boolean enableDebugLog = false;
         List<String> prefetchHost = new LinkedList<>();
         boolean dnsCache = false;
         boolean verifySSLEnable = true;
@@ -394,11 +388,6 @@ public final class QCloudHttpClient {
 
         public Builder setNetworkClient(NetworkClient networkClient){
             this.networkClient = networkClient;
-            return this;
-        }
-
-        public Builder enableDebugLog(boolean enableDebugLog){
-            this.enableDebugLog = enableDebugLog;
             return this;
         }
 
