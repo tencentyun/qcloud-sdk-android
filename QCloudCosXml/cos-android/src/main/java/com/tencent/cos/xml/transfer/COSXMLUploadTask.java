@@ -64,7 +64,7 @@ import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.qcloud.core.common.QCloudTaskStateListener;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.util.ContextHolder;
 import com.tencent.qcloud.core.util.QCloudStringUtils;
@@ -708,7 +708,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
             }
             String localMd5 = DigestUtils.getCOSMd5(inputStream, (partNumber - lastPartNumber - 1) * sliceSize, Long.parseLong(part.size));
             if (!part.eTag.equals(localMd5)) {
-                QCloudLogger.i(TAG, "verify upload parts failed, part number " +
+                COSLogger.iProcess(TAG, "verify upload parts failed, part number " +
                         part.partNumber + ", etag " + part.eTag + ", but local md5 is " + localMd5);
                 return false;
             }

@@ -28,7 +28,6 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.base.BuildConfig;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.VersionInfo;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -70,9 +69,7 @@ import com.tencent.qcloud.core.http.OkHttpClientImpl;
 import com.tencent.qcloud.core.http.QCloudHttpClient;
 import com.tencent.qcloud.core.http.QCloudHttpRequest;
 import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
-import com.tencent.qcloud.core.logger.AndroidLogcatAdapter;
-import com.tencent.qcloud.core.logger.FileLogAdapter;
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.task.RetryStrategy;
 import com.tencent.qcloud.core.task.TaskExecutors;
@@ -141,14 +138,11 @@ public class CosXmlBaseService implements BaseCosXml {
      * @param configuration cos android SDK 服务配置{@link CosXmlServiceConfig}
      */
     public CosXmlBaseService(Context context, CosXmlServiceConfig configuration) {
-        if(configuration.isDebuggable() && !BuildConfig.DEBUG){
-            FileLogAdapter fileLogAdapter = FileLogAdapter.getInstance(context, "QLog");
-            QCloudLogger.addAdapter(fileLogAdapter);
-        }
-        if(configuration.isDebuggable()){
-            AndroidLogcatAdapter logcatAdapter = new AndroidLogcatAdapter();
-            QCloudLogger.addAdapter(logcatAdapter);
-        }
+        ContextHolder.setContext(context);
+
+        // 为了保持之前configuration.isDebuggable()对日志的控制
+        COSLogger.enableLogcat(configuration.isDebuggable());
+        COSLogger.enableLogFile(configuration.isDebuggable());
 
         CosTrackService.init(context.getApplicationContext(), IS_CLOSE_REPORT, BRIDGE);
 
@@ -157,7 +151,6 @@ public class CosXmlBaseService implements BaseCosXml {
         TaskExecutors.initExecutor(configuration.getUploadMaxThreadCount(), configuration.getDownloadMaxThreadCount());
 
         setNetworkClient(configuration);
-        ContextHolder.setContext(context);
     }
 
     public QCloudCredentialProvider getCredentialProvider() {
@@ -211,7 +204,6 @@ public class CosXmlBaseService implements BaseCosXml {
         if(qCloudHttpRetryHandler != null){
             builder.setQCloudHttpRetryHandler(qCloudHttpRetryHandler);
         }
-        builder.enableDebugLog(configuration.isDebuggable());
         if(configuration.getCustomizeNetworkClient() != null){
             builder.setNetworkClient(configuration.getCustomizeNetworkClient());
         } else {
@@ -245,7 +237,6 @@ public class CosXmlBaseService implements BaseCosXml {
         client.addVerifiedHost("*." + configuration.getEndpointSuffix());
         client.addVerifiedHost("*." + configuration.getEndpointSuffix(
                 configuration.getRegion(), true));
-        client.setDebuggable(configuration.isDebuggable());
     }
 
     /**
@@ -930,21 +921,15 @@ public class CosXmlBaseService implements BaseCosXml {
      * 获取 SDK 日志信息
      */
     public File[] getLogFiles(int limit) {
-        FileLogAdapter fileLogAdapter = QCloudLogger.getAdapter(FileLogAdapter.class);
-        if (fileLogAdapter != null) {
-            return fileLogAdapter.getLogFilesDesc(limit);
-        }
-        return null;
+        return COSLogger.getLogFiles(limit);
     }
 
     private void logRequestMetrics(CosXmlRequest cosXmlRequest){
-        if(config.isDebuggable()) {
-            if (cosXmlRequest.getMetrics() != null) {
-                QCloudLogger.i(
-                        QCloudHttpClient.HTTP_LOG_TAG,
-                        cosXmlRequest.getMetrics().toString()
-                );
-            }
+        if (cosXmlRequest.getMetrics() != null) {
+            COSLogger.iNetwork(
+                    QCloudHttpClient.HTTP_LOG_TAG,
+                    cosXmlRequest.getMetrics().toString()
+            );
         }
     }
 }

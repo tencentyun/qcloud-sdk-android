@@ -447,7 +447,7 @@ public class UploadTest {
         } catch (CosXmlClientException e) {
             e.printStackTrace();
         }
-        putObjectRequest.addNoSignHeader("Host");
+        putObjectRequest.addNoSignHeader("test");
         putObjectRequest.setPriorityLow();
 
         File file = new File(putObjectRequest.getSrcPath());

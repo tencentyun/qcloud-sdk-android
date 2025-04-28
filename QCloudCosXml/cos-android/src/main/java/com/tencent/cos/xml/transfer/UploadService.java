@@ -24,6 +24,7 @@ package com.tencent.cos.xml.transfer;
 
 
 import android.content.Context;
+
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -47,7 +48,7 @@ import com.tencent.cos.xml.model.object.UploadPartResult;
 import com.tencent.cos.xml.model.tag.ListParts;
 import com.tencent.cos.xml.utils.SharePreferenceUtils;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -557,7 +558,7 @@ public class UploadService {
                         }
                     }catch (Exception e){
                         if(ERROR_EXIT_FLAG > 0){
-                            QCloudLogger.d(TAG, "upload file has been abort");
+                            COSLogger.dProcess(TAG, "upload file has been abort", e);
                         }
                     }
 

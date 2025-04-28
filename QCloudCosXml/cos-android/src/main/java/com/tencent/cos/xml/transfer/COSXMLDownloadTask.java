@@ -45,7 +45,7 @@ import com.tencent.cos.xml.utils.COSUtils;
 import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.cos.xml.utils.FileUtils;
 import com.tencent.qcloud.core.common.QCloudTaskStateListener;
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.task.QCloudTask;
 
 import java.io.File;
@@ -405,7 +405,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 Exception causeException = clientException == null ? serviceException : clientException;
                 causeException.printStackTrace();
                 updateState(TransferState.FAILED, causeException, null, false);
-                QCloudLogger.i(TAG, "head " + cosPath + "failed !, exception is " + causeException.getMessage());
+                COSLogger.iProcess(TAG, "head " + cosPath + "failed !, exception is " + causeException.getMessage(), causeException);
             }
         });
     }
