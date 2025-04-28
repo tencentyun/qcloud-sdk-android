@@ -34,7 +34,6 @@ public abstract class NetworkClient {
 
     protected RetryStrategy retryStrategy;
     protected HttpLogger httpLogger;
-    protected boolean enableDebugLog;
     protected Dns dns;
 
     private QCloudRetryInterceptor retryInterceptor;
@@ -50,7 +49,6 @@ public abstract class NetworkClient {
                      Dns dns, HttpLogger httpLogger){
         this.retryStrategy = b.retryStrategy;
         this.httpLogger = httpLogger;
-        this.enableDebugLog = b.enableDebugLog;
         this.dns = dns;
     }
 

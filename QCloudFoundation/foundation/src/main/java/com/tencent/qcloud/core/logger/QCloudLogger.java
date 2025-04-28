@@ -26,12 +26,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public final class QCloudLogger {
-    private static final List<LogAdapter> logAdapters = new ArrayList<>();
-
     /**
      * Priority constant for the println method; use LogUtils.v.
      */
@@ -59,40 +54,6 @@ public final class QCloudLogger {
 
 
     private QCloudLogger() {
-    }
-
-    /**
-     * Add a new log output pipeline.
-     *
-     * @param adapter log pipeline
-     */
-    public static void addAdapter(LogAdapter adapter) {
-        if (adapter != null) {
-            synchronized (LogAdapter.class) {
-                boolean addBefore = false;
-                for (LogAdapter logAdapter : logAdapters) {
-                    if (logAdapter.getClass().equals(adapter.getClass())) {
-                        addBefore = true;
-                        break;
-                    }
-                }
-                if (!addBefore) {
-                    logAdapters.add(adapter);
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends LogAdapter> T getAdapter(Class<T> adapterClass) {
-        synchronized (LogAdapter.class) {
-            for (LogAdapter logAdapter : logAdapters) {
-                if (logAdapter.getClass().equals(adapterClass)) {
-                    return (T) logAdapter;
-                }
-            }
-            return null;
-        }
     }
 
     /**
@@ -217,12 +178,26 @@ public final class QCloudLogger {
         } catch (Exception e) {
             message = format + ": !!!! Log format exception: ";
         }
-        synchronized (LogAdapter.class) {
-            for (LogAdapter adapter : logAdapters) {
-                if (adapter.isLoggable(priority, tag)) {
-                    adapter.log(priority, tag, message, tr);
-                }
-            }
+        LogLevel logLevel;
+        switch (priority){
+            case DEBUG:
+                logLevel = LogLevel.DEBUG;
+                break;
+            case INFO:
+                logLevel = LogLevel.INFO;
+                break;
+            case WARN:
+                logLevel = LogLevel.WARN;
+                break;
+            case ERROR:
+                logLevel = LogLevel.ERROR;
+                break;
+            default:
+                logLevel = LogLevel.VERBOSE;
+                break;
+        }
+        synchronized (QCloudLogger.class) {
+            COSLogger.getInstance().log(logLevel, LogCategory.PROCESS, tag, message,  tr);
         }
     }
 }

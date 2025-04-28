@@ -29,7 +29,7 @@ import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.http.HttpUtil;
 import com.tencent.qcloud.core.http.NetworkProxy;
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.task.TaskExecutors;
 import com.tencent.qcloud.core.task.TaskManager;
 
@@ -77,7 +77,7 @@ public class QCloudTrafficControlInterceptor {
             this.maxConcurrent = maxConcurrent;
             controller = new ResizableSemaphore(concurrent, true);
             this.concurrent = new AtomicInteger(concurrent);
-            QCloudLogger.d(HTTP_LOG_TAG, name + " init concurrent is " + concurrent);
+            COSLogger.dProcess(HTTP_LOG_TAG, name + " init concurrent is " + concurrent);
         }
 
         void reportException(Request request, IOException exception) {
@@ -91,7 +91,7 @@ public class QCloudTrafficControlInterceptor {
 
         void reportSpeed(Request request, double averageSpeed) {
             if (averageSpeed > 0) {
-                QCloudLogger.d(HTTP_LOG_TAG, name + " %s streaming speed is %1.3f KBps", request, averageSpeed);
+                COSLogger.dProcess(HTTP_LOG_TAG, name + " %s streaming speed is %1.3f KBps", request, averageSpeed);
 
                 // 根据最新的平均速度切换并行任务个数
                 int concurrent = this.concurrent.get();
@@ -145,7 +145,7 @@ public class QCloudTrafficControlInterceptor {
                         controller.release();
                     }
                 }
-                QCloudLogger.i(HTTP_LOG_TAG, name + "set concurrent to " + expect);
+                COSLogger.dProcess(HTTP_LOG_TAG, name + "set concurrent to " + expect);
             }
         }
     }
@@ -202,7 +202,7 @@ public class QCloudTrafficControlInterceptor {
         if (strategy != null) {
             strategy.waitForPermit();
         }
-        QCloudLogger.i(HTTP_LOG_TAG, " %s begin to execute", request);
+        COSLogger.iNetwork(HTTP_LOG_TAG, " %s begin to execute", request);
         IOException e;
         Response response = null;
         try {

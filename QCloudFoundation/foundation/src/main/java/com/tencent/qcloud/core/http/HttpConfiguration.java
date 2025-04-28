@@ -22,7 +22,7 @@
 
 package com.tencent.qcloud.core.http;
 
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,7 +51,7 @@ public class HttpConfiguration {
             long clockSkew = (serverDate.getTime() - deviceDate.getTime()) / 1000;
             if (Math.abs(clockSkew) >= minOffset) {
                 GLOBAL_TIME_OFFSET.set(clockSkew);
-                QCloudLogger.i(QCloudHttpClient.HTTP_LOG_TAG, "NEW TIME OFFSET is " + clockSkew + "s");
+                COSLogger.iNetwork(QCloudHttpClient.HTTP_LOG_TAG, "NEW TIME OFFSET is " + clockSkew + "s");
             }
         } catch (ParseException e) {
             // parse error, ignored

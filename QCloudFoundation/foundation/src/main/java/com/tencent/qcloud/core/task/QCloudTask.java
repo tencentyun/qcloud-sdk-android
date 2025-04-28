@@ -31,7 +31,7 @@ import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.common.QCloudResultListener;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.common.QCloudTaskStateListener;
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -210,7 +210,7 @@ public abstract class QCloudTask<T> implements Callable<T> {
 
 
     public void cancel() {
-        QCloudLogger.d(TASK_LOG_TAG, "[Call] %s cancel", this);
+        COSLogger.dProcess(TASK_LOG_TAG, "[Call] %s cancel", this);
         if (mCancellationTokenSource != null) {
             mCancellationTokenSource.cancel();
         }
@@ -301,11 +301,11 @@ public abstract class QCloudTask<T> implements Callable<T> {
     @Override
     public T call() throws Exception {
         try {
-            QCloudLogger.d(TaskManager.TASK_LOG_TAG, "[Task] %s start testExecute", getIdentifier());
+            COSLogger.dProcess(TaskManager.TASK_LOG_TAG, "[Task] %s start testExecute", getIdentifier());
             onStateChanged(STATE_EXECUTING);
             return execute();
         } finally {
-            QCloudLogger.d(TaskManager.TASK_LOG_TAG, "[Task] %s complete", getIdentifier());
+            COSLogger.dProcess(TaskManager.TASK_LOG_TAG, "[Task] %s complete", getIdentifier());
             onStateChanged(STATE_COMPLETE);
             taskManager.remove(QCloudTask.this);
         }
