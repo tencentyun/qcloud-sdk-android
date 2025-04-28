@@ -27,6 +27,7 @@ import android.util.Log;
 import com.tencent.cos.xml.CosXmlBaseService;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 
 import java.io.File;
@@ -34,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 
 /**
  * 文件工具类
@@ -151,5 +153,23 @@ public class FileUtils {
         }
     }
 
+    /**
+     * 截断文件到指定长度
+     * @param file 要截断的文件
+     * @param newLength 新的文件长度
+     * @return 是否成功
+     */
+    public static boolean truncateFile(File file, long newLength) {
+        if (file == null || !file.exists()) {
+            return false;
+        }
 
+        try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+            raf.setLength(newLength);
+            return true;
+        } catch (IOException e) {
+            COSLogger.wProcess("FileUtils", "Truncate file failed: " + e.getMessage());
+            return false;
+        }
+    }
 }

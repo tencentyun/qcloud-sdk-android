@@ -43,7 +43,9 @@ import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.GetObjectBytesRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
+import com.tencent.cos.xml.utils.CRC64Calculator;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import org.junit.After;
@@ -52,6 +54,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.InetAddress;
 
 @RunWith(AndroidJUnit4.class)
@@ -357,7 +362,7 @@ public class DownloadTest {
         TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
 
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
-                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
                 TestUtils.localParentPath());
          getObjectRequest.setRange(0, 10);
         getObjectRequest.addNoSignHeader("Range");
@@ -740,5 +745,55 @@ public class DownloadTest {
             return;
         }
         Assert.assertTrue(true);
+    }
+
+    @Test public void testCrc64CheckSuccess() {
+        // 测试CRC64校验成功场景
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+        COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
+                TestConst.ASR_BUCKET,
+//                "ProxyDroid_3.2.0_APKPure.apk",
+//                "pdd漏洞报告.pdf",
+                "com.vmall.client.2406280940.apk",
+//                TestConst.ASR_OBJECT_LONG,
+                TestUtils.localParentPath());
+
+        // 模拟服务端返回CRC64值
+//        downloadTask.setServerCrc64("1234567890"); // 假设这是正确的CRC值
+
+        final TestLocker testLocker = new TestLocker();
+        downloadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                COSLogger.dProcess("COSXMLDownloadTask", "onSuccess");
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+        TestUtils.assertCOSXMLTaskSuccess(downloadTask);
+    }
+
+    @Test public void testCrc64CheckFailure1() throws IOException {
+        int m = 10485760;
+        InputStream fis1 = TestUtils.getContext().getResources().getAssets().open("ProxyDroid_3.2.0_APKPure.apk");
+        int available = 15317944;
+        long crc1 = CRC64Calculator.getCRC64(fis1, 0, m);
+        System.out.println("COSXMLDownloadTask crc1: " + Long.toUnsignedString(crc1,10));
+
+        InputStream fis2 = TestUtils.getContext().getResources().getAssets().open("ProxyDroid_3.2.0_APKPure.apk");
+        long crc2 = CRC64Calculator.getCRC64(fis2, m, available - m);
+        System.out.println("COSXMLDownloadTask crc2: " + Long.toUnsignedString(crc2,10));
+
+        crc1 = new BigInteger(Long.toUnsignedString(crc1,10).trim()).longValue();
+        crc2 = new BigInteger(Long.toUnsignedString(crc2,10).trim()).longValue();
+        System.out.println("COSXMLDownloadTask: combine: " + "crc1=" + crc1 + ", crc2=" + crc2 + ", len2=" + (available-m));
+        long combined = CRC64Calculator.combine(crc1, crc2, available-m);
+        System.out.println("COSXMLDownloadTask: combined: " + Long.toUnsignedString(combined));
     }
 }
