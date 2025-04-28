@@ -40,7 +40,7 @@ import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.ObjectRequest;
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -424,12 +424,12 @@ public abstract class COSTransferTask {
     }
 
     protected static void loggerInfo(String tag, String taskId, String format, Object... params) {
-        QCloudLogger.i(tag, "[%s]: " + format, compose(taskId, params));
+        COSLogger.iProcess(tag, "[%s]: " + format, compose(taskId, params));
     }
 
 
     protected static void loggerWarn(String tag, String taskId, String format, Object... params) {
-        QCloudLogger.w(tag, "[%s]: " + format, compose(taskId, params));
+        COSLogger.wProcess(tag, "[%s]: " + format, compose(taskId, params));
     }
 
     private static Object[] compose(String taskId, Object... paras) {

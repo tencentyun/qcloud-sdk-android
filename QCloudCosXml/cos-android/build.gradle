@@ -154,7 +154,9 @@ dependencies {
 //    androidTestImplementation 'android.arch.persistence.room:rxjava2:2.1.1'
     androidTestImplementation "androidx.room:room-rxjava2:2.5.1"
 
-//    androidTestImplementation 'com.tencentcloudapi.cls:tencentcloud-cls-sdk-android:1.0.5'
+    androidTestImplementation('com.tencentcloudapi.cls:tencentcloud-cls-sdk-android:1.0.5') {
+        exclude group: 'com.google.code.gson', module: 'gson'
+    }
     androidTestImplementation 'com.google.guava:guava:27.0.1-android'
 
     androidTestImplementation 'org.dhatim:fastexcel:0.18.4'
@@ -234,7 +236,7 @@ uploadArchives {
     repositories.mavenDeployer {
         pom.project {
             groupId 'com.qcloud.cos'
-            artifactId 'cos-android-nobeacon'
+            artifactId 'cos-android'
             version cosSdkVersionName
             packaging 'aar'
         }

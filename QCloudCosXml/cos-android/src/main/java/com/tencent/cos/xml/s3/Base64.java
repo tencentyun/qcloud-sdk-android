@@ -22,7 +22,7 @@
 
 package com.tencent.cos.xml.s3;
 
-import com.tencent.qcloud.core.logger.QCloudLogger;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +61,7 @@ public enum Base64 {
 //                // ignore
 //            }
         } else {
-            QCloudLogger.w("S3", "JAXB is unavailable. Will fallback to SDK implementation which may be less performant." +
+            COSLogger.wProcess("S3", "JAXB is unavailable. Will fallback to SDK implementation which may be less performant." +
                     "If you are using Java 9+, you will need to include javax.xml.bind:jaxb-api as a dependency.");
         }
     }
