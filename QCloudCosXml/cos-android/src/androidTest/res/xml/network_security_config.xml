@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!--cls-->
+        <domain includeSubdomains="true">cls.tencentcs.com</domain>
+    </domain-config>
     <base-config cleartextTrafficPermitted="true" />
     <!--debug模式才信任user证书-->
     <debug-overrides>

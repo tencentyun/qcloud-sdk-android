@@ -6,6 +6,7 @@ import static com.tencent.cos.xml.CosTrackService.EVENT_CODE_TRACK_COS_SDK_SONAR
 import android.content.Context;
 
 import com.tencent.cos.xml.base.BuildConfig;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.network.sonar.NetworkSonar;
 import com.tencent.qcloud.network.sonar.NetworkSonarCallback;
 import com.tencent.qcloud.network.sonar.SonarRequest;
@@ -158,6 +159,9 @@ public class CosTrackSonarService {
                         // 至少探测到一种网络情况才上报
                         if(params.containsKey("dns_ip") || params.containsKey("ping_ip") || params.containsKey("traceroute_ip")){
                             QCloudTrackService.getInstance().report(eventCode, params);
+                            if(!periodic){
+                                COSLogger.iProbe("FailSonar", params.toString());
+                            }
                         }
                     }
                 }

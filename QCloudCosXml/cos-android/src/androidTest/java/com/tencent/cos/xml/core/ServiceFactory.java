@@ -57,7 +57,6 @@ public class ServiceFactory {
                 .setDownloadMaxThreadCount(36)
                 .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
-
         return newService(cosXmlServiceConfig);
     }
 

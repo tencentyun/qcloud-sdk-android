@@ -34,8 +34,6 @@ import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.cos.xml.model.object.HeadObjectResult;
 import com.tencent.cos.xml.model.service.GetServiceRequest;
 import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
-import com.tencent.qcloud.core.logger.FileLogAdapter;
-import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -72,10 +70,6 @@ public class CosXmlSimpleServiceTest {
         Assert.assertNotNull(cosXmlService.getAppid());
         Assert.assertNotNull(cosXmlService.getRegion());
         Assert.assertNotNull(cosXmlService.getRegion(request));
-
-        FileLogAdapter fileLogAdapter = FileLogAdapter.getInstance(getContext(), "QLog");
-        QCloudLogger.addAdapter(fileLogAdapter);
-        File[] files = cosXmlService.getLogFiles(100);
 
         try {
             Assert.assertNotNull(cosXmlService.getPresignedURL(request));
