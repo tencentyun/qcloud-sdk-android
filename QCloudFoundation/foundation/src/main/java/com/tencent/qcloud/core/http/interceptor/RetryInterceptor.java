@@ -36,6 +36,7 @@ import com.tencent.qcloud.core.http.HttpConfiguration;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
+import com.tencent.qcloud.core.http.QCloudHttpRequest;
 import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
 import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.task.RetryStrategy;
@@ -183,9 +184,14 @@ public class RetryInterceptor implements Interceptor {
             // 属于重试
             if(attempts > 0){
                 // 添加重试header
-                request = request.newBuilder()
-                        .header(HttpConstants.Header.COS_SDK_RETRY, String.valueOf(true))
-                        .build();
+                try {
+                    QCloudHttpRequest qCloudHttpRequest = task.retrySignRequest();
+                    request = request.newBuilder()
+                            .header(HttpConstants.Header.COS_SDK_RETRY, String.valueOf(true))
+                            .header(HttpConstants.Header.AUTHORIZATION, qCloudHttpRequest.header(HttpConstants.Header.AUTHORIZATION))
+                            .build();
+                } catch (Exception ex) {
+                }
             }
 
             COSLogger.iNetwork(HTTP_LOG_TAG, "%s start to execute, attempts is %d", request, attempts);
@@ -294,7 +300,7 @@ public class RetryInterceptor implements Interceptor {
                 if(task.isResponseFilePathConverter()){
                     long transferBodySize = task.getTransferBodySize();
                     if(transferBodySize > 0){
-                        request = buildNewRangeRequest(request, transferBodySize);
+                        request = buildNewRangeRequest(request, transferBodySize, task);
                     }
                 }
                 return processSingleRequest(chain, request);
@@ -465,7 +471,7 @@ public class RetryInterceptor implements Interceptor {
      * @param transferBodySize 已传输的内容长度
      * @return 新的Range请求
      */
-    private Request buildNewRangeRequest(Request request, long transferBodySize){
+    private Request buildNewRangeRequest(Request request, long transferBodySize, HttpTask task){
         long start = -1;
         long end = -1;
         String range = request.header(RANGE);
@@ -494,7 +500,13 @@ public class RetryInterceptor implements Interceptor {
         }
         Request.Builder requestBuilder = request.newBuilder();
         Headers.Builder headerBuilder = request.headers().newBuilder();
-        headerBuilder.set(RANGE, String.format("bytes=%s-%s", start, (end == -1 ?"": String.valueOf(end))));
+        String newRange = String.format("bytes=%s-%s", start, (end == -1 ?"": String.valueOf(end)));
+        try {
+            QCloudHttpRequest qCloudHttpRequest = task.newRangeSignRequest(newRange);
+            headerBuilder.set(RANGE, newRange);
+            headerBuilder.set(HttpConstants.Header.AUTHORIZATION, qCloudHttpRequest.header(HttpConstants.Header.AUTHORIZATION));
+        } catch (Exception ex) {
+        }
         requestBuilder.headers(headerBuilder.build());
         return requestBuilder.build();
     }

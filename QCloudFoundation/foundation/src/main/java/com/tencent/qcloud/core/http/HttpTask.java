@@ -23,6 +23,8 @@
 package com.tencent.qcloud.core.http;
 
 
+import static com.tencent.qcloud.core.http.HttpConstants.Header.RANGE;
+
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
 import com.tencent.qcloud.core.auth.QCloudCredentials;
 import com.tencent.qcloud.core.auth.QCloudSelfSigner;
@@ -174,6 +176,48 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
      */
     public boolean isSelfSigner(){
         return httpRequest.getQCloudSelfSigner() != null;
+    }
+
+    /**
+     * 增加重试header重签名
+     */
+    public QCloudHttpRequest retrySignRequest() throws QCloudClientException {
+        httpRequest.removeHeader(HttpConstants.Header.AUTHORIZATION);
+        httpRequest.addOrReplaceHeader(HttpConstants.Header.COS_SDK_RETRY, String.valueOf(true));
+        QCloudSigner signer = httpRequest.getQCloudSigner();
+        if (signer != null) {
+            metrics.onSignRequestStart();
+            signRequest(signer, (QCloudHttpRequest) httpRequest);
+            metrics.onSignRequestEnd();
+        }
+        QCloudSelfSigner selfSigner = httpRequest.getQCloudSelfSigner();
+        if (selfSigner != null) {
+            metrics.onSignRequestStart();
+            selfSigner.sign((QCloudHttpRequest) httpRequest);
+            metrics.onSignRequestEnd();
+        }
+        return (QCloudHttpRequest) httpRequest;
+    }
+
+    /**
+     * 增加重试range header重签名
+     */
+    public QCloudHttpRequest newRangeSignRequest(String newRange) throws QCloudClientException {
+        httpRequest.removeHeader(HttpConstants.Header.AUTHORIZATION);
+        httpRequest.addOrReplaceHeader(RANGE, newRange);
+        QCloudSigner signer = httpRequest.getQCloudSigner();
+        if (signer != null) {
+            metrics.onSignRequestStart();
+            signRequest(signer, (QCloudHttpRequest) httpRequest);
+            metrics.onSignRequestEnd();
+        }
+        QCloudSelfSigner selfSigner = httpRequest.getQCloudSelfSigner();
+        if (selfSigner != null) {
+            metrics.onSignRequestStart();
+            selfSigner.sign((QCloudHttpRequest) httpRequest);
+            metrics.onSignRequestEnd();
+        }
+        return (QCloudHttpRequest) httpRequest;
     }
 
     @Override
