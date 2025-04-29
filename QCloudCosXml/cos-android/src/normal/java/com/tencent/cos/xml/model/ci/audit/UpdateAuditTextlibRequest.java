@@ -33,6 +33,10 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 /**
  * 修改自定义文本库
  * @see com.tencent.cos.xml.CIService#updateAuditTextlib(UpdateAuditTextlibRequest)
@@ -53,7 +57,6 @@ public class UpdateAuditTextlibRequest extends BucketRequest {
      */
     public UpdateAuditTextlibRequest(@NonNull String bucket, @NonNull String libID) {
         super(bucket);
-        addNoSignHeader("Content-Type");
         this.libID = libID;
     }
 
@@ -71,9 +74,8 @@ public class UpdateAuditTextlibRequest extends BucketRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                QCloudXmlUtils.toXml(this.updateAuditTextlib));
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
+        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.updateAuditTextlib).getBytes("utf-8"));
     }
 
     @Override

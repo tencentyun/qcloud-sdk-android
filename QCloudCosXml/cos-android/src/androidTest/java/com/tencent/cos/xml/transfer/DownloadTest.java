@@ -365,7 +365,7 @@ public class DownloadTest {
                 TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
                 TestUtils.localParentPath());
          getObjectRequest.setRange(0, 10);
-        getObjectRequest.addNoSignHeader("Range");
+//        getObjectRequest.addNoSignHeader("Range");
         COSXMLDownloadTask downloadTask = transferManager.download(TestUtils.getContext(),
                 getObjectRequest);
 
