@@ -1,11 +1,14 @@
 package com.tencent.cos.xml.model.ci;
 
 import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.RequestMethod;
-import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.model.bucket.BucketRequest;
-import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
+
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 /**
  * <p>
@@ -22,8 +25,6 @@ public class PutBucketDPStateRequest extends BucketRequest {
     public PutBucketDPStateRequest(String bucket, String region) {
         super(bucket);
         this.region = region;
-        addNoSignHeader("Content-Type");
-        addNoSignHeader("Content-Length");
     }
 
     @Override
@@ -42,7 +43,7 @@ public class PutBucketDPStateRequest extends BucketRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(HttpConstants.ContentType.TEXT_PLAIN, "");
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
+        return RequestBodySerializer.bytes(COSRequestHeaderKey.TEXT_PLAIN, "".getBytes("utf-8"));
     }
 }

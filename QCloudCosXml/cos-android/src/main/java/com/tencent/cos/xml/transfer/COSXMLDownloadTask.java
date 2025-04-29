@@ -179,8 +179,6 @@ public final class COSXMLDownloadTask extends COSXMLTask{
         getObjectRequest.setCredentialProvider(credentialProvider);
         if(rangeEnd > 0 || rangeStart > 0){
             getObjectRequest.setRange(rangeStart, rangeEnd);
-            //下载重试时会改变request的range，因此不能让range参与签名
-            getObjectRequest.addNoSignHeader(COSRequestHeaderKey.RANGE);
         }
 
         if(onSignatureListener != null){

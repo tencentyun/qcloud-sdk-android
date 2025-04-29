@@ -33,6 +33,10 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 /**
  * 文本审核结果反馈
  * <a href="https://cloud.tencent.com/document/product/460/75497">文本审核结果反馈</a>
@@ -49,8 +53,6 @@ public class PostTextAuditReportRequest extends BucketRequest {
      */
     public PostTextAuditReportRequest(@NonNull String bucket ) {
         super(bucket);
-        
-        addNoSignHeader("Content-Type");
     }
 
     /**
@@ -67,9 +69,8 @@ public class PostTextAuditReportRequest extends BucketRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                QCloudXmlUtils.toXml(this.postTextAuditReport));
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
+        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.postTextAuditReport).getBytes("utf-8"));
     }
 
     @Override

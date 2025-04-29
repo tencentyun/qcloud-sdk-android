@@ -34,6 +34,10 @@ import com.tencent.cos.xml.model.tag.audit.post.PostTextAudit;
 import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 /**
  * 提交文本审核任务的请求.
  */
@@ -111,9 +115,8 @@ public class PostTextAuditRequest extends BasePostAuditRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                QCloudXmlUtils.toXml(postTextAudit));
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
+        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.postTextAudit).getBytes("utf-8"));
     }
 
     @Override
