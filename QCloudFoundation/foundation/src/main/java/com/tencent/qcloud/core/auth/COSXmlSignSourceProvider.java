@@ -147,7 +147,7 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
 
         for (String key : request.headers().keySet()) {
             String lowerKey = key.toLowerCase(Locale.ROOT);
-            if (needToSignHeaders.contains(lowerKey) || lowerKey.startsWith("x-cos-")) {
+            if (needToSignHeaders.contains(lowerKey) || lowerKey.startsWith("x-cos-") || lowerKey.startsWith("x-ci-")) {
                 signHeaders.add(key);
             }
         }
@@ -161,9 +161,9 @@ public class COSXmlSignSourceProvider implements QCloudSignSourceProvider {
 
 
         // 默认头部字段参与计算
-        if (headerKeysRequiredToSign.size() < 1) {
+//        if (headerKeysRequiredToSign.size() < 1) {
             headerKeysRequiredToSign.addAll(signHeaders);
-        }
+//        }
 
         // 默认URL参数字段参与计算，需要减去设置的不需要签名的 params
         if (parametersRequiredToSign.size() < 1) {
