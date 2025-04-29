@@ -33,6 +33,10 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 /**
  * 人声分离
  * <a href="https://cloud.tencent.com/document/product/460/84794">人声分离</a>
@@ -51,7 +55,6 @@ public class SubmitVoiceSeparateJobRequest extends BucketRequest {
      */
     public SubmitVoiceSeparateJobRequest(@NonNull String bucket ) {
         super(bucket);
-        addNoSignHeader("Content-Type");
     }
 
     /**
@@ -69,9 +72,8 @@ public class SubmitVoiceSeparateJobRequest extends BucketRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                QCloudXmlUtils.toXml(this.submitVoiceSeparateJob));
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
+        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.submitVoiceSeparateJob).getBytes("utf-8"));
     }
 
     @Override

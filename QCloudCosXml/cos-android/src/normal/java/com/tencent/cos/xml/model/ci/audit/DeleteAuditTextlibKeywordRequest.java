@@ -33,6 +33,9 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -55,7 +58,6 @@ public class DeleteAuditTextlibKeywordRequest extends BucketRequest {
      */
     public DeleteAuditTextlibKeywordRequest(@NonNull String bucket, @NonNull String libID) {
         super(bucket);
-        addNoSignHeader("Content-Type");
         this.libID = libID;
         deleteAuditTextlibKeyword.keywordIDs = new ArrayList<>();
     }
@@ -74,9 +76,8 @@ public class DeleteAuditTextlibKeywordRequest extends BucketRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                QCloudXmlUtils.toXml(this.deleteAuditTextlibKeyword));
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
+        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.deleteAuditTextlibKeyword).getBytes("utf-8"));
     }
 
     @Override

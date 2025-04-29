@@ -37,8 +37,6 @@ public abstract class BasePostAuditRequest extends BucketRequest {
      */
     public BasePostAuditRequest(@NonNull String bucket) {
         super(bucket);
-        addNoSignHeader("Content-Type");
-        addNoSignHeader("Content-Length");
     }
 
     @Override

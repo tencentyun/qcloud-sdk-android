@@ -6,7 +6,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.Range;
 import com.tencent.cos.xml.crypto.COSDirect;
@@ -201,8 +200,6 @@ public class COSDownloadTask extends COSTransferTask {
                                 CancellationTokenSource transferTaskCts) {
             this.cosDirect = cosDirect;
             this.getObjectRequest = getObjectRequest;
-            //下载重试时会改变request的range，因此不能让range参与签名
-            this.getObjectRequest.addNoSignHeader(COSRequestHeaderKey.RANGE);
             this.tcs = new TaskCompletionSource<>();
             this.mTransferTaskCts = transferTaskCts;
         }

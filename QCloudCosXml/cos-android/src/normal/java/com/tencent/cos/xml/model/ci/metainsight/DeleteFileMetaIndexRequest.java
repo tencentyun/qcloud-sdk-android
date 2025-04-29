@@ -32,6 +32,10 @@ import com.tencent.cos.xml.utils.QCloudJsonUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 /**
  * 删除元数据索引
  * <a href="https://cloud.tencent.com/document/product/460/106163">删除元数据索引</a>
@@ -51,7 +55,6 @@ public class DeleteFileMetaIndexRequest extends AppIdRequest {
      */
     public DeleteFileMetaIndexRequest(@NonNull String appid) {
         super(appid);
-        addNoSignHeader("Content-Type");
 		addHeader(HttpConstants.Header.ACCEPT, HttpConstants.ContentType.JSON);
     }
     /**
@@ -67,11 +70,12 @@ public class DeleteFileMetaIndexRequest extends AppIdRequest {
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
         return "/filemeta";
     }
+
     @Override
-            public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-                return RequestBodySerializer.string(HttpConstants.ContentType.JSON,
-                        QCloudJsonUtils.toJson(this.deleteFileMetaIndex));
-            }
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
+        return RequestBodySerializer.bytes(HttpConstants.ContentType.JSON, QCloudJsonUtils.toJson(this.deleteFileMetaIndex).getBytes("utf-8"));
+    }
+
     @Override
     public String getMethod() {
         return HttpConstants.RequestMethod.DELETE;

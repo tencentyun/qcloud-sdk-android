@@ -33,6 +33,10 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 /**
  * 音视频转封装
  * <a href="https://cloud.tencent.com/document/product/460/84789">音视频转封装</a>
@@ -51,7 +55,6 @@ public class SubmitMediaSegmentJobRequest extends BucketRequest {
      */
     public SubmitMediaSegmentJobRequest(@NonNull String bucket ) {
         super(bucket);
-        addNoSignHeader("Content-Type");
     }
 
     /**
@@ -69,9 +72,8 @@ public class SubmitMediaSegmentJobRequest extends BucketRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                QCloudXmlUtils.toXml(this.submitMediaSegmentJob));
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
+        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.submitMediaSegmentJob).getBytes("utf-8"));
     }
 
     @Override

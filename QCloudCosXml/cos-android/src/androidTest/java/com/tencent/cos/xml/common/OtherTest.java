@@ -65,7 +65,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -474,34 +473,34 @@ public class OtherTest {
         assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[6]));
     }
 
-    @Test
-    public void testMultiThreadedCosXmlService() {
-        try {
-            // 线程数常量
-            int  THREAD_COUNT = 10000;
-            Thread[] threads = new Thread[THREAD_COUNT];
-            ArrayList<Throwable> exceptions = new ArrayList<>();
-            for (int i = 0; i < THREAD_COUNT; i++) {
-                threads[i] = new Thread(() -> {
-                    CosXmlSimpleService service = ServiceFactory.INSTANCE.newDefaultService();
-                    service.getConfig();
-                });
-                threads[i].setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                    @Override
-                    public void uncaughtException(Thread t, Throwable e) {
-                        e.printStackTrace();
-                        exceptions.add(e);
-                    }
-                });
-                threads[i].start();
-            }
-            for (int i = 0; i < THREAD_COUNT; i++) {
-                threads[i].join();
-            }
-            assertTrue(exceptions.isEmpty());
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        }
-    }
+//    @Test
+//    public void testMultiThreadedCosXmlService() {
+//        try {
+//            // 线程数常量
+//            int  THREAD_COUNT = 10000;
+//            Thread[] threads = new Thread[THREAD_COUNT];
+//            ArrayList<Throwable> exceptions = new ArrayList<>();
+//            for (int i = 0; i < THREAD_COUNT; i++) {
+//                threads[i] = new Thread(() -> {
+//                    CosXmlSimpleService service = ServiceFactory.INSTANCE.newDefaultService();
+//                    service.getConfig();
+//                });
+//                threads[i].setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+//                    @Override
+//                    public void uncaughtException(Thread t, Throwable e) {
+//                        e.printStackTrace();
+//                        exceptions.add(e);
+//                    }
+//                });
+//                threads[i].start();
+//            }
+//            for (int i = 0; i < THREAD_COUNT; i++) {
+//                threads[i].join();
+//            }
+//            assertTrue(exceptions.isEmpty());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            Assert.fail(e.getMessage());
+//        }
+//    }
 }

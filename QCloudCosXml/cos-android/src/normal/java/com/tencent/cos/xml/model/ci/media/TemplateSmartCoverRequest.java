@@ -33,6 +33,10 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 /**
  * 智能封面
  * <a href="https://cloud.tencent.com/document/product/460/84734">智能封面</a>
@@ -51,7 +55,6 @@ public class TemplateSmartCoverRequest extends BucketRequest {
      */
     public TemplateSmartCoverRequest(@NonNull String bucket ) {
         super(bucket);
-        addNoSignHeader("Content-Type");
     }
 
     /**
@@ -69,9 +72,8 @@ public class TemplateSmartCoverRequest extends BucketRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                QCloudXmlUtils.toXml(this.templateSmartCover));
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
+        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.templateSmartCover).getBytes("utf-8"));
     }
 
     @Override

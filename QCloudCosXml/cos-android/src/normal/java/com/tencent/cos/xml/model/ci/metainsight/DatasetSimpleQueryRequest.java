@@ -32,6 +32,10 @@ import com.tencent.cos.xml.utils.QCloudJsonUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 /**
  * 简单查询
  * <a href="https://cloud.tencent.com/document/product/460/106375">简单查询</a>
@@ -49,7 +53,6 @@ public class DatasetSimpleQueryRequest extends AppIdRequest {
      */
     public DatasetSimpleQueryRequest(@NonNull String appid) {
         super(appid);
-        addNoSignHeader("Content-Type");
 		addHeader(HttpConstants.Header.ACCEPT, HttpConstants.ContentType.JSON);
     }
     /**
@@ -65,11 +68,12 @@ public class DatasetSimpleQueryRequest extends AppIdRequest {
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
         return "/datasetquery" + "/simple";
     }
+
     @Override
-            public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-                return RequestBodySerializer.string(HttpConstants.ContentType.JSON,
-                        QCloudJsonUtils.toJson(this.datasetSimpleQuery));
-            }
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException {
+        return RequestBodySerializer.bytes(HttpConstants.ContentType.JSON, QCloudJsonUtils.toJson(this.datasetSimpleQuery).getBytes("utf-8"));
+    }
+
     @Override
     public String getMethod() {
         return HttpConstants.RequestMethod.POST;

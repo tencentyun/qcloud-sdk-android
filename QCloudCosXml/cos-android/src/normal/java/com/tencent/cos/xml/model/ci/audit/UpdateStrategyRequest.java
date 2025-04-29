@@ -33,6 +33,9 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -59,7 +62,6 @@ public class UpdateStrategyRequest extends BucketRequest {
      */
     public UpdateStrategyRequest(@NonNull String bucket, @NonNull String service, @NonNull String bizType) {
         super(bucket);
-        addNoSignHeader("Content-Type");
         this.service = service;
         this.bizType = bizType;
     }
@@ -84,9 +86,8 @@ public class UpdateStrategyRequest extends BucketRequest {
     }
 
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                QCloudXmlUtils.toXml(this.updateStrategy));
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
+        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.updateStrategy).getBytes("utf-8"));
     }
 
     @Override

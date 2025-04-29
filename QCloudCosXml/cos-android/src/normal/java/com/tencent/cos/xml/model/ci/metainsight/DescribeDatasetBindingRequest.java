@@ -59,7 +59,6 @@ public class DescribeDatasetBindingRequest extends AppIdRequest {
      */
     public DescribeDatasetBindingRequest(@NonNull String appid) {
         super(appid);
-        addNoSignHeader("Content-Type");
 		addHeader(HttpConstants.Header.ACCEPT, HttpConstants.ContentType.JSON);
     }
     

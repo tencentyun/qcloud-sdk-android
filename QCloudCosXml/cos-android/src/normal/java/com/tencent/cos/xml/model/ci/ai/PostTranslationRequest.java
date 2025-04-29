@@ -33,6 +33,10 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
 /**
  * 提交任务
  * <a href="https://cloud.tencent.com/document/product/460/84799">提交任务</a>
@@ -50,7 +54,6 @@ public class PostTranslationRequest extends BucketRequest {
      */
     public PostTranslationRequest(@NonNull String bucket) {
         super(bucket);
-        addNoSignHeader("Content-Type");
     }
     /**
      * 设置 提交任务
@@ -65,11 +68,12 @@ public class PostTranslationRequest extends BucketRequest {
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
         return "/jobs";
     }
+
     @Override
-            public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-                return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                        QCloudXmlUtils.toXml(this.postTranslation));
-            }
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
+        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.postTranslation).getBytes("utf-8"));
+    }
+
     @Override
     public String getMethod() {
         return HttpConstants.RequestMethod.POST;

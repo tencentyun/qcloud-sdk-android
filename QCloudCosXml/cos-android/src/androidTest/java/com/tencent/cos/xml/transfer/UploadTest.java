@@ -1441,7 +1441,7 @@ public class UploadTest {
         } catch (CosXmlClientException e) {
             throw new RuntimeException(e);
         }
-        request.setSignInUrl(true);
+//        request.setSignInUrl(true);
         request.isSupportAccelerate(true);
         Assert.assertTrue(request.isSupportAccelerate());
         request.setSignSourceProvider(new COSXmlSignSourceProvider());

@@ -33,6 +33,9 @@ import com.tencent.cos.xml.utils.QCloudXmlUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -61,7 +64,6 @@ public class DeleteImageSearchRequest extends BucketRequest {
     public DeleteImageSearchRequest(@NonNull String bucket , @NonNull String objectKey) {
         super(bucket);
         this.objectKey = objectKey;
-		addNoSignHeader("Content-Type");
     }
     /**
      * 设置 删除图库图片
@@ -82,11 +84,12 @@ public class DeleteImageSearchRequest extends BucketRequest {
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
         return "/" + objectKey;
     }
+
     @Override
-    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
-        return RequestBodySerializer.string(COSRequestHeaderKey.APPLICATION_XML,
-                QCloudXmlUtils.toXml(this.deleteImageSearch));
+    protected RequestBodySerializer xmlBuilder() throws XmlPullParserException, IOException, CosXmlClientException {
+        return RequestBodySerializer.bytes(COSRequestHeaderKey.APPLICATION_XML, QCloudXmlUtils.toXml(this.deleteImageSearch).getBytes("utf-8"));
     }
+
     @Override
     public String getMethod() {
         return HttpConstants.RequestMethod.POST;

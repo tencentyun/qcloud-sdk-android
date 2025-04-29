@@ -236,7 +236,7 @@ public class AuditTest {
 
             TestUtils.sleep(20000);
 
-            GetImageAuditRequest getAuditRequest = new GetImageAuditRequest(TestConst.CI_BUCKET, result.postImagesAuditJobResponse.jobsDetail.get(0).jobId);
+            GetImageAuditRequest getAuditRequest = new GetImageAuditRequest(TestConst.CI_BUCKET, result.postImagesAuditJobResponse.jobsDetail.get(2).jobId);
             try {
                 GetImageAuditResult getResult = ciService.getImageAudit(getAuditRequest);
                 Assert.assertNotNull(getResult.getImageAuditJobResponse);
@@ -287,7 +287,7 @@ public class AuditTest {
 
                 TestUtils.sleep(20000);
 
-                GetImageAuditRequest getAuditRequest = new GetImageAuditRequest(TestConst.CI_BUCKET, result.postImagesAuditJobResponse.jobsDetail.get(0).jobId);
+                GetImageAuditRequest getAuditRequest = new GetImageAuditRequest(TestConst.CI_BUCKET, result.postImagesAuditJobResponse.jobsDetail.get(2).jobId);
                 ciService.getImageAuditAsync(getAuditRequest, new CosXmlResultListener() {
                     @Override
                     public void onSuccess(CosXmlRequest request, CosXmlResult result) {
