@@ -27,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Environment;
+import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -322,7 +323,7 @@ public class OtherTest {
         CosXmlSimpleService defaultService = ServiceFactory.INSTANCE.newDefaultService();
         try {
             String signUrl = defaultService.getPresignedURL(presignedUrlRequest);
-            QCloudLogger.i("QCloudTest", signUrl);
+            Log.i("QCloudTest", signUrl);
             new Thread(() -> {
                 String localPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/wechat.png";
                 downloadFile(signUrl, localPath);

@@ -440,6 +440,18 @@ public abstract class CosXmlRequest{
     }
 
     /**
+     * 设置签名Authorization和token
+     * @param sign Authorization
+     * @param token token
+     */
+    public void setSign(String sign, String token){
+        addHeader(HttpConstants.Header.AUTHORIZATION, sign);
+        if(TextUtils.isEmpty(token)){
+            addHeader("x-cos-security-token", token);
+        }
+    }
+
+    /**
      * 获取签名原料提供器
      * @return 签名原料提供器
      */

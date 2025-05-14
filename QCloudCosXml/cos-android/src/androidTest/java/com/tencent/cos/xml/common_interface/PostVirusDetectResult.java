@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,29 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50946
-    cosSdkVersionName = '5.9.43'
+package com.tencent.cos.xml.common_interface;
+
+import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.model.CosXmlResult;
+import com.tencent.cos.xml.model.ci.audit.PostLiveVideoAuditRequest;
+import com.tencent.cos.xml.utils.QCloudXmlUtils;
+import com.tencent.qcloud.core.http.HttpResponse;
+
+/**
+ * 提交病毒检测任务的返回结果.
+ * @see com.tencent.cos.xml.CIService#postLiveVideoAudit(PostLiveVideoAuditRequest)
+ * @see PostLiveVideoAuditRequest 
+ */
+final public class PostVirusDetectResult extends CosXmlResult {
+    /**
+     * 提交病毒检测任务结果
+     */
+    public PostVirusDetectResponse response;
+
+    @Override
+    public void parseResponseBody(HttpResponse httpResponse) throws CosXmlServiceException, CosXmlClientException {
+        super.parseResponseBody(httpResponse);
+        this.response = QCloudXmlUtils.fromXml(httpResponse.byteStream(), PostVirusDetectResponse.class);
+    }
 }

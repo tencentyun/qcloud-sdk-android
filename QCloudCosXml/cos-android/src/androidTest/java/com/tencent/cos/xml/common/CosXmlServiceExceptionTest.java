@@ -22,14 +22,15 @@
 
 package com.tencent.cos.xml.common;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by bradyxiao on 2018/3/14.
@@ -39,10 +40,10 @@ public class CosXmlServiceExceptionTest {
 
     @Test
     public void test() throws Exception{
-        CosXmlServiceException cosXmlServiceException = new CosXmlServiceException("NOT FOUND");
+        CosXmlServiceException cosXmlServiceException = new CosXmlServiceException("NOT FOUND", (String) null);
         assertEquals("NOT FOUND", cosXmlServiceException.getHttpMessage());
 
-        CosXmlServiceException cosXmlServiceException1 = new CosXmlServiceException("no authorization", null);
+        CosXmlServiceException cosXmlServiceException1 = new CosXmlServiceException("no authorization", (Exception) null);
         cosXmlServiceException1.setRequestId("requestId");
         cosXmlServiceException1.setStatusCode(403);
         cosXmlServiceException1.setErrorCode("Access Deny");
