@@ -458,6 +458,10 @@ public class RetryInterceptor implements Interceptor {
             return false;
         }
 
+        if(e.getCause() instanceof QCloudServiceException) {
+            return ((QCloudServiceException) e.getCause()).getStatusCode() >= 500;
+        }
+
         // An example of one we might want to retry with a different route is a problem connecting to a
         // proxy and would manifest as a standard IOException. Unless it is one we know we should not
         // retry, we return true and try a new route.

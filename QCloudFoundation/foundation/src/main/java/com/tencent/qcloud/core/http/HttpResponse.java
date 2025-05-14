@@ -78,6 +78,14 @@ public final class HttpResponse<T> {
         return response.body() == null ? null : response.body().string();
     }
 
+    public String host() {
+        try {
+            return response.request().url().host();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public final boolean isSuccessful() {
         return response != null && response.isSuccessful();
     }
