@@ -35,10 +35,12 @@ public class CosXmlServiceException extends QCloudServiceException {
     private static final long serialVersionUID = 1L;
 
     private String httpMsg;
+    private String host;
 
-    public CosXmlServiceException(String httpMsg) {
+    public CosXmlServiceException(String httpMsg, String host) {
         super(null);
         this.httpMsg = httpMsg;
+        this.host = host;
     }
 
     public CosXmlServiceException(String errorMessage, Exception cause) {
@@ -47,6 +49,10 @@ public class CosXmlServiceException extends QCloudServiceException {
 
     public String getHttpMessage(){
         return httpMsg;
+    }
+
+    public String getHost(){
+        return host;
     }
 
     public CosXmlServiceException(QCloudServiceException qcloudServiceException){

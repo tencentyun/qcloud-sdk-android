@@ -1,4 +1,4 @@
-package com.tencent.cos.xml.server_sign;
+package com.tencent.cos.xml.server_sign.old;
 
 import static com.tencent.cos.xml.core.TestUtils.bigPlusFilePath;
 import static com.tencent.cos.xml.core.TestUtils.getContext;

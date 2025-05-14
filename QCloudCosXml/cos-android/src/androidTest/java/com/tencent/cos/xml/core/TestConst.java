@@ -130,4 +130,7 @@ public class TestConst {
     public static final String[] NET_BUCKET_REGION_ARR = new String[]{
             "eu-frankfurt"
     };
+
+    public static final String RETRY_REGION = "ap-chengdu";
+    public static final String RETRY_BUCKET = "cos-sdk-err-retry-1253960454";
 }

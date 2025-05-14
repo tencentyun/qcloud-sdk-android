@@ -142,6 +142,9 @@ dependencies {
 
     androidTestCompileOnly project(path: ':cos-android')
     androidTestCompileOnly project(path: ':cos-android-base')
+    androidTestCompileOnly project(path: ':xmlAnnoation')
+    androidTestAnnotationProcessor project(':xmlCompiler')
+
     // kms 加密
     androidTestImplementation 'com.tencentcloudapi:tencentcloud-sdk-java-kms:3.1.213'
     androidTestImplementation 'xerces:xercesImpl:2.12.0'
