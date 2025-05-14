@@ -20,7 +20,7 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.server_sign;
+package com.tencent.cos.xml.server_sign.old;
 
 import static com.tencent.qcloud.core.http.HttpConstants.Header.CONTENT_LENGTH;
 import static com.tencent.qcloud.core.http.HttpConstants.Header.CONTENT_TYPE;

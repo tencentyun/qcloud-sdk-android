@@ -6,6 +6,7 @@ import static com.tencent.qcloud.core.http.HttpConstants.Header.AUTHORIZATION;
 import android.util.Log;
 
 import com.tencent.cos.xml.BuildConfig;
+import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.crypto.KMSEncryptionMaterialsProvider;
@@ -68,6 +69,16 @@ public class ServiceFactory {
                 .builder();
 
         return new CosXmlSimpleService(getContext(), cosXmlServiceConfig);
+    }
+
+    public CosXmlService newAnonymousService1() {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(true)
+                .setDebuggable(true)
+                .setRegion("ap-beijing")
+                .builder();
+
+        return new CosXmlService(getContext(), cosXmlServiceConfig);
     }
 
     public CosXmlSimpleService newAnonymousServiceByChengDu() {
@@ -255,6 +266,29 @@ public class ServiceFactory {
             throw new RuntimeException(e);
         }
 
+        return newService(cosXmlServiceConfig);
+    }
+
+    public CosXmlSimpleService newRetryServiceMyqcloud(boolean domainSwitch) {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(false)
+                .setDebuggable(true)
+                .setRegion(TestConst.RETRY_REGION)
+                .setDomainSwitch(domainSwitch)
+                .setSocketTimeout(5000)
+                .builder();
+        return newService(cosXmlServiceConfig);
+    }
+
+    public CosXmlSimpleService newRetryServiceTencentCos(boolean domainSwitch) {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(false)
+                .setDebuggable(true)
+                .setRegion(TestConst.RETRY_REGION)
+                .setHostFormat("${bucket}.cos.${region}.tencentcos.cn")
+                .setDomainSwitch(domainSwitch)
+                .setSocketTimeout(5000)
+                .builder();
         return newService(cosXmlServiceConfig);
     }
 
@@ -483,7 +517,6 @@ public class ServiceFactory {
         Log.d(TestConst.UT_TAG, String.valueOf(transferConfig.getDivisionForCopy()));
         return new TransferManager(newDualCheckService(), transferConfig);
     }
-
 
     private CosXmlSimpleService newServiceBySessionCredentials(CosXmlServiceConfig cosXmlServiceConfig) {
 //        return new CosXmlSimpleService(getContext(), cosXmlServiceConfig,

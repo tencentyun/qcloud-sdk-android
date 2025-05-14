@@ -27,7 +27,9 @@ import static com.tencent.cos.xml.core.TestConst.PERSIST_BUCKET_BIG_OBJECT_SIZE;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlSimpleService;
+import com.tencent.cos.xml.core.MySessionCredentialProvider;
 import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestLocker;
@@ -39,6 +41,8 @@ import com.tencent.cos.xml.listener.CosXmlResultSimpleListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.PresignedUrlRequest;
+import com.tencent.cos.xml.model.bucket.GetBucketRequest;
+import com.tencent.cos.xml.model.bucket.GetBucketResult;
 import com.tencent.cos.xml.model.object.CopyObjectRequest;
 import com.tencent.cos.xml.model.object.DeleteObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
@@ -52,6 +56,7 @@ import com.tencent.cos.xml.transfer.COSXMLUploadTask;
 import com.tencent.cos.xml.transfer.TransferManager;
 import com.tencent.qcloud.core.auth.SessionQCloudCredentials;
 import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
+import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 
 import org.junit.Assert;
@@ -71,19 +76,19 @@ public class OneTimeCredentialTest {
     private ShortTimeCredentialProvider shortTimeCredentialProvider;
     @Before
     public void getSessionQCloudCredentials() {
-//        final TestLocker testLocker = new TestLocker();
-//        new Thread(() -> {
-//            try {
-//                sessionQCloudCredentials = MySessionCredentialProvider.getSessionQCloudCredentials();
-//            } catch (QCloudClientException e) {
-//                e.printStackTrace();
-//                Assert.fail(e.getMessage());
-//            }
-//            testLocker.release();
-//        }).start();
-//        testLocker.lock();
+        final TestLocker testLocker = new TestLocker();
+        new Thread(() -> {
+            try {
+                sessionQCloudCredentials = MySessionCredentialProvider.getSessionQCloudCredentials();
+            } catch (QCloudClientException e) {
+                e.printStackTrace();
+                Assert.fail(e.getMessage());
+            }
+            testLocker.release();
+        }).start();
+        testLocker.lock();
 
-        shortTimeCredentialProvider = new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000);
+//        shortTimeCredentialProvider = new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000);
     }
 
     @Test
@@ -410,6 +415,40 @@ public class OneTimeCredentialTest {
 
         final TestLocker testLocker = new TestLocker();
         cosXmlService.headObjectAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                Assert.assertTrue(true);
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+                Assert.fail();
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+    }
+
+    @Test
+    public void getBucket() {
+        CosXmlService cosXmlService = ServiceFactory.INSTANCE.newAnonymousService1();
+        GetBucketRequest request = new GetBucketRequest("0-jing-test-1253960454");
+        if(sessionQCloudCredentials != null){
+            request.setCredential(sessionQCloudCredentials);
+        } else {
+            request.setCredentialProvider(shortTimeCredentialProvider);
+        }
+        try {
+            GetBucketResult result = cosXmlService.getBucket(request);
+        } catch (CosXmlClientException e) {
+            Assert.fail(e.getMessage());
+        } catch (CosXmlServiceException e) {
+            Assert.fail(e.getMessage());
+        }
+
+        final TestLocker testLocker = new TestLocker();
+        cosXmlService.getBucketAsync(request, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 Assert.assertTrue(true);

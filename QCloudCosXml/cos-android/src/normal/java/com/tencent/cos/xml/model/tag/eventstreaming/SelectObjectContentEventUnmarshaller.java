@@ -44,7 +44,7 @@ public abstract class SelectObjectContentEventUnmarshaller {
         } else if ("event".equals(messageType)) {
             return unmarshalEventMessage(message);
         } else {
-            throw new CosXmlServiceException("Service returned unknown message type: " + messageType);
+            throw new CosXmlServiceException("Service returned unknown message type: " + messageType, (String) null);
         }
     }
 
@@ -91,10 +91,10 @@ public abstract class SelectObjectContentEventUnmarshaller {
     private static String getStringHeader(Message message, String headerName) throws CosXmlServiceException {
         HeaderValue header = message.getHeaders().get(headerName);
         if (header == null) {
-            throw new CosXmlServiceException("Unexpected lack of '" + headerName + "' header from service.");
+            throw new CosXmlServiceException("Unexpected lack of '" + headerName + "' header from service.", (String) null);
         }
         if (header.getType() != HeaderType.STRING) {
-            throw new CosXmlServiceException("Unexpected non-string '" + headerName + "' header: " + header.getType());
+            throw new CosXmlServiceException("Unexpected non-string '" + headerName + "' header: " + header.getType(), (String) null);
         }
         return header.getString();
     }

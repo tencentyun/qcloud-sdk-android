@@ -20,7 +20,7 @@
  *  SOFTWARE.
  */
 
-package com.tencent.cos.xml.server_sign;
+package com.tencent.cos.xml.server_sign.old;
 
 import com.tencent.qcloud.core.auth.AuthConstants;
 import com.tencent.qcloud.core.auth.SessionQCloudCredentials;

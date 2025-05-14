@@ -109,6 +109,24 @@ public class SpecialCharactersTest {
             clientException.printStackTrace();
         }
     }
+    @Test public void testPresignedDownload1() {
+        PresignedUrlRequest presignedUrlRequest = new PresignedUrlRequest(bucket, "test.avif");
+        presignedUrlRequest.setRequestMethod("GET");
+        presignedUrlRequest.setSignKeyTime(3600);
+        presignedUrlRequest.addNoSignHeader("Host");
+        try {
+            String signUrl = getCosXmlService().getPresignedURL(presignedUrlRequest);
+            Log.i("QCloudTest", signUrl);
+            new Thread(() -> {
+                String localPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/wechat.png";
+                downloadFile(signUrl, localPath);
+            }).start();
+            TestUtils.sleep(5000);
+        } catch (CosXmlClientException clientException) {
+            QCloudLogger.i("QCloudTest", clientException.getMessage());
+            clientException.printStackTrace();
+        }
+    }
     public void downloadFile(String fileUrl, String localPath) {
         int retryCount = 0;
         boolean success = false;

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2010-2020 Tencent Cloud. All rights reserved.
  *
@@ -21,7 +20,41 @@
  *  SOFTWARE.
  */
 
-ext {
-    cosSdkVersionCode = 50946
-    cosSdkVersionName = '5.9.43'
+package com.tencent.cos.xml.common_interface;
+
+import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
+
+@XmlBean(name = "Response", method = XmlBean.GenerateMethod.FROM)
+public class PostVirusDetectResponse {
+    
+    /**
+     *病毒检测任务任务的详细信息。
+     */
+    public PostVirusDetectResponseJobsDetail jobsDetail;
+
+    @XmlBean(name = "JobsDetail", method = XmlBean.GenerateMethod.FROM)
+    public static class PostVirusDetectResponseJobsDetail {
+        /**
+         *本次病毒检测任务的 ID。
+         */
+        public String jobId;
+
+        /**
+         *病毒检测任务的状态，值为 Submitted（已提交检测）、Success（检测成功）、Failed（检测失败）、Auditing（检测中）其中一个。
+         */
+        public String state;
+
+        /**
+         *病毒检测任务的创建时间。
+         */
+        public String creationTime;
+
+        /**
+         *本次检测的文件名称。
+         */
+        public String object;
+
+    }
+
+
 }

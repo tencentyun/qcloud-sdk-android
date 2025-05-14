@@ -26,6 +26,7 @@ import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
+import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.BasePutObjectRequest;
 import com.tencent.cos.xml.model.object.BasePutObjectResult;
 import com.tencent.cos.xml.model.object.GetObjectBytesRequest;
@@ -57,6 +58,16 @@ import com.tencent.cos.xml.model.object.UploadPartResult;
  */
 
 public interface BaseCosXml {
+    /**
+     * 通用接口同步方法
+     */
+    <T1 extends CosXmlRequest, T2 extends CosXmlResult> T2 commonInterface(T1 request, Class<T2> resultClass) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * 通用接口异步方法
+     */
+    <T1 extends CosXmlRequest, T2 extends CosXmlResult> void commonInterfaceAsync(T1 request, Class<T2> resultClass, final CosXmlResultListener cosXmlResultListener);
+
     /**
      * <p>
      * 下载 COS 对象的同步方法.&nbsp;

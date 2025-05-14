@@ -44,6 +44,10 @@ import java.util.Map;
 
 public abstract class CosXmlResult {
     /**
+     * 最终响应结果的host
+     */
+    public String host;
+    /**
      * http状态码
      */
     public int httpCode;
@@ -70,6 +74,7 @@ public abstract class CosXmlResult {
         httpCode = response.code();
         httpMessage = response.message();
         headers = response.headers();
+        host = response.host();
 
         try {
             xmlParser(response);

@@ -6,13 +6,23 @@ import com.tencent.qcloud.core.auth.QCloudSelfSigner;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.QCloudHttpRequest;
-import com.tencent.qcloud.core.util.QCloudHttpUtils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+
+import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * 实现自签名器
@@ -20,8 +30,8 @@ import java.util.Map;
  * Created by jordanqin on 2023/8/11 17:20.
  * Copyright 2010-2023 Tencent Cloud. All Rights Reserved.
  */
-public class MyQCloudSelfSigner implements QCloudSelfSigner {
-    private static final String TAG = "MyQCloudSelfSigner";
+public class MySelfSigner implements QCloudSelfSigner {
+    private static final String TAG = "MySelfSigner";
     /**
      * 只针对cos请求 暂时不处理ci请求
      */
@@ -36,16 +46,10 @@ public class MyQCloudSelfSigner implements QCloudSelfSigner {
 
     @Override
     public void sign(QCloudHttpRequest request) throws QCloudClientException {
-        // 1. 获取request的签名source
-        MyCOSXmlSignSourceProvider sourceProvider = new MyCOSXmlSignSourceProvider();
-        sourceProvider.setSignTime(MyCOSXmlSigner.credentials.getKeyTime());
-        String source = source(sourceProvider, request);
-
-        // 2. 获取签名结果
-        int sourceId = source.hashCode();
+        int sourceId = request.url().toString().hashCode();
         SignResult signResult = lookupValidSignResult(sourceId);
         if (signResult == null) {
-            signResult = fetchNewSignResult(sourceProvider, source, request);
+            signResult = getSignResult(request.method(), request.host(), request.url().getPath(), request.headers(), request.queries());
             Log.d(TAG, signResult.authorization);
             cacheSignResultAndCleanUp(sourceId, signResult);
         }
@@ -59,45 +63,9 @@ public class MyQCloudSelfSigner implements QCloudSelfSigner {
         }
     }
 
-    /**
-     * 远程获取签名结果
-     */
-    private SignResult fetchNewSignResult(MyCOSXmlSignSourceProvider sourceProvider, String source, QCloudHttpRequest request) throws QCloudClientException {
-        Log.d(TAG, "fetchNewSignResult");
-
-        // 获取请求内容传给服务端，用于做业务处理
-        String httpMethod = request.method().toLowerCase(Locale.ROOT);
-        String path = QCloudHttpUtils.urlDecodeString(request.url().getPath());
-        Map<String, List<String>> headers = request.headers();
-        Map<String, List<String>> queryNameValues = QCloudHttpUtils.getQueryPair(request.url());
-
-        return MyCOSXmlSigner.sign(source, sourceProvider.getRealHeaderList(), sourceProvider.getRealParameterList(),
-                httpMethod, path, headers, queryNameValues);
-    }
-
-    /**
-     * 根据reqeust获取签名source
-     */
-    private String source(MyCOSXmlSignSourceProvider sourceProvider, QCloudHttpRequest request){
-        // 在这里去掉request不需要签名的内容，例如分块上传的partNumber content-md5
-        String partNumberKey =  "partNumber";
-        String contentMD5Key =  "Content-MD5";
-        if(request.queries().containsKey(partNumberKey)){
-            sourceProvider.addNoSignHeader(contentMD5Key);
-            sourceProvider.addNoSignParam(partNumberKey);
-        }
-        try {
-            String source = sourceProvider.source(request);
-            Log.d(TAG, source);
-            return source;
-        } catch (QCloudClientException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private synchronized SignResult lookupValidSignResult(int sourceId) {
         SignResult signResult = signResultPairs.get(sourceId);
-//        if (signResult != null) {
         if (signResult != null && signResult.isValid()) {
             return signResult;
         }
@@ -137,6 +105,64 @@ public class MyQCloudSelfSigner implements QCloudSelfSigner {
         public boolean isValid(){
             int EXPIRE_TIME_RESERVE_IN_SECONDS = 60;
             return System.currentTimeMillis() / 1000 <= expiredTime - EXPIRE_TIME_RESERVE_IN_SECONDS;
+        }
+    }
+
+    public static SignResult getSignResult(String httpMethod, String host, String coskey, Map<String, List<String>> headers, Map<String, String> queries) throws QCloudClientException {
+        coskey = coskey.startsWith("/") ? coskey.substring(1) : coskey;
+        try {
+            host = URLEncoder.encode(host, "UTF-8");
+            coskey = URLEncoder.encode(coskey, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        Log.d(TAG, httpMethod);
+        Log.d(TAG, host);
+        Log.d(TAG, coskey);
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("http://9.135.33.98:3000/server-sign")
+                .build();
+
+        Response response = null;
+        try {
+            response = client.newCall(request).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (response == null || !response.isSuccessful())
+            throw new QCloudClientException(new IOException("Unexpected code " + response));
+
+        Headers responseHeaders = response.headers();
+        for (int i = 0; i < responseHeaders.size(); i++) {
+            System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
+        }
+
+        try {
+            String jsonStr = "";
+            try {
+                jsonStr = response.body().string();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Log.d("getSignResult", jsonStr);
+            JSONTokener jsonParser = new JSONTokener(jsonStr);
+            JSONObject json = (JSONObject) jsonParser.nextValue();
+            if(json.getInt("code") == 0){
+                JSONObject data = json.getJSONObject("data");
+                String authorization = data.getString("authorization");
+                long expiredTime = data.getLong("expiredTime");
+                String securityToken = null;
+                if(data.has("securityToken")){
+                    securityToken = data.getString("securityToken");
+                }
+                return new SignResult(authorization, securityToken, expiredTime);
+            } else {
+                throw new QCloudClientException("get authorization failed");
+            }
+        } catch (JSONException ex) {
+            throw new QCloudClientException(ex);
         }
     }
 }

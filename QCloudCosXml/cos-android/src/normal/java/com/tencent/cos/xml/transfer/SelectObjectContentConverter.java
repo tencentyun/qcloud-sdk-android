@@ -167,7 +167,7 @@ public class SelectObjectContentConverter<T> extends ResponseBodyConverter<T> {
         int httpCode = response.code();
         if(httpCode >= 200 && httpCode < 300)return;
         String message = response.message();
-        CosXmlServiceException cosXmlServiceException = new CosXmlServiceException(message);
+        CosXmlServiceException cosXmlServiceException = new CosXmlServiceException(message, response.host());
         cosXmlServiceException.setStatusCode(httpCode);
         cosXmlServiceException.setRequestId(response.header("x-cos-request-id"));
         InputStream inputStream = response.byteStream();

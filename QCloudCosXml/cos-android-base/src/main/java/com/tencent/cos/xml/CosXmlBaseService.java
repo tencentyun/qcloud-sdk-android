@@ -49,7 +49,6 @@ import com.tencent.cos.xml.transfer.ResponseBytesConverter;
 import com.tencent.cos.xml.transfer.ResponseFileBodySerializer;
 import com.tencent.cos.xml.transfer.ResponseXmlS3BodySerializer;
 import com.tencent.cos.xml.utils.StringUtils;
-import com.tencent.cos.xml.utils.URLEncodeUtils;
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
 import com.tencent.qcloud.core.auth.QCloudCredentials;
 import com.tencent.qcloud.core.auth.QCloudSelfSigner;
@@ -87,6 +86,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+
+import okhttp3.HttpUrl;
 
 
 /**
@@ -656,6 +657,8 @@ public class CosXmlBaseService implements BaseCosXml {
             int index = requestURL.indexOf("?");
             return index > 0 ? requestURL.substring(0, index) : requestURL;
         }
+        HttpUrl.Builder httpUrlBuilder = new HttpUrl.Builder();
+        httpUrlBuilder.scheme(config.getProtocol());
         String host = null;
         try {
             // host = cosXmlRequest.getHost(config, false);
@@ -664,14 +667,16 @@ public class CosXmlBaseService implements BaseCosXml {
             CosTrackService.getInstance().reportError(TAG, e);
             e.printStackTrace();
         }
-        String path = "/";
-        try {
-            path = URLEncodeUtils.cosPathEncode(cosXmlRequest.getPath(config));
-        } catch (CosXmlClientException e) {
-            CosTrackService.getInstance().reportError(TAG, e);
-            e.printStackTrace();
+        httpUrlBuilder.host(host);
+
+        String path = cosXmlRequest.getPath(config);
+        if (path.startsWith("/")) {
+            path = path.substring(1);
         }
-        return config.getProtocol() + "://" + host + path;
+        if (path.length() > 0) {
+            httpUrlBuilder.addPathSegments(path);
+        }
+        return httpUrlBuilder.build().toString();
     }
 
     /**
@@ -823,6 +828,40 @@ public class CosXmlBaseService implements BaseCosXml {
         BasePutObjectRequest putObjectRequest = new BasePutObjectRequest(bucket, key, "");
         putObjectRequest.setRegion(region);
         return getAccessUrl(putObjectRequest);
+    }
+
+    /**
+     * 通用接口同步方法
+     */
+    @Override
+    public <T1 extends CosXmlRequest, T2 extends CosXmlResult> T2 commonInterface(T1 request, Class<T2> resultClass) throws CosXmlClientException, CosXmlServiceException {
+        try {
+            return execute(request, resultClass.newInstance());
+        } catch (IllegalAccessException e) {
+            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(),
+                    "Failed to create result instance", e);
+        } catch (InstantiationException e) {
+            throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(),
+                    "Failed to create result instance", e);
+        }
+    }
+
+    /**
+     * 通用接口异步方法
+     */
+    @Override
+    public <T1 extends CosXmlRequest, T2 extends CosXmlResult> void commonInterfaceAsync(T1 request, Class<T2> resultClass, CosXmlResultListener cosXmlResultListener) {
+        try {
+            schedule(request, resultClass.newInstance(), cosXmlResultListener);
+        } catch (IllegalAccessException e) {
+            cosXmlResultListener.onFail(request,
+                    new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(),
+                            "Failed to create result instance", e), null);
+        } catch (InstantiationException e) {
+            cosXmlResultListener.onFail(request,
+                    new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(),
+                            "Failed to create result instance", e), null);
+        }
     }
 
     /**
