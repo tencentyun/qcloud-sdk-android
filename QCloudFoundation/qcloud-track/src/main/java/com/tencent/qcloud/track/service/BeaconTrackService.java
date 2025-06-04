@@ -104,7 +104,6 @@ public class BeaconTrackService extends ATrackService {
     public static boolean isInclude() {
         try {
             Class.forName("com.tencent.beacon.event.open.BeaconReport");
-            Class.forName("com.tencent.qimei.sdk.QimeiSDK");
             return true;
         } catch (ClassNotFoundException e){
             return false;
