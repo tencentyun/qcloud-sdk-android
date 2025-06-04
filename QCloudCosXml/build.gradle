@@ -33,7 +33,6 @@ buildscript {
 //        mavenLocal()
         mavenCentral()
         maven { url "https://mirrors.tencent.com/repository/maven/tencent_public" }
-        maven {	url "https://mirrors.tencent.com/repository/maven/qmsp-oaid2" }
         google()
         jcenter()
     }
@@ -53,7 +52,6 @@ allprojects {
 //        mavenLocal()
         mavenCentral()
         maven { url "https://mirrors.tencent.com/repository/maven/tencent_public" }
-        maven {	url "https://mirrors.tencent.com/repository/maven/qmsp-oaid2" }
         google()
         jcenter()
 
