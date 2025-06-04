@@ -7,8 +7,8 @@ android {
         minSdkVersion 19
         targetSdkVersion 33
 
-        versionCode 10002
-        versionName "1.0.2"
+        versionCode 10003
+        versionName "1.0.3"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         consumerProguardFiles "consumer-rules.pro"
@@ -50,10 +50,7 @@ dependencies {
     compileOnly 'com.google.guava:guava:27.0.1-android'
 
     compileOnly files(
-            'libs/beacon-android-release-4.2.86.7-hf1-official.aar',
-            'libs/qimei-1.2.18.3.aar',
-            'libs/qimei-core-1.2.18.3-normal.aar',
-            'libs/qmsp-oaid2-1.0.4.aar'
+            'libs/beacon-android-release-4.2.86.7-hf1-external-official.aar',
     )
 }
 

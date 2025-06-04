@@ -23,9 +23,11 @@
 package com.tencent.qcloud.track;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.tencent.beacon.event.open.BeaconConfig;
@@ -34,13 +36,12 @@ import com.tencent.qcloud.track.service.ATrackService;
 import com.tencent.qcloud.track.service.BeaconTrackService;
 import com.tencent.qcloud.track.service.ClsTrackService;
 import com.tencent.qcloud.track.utils.NetworkUtils;
-import com.tencent.qimei.sdk.IQimeiSDK;
-import com.tencent.qimei.sdk.QimeiSDK;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 数据追踪服务
@@ -92,9 +93,9 @@ public class QCloudTrackService {
             if (!isInitialized) {
                 this.context = context.getApplicationContext();
                 commonParams = getCommonParams();
-                // 因为默认上报简单数据到灯塔，因此默认初始化灯塔和QIMEI
+                // 因为默认上报简单数据到灯塔，因此默认初始化灯塔
                 if (BeaconTrackService.isInclude()) {
-                    initBeaconAndQimei();
+                    initBeacon();
                     simpleDataTrackService = new BeaconTrackService();
                     // 设置context
                     simpleDataTrackService.setContext(context);
@@ -230,36 +231,28 @@ public class QCloudTrackService {
     }
 
     /**
-     * 初始化灯塔和qimei
+     * 初始化灯塔
      */
-    private void initBeaconAndQimei() {
+    private void initBeacon() {
         BeaconConfig.Builder builder = BeaconConfig.builder()
                 .auditEnable(false)
                 .bidEnable(false)
                 .qmspEnable(false)
                 .pagePathEnable(false)
-//                            .setNeedInitQimei(false)
                 .setNormalPollingTime(30000);
         BeaconConfig config = builder.build();
-
         BeaconReport beaconReport = BeaconReport.getInstance();
         try {
             beaconReport.setCollectProcessInfo(false); //该项设为false即关闭采集processInfo功能
         } catch (NoSuchMethodError error) {
         }
+
         // 多次初始化，或者初始化时传入的appkey和manifest.xml文件内不同，debug模式
         // 下会主动抛出异常
         try {
-            IQimeiSDK qimeiSDK = QimeiSDK.getInstance(Constants.SIMPLE_DATA_BEACON_APP_KEY);
-            qimeiSDK.getStrategy()
-                    .enableOAID(false)           // 关闭oaid采集，这里设置false
-                    .enableIMEI(false)           // 关闭imei采集，这里设置false，建议如用户授权，尽可能采集，便于复核问题
-                    .enableIMSI(false)           // 关闭imsi采集，这里设置false
-                    .enableAndroidId(false)          // 关闭android id采集，这里设置false，建议如用户授权，尽可能采集，便于复核问题
-                    .enableMAC(false)            // 关闭mac采集，这里设置false
-                    .enableCid(false)           // 关闭cid采集，这里设置false
-                    .enableProcessInfo(false)        // 关闭应用列表枚举，这里设置false，1.0.5以上版本有效
-                    .enableBuildModel(false);     // 关闭BUILD.MODEL采集，这里设置false，1.2.3以上版本有效
+            String deviceId = getSafeDeviceId();
+//            Log.d(TAG, "ostar_deviceId: " + deviceId);
+            beaconReport.setOstar(deviceId, deviceId); //必须，但可以在初始化之后设置，灯塔会缓存ostar为空的事件set之后重报
 
             beaconReport.start(context, Constants.SIMPLE_DATA_BEACON_APP_KEY, config);
         } catch (Exception e) {
@@ -303,5 +296,34 @@ public class QCloudTrackService {
         params.put("network_type", NetworkUtils.getNetworkType(context));
 
         return params;
+    }
+
+    /**
+     * 获取安全设备标识（自动生成并缓存）
+     */
+    public String getSafeDeviceId() {
+        SharedPreferences prefs = context.getSharedPreferences("cossdk_device_info", Context.MODE_PRIVATE);
+        String storedId = prefs.getString("device_id", null);
+        if (storedId != null) {
+            return storedId;
+        }
+        String newId = createNewId();
+        prefs.edit().putString("device_id", newId).apply();
+        return newId;
+    }
+
+    /**
+     * 生成新标识的私有方法
+     */
+    private String createNewId() {
+        String androidId = Settings.Secure.getString(
+                context.getContentResolver(),
+                Settings.Secure.ANDROID_ID
+        );
+        if (androidId != null && !androidId.isEmpty()) {
+            return androidId;
+        } else {
+            return UUID.randomUUID().toString();
+        }
     }
 }
