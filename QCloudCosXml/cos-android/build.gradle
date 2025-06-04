@@ -177,10 +177,7 @@ dependencies {
     api project(':qcloud-track')
     if(includeBeacon){
         api project(':network-sonar')
-        embed(name: 'beacon-android-release-4.2.86.7-hf1-official', ext: 'aar')
-        embed(name: 'qimei-1.2.18.3', ext: 'aar')
-        embed(name: 'qimei-core-1.2.18.3-normal', ext: 'aar')
-        embed(name: 'qmsp-oaid2-1.0.4', ext: 'aar')
+        embed(name: 'beacon-android-release-4.2.86.7-hf1-external-official', ext: 'aar')
     }
 
     // 非lite版本引入gson库，万象部分功能需要
