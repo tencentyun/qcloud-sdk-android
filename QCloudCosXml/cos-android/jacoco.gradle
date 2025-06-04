@@ -39,8 +39,6 @@ task jacocoCreateNormalDebugCoverageReport(type: JacocoReport, dependsOn: 'conne
     def classTree = fileTree(dir: "${buildDir}/intermediates/javac/normalDebug/compileNormalDebugJavaWithJavac/classes",
             excludes: [
                     //灯塔
-                    'com/tencent/qmsp/**',
-                    'com/tencent/qimei/**',
                     'com/tencent/beacon/**',
 //                  'com/tencent/cos/xml/BeaconService.class',
                     //废弃
