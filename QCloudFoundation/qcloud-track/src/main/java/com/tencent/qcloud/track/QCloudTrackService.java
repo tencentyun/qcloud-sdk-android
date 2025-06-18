@@ -247,13 +247,18 @@ public class QCloudTrackService {
         } catch (NoSuchMethodError error) {
         }
 
-        // 多次初始化，或者初始化时传入的appkey和manifest.xml文件内不同，debug模式
-        // 下会主动抛出异常
         try {
             String deviceId = getSafeDeviceId();
 //            Log.d(TAG, "ostar_deviceId: " + deviceId);
             beaconReport.setOstar(deviceId, deviceId); //必须，但可以在初始化之后设置，灯塔会缓存ostar为空的事件set之后重报
+        } catch (NoSuchMethodError error) {
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        // 多次初始化，或者初始化时传入的appkey和manifest.xml文件内不同，debug模式
+        // 下会主动抛出异常
+        try {
             beaconReport.start(context, Constants.SIMPLE_DATA_BEACON_APP_KEY, config);
         } catch (Exception e) {
             e.printStackTrace();

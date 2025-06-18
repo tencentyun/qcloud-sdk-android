@@ -7,8 +7,8 @@ android {
         minSdkVersion 19
         targetSdkVersion 33
 
-        versionCode 10003
-        versionName "1.0.3"
+        versionCode 10004
+        versionName "1.0.4"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         consumerProguardFiles "consumer-rules.pro"
@@ -50,7 +50,7 @@ dependencies {
     compileOnly 'com.google.guava:guava:27.0.1-android'
 
     compileOnly files(
-            'libs/beacon-android-release-4.2.86.7-hf1-external-official.aar',
+            'libs/beacon-android-release-4.2.86.12-external-official.aar',
     )
 }
 
