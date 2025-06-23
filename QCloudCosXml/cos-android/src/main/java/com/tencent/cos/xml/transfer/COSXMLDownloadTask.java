@@ -388,6 +388,11 @@ public final class COSXMLDownloadTask extends COSXMLTask{
     }
 
     private boolean validateCrc64() {
+        // 如果没有serverCrc64，则认为校验通过
+        if(TextUtils.isEmpty(serverCrc64)){
+            return true;
+        }
+
         try {
             String mergedCrc = mergeCrcValues();
             COSLogger.dProcess(TAG, "mergedCrc= " + mergedCrc);
