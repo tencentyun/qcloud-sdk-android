@@ -43,6 +43,7 @@ import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.task.RetryStrategy;
 import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
@@ -255,6 +256,12 @@ public class QuicProxy<T> extends NetworkProxy<T> {
         ResponseBodyConverter<T> converter = httpRequest.getResponseBodyConverter();
         T content = converter.convert(httpResponse);
         return new HttpResult<>(httpResponse, content);
+    }
+
+    @Override
+    public Response callHttpRequest(Request okHttpRequest) throws IOException {
+        // 如果重写了executeHttpRequest，则不需要再调用callHttpRequest
+        return null;
     }
 
     private void increaseHostReliable(String host) {
