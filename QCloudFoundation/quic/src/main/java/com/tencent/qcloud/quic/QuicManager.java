@@ -26,15 +26,6 @@ package com.tencent.qcloud.quic;
  * 开启一个线程池跑request
  */
 public class QuicManager {
-    public QuicManager() {
-        this(false);
-    }
-
-    public QuicManager(boolean isEnableDebugLog) {
-        super();
-        QLog.isDebug = isEnableDebugLog;
-    }
-
     public QuicImpl newQuicImpl(QuicRequest quicRequest){
         QuicImpl quic = new QuicImpl(quicRequest);
         return quic;

@@ -78,8 +78,9 @@ public class QuicResponse {
 
     /**
      * 构造 Okhttp3 Response {@link Response}
-     * @param request
-     * @return
+     * @param request request
+     * @return return
+     * @throws QuicException QuicException
      */
     public Response covertResponse(Request request) throws QuicException {
         if(code == 0 && message == null){

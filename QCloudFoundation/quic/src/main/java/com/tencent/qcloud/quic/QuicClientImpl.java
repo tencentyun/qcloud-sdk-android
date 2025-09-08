@@ -40,9 +40,8 @@ public class QuicClientImpl extends NetworkClient {
     public void init(QCloudHttpClient.Builder b, HostnameVerifier hostnameVerifier,
                      Dns dns, HttpLogger httpLogger) {
         super.init(b, hostnameVerifier, dns, httpLogger);
-        quicManager = new QuicManager(enableDebugLog);
+        quicManager = new QuicManager();
         httpLogger.setTag(QCloudHttpClient.QUIC_LOG_TAG);
-        httpLogger.setDebug(enableDebugLog);
     }
 
     @Override
