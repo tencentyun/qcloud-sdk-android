@@ -11,14 +11,14 @@ public class TestConst {
 
     public static final String UT_TAG = "QCloudTest";
 
-    public static final String COS_APPID = BuildConfig.COS_APPID;
-    public static final String OWNER_UIN = BuildConfig.OWNER_UIN;
+    public static final String COS_APPID = TestConfig.COS_APPID;
+    public static final String OWNER_UIN = TestConfig.OWNER_UIN;
 
-    public static final String SECRET_ID = BuildConfig.COS_SECRET_ID;
-    public static final String SECRET_KEY = BuildConfig.COS_SECRET_KEY;
-    public static final String PERSIST_BUCKET_REGION = BuildConfig.PERSIST_BUCKET_REGION;
-    public static final String PERSIST_BUCKET = BuildConfig.PERSIST_BUCKET;
-    public static final String PERSIST_BUCKET_CDN_SIGN = BuildConfig.PERSIST_BUCKET_CDN_SIGN;
+    public static final String SECRET_ID = TestConfig.COS_SECRET_ID;
+    public static final String SECRET_KEY = TestConfig.COS_SECRET_KEY;
+    public static final String PERSIST_BUCKET_REGION = "ap-guangzhou";
+    public static final String PERSIST_BUCKET = "mobile-ut-1253960454";
+    public static final String PERSIST_BUCKET_CDN_SIGN = TestConfig.PERSIST_BUCKET_CDN_SIGN;
     public static final String PERSIST_BUCKET_ROOT_FILE_PATH = "do_not_remove";
     public static final String PERSIST_BUCKET_PIC_PATH = "do_not_remove/image.png";
     public static final String PERSIST_BUCKET_PIC_6M_PATH = "do_not_remove/6m.jpg";
@@ -33,8 +33,8 @@ public class TestConst {
     public static final String PERSIST_BUCKET_APPEND_OBJECT_PATH = "do_not_remove/append_object";
     public static final String PERSIST_BUCKET_COPY_OBJECT_DST_PATH = "do_not_remove/copy_dst_object";
     public static final String PERSIST_BUCKET_DEEP_ARCHIVE_OBJECT_PATH = "do_not_remove/small_object_archive";
-    public static final String PERSIST_BUCKET_REPLICATION = BuildConfig.PERSIST_BUCKET_REPLICATION;
-    public static final String PERSIST_BUCKET_REPLICATION_REGION = BuildConfig.PERSIST_BUCKET_REPLICATION_REGION;
+    public static final String PERSIST_BUCKET_REPLICATION = TestConfig.PERSIST_BUCKET_REPLICATION;
+    public static final String PERSIST_BUCKET_REPLICATION_REGION = TestConfig.PERSIST_BUCKET_REPLICATION_REGION;
 
     public static final String CI_BUCKET_REGION = "ap-beijing";
     public static final String CI_BUCKET_APPID = "1253960454";
@@ -89,16 +89,16 @@ public class TestConst {
     public static final String PERSIST_BUCKET_CSE_SMALL_OBJECT_PATH = "do_not_remove/cse_small_object";
     public static final String PERSIST_BUCKET_CSE_BIG_OBJECT_PATH = "do_not_remove/cse_big_object";
 
-    public static final String TEMP_BUCKET_REGION = BuildConfig.TEMP_BUCKET_REGION;
-    public static final String TEMP_BUCKET = BuildConfig.TEMP_BUCKET;
+    public static final String TEMP_BUCKET_REGION = TestConfig.TEMP_BUCKET_REGION;
+    public static final String TEMP_BUCKET = TestConfig.TEMP_BUCKET;
     public static final String TEMP_BUCKET_MAZ = "mobile-ut-temp-maz-1253960454";
 
-    public static final Boolean WEAK_NETWORK_TEST = BuildConfig.WEAK_NETWORK_TEST;
+    public static final Boolean WEAK_NETWORK_TEST = TestConfig.WEAK_NETWORK_TEST;
 
-    public static final Boolean QUIC_TEST = BuildConfig.QUIC_TEST;
-    public static final String QUIC_BUCKET_REGION = BuildConfig.QUIC_BUCKET_REGION;
-    public static final String QUIC_BUCKET = BuildConfig.QUIC_BUCKET;
-    public static final String QUIC_TEST_IP = BuildConfig.QUIC_TEST_IP;
+    public static final Boolean QUIC_TEST = TestConfig.QUIC_TEST;
+    public static final String QUIC_BUCKET_REGION = TestConfig.QUIC_BUCKET_REGION;
+    public static final String QUIC_BUCKET = TestConfig.QUIC_BUCKET;
+    public static final String QUIC_TEST_IP = TestConfig.QUIC_TEST_IP;
 
     public static final String PERSIST_BUCKET_CDN_SMALL_OBJECT_PATH = "do_not_remove/cdn/small_object";
     public static final String PERSIST_BUCKET_CDN_BIG_OBJECT_PATH = "do_not_remove/cdn/big_object";
@@ -109,16 +109,16 @@ public class TestConst {
     public static final String PERSIST_BUCKET_CDN_BIG_OBJECT_URL = "https://mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com/do_not_remove/cdn/big_object";
     public static final String PERSIST_BUCKET_QR_URL = "https://mobile-ut-1253960454.cos.ap-guangzhou.myqcloud.com/do_not_remove/cdn/qr.png";
 
-    public static final String CALLBACK_SECRET_ID = BuildConfig.CALLBACK_SECRET_ID;
-    public static final String CALLBACK_SECRET_KEY = BuildConfig.CALLBACK_SECRET_KEY;
+    public static final String CALLBACK_SECRET_ID = TestConfig.CALLBACK_SECRET_ID;
+    public static final String CALLBACK_SECRET_KEY = TestConfig.CALLBACK_SECRET_KEY;
     public static final String CALLBACK_PERSIST_BUCKET_REGION = "ap-shanghai";
     public static final String CALLBACK_PERSIST_BUCKET = "test-callback-1252246555";
 
     public static final String DUALCHECK_PERSIST_BUCKET_REGION = "ap-nanjing";
     public static final String DUALCHECK_PERSIST_BUCKET = "dual-check-nj-1253960454";
 
-    public static final String ME_SECRET_ID = BuildConfig.ME_SECRET_ID;
-    public static final String ME_SECRET_KEY = BuildConfig.ME_SECRET_KEY;
+    public static final String ME_SECRET_ID = TestConfig.ME_SECRET_ID;
+    public static final String ME_SECRET_KEY = TestConfig.ME_SECRET_KEY;
 //    public static final String[] NET_BUCKET_REGION_ARR = new String[]{
 //            "ap-beijing", "ap-guangzhou", "ap-shanghai", "ap-nanjing", "ap-chengdu", "ap-chongqing",
 //            "ap-hongkong", "ap-singapore", "ap-jakarta", "ap-seoul", "ap-tokyo", "ap-bangkok",
