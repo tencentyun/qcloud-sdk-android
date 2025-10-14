@@ -27,7 +27,7 @@ public class MyApplication extends Application {
 //        CosTrackService.initCLs(this,
 //                "9ab664b4-f657-4ef9-8b8c-305b819e477d",
 //                "ap-guangzhou.cls.tencentcs.com",
-//                TestConfig.CLS_SECRET_ID,
-//                TestConfig.CLS_SECRET_KEY);
+//                BuildConfig.CLS_SECRET_ID,
+//                BuildConfig.CLS_SECRET_KEY);
     }
 }

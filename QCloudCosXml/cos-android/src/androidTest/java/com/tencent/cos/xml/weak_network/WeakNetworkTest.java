@@ -24,12 +24,14 @@ package com.tencent.cos.xml.weak_network;
 
 import android.content.Context;
 import android.os.Environment;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.tencent.cos.xml.BuildConfig;
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.CosXmlSimpleService;
-import com.tencent.cos.xml.core.TestConfig;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -43,6 +45,8 @@ import com.tencent.cos.xml.transfer.TransferManager;
 import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
 
 import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -72,10 +76,10 @@ public class WeakNetworkTest {
                 .isHttps(true)
                 .setConnectionTimeout(3000)
                 .setSocketTimeout(3000)
-                .setAppidAndRegion(TestConst.COS_APPID, TestConfig.PERSIST_BUCKET_REGION)
+                .setAppidAndRegion(TestConst.COS_APPID, BuildConfig.PERSIST_BUCKET_REGION)
                 .builder();
         cosXmlSimpleService = new CosXmlSimpleService(context, cosXmlServiceConfig,
-                new ShortTimeCredentialProvider(TestConfig.COS_SECRET_ID, TestConfig.COS_SECRET_KEY, 600));
+                new ShortTimeCredentialProvider(BuildConfig.COS_SECRET_ID, BuildConfig.COS_SECRET_KEY, 600));
 
     }
 
