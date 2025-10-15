@@ -149,7 +149,7 @@ public class LogTest {
             protected ClsSessionCredentials fetchNewCredentials() throws ClsAuthenticationException {
                 OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder()
-                        .url("http://9.135.33.98:3000/sts/cls")
+                        .url("http://49.232.13.225:3000/sts/cls")
                         .build();
 
                 Response response = null;

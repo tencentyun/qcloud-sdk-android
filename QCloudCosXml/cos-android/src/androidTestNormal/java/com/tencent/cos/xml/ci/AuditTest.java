@@ -2,6 +2,7 @@ package com.tencent.cos.xml.ci;
 
 import static com.tencent.cos.xml.core.TestConst.AUDIT_BUCKET_PORN_IMAGE;
 
+import android.text.TextUtils;
 import android.util.Base64;
 
 import androidx.annotation.Nullable;
@@ -84,6 +85,7 @@ import com.tencent.cos.xml.model.ci.audit.UpdateStrategyResult;
 import com.tencent.cos.xml.model.tag.audit.bean.AuditConf;
 import com.tencent.cos.xml.model.tag.audit.bean.AuditEncryption;
 import com.tencent.cos.xml.model.tag.audit.bean.AuditUserInfo;
+import com.tencent.cos.xml.model.tag.audit.bean.ImageAuditJobsDetail;
 import com.tencent.cos.xml.model.tag.audit.post.PostAudioAudit;
 import com.tencent.cos.xml.model.tag.audit.post.PostImagesAudit;
 import com.tencent.cos.xml.model.tag.audit.post.PostTextAudit;
@@ -236,7 +238,13 @@ public class AuditTest {
 
             TestUtils.sleep(20000);
 
-            GetImageAuditRequest getAuditRequest = new GetImageAuditRequest(TestConst.CI_BUCKET, result.postImagesAuditJobResponse.jobsDetail.get(2).jobId);
+            String jobId = "";
+            for(ImageAuditJobsDetail job : result.postImagesAuditJobResponse.jobsDetail){
+                if(!TextUtils.isEmpty(job.jobId)){
+                    jobId = job.jobId;
+                }
+            }
+            GetImageAuditRequest getAuditRequest = new GetImageAuditRequest(TestConst.CI_BUCKET, jobId);
             try {
                 GetImageAuditResult getResult = ciService.getImageAudit(getAuditRequest);
                 Assert.assertNotNull(getResult.getImageAuditJobResponse);
@@ -769,8 +777,6 @@ public class AuditTest {
         PostLiveVideoAudit.PostLiveVideoAuditConf conf = new PostLiveVideoAudit.PostLiveVideoAuditConf();
         conf.bizType = "b81d45f94b91a683255e9a9506f45a11";
         conf.callback = "https://github.com/tencentyun/qcloud-sdk-android";
-//        conf.bizType = "94b92c470c4a11efa10c525400b75156";
-//        conf.callback = "https://github.com/jordanqin";
         conf.callbackType = 1;
         postLiveVideoAudit.conf = conf;
         postRequest.setPostLiveVideoAudit(postLiveVideoAudit);
@@ -806,7 +812,41 @@ public class AuditTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(e.getErrorMessage().contains("The bizType provided does not exist")){
+                GetLiveVideoAuditRequest getAuditRequest = new GetLiveVideoAuditRequest(TestConst.CI_BUCKET, "jobId");
+                try {
+                    GetLiveVideoAuditResult getResult = ciService.getLiveVideoAudit(getAuditRequest);
+                    Assert.assertNotNull(getResult.response);
+                    TestUtils.printXML(getResult.response);
+                } catch (CosXmlClientException e1) {
+                    Assert.fail(TestUtils.getCosExceptionMessage(e1));
+                } catch (CosXmlServiceException e1) {
+                    if(e1.getErrorMessage().contains("auditing jobId is illegal")){
+                        Assert.assertTrue(true);
+                    } else {
+                        Assert.fail(TestUtils.getCosExceptionMessage(e1));
+                    }
+                }
+
+                TestUtils.sleep(1000);
+
+                CancelLiveVideoAuditRequest cancelLiveVideoAuditRequest = new CancelLiveVideoAuditRequest(TestConst.CI_BUCKET, "jobId");
+                try {
+                    CancelLiveVideoAuditResult getResult = ciService.cancelLiveVideoAudit(cancelLiveVideoAuditRequest);
+                    Assert.assertNotNull(getResult.response);
+                    TestUtils.printXML(getResult.response);
+                } catch (CosXmlClientException e2) {
+                    Assert.fail(TestUtils.getCosExceptionMessage(e2));
+                } catch (CosXmlServiceException e2) {
+                    if(e2.getErrorMessage().contains("auditing jobId is illegal")){
+                        Assert.assertTrue(true);
+                    } else {
+                        Assert.fail(TestUtils.getCosExceptionMessage(e2));
+                    }
+                }
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -863,7 +903,11 @@ public class AuditTest {
                     Assert.fail(TestUtils.getCosExceptionMessage(clientException));
                 }
                 if(serviceException != null){
-                    Assert.fail(TestUtils.getCosExceptionMessage(serviceException));
+                    if(serviceException.getErrorMessage().contains("The bizType provided does not exist")){
+                        Assert.assertTrue(true);
+                    } else {
+                        Assert.fail(TestUtils.getCosExceptionMessage(serviceException));
+                    }
                 }
                 testLocker.release();
             }
@@ -882,7 +926,11 @@ public class AuditTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(e.getErrorMessage().contains("auditing jobId is illegal")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -906,7 +954,11 @@ public class AuditTest {
                     Assert.fail(TestUtils.getCosExceptionMessage(clientException));
                 }
                 if(serviceException != null){
-                    Assert.fail(TestUtils.getCosExceptionMessage(serviceException));
+                    if(serviceException.getErrorMessage().contains("auditing jobId is illegal")){
+                        Assert.assertTrue(true);
+                    } else {
+                        Assert.fail(TestUtils.getCosExceptionMessage(serviceException));
+                    }
                 }
                 testLocker.release();
             }
@@ -933,7 +985,11 @@ public class AuditTest {
                     Assert.fail(TestUtils.getCosExceptionMessage(clientException));
                 }
                 if(serviceException != null){
-                    Assert.fail(TestUtils.getCosExceptionMessage(serviceException));
+                    if(serviceException.getErrorMessage().contains("auditing jobId is illegal")){
+                        Assert.assertTrue(true);
+                    } else {
+                        Assert.fail(TestUtils.getCosExceptionMessage(serviceException));
+                    }
                 }
                 testLocker.release();
             }

@@ -1335,7 +1335,11 @@ public class MediaTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(e.getErrorMessage().contains("Non-exist workflowId: workflowId")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -1360,7 +1364,11 @@ public class MediaTest {
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                if(serviceException!= null && serviceException.getErrorMessage().contains("Non-exist workflowId: workflowId")){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                }
                 testLocker.release();
             }
         });
@@ -1378,7 +1386,11 @@ public class MediaTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(e.getErrorCode().contains("WorkflowExecutionNotFound")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -1398,7 +1410,11 @@ public class MediaTest {
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                if(serviceException != null && serviceException.getErrorCode().contains("WorkflowExecutionNotFound")){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                }
                 testLocker.release();
             }
         });

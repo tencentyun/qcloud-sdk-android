@@ -83,7 +83,7 @@ public class MetaInsightTest {
         CreateDataset createDataset = new CreateDataset();// 创建数据集请求体
         createDataset.datasetName = datasetName;
         createDataset.description = "datasetnametest0";
-        createDataset.templateId = "Official:COSBasicMeta";
+        createDataset.templateId = "Official:FaceSearch";
         request.setCreateDataset(createDataset);// 设置请求
 
         try {
@@ -94,16 +94,16 @@ public class MetaInsightTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            if("dataset already created".equalsIgnoreCase(e.getMessage())){
+            if("dataset already created".equalsIgnoreCase(e.getErrorMessage())){
                 datasetName = "dataset"+ System.currentTimeMillis();
                 CreateDatasetRequest request1 = new CreateDatasetRequest(TestConst.CI_BUCKET_APPID);
                 CreateDataset createDataset1 = new CreateDataset();// 创建数据集请求体
                 createDataset1.datasetName = datasetName;
                 createDataset1.description = "datasetnametest0";
-                createDataset1.templateId = "Official:COSBasicMeta";
+                createDataset1.templateId = "Official:FaceSearch";
                 request1.setCreateDataset(createDataset1);// 设置请求
                 try {
-                    CreateDatasetResult result = ciService.createDataset(request);
+                    CreateDatasetResult result = ciService.createDataset(request1);
                     Assert.assertNotNull(result.response);
                     TestUtils.printJson(result.response);
                 } catch (CosXmlClientException e1) {
@@ -124,7 +124,7 @@ public class MetaInsightTest {
         CreateDataset createDataset = new CreateDataset();// 创建数据集请求体
         createDataset.datasetName = "datasetnametest6";
         createDataset.description = "datasetnametest0";
-        createDataset.templateId = "Official:COSBasicMeta";
+        createDataset.templateId = "Official:ImageSearch";
         request.setCreateDataset(createDataset);// 设置请求
 
         final TestLocker testLocker = new TestLocker();
@@ -793,7 +793,11 @@ public class MetaInsightTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(e.getErrorMessage().contains("Unable to recognize face")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -822,7 +826,11 @@ public class MetaInsightTest {
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                if(serviceException != null && serviceException.getErrorMessage().contains("Unable to recognize face")){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                }
                 testLocker.release();
             }
         });

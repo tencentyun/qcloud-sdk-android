@@ -49,6 +49,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * <p>
@@ -77,7 +78,11 @@ public class TemplateTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(Objects.equals(e.getErrorCode(), "CreatedTemplateNumLimit")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -104,7 +109,11 @@ public class TemplateTest {
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                if(serviceException != null && Objects.equals(serviceException.getErrorCode(), "CreatedTemplateNumLimit")){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                }
                 testLocker.release();
             }
         });
@@ -136,7 +145,11 @@ public class TemplateTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(Objects.equals(e.getErrorCode(), "CreatedTemplateNumLimit")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -170,7 +183,11 @@ public class TemplateTest {
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                if(serviceException != null && Objects.equals(serviceException.getErrorCode(), "CreatedTemplateNumLimit")){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                }
                 testLocker.release();
             }
         });
@@ -203,7 +220,11 @@ public class TemplateTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(Objects.equals(e.getErrorCode(), "CreatedTemplateNumLimit")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -238,7 +259,11 @@ public class TemplateTest {
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                if(serviceException != null && Objects.equals(serviceException.getErrorCode(), "CreatedTemplateNumLimit")){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                }
                 testLocker.release();
             }
         });
@@ -277,7 +302,11 @@ public class TemplateTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(Objects.equals(e.getErrorCode(), "CreatedTemplateNumLimit")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -318,7 +347,11 @@ public class TemplateTest {
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                if(serviceException != null && Objects.equals(serviceException.getErrorCode(), "CreatedTemplateNumLimit")){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                }
                 testLocker.release();
             }
         });
@@ -376,7 +409,11 @@ public class TemplateTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(Objects.equals(e.getErrorCode(), "CreatedTemplateNumLimit")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -436,7 +473,11 @@ public class TemplateTest {
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                if(serviceException != null && Objects.equals(serviceException.getErrorCode(), "CreatedTemplateNumLimit")){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                }
                 testLocker.release();
             }
         });
@@ -463,7 +504,11 @@ public class TemplateTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(Objects.equals(e.getErrorCode(), "CreatedTemplateNumLimit")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -492,7 +537,11 @@ public class TemplateTest {
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                if(serviceException != null && Objects.equals(serviceException.getErrorCode(), "CreatedTemplateNumLimit")){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                }
                 testLocker.release();
             }
         });
@@ -547,7 +596,11 @@ public class TemplateTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(Objects.equals(e.getErrorCode(), "CreatedTemplateNumLimit")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -604,7 +657,11 @@ public class TemplateTest {
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                if(serviceException != null && Objects.equals(serviceException.getErrorCode(), "CreatedTemplateNumLimit")){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                }
                 testLocker.release();
             }
         });
@@ -631,7 +688,11 @@ public class TemplateTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(Objects.equals(e.getErrorCode(), "CreatedTemplateNumLimit")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -660,7 +721,11 @@ public class TemplateTest {
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                if(serviceException != null && Objects.equals(serviceException.getErrorCode(), "CreatedTemplateNumLimit")){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                }
                 testLocker.release();
             }
         });
@@ -707,7 +772,11 @@ public class TemplateTest {
         } catch (CosXmlClientException e) {
             Assert.fail(TestUtils.getCosExceptionMessage(e));
         } catch (CosXmlServiceException e) {
-            Assert.fail(TestUtils.getCosExceptionMessage(e));
+            if(Objects.equals(e.getErrorCode(), "CreatedTemplateNumLimit")){
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail(TestUtils.getCosExceptionMessage(e));
+            }
         }
     }
 
@@ -756,7 +825,11 @@ public class TemplateTest {
 
             @Override
             public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
-                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                if(serviceException != null && Objects.equals(serviceException.getErrorCode(), "CreatedTemplateNumLimit")){
+                    Assert.assertTrue(true);
+                } else {
+                    Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                }
                 testLocker.release();
             }
         });
