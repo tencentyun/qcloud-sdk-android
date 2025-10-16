@@ -55,7 +55,6 @@ public class QuicClientTest {
         clientImpl = new QuicClientImpl();
         quicHttpClient = new QCloudHttpClient.Builder()
                 .setNetworkClient(clientImpl)
-                .enableDebugLog(true)
                 .build();
     }
 
