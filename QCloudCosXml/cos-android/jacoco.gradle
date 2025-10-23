@@ -36,7 +36,7 @@ task jacocoCreateNormalDebugCoverageReport(type: JacocoReport) {
         xml.enabled = true //开启xml报告
     }
 
-    def classTree = fileTree(dir: "${buildDir}/intermediates/javac/normalDebug/compileNormalDebugJavaWithJavac/classes",
+    def classTree = fileTree(dir: "${buildDir}/intermediates/javac/normalDebug/classes",
             excludes: [
                     //灯塔
                     'com/tencent/beacon/**',

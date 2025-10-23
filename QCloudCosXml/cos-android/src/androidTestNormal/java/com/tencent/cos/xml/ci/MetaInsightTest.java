@@ -517,6 +517,7 @@ public class MetaInsightTest {
 
     @Test
     public void stage9_updateFileMetaIndex() {
+        TestUtils.sleep(10000);
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         UpdateFileMetaIndexRequest request = new UpdateFileMetaIndexRequest(TestConst.CI_BUCKET_APPID);
         UpdateFileMetaIndex updateFileMetaIndex = new UpdateFileMetaIndex();// 更新元数据索引请求体
@@ -554,6 +555,7 @@ public class MetaInsightTest {
 
     @Test
     public void stage9_updateFileMetaIndexAsync() {
+        TestUtils.sleep(10000);
         CIService ciService = NormalServiceFactory.INSTANCE.newMetaInsightService();
         UpdateFileMetaIndexRequest request = new UpdateFileMetaIndexRequest(TestConst.CI_BUCKET_APPID);
         UpdateFileMetaIndex updateFileMetaIndex = new UpdateFileMetaIndex();// 更新元数据索引请求体

@@ -157,6 +157,7 @@ import com.tencent.cos.xml.model.ci.ai.AIImageColoringRequest;
 import com.tencent.cos.xml.model.ci.ai.AIImageCropRequest;
 import com.tencent.cos.xml.model.ci.ai.AILicenseRecRequest;
 import com.tencent.cos.xml.model.ci.ai.AILicenseRecResult;
+import com.tencent.cos.xml.model.ci.ai.AIPortraitMattingRequest;
 import com.tencent.cos.xml.model.ci.ai.AISuperResolutionRequest;
 import com.tencent.cos.xml.model.ci.ai.AddImageSearchRequest;
 import com.tencent.cos.xml.model.ci.ai.AssessQualityRequest;
@@ -2813,6 +2814,34 @@ public class CosXmlService extends CosXmlSimpleService implements CosXml {
      */
     @Override
     public void goodsMattingAsync(GoodsMattingRequest request, CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new GetObjectResult(), cosXmlResultListener);
+    }
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AIPortraitMatting 接口检测图片中的人像主体信息，智能分割图像背景，生成只包含人像主体信息的图片，支持持久化、云上处理及下载时处理的同步方法.&nbsp;
+     * </p>
+     *
+     * @param request 腾讯云数据万象通过 AIPortraitMatting 接口检测图片中的人像主体信息，智能分割图像背景，生成只包含人像主体信息的图片，支持持久化、云上处理及下载时处理请求 {@link AIPortraitMattingRequest}
+     * @return 腾讯云数据万象通过 AIPortraitMatting 接口检测图片中的人像主体信息，智能分割图像背景，生成只包含人像主体信息的图片，支持持久化、云上处理及下载时处理返回结果 {@link GetObjectResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    @Override
+    public GetObjectResult aiPortraitMatting(AIPortraitMattingRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new GetObjectResult());
+    }
+
+    /**
+     * <p>
+     * 腾讯云数据万象通过 AIPortraitMatting 接口检测图片中的人像主体信息，智能分割图像背景，生成只包含人像主体信息的图片，支持持久化、云上处理及下载时处理的异步方法.&nbsp;
+     * </p>
+     *
+     * @param request 腾讯云数据万象通过 AIPortraitMatting 接口检测图片中的人像主体信息，智能分割图像背景，生成只包含人像主体信息的图片，支持持久化、云上处理及下载时处理请求 {@link AIPortraitMattingRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    @Override
+    public void aiPortraitMattingAsync(AIPortraitMattingRequest request, CosXmlResultListener cosXmlResultListener) {
         schedule(request, new GetObjectResult(), cosXmlResultListener);
     }
 
