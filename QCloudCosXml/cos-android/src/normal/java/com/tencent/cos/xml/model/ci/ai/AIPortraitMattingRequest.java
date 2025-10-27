@@ -57,7 +57,7 @@ public class AIPortraitMattingRequest extends CiSaveLocalRequest {
      */
     public boolean centerLayout;
     /**
-     * - 将处理后的图片四边进行留白，形式为 paddingLayout = <dx> x <dy>，左右两边各进行 dx 像素的留白，上下两边各进行 dy 像素的留白，例如：padding-layout = 20 x 10
+     * - 将处理后的图片四边进行留白，形式为 paddingLayout = &lt;dx&gt; x &lt;dy&gt;，左右两边各进行 dx 像素的留白，上下两边各进行 dy 像素的留白，例如：padding-layout = 20 x 10
      * - 默认不进行留白操作，dx、dy 最大值为1000像素
      */
     public String paddingLayout;

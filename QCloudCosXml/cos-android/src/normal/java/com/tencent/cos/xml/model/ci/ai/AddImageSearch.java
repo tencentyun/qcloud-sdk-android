@@ -23,7 +23,6 @@
 package com.tencent.cos.xml.model.ci.ai;
 
 import com.tencent.qcloud.qcloudxml.annoation.XmlBean;
-import com.tencent.qcloud.qcloudxml.annoation.XmlElement;
 
 @XmlBean(name = "Request", method = XmlBean.GenerateMethod.TO)
 public class AddImageSearch {
@@ -39,7 +38,7 @@ public class AddImageSearch {
     public String customContent;
 
     /**
-     * 图片自定义标签，最多不超过10个，json 字符串，格式为 key:value （例 key1>=1 key1>='aa' ）对;是否必传：否
+     * 图片自定义标签，最多不超过10个，json 字符串，格式为 key:value （例 key1&gt;=1 key1&gt;='aa' ）对;是否必传：否
      */
     public String tags;
 

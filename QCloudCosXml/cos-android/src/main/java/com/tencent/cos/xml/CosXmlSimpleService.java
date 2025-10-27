@@ -111,7 +111,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 简单上传的同步方法.&nbsp;
+     * 简单上传的同步方法. 
      * </p>
      * 详细介绍，请查看:{@link  SimpleCosXml#putObject(PutObjectRequest)}
      */
@@ -124,7 +124,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 简单上传的异步方法.&nbsp;
+     * 简单上传的异步方法. 
      * </p>
      * 详细介绍，请查看:{@link  SimpleCosXml#putObjectAsync(PutObjectRequest, CosXmlResultListener)}
      */
@@ -142,7 +142,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 删除 COS 上单个对象的同步方法.&nbsp;
+     * 删除 COS 上单个对象的同步方法. 
      * </p>
      * 详细介绍，请查看:{@link  SimpleCosXml#deleteObject(DeleteObjectRequest)}
      */
@@ -153,7 +153,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 删除 COS 上单个对象的异步方法.&nbsp;
+     * 删除 COS 上单个对象的异步方法. 
      * </p>
      * 详细介绍，请查看:{@link  SimpleCosXml#deleteObjectAsync(DeleteObjectRequest, CosXmlResultListener)}
      */
@@ -164,7 +164,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 获取 COS 对象的元数据的同步方法.&nbsp;
+     * 获取 COS 对象的元数据的同步方法. 
      * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#headObject(HeadObjectRequest)}
      */
@@ -177,7 +177,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 获取 COS 对象的元数据的异步方法.&nbsp;
+     * 获取 COS 对象的元数据的异步方法. 
      * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#headObjectAsync(HeadObjectRequest, CosXmlResultListener)}
      */
@@ -190,7 +190,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 拷贝对象的同步方法.&nbsp;
+     * 拷贝对象的同步方法. 
      * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#copyObject(CopyObjectRequest)}
      */
@@ -201,7 +201,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 拷贝对象的异步方法.&nbsp;
+     * 拷贝对象的异步方法. 
      * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#copyObjectAsync(CopyObjectRequest, CosXmlResultListener)}
      */
@@ -215,7 +215,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 拷贝对象的同步方法.&nbsp;
+     * 拷贝对象的同步方法. 
      * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#copyObject(UploadPartCopyRequest)}
      */
@@ -226,7 +226,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 拷贝对象的异步方法.&nbsp;
+     * 拷贝对象的异步方法. 
      * </p>
      * 详细介绍，请查看:{@link SimpleCosXml#copyObjectAsync(UploadPartCopyRequest, CosXmlResultListener)}
      */
@@ -237,7 +237,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 初始化分块上传的同步方法.&nbsp;
+     * 初始化分块上传的同步方法. 
      * </p>
      * 详细介绍，请查看:{@link  SimpleCosXml#initMultipartUpload(InitMultipartUploadRequest)}
      */
@@ -248,7 +248,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 初始化分块上传的异步方法.&nbsp;
+     * 初始化分块上传的异步方法. 
      * </p>
      * 详细介绍，请查看:{@link  SimpleCosXml#initMultipartUploadAsync(InitMultipartUploadRequest, CosXmlResultListener)}
      */
@@ -259,7 +259,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 查询特定分块上传中的已上传的块的同步方法.&nbsp;
+     * 查询特定分块上传中的已上传的块的同步方法. 
      * </p>
      * 详细介绍，请查看:{@link  SimpleCosXml#listParts(ListPartsRequest)}
      */
@@ -270,7 +270,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 查询特定分块上传中的已上传的块的异步方法.&nbsp;
+     * 查询特定分块上传中的已上传的块的异步方法. 
      * </p>
      * 详细介绍，请查看:{@link  SimpleCosXml#listPartsAsync(ListPartsRequest, CosXmlResultListener)}
      */
@@ -281,7 +281,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 舍弃一个分块上传且删除已上传的分片块的同步方法.&nbsp;
+     * 舍弃一个分块上传且删除已上传的分片块的同步方法. 
      * </p>
      * 详细介绍，请查看:{@link  SimpleCosXml#abortMultiUpload(AbortMultiUploadRequest)}
      */
@@ -292,7 +292,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 舍弃一个分块上传且删除已上传的分片块的异步方法.&nbsp;
+     * 舍弃一个分块上传且删除已上传的分片块的异步方法. 
      * </p>
      * 详细介绍，请查看:{@link  SimpleCosXml#abortMultiUploadAsync(AbortMultiUploadRequest, CosXmlResultListener)}
      */
@@ -303,7 +303,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 完成整个分块上传的同步方法.&nbsp;
+     * 完成整个分块上传的同步方法. 
      * </p>
      * 详细介绍，请查看:{@link  SimpleCosXml#completeMultiUpload(CompleteMultiUploadRequest)}
      */
@@ -316,7 +316,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 完成整个分块上传的异步方法.&nbsp;
+     * 完成整个分块上传的异步方法. 
      * </p>
      * 详细介绍，请查看:{@link  SimpleCosXml#completeMultiUploadAsync(CompleteMultiUploadRequest, CosXmlResultListener)}
      */
@@ -330,7 +330,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 预连接的同步方法.&nbsp。
+     * 预连接的同步方法. 。
      * </p>
      */
     @Override
@@ -348,7 +348,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 预连接的异步方法.&nbsp。
+     * 预连接的异步方法. 。
      * </p>
      */
     @Override
@@ -373,7 +373,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 预连接的同步方法.&nbsp。
+     * 预连接的同步方法. 。
      * </p>
      */
     @Override
@@ -390,7 +390,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 预连接的异步方法.&nbsp。
+     * 预连接的异步方法. 。
      * </p>
      */
     @Override
@@ -414,7 +414,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 查询存储桶（Bucket）中正在进行中的分块上传对象的同步方法.&nbsp;
+     * 查询存储桶（Bucket）中正在进行中的分块上传对象的同步方法. 
      * </p>
      * 详细介绍，请查看:{@link  CosXml#listMultiUploads(ListMultiUploadsRequest request)}
      */
@@ -425,7 +425,7 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
 
     /**
      * <p>
-     * 查询存储桶（Bucket）中正在进行中的分块上传对象的异步方法.&nbsp;
+     * 查询存储桶（Bucket）中正在进行中的分块上传对象的异步方法. 
      * </p>
      * 详细介绍，请查看:{@link  CosXml#listMultiUploadsAsync(ListMultiUploadsRequest request, CosXmlResultListener cosXmlResultListener)}
      */

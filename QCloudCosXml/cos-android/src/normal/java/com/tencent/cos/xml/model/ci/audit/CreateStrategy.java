@@ -91,8 +91,8 @@ public class CreateStrategy {
      * ForeignLeaders	外国/地区领导人
      * Underdog	劣迹艺人
      * Gallery	违规图库
-     * PositiveFlagsLogos	正面旗帜&标识
-     * NegativeFlagsLogos	负面旗帜&标识
+     * PositiveFlagsLogos	正面旗帜 标识
+     * NegativeFlagsLogos	负面旗帜 标识
      * ChinaMap	中国地图
      * Building	涉政建筑
      * SpecialItems	特殊物品

@@ -59,7 +59,7 @@ public class GetSearchImageRequest extends BucketRequest {
      */
     public int limit;
     /**
-     * 针对入库时提交的 Tags 信息进行条件过滤。支持>、>=、<、<=、=、!=，多个条件之间支持 AND 和 OR 进行连接;是否必传：否
+     * 针对入库时提交的 Tags 信息进行条件过滤。支持&gt;、&gt;=、&lt;、&lt;=、=、!=，多个条件之间支持 AND 和 OR 进行连接;是否必传：否
      */
     public String filter;
 
