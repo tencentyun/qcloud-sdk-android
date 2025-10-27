@@ -146,32 +146,6 @@ public class CosTrackService {
                 CosTrackService.getInstance().reportSdkStart();
                 CosTrackService.getInstance().getSonarService().setContext(applicationContext);
                 CosTrackService.getInstance().getSonarService().periodicSonar();
-
-//                if (BeaconTrackService.isInclude()) {
-//                // 获取灯塔云控配置，决定是否要initBeacon
-//                CloudControl.getInstance().getBeaconAppKey(applicationContext.getPackageName(), new CloudControl.BeaconCloudCallback() {
-//                    @Override
-//                    public void onSuccess(String beaconKey) {
-//                        if (!TextUtils.isEmpty(beaconKey)) {
-//                            try {
-//                                if (!BeaconTrackService.isInclude()) {
-//                                    Log.i(TAG, "The beacon library is not referenced, cancel the beacon initialization");
-//                                    return;
-//                                }
-//                                ccBeaconTrackService.init(beaconKey);
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onError(Exception e) {
-//                        Log.d(TAG, "getBeaconAppKey onError:" + e.getMessage());
-//                        e.printStackTrace();
-//                    }
-//                });
-//                }
             }
         }
     }

@@ -41,9 +41,11 @@ public class ServerSignTest {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(true)
                 .setDebuggable(true)
-                .setRegion(TestConst.PERSIST_BUCKET)
+                .setRegion(TestConst.PERSIST_BUCKET_REGION)
                 .builder();
         TransferConfig transferConfig = new TransferConfig.Builder()
+                // 分块上传由多个不同的请求组成，所以很多参数无法在开始时确定，这些参数后续要进行免签，或者使用回调的方式一一签名
+                .setForceSimpleUpload(true)
                 .build();
 
         singleCosXmlSimpleService = new CosXmlSimpleService(getContext(), cosXmlServiceConfig);
@@ -68,14 +70,14 @@ public class ServerSignTest {
     private void uploadSmallFile(boolean isCallback)  {
         TransferManager transferManager = isCallback ? callbackTransferManager : singleTransferManager;
 
-        PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET,
+        PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_GZ_BUCKET,
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
                 TestUtils.filePath("N好.", 1024));
 
         if(!isCallback){
             MySelfSigner.SignResult signResult;
             try {
-                signResult = MySelfSigner.getSignResult(putObjectRequest.getMethod(), putObjectRequest.getHost(), putObjectRequest.getCosPath(),
+                signResult = MySelfSigner.getSignResult(putObjectRequest.getMethod(), putObjectRequest.getRequestHost(singleCosXmlSimpleService.getConfig()), putObjectRequest.getCosPath(),
                         putObjectRequest.getRequestHeaders(), putObjectRequest.getQueryString());
             } catch (QCloudClientException e) {
                 throw new RuntimeException(e);
@@ -114,7 +116,7 @@ public class ServerSignTest {
         TransferManager transferManager = isCallback ? callbackTransferManager : singleTransferManager;
 
         PutObjectRequest putObjectRequest = new PutObjectRequest(
-                TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_GZ_BUCKET,
                 TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
                 bigPlusFilePath());
 
@@ -122,7 +124,7 @@ public class ServerSignTest {
             MySelfSigner.SignResult signResult;
             try {
                 // 分块上传由多个不同的请求组成，所以很多参数无法在开始时确定，这些参数后续要进行免签，或者使用回调的方式一一签名
-                signResult = MySelfSigner.getSignResult(null, putObjectRequest.getHost(), putObjectRequest.getCosPath(),
+                signResult = MySelfSigner.getSignResult(putObjectRequest.getMethod(), putObjectRequest.getRequestHost(singleCosXmlSimpleService.getConfig()), putObjectRequest.getCosPath(),
                        null, null);
             } catch (QCloudClientException e) {
                 throw new RuntimeException(e);

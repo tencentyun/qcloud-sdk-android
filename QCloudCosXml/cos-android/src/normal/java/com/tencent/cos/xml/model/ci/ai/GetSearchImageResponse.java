@@ -54,7 +54,7 @@ public class GetSearchImageResponse {
          */
         public String customContent;
         /**
-         * 自定义标签信息，最多不超过10个，json 字符串，格式为 key:value （例 key1>=1 key1>='aa' ）对
+         * 自定义标签信息，最多不超过10个，json 字符串，格式为 key:value （例 key1&gt;=1 key1&gt;='aa' ）对
          */
         public String tags;
         /**

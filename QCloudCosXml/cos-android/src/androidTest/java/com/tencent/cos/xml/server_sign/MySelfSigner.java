@@ -102,6 +102,11 @@ public class MySelfSigner implements QCloudSelfSigner {
             this.expiredTime = expiredTime;
         }
 
+        public SignResult(String authorization, String securityToken) {
+            this.authorization = authorization;
+            this.securityToken = securityToken;
+        }
+
         public boolean isValid(){
             int EXPIRE_TIME_RESERVE_IN_SECONDS = 60;
             return System.currentTimeMillis() / 1000 <= expiredTime - EXPIRE_TIME_RESERVE_IN_SECONDS;
@@ -122,7 +127,7 @@ public class MySelfSigner implements QCloudSelfSigner {
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("http://9.135.33.98:3000/server-sign")
+                .url("http://49.232.13.225:3000/sts-server-sign?httpMethod=" + httpMethod + "&host=" + host + "&cosKey=" + coskey)
                 .build();
 
         Response response = null;
@@ -152,12 +157,11 @@ public class MySelfSigner implements QCloudSelfSigner {
             if(json.getInt("code") == 0){
                 JSONObject data = json.getJSONObject("data");
                 String authorization = data.getString("authorization");
-                long expiredTime = data.getLong("expiredTime");
                 String securityToken = null;
                 if(data.has("securityToken")){
                     securityToken = data.getString("securityToken");
                 }
-                return new SignResult(authorization, securityToken, expiredTime);
+                return new SignResult(authorization, securityToken);
             } else {
                 throw new QCloudClientException("get authorization failed");
             }

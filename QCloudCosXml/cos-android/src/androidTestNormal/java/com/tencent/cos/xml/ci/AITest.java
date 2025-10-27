@@ -36,6 +36,7 @@ import com.tencent.cos.xml.model.ci.ai.AIImageColoringRequest;
 import com.tencent.cos.xml.model.ci.ai.AIImageCropRequest;
 import com.tencent.cos.xml.model.ci.ai.AILicenseRecRequest;
 import com.tencent.cos.xml.model.ci.ai.AILicenseRecResult;
+import com.tencent.cos.xml.model.ci.ai.AIPortraitMattingRequest;
 import com.tencent.cos.xml.model.ci.ai.AISuperResolutionRequest;
 import com.tencent.cos.xml.model.ci.ai.AddImageSearch;
 import com.tencent.cos.xml.model.ci.ai.AddImageSearchRequest;
@@ -1638,6 +1639,53 @@ public class AITest {
 
         final TestLocker testLocker = new TestLocker();
         cosXmlService.goodsMattingAsync(request, new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult cosXmlResult) {
+                GetObjectResult result = (GetObjectResult)cosXmlResult;
+                Assert.assertNotNull(result.headers);
+
+                testLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, @Nullable CosXmlClientException clientException, @Nullable CosXmlServiceException serviceException) {
+                Assert.fail(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                testLocker.release();
+            }
+        });
+        testLocker.lock();
+    }
+
+    @Test
+    public void aiPortraitMatting() {
+        CosXmlService cosXmlService = NormalServiceFactory.INSTANCE.newCosXmlService();
+        AIPortraitMattingRequest request = new AIPortraitMattingRequest(TestConst.AI_RECOGNITION_BUCKET, "PortraitMatting.jpg");
+        request.centerLayout = true;
+        request.paddingLayout = "900 x 10";
+        // 设置结果文件保存路径
+        request.saveLocalPath = TestUtils.localParentPath()+"/PortraitMatting.jpg";
+
+        try {
+            GetObjectResult result = cosXmlService.aiPortraitMatting(request);
+            Assert.assertNotNull(result.headers);
+
+        } catch (CosXmlClientException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        } catch (CosXmlServiceException e) {
+            Assert.fail(TestUtils.getCosExceptionMessage(e));
+        }
+    }
+
+    @Test
+    public void aiPortraitMattingAsync() {
+        CosXmlService cosXmlService = NormalServiceFactory.INSTANCE.newCosXmlService();
+        AIPortraitMattingRequest request = new AIPortraitMattingRequest(TestConst.AI_RECOGNITION_BUCKET, "PortraitMatting.jpg");
+        request.detectUrl = "https://ai-recognition-1253960454.cos.ap-guangzhou.myqcloud.com/PortraitMatting.jpg";
+        // 设置结果保存uri
+        request.saveLocalUri = Uri.fromFile(new File(TestUtils.localParentPath()+"/PortraitMatting.jpg"));
+
+        final TestLocker testLocker = new TestLocker();
+        cosXmlService.aiPortraitMattingAsync(request, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult cosXmlResult) {
                 GetObjectResult result = (GetObjectResult)cosXmlResult;

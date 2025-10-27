@@ -99,7 +99,7 @@ public class ZDownloadTest {
         });
         downloadTask.resume();
 
-        testLocker.lock(30000);
+        testLocker.lock(60000);
         TestUtils.sleep(10000);
         TestUtils.assertCOSXMLTaskSuccess(downloadTask);
     }

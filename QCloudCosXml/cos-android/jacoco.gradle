@@ -27,16 +27,16 @@ jacoco {
     reportsDir = file("$buildDir/reports") //指定jacoco生成报告的文件夹
 }
 
-task jacocoCreateNormalDebugCoverageReport(type: JacocoReport, dependsOn: 'connectedNormalDebugAndroidTest') {
+//task jacocoCreateNormalDebugCoverageReport(type: JacocoReport, dependsOn: 'connectedNormalDebugAndroidTest') {
 //跑过单测后 可以直接执行，不依赖connectedNormalDebugAndroidTest 否则会又跑一次
-//task jacocoCreateNormalDebugCoverageReport(type: JacocoReport) {
+task jacocoCreateNormalDebugCoverageReport(type: JacocoReport) {
     group = "verification"
     reports {
         html.enabled = true //开启html报告
         xml.enabled = true //开启xml报告
     }
 
-    def classTree = fileTree(dir: "${buildDir}/intermediates/javac/normalDebug/compileNormalDebugJavaWithJavac/classes",
+    def classTree = fileTree(dir: "${buildDir}/intermediates/javac/normalDebug/classes",
             excludes: [
                     //灯塔
                     'com/tencent/beacon/**',

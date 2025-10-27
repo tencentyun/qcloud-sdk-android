@@ -29,7 +29,7 @@ import androidx.annotation.NonNull;
 import com.tencent.cos.xml.CosXmlServiceConfig;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
-import com.tencent.cos.xml.model.bucket.BucketRequest;
+import com.tencent.cos.xml.model.ci.CiSaveLocalRequest;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 
@@ -37,48 +37,38 @@ import java.util.Map;
 
 
 /**
- * 图片搜索接口
- * <a href="https://cloud.tencent.com/document/product/460/63901">图片搜索接口</a>
- * @see com.tencent.cos.xml.CIService#getSearchImage(GetSearchImageRequest)
- * @see com.tencent.cos.xml.CIService#getSearchImageAsync(GetSearchImageRequest, CosXmlResultListener)
+ * 人像抠图
+ * <a href="https://cloud.tencent.com/document/product/460/106751">人像抠图</a>
+ * @see com.tencent.cos.xml.CIService#aiPortraitMatting(AIPortraitMattingRequest)
+ * @see com.tencent.cos.xml.CIService#aiPortraitMattingAsync(AIPortraitMattingRequest, CosXmlResultListener)
  */
-public class GetSearchImageRequest extends BucketRequest {
-    
+public class AIPortraitMattingRequest extends CiSaveLocalRequest {
+
     protected final String objectKey;
 
+    public String ciProcess = "AIPortraitMatting";
     /**
-     * 出参 Score 中，只有超过 MatchThreshold 值的结果才会返回。默认为0;是否必传：否
+     * 您可以通过填写 detect-url 处理任意公网可访问的图片链接。不填写 detect-url 时，后台会默认处理 ObjectKey ，填写了 detect-url 时，后台会处理 detect-url 链接，无需再填写 ObjectKey。
+     * detect-url 示例：http://www.example.com/abc.jpg，需要进行 UrlEncode，处理后为http%25253A%25252F%25252Fwww.example.com%25252Fabc.jpg
      */
-    public int matchThreshold;
+    public String detectUrl;
     /**
-     * 起始序号，默认值为0;是否必传：否
+     * 抠图主体居中显示；值为true时居中显示，值为false不做处理，默认为false
      */
-    public int offset;
+    public boolean centerLayout;
     /**
-     * 返回数量，默认值为10，最大值为100;是否必传：否
+     * - 将处理后的图片四边进行留白，形式为 paddingLayout = &lt;dx&gt; x &lt;dy&gt;，左右两边各进行 dx 像素的留白，上下两边各进行 dy 像素的留白，例如：padding-layout = 20 x 10
+     * - 默认不进行留白操作，dx、dy 最大值为1000像素
      */
-    public int limit;
-    /**
-     * 针对入库时提交的 Tags 信息进行条件过滤。支持&gt;、&gt;=、&lt;、&lt;=、=、!=，多个条件之间支持 AND 和 OR 进行连接;是否必传：否
-     */
-    public String filter;
+    public String paddingLayout;
 
     /**
-     * 固定值：ImageSearch;是否必传：是
-     */
-    public String ciProcess = "ImageSearch";
-    /**
-     * 固定值：AddImage;是否必传：是
-     */
-    public String action = "SearchImage";
-
-    /**
-     * 该接口用于检索图片
+     * 腾讯云数据万象通过 AIPortraitMatting 接口检测图片中的人像主体信息，智能分割图像背景，生成只包含人像主体信息的图片，支持持久化、云上处理及下载时处理
      *
      * @param bucket  存储桶名
      */
-    public GetSearchImageRequest(@NonNull String bucket , @NonNull String objectKey) {
-        super(bucket);
+    public AIPortraitMattingRequest(@NonNull String bucket , String objectKey) {
+        super.bucket = bucket;
         this.objectKey = objectKey;
 
     }
@@ -86,18 +76,22 @@ public class GetSearchImageRequest extends BucketRequest {
     @Override
     public Map<String, String> getQueryString() {
         queryParameters.put("ci-process", ciProcess);
-        queryParameters.put("action", action);
-        queryParameters.put("MatchThreshold", String.valueOf(matchThreshold));
-        queryParameters.put("Offset", String.valueOf(offset));
-        queryParameters.put("Limit", String.valueOf(limit));
-        if(!TextUtils.isEmpty(filter)){
-            queryParameters.put("Filter", filter);
+        if(!TextUtils.isEmpty(detectUrl)) {
+            queryParameters.put("detect-url", detectUrl);
+        }
+        queryParameters.put("center-layout", centerLayout?"1":"0");
+        if(!TextUtils.isEmpty(paddingLayout)) {
+            queryParameters.put("padding-layout", paddingLayout);
         }
         return super.getQueryString();
     }
     @Override
     public String getPath(CosXmlServiceConfig cosXmlServiceConfig) {
-        return "/" + objectKey;
+        if(!TextUtils.isEmpty(detectUrl) || TextUtils.isEmpty(objectKey)){
+            return "/";
+        } else {
+            return "/" + objectKey;
+        }
     }
     @Override
     public RequestBodySerializer getRequestBody() throws CosXmlClientException {

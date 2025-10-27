@@ -88,13 +88,13 @@ public class OneTimeCredentialTest {
         }).start();
         testLocker.lock();
 
-//        shortTimeCredentialProvider = new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000);
+        shortTimeCredentialProvider = new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000);
     }
 
     @Test
     public void testUploadSmallFile() {
         TransferManager transferManager = ServiceFactory.INSTANCE.newAnonymousTransferManager();
-        PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET,
+        PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.ASR_BUCKET,
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
                 TestUtils.filePath("N好.", 1024));
         if(sessionQCloudCredentials != null){
@@ -102,6 +102,7 @@ public class OneTimeCredentialTest {
         } else {
             putObjectRequest.setCredentialProvider(shortTimeCredentialProvider);
         }
+//        putObjectRequest.setCredentialProvider(shortTimeCredentialProvider);
 
         final COSXMLUploadTask uploadTask = transferManager.upload(putObjectRequest, null);
         final TestLocker testLocker = new TestLocker();
@@ -136,8 +137,8 @@ public class OneTimeCredentialTest {
             e.printStackTrace();
         }
         TransferManager transferManager = ServiceFactory.INSTANCE.newAnonymousTransferManager();
-        PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.PERSIST_BUCKET,
-                TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
+        PutObjectRequest putObjectRequest = new PutObjectRequest(TestConst.ASR_BUCKET,
+                TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
                 localPath);
         if(sessionQCloudCredentials != null){
             putObjectRequest.setCredential(sessionQCloudCredentials);
@@ -171,7 +172,7 @@ public class OneTimeCredentialTest {
 
     @Test public void testSmallDownload() {
         TransferManager transferManager = ServiceFactory.INSTANCE.newAnonymousTransferManager();
-        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.ASR_BUCKET,
                 TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH,
                 TestUtils.localParentPath());
         if(sessionQCloudCredentials != null){
@@ -202,7 +203,7 @@ public class OneTimeCredentialTest {
 
     @Test public void testBigDownload() {
         TransferManager transferManager = ServiceFactory.INSTANCE.newAnonymousTransferManager();
-        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
+        GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.ASR_BUCKET,
                 TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH,
                 TestUtils.localParentPath());
         if(sessionQCloudCredentials != null){
@@ -236,9 +237,9 @@ public class OneTimeCredentialTest {
         final TestLocker testLocker = new TestLocker();
         final String cosPath = "copy_object";
         CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
-                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+                TestConst.ASR_BUCKET, TestConst.ASR_BUCKET_REGION, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
         TransferManager transferManager = ServiceFactory.INSTANCE.newAnonymousTransferManager();
-        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(TestConst.PERSIST_BUCKET, cosPath, copySourceStruct);
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(TestConst.ASR_BUCKET, cosPath, copySourceStruct);
         if(sessionQCloudCredentials != null){
             copyObjectRequest.setCredential(sessionQCloudCredentials);
         } else {
@@ -250,7 +251,7 @@ public class OneTimeCredentialTest {
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newAnonymousService();
                 try {
-                    DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(TestConst.PERSIST_BUCKET, cosPath);
+                    DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(TestConst.ASR_BUCKET, cosPath);
                     if(sessionQCloudCredentials != null){
                         deleteObjectRequest.setCredential(sessionQCloudCredentials);
                     } else {
@@ -281,9 +282,9 @@ public class OneTimeCredentialTest {
         final TestLocker testLocker = new TestLocker();
         final String cosPath = "copy_object_big";
         CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
-                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
+                TestConst.ASR_BUCKET, TestConst.ASR_BUCKET_REGION, TestConst.PERSIST_BUCKET_BIG_OBJECT_PATH);
         TransferManager transferManager = ServiceFactory.INSTANCE.newAnonymousTransferManager();
-        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(TestConst.PERSIST_BUCKET, cosPath, copySourceStruct);
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(TestConst.ASR_BUCKET, cosPath, copySourceStruct);
         if(sessionQCloudCredentials != null){
             copyObjectRequest.setCredential(sessionQCloudCredentials);
         } else {
@@ -295,7 +296,7 @@ public class OneTimeCredentialTest {
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newAnonymousService();
                 try {
-                    DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(TestConst.PERSIST_BUCKET, cosPath);
+                    DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(TestConst.ASR_BUCKET, cosPath);
                     if(sessionQCloudCredentials != null){
                         deleteObjectRequest.setCredential(sessionQCloudCredentials);
                     } else {
@@ -324,7 +325,7 @@ public class OneTimeCredentialTest {
     @Test
     public void testPreBuildConnection() {
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newAnonymousService();
-        PreBuildConnectionRequest request = new PreBuildConnectionRequest(TestConst.PERSIST_BUCKET);
+        PreBuildConnectionRequest request = new PreBuildConnectionRequest(TestConst.ASR_BUCKET);
         if(sessionQCloudCredentials != null){
             request.setCredential(sessionQCloudCredentials);
         } else {
@@ -353,7 +354,7 @@ public class OneTimeCredentialTest {
     @Test
     public void testPreBuildConnectionFail() {
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newAnonymousService();
-        PreBuildConnectionRequest request = new PreBuildConnectionRequest(TestConst.PERSIST_BUCKET);
+        PreBuildConnectionRequest request = new PreBuildConnectionRequest(TestConst.ASR_BUCKET);
         boolean b1 = cosXmlService.preBuildConnection(request);
 
         PreBuildConnectionRequest request1 = new PreBuildConnectionRequest("fail-1253960454");
@@ -399,7 +400,7 @@ public class OneTimeCredentialTest {
     @Test
     public void testHeadObject() {
         CosXmlSimpleService cosXmlService = ServiceFactory.INSTANCE.newAnonymousService();
-        HeadObjectRequest request = new HeadObjectRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+        HeadObjectRequest request = new HeadObjectRequest(TestConst.ASR_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
         if(sessionQCloudCredentials != null){
             request.setCredential(sessionQCloudCredentials);
         } else {
@@ -465,7 +466,7 @@ public class OneTimeCredentialTest {
     }
 
     @Test public void testPresignedDownload() {
-        PresignedUrlRequest presignedUrlRequest = new PresignedUrlRequest(TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+        PresignedUrlRequest presignedUrlRequest = new PresignedUrlRequest(TestConst.ASR_BUCKET, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
         presignedUrlRequest.setRequestMethod("GET");
         presignedUrlRequest.addNoSignHeader("Host");
         if(sessionQCloudCredentials != null){

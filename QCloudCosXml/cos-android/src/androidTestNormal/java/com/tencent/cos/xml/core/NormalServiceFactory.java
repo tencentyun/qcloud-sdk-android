@@ -5,7 +5,6 @@ import static com.tencent.cos.xml.core.TestUtils.getContext;
 import com.tencent.cos.xml.CIService;
 import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
-import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.transfer.TransferConfig;
 import com.tencent.cos.xml.transfer.TransferManager;
 import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
@@ -163,12 +162,6 @@ public class NormalServiceFactory {
 
         TransferConfig transferConfig = new TransferConfig.Builder().build();
         CosXmlService cosXmlService = newService(cosXmlServiceConfig);
-        String host = TestConst.QUIC_BUCKET + ".cos." + TestConst.QUIC_BUCKET_REGION + ".myqcloud.com";
-        try {
-            cosXmlService.addCustomerDNS(host, new String[] {TestConst.QUIC_TEST_IP});
-        } catch (CosXmlClientException e) {
-            e.printStackTrace();
-        }
         return new TransferManager(cosXmlService, transferConfig);
     }
 

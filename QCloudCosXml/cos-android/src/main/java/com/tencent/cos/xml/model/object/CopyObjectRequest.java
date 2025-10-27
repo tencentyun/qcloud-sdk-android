@@ -230,7 +230,6 @@ public class CopyObjectRequest extends ObjectRequest {
      * 目标对象的存储类型。
      * 枚举值请参见 <a href="https://cloud.tencent.com/document/product/436/33417">存储类型</a> 文档，例如 STANDARD_IA，ARCHIVE。默认值：STANDARD
      * @param cosStorageClass COS存储类型
-     * @throws CosXmlClientException 客户端异常
      */
     public void setCosStorageClass(COSStorageClass cosStorageClass) {
         if(cosStorageClass != null){

@@ -51,7 +51,7 @@ public class MySessionCredentialProvider
         // 首先从您的临时密钥服务器获取包含了密钥信息的响应
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("http://9.135.33.98:3000/sts")
+                .url("http://49.232.13.225:3000/sts")
                 .build();
 
         Response response = null;

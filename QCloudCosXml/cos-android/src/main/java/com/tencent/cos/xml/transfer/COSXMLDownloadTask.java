@@ -220,15 +220,15 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 if(crc64CheckEnabled) {
                     serverCrc64 = result.getHeader("x-cos-hash-crc64ecma");
                     COSLogger.dProcess(TAG, "serverCrc64: " + serverCrc64);
-                }
 
-                // 等待所有CRC计算完成
-                try {
-                    crcLatch.await();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    handleCrcCheckFailure();
-                    return;
+                    // 等待所有CRC计算完成
+                    try {
+                        crcLatch.await();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        handleCrcCheckFailure();
+                        return;
+                    }
                 }
 
                 // 执行最终校验
