@@ -316,6 +316,9 @@ android.libraryVariants.all { variant ->
 
 // 在文件末尾添加
 afterEvaluate {
+       
+
+       
     tasks.withType(Javadoc) {
         options.addStringOption('Xdoclint:none', '-quiet')
         options.encoding = 'UTF-8'
