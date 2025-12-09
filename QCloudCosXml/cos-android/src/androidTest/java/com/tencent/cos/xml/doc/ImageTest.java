@@ -16,6 +16,8 @@ import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectResult;
+import com.tencent.cos.xml.model.object.ImageProcessRequest;
+import com.tencent.cos.xml.model.object.ImageProcessResult;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectResult;
 import com.tencent.cos.xml.model.tag.pic.PicOperationRule;
@@ -92,6 +94,22 @@ public class ImageTest {
             Assert.assertNotNull(uploadResult);
             // Assert.assertFalse(uploadResult.processResults.isEmpty());
             Assert.assertEquals(200, putObjectResult.httpCode);
+        } catch (Exception exception) {
+            Assert.fail(exception.getMessage());
+        }
+    }
+
+    @Test public void testImageProcess()  {
+        List<PicOperationRule> rules = new LinkedList<>();
+        rules.add(new PicOperationRule("/test.png", "imageView2/format/png"));
+        PicOperations picOperations = new PicOperations(false, rules);
+        ImageProcessRequest imageProcessRequest = new ImageProcessRequest(TestConst.PERSIST_BUCKET,
+                TestConst.PERSIST_BUCKET_PIC_PATH, picOperations);
+        ImageProcessResult imageProcessResult = null;
+        try {
+            imageProcessResult = ServiceFactory.INSTANCE.newDefaultService().imageProcess(imageProcessRequest);
+            Assert.assertNotNull(imageProcessResult);
+            Assert.assertEquals(200, imageProcessResult.httpCode);
         } catch (Exception exception) {
             Assert.fail(exception.getMessage());
         }
