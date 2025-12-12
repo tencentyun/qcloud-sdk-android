@@ -92,12 +92,17 @@ public class RedirectInterceptor implements Interceptor {
             case HTTP_MOVED_PERM:
             case HTTP_MOVED_TEMP:
             case HTTP_SEE_OTHER:
-                // 判断是否抛异常
-                if(isDomainSwitch && !isSelfSigner && DomainSwitchUtils.isMyqcloudUrl(userResponse.request().url().host())
-                    && TextUtils.isEmpty(userResponse.header("x-cos-request-id"))){
+                // 对于301/302/307，检查是否需要域名切换
+                if ((responseCode == HTTP_MOVED_PERM || responseCode == HTTP_MOVED_TEMP || 
+                     responseCode == OkhttpInternalUtils.HTTP_TEMP_REDIRECT) &&
+                    isDomainSwitch && !isSelfSigner && 
+                    DomainSwitchUtils.isMyqcloudUrl(userResponse.request().url().host()) &&
+                    TextUtils.isEmpty(userResponse.header("x-cos-request-id")) &&
+                        TextUtils.isEmpty(userResponse.header("x-ci-request-id"))) {
+                    // 满足域名切换条件，抛出异常让RetryInterceptor处理
                     throw new DomainSwitchException();
                 }
-
+                
                 String location = userResponse.header("Location");
                 if (location == null) return null;
                 HttpUrl url = userResponse.request().url().resolve(location);

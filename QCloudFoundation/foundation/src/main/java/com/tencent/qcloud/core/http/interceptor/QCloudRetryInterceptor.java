@@ -61,9 +61,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLPeerUnverifiedException;
-
 import okhttp3.Headers;
 import okhttp3.Protocol;
 import okhttp3.Request;
@@ -150,24 +147,6 @@ public class QCloudRetryInterceptor {
             throw new IOException("CANCELED");
         }
 
-        if(task.isDomainSwitch() && !task.isSelfSigner() && DomainSwitchUtils.isMyqcloudUrl(request.url().host())){
-            try {
-                response = executeTaskOnce(networkProxy, request, task);
-                // 判断响应 状态码非2XX，且没有x-cos-request-id头部
-                if (!response.isSuccessful() && TextUtils.isEmpty(response.header("x-cos-request-id"))) {
-                    throw new DomainSwitchException();
-                }
-            } catch (Exception exception){
-                // 下载convertResponse可能会产生服务端异常，这时候不用切
-                if(exception.getCause() instanceof QCloudServiceException &&
-                        !TextUtils.isEmpty(((QCloudServiceException) exception.getCause()).getRequestId())){
-                } else {
-                    // 没有收到响应
-                    throw new DomainSwitchException();
-                }
-            }
-        }
-
         int attempts = 0;
         long startTime = System.nanoTime();
 
@@ -194,7 +173,7 @@ public class QCloudRetryInterceptor {
                 }
             }
 
-            COSLogger.iNetwork(HTTP_LOG_TAG, "%s start to execute, attempts is %d", request, attempts);
+            COSLogger.iNetwork(HTTP_LOG_TAG, "%s start to execute, attempts is %d, hasSwitchedDomain is %b", request, attempts, task.hasSwitchedDomain());
 
             //记录重试次数
             HttpTaskMetrics metrics = task.metrics();
@@ -205,23 +184,26 @@ public class QCloudRetryInterceptor {
             attempts++;
             int statusCode = -1;
             try {
-                if(attempts == 1 && response != null){
-                    // 第一次执行 且response已经有值了，说明尝试成功，则不再重复执行
-                } else {
-                    //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
-                    if (response != null && response.body() != null) {
-                        response.close();
-                    }
-                    response = executeTaskOnce(networkProxy, request, task);
+                //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
+                if (response != null && response.body() != null) {
+                    response.close();
                 }
+                response = executeTaskOnce(networkProxy, request, task);
                 statusCode = response.code();
                 e = null;
-            } catch (IOException exception) {
-                if(exception instanceof DomainSwitchException){
+            } catch (DomainSwitchException exception) {
+                // 捕获域名切换异常（来自RedirectInterceptor的3xx处理）
+                if (!task.hasSwitchedDomain()) {
+                    // 还未切换过域名，抛出异常让HttpTask切换域名
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s 3xx from RedirectInterceptor, switch domain, attempts is %d", request, attempts);
                     throw exception;
                 } else {
-                    e = exception;
+                    // 已经切换过域名，不应该再收到DomainSwitchException，转换为普通IOException
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s 3xx after domain switch, should not happen, attempts is %d", request, attempts);
+                    e = new IOException(exception);
                 }
+            } catch (IOException exception) {
+                e = exception;
             } catch (IllegalStateException exception){
                 // 再次处理 okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
                 if(exception.getMessage().startsWith("cannot make a new request because the previous response is still open: please call response.close()")){
@@ -254,7 +236,11 @@ public class QCloudRetryInterceptor {
                 }
             }
 
-            if ((e == null && response.isSuccessful())) {
+            // 判断是否满足域名切换条件
+            boolean meetDomainSwitchCondition = checkDomainSwitchCondition(task, request, response, statusCode);
+
+            // 2xx：成功，不重试
+            if (e == null && statusCode >= 200 && statusCode < 300) {
                 if (serverDate != null) {
                     HttpConfiguration.calculateGlobalTimeOffset(serverDate, new Date(), MIN_CLOCK_SKEWED_OFFSET);
                 }
@@ -264,6 +250,7 @@ public class QCloudRetryInterceptor {
                 break;
             }
 
+            // 时钟偏移错误特殊处理
             String clockSkewError = getClockSkewError(response, statusCode);
             if (clockSkewError != null) {
                 COSLogger.iNetwork(HTTP_LOG_TAG, "%s failed for %s", request, clockSkewError);
@@ -274,12 +261,50 @@ public class QCloudRetryInterceptor {
                     e = new IOException(new QCloudServiceException("client clock skewed").setErrorCode(clockSkewError));
                 }
                 break;
-            } else if (shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled()) {
-                COSLogger.iNetwork(HTTP_LOG_TAG, "%s failed for %s, code is %d", request, e, statusCode);
-                retryStrategy.onTaskEnd(false, e);
-            } else {
-                COSLogger.iNetwork(HTTP_LOG_TAG, "%s ends for %s, code is %d", request, e, statusCode);
+            }
+
+            // 3xx：已经在RedirectInterceptor中处理，这里收到3xx说明重定向已完成
+            // 如果需要域名切换，RedirectInterceptor会抛出DomainSwitchException
+            if (statusCode >= 300 && statusCode < 400) {
+                // 重定向已完成，检查是否需要继续重试
+                if (task.hasSwitchedDomain() && shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled()) {
+                    // 已切换域名，继续按RetryStrategy重试
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s 3xx retry after domain switch, attempts is %d", request, attempts);
+                    retryStrategy.onTaskEnd(false, new IOException("3xx redirect with domain switch"));
+                    continue;
+                } else {
+                    // RetryStrategy不允许继续重试或任务已取消
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s 3xx ends, attempts is %d, code is %d", request, attempts, statusCode);
+                    break;
+                }
+            }
+
+            // 4xx：不重试
+            if (statusCode >= 400 && statusCode < 500) {
+                COSLogger.iNetwork(HTTP_LOG_TAG, "%s 4xx ends without retry, code is %d", request, statusCode);
                 break;
+            }
+
+            // 5xx 或 未收到回包：按RetryStrategy重试，最后一次重试时切换域名
+            // 判断是否应该继续重试
+            boolean shouldContinueRetry = shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled();
+            
+            if (shouldContinueRetry) {
+                // RetryStrategy允许继续重试，使用原域名重试
+                COSLogger.iNetwork(HTTP_LOG_TAG, "%s 5xx/error retry with original domain, attempts is %d, error is %s, code is %d", 
+                        request, attempts, e, statusCode);
+                retryStrategy.onTaskEnd(false, e);
+                continue;
+            } else {
+                // RetryStrategy不允许继续重试，这是最后一次机会，判断是否需要切换域名
+                if (meetDomainSwitchCondition && !task.hasSwitchedDomain()) {
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s last retry (attempt %d) with domain switch", request, attempts);
+                    throw new DomainSwitchException();
+                } else {
+                    // 不满足切换条件或已切换过，结束重试
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s ends after %d attempts, code is %d", request, attempts, statusCode);
+                    break;
+                }
             }
         }
         if (e != null) {
@@ -305,6 +330,9 @@ public class QCloudRetryInterceptor {
                 }
                 return processSingleRequest(networkProxy, request);
             }
+        } catch (DomainSwitchException exception) {
+            // 域名切换异常直接向上抛出
+            throw exception;
         } catch (ProtocolException exception) {
             // OkHttp在Http code为204时，不允许body不为空，这里为了阻止抛出异常，对response进行修改
             if (exception.getMessage() != null && exception.getMessage().contains(
@@ -404,68 +432,77 @@ public class QCloudRetryInterceptor {
 
 
     private boolean shouldRetry(Request request, Response response, int attempts, int weight, long startTime, IOException e, int statusCode) {
+        // 用户取消，不重试
         if (isUserCancelled(e)) {
             return false;
         }
 
+        // 记录日志
         int reliable = getHostReliable(request.url().host());
         int retryAddition = additionComputer.getRetryAddition(weight, reliable);
         COSLogger.iNetwork(HTTP_LOG_TAG, String.format(Locale.ENGLISH, "attempts = %d, weight = %d, reliable = %d, addition = %d",
                 attempts, weight, reliable, retryAddition));
 
+        // 检查 RetryStrategy 是否允许重试
         if (!retryStrategy.shouldRetry(attempts, System.nanoTime() - startTime, retryAddition)) {
             return false;
         }
 
+        // 检查 QCloudHttpRetryHandler 是否允许重试
         QCloudHttpRetryHandler qCloudHttpRetryHandler = retryStrategy.getQCloudHttpRetryHandler();
         if(!qCloudHttpRetryHandler.shouldRetry(request, response, e)){
             return false;
         }
 
+        // 判断是否是可恢复的异常（未收到回包：reset、超时等）
         if (e != null && isRecoverable(e)) {
             return true;
         }
 
-        return statusCode == HttpURLConnection.HTTP_INTERNAL_ERROR ||
-                statusCode == HttpURLConnection.HTTP_BAD_GATEWAY ||
-                statusCode == HttpURLConnection.HTTP_UNAVAILABLE ||
-                statusCode == HttpURLConnection.HTTP_GATEWAY_TIMEOUT;
+        // 判断是否是5xx状态码（覆盖所有5xx）
+        return statusCode >= 500 && statusCode < 600;
     }
 
+    /**
+     * 判断异常是否可恢复（是否值得重试）
+     * 用于判断"未收到回包"的场景（reset、超时等网络异常）
+     */
     private boolean isRecoverable(IOException e) {
-        // If there was a protocol problem, don't recover.
+        // 协议异常不可恢复
         if (e instanceof ProtocolException) {
             return false;
         }
 
-        // If there was an interruption don't recover, but if there was a timeout connecting to a route
-        // we should try the next route (if there is one).
+        // 中断异常：只有超时异常可恢复
         if (e instanceof InterruptedIOException) {
             return e instanceof SocketTimeoutException;
         }
 
-        // Look for known client-side or negotiation errors that are unlikely to be fixed by trying
-        // again with a different route.
-        if (e instanceof SSLHandshakeException) {
-            // If the problem was a CertificateException from the X509TrustManager,
-            // do not retry.
-            if (e.getCause() instanceof CertificateException) {
-                return false;
-            }
-        }
-        if (e instanceof SSLPeerUnverifiedException) {
-            // e.g. a certificate pinning error.
+        // 其他网络异常都值得重试（如连接失败、连接重置、SSL异常等）
+        // 切换域名后可能成功
+        return true;
+    }
+
+    /**
+     * 检查是否满足域名切换条件
+     * 条件：域名匹配myqcloud.com & 响应不含requestid & 开启域名切换开关 & 签名是SDK自己生成
+     */
+    private boolean checkDomainSwitchCondition(HttpTask task, Request request, Response response, int statusCode) {
+        if (task == null || !task.isDomainSwitch() || task.isSelfSigner()) {
             return false;
         }
-
-        if(e.getCause() instanceof QCloudServiceException) {
-            return ((QCloudServiceException) e.getCause()).getStatusCode() >= 500;
+        
+        if (!DomainSwitchUtils.isMyqcloudUrl(request.url().host())) {
+            return false;
         }
-
-        // An example of one we might want to retry with a different route is a problem connecting to a
-        // proxy and would manifest as a standard IOException. Unless it is one we know we should not
-        // retry, we return true and try a new route.
-        return true;
+        
+        // 未收到响应
+        if (response == null) {
+            return true;
+        }
+        
+        // 收到响应但没有 x-cos-request-id和 x-ci-request-id
+        return TextUtils.isEmpty(response.header("x-cos-request-id")) && TextUtils.isEmpty(response.header("x-ci-request-id"));
     }
 
     /**

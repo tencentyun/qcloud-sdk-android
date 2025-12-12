@@ -2,11 +2,20 @@ package com.tencent.cos.xml.model.object;
 
 import androidx.annotation.NonNull;
 
+import com.tencent.cos.xml.common.COSRequestHeaderKey;
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.model.ci.PicOperationProvider;
 import com.tencent.cos.xml.model.tag.pic.PicOperations;
+import com.tencent.cos.xml.transfer.XmlBuilder;
+import com.tencent.cos.xml.utils.QCloudXmlUtils;
+import com.tencent.qcloud.core.http.RequestBodySerializer;
+
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * 云上图片处理请求
@@ -32,8 +41,19 @@ public class ImageProcessRequest extends ObjectRequest implements PicOperationPr
     }
 
     @Override
+    public Map<String, String> getQueryString() {
+        queryParameters.put("image_process", null);
+        return queryParameters;
+    }
+
+    @Override
     public String getMethod() {
         return RequestMethod.POST;
+    }
+
+    @Override
+    public RequestBodySerializer getRequestBody() throws CosXmlClientException {
+        return RequestBodySerializer.bytes(null, new byte[0]);
     }
 
     @Override

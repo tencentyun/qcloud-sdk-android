@@ -101,8 +101,8 @@ public class ImageTest {
 
     @Test public void testImageProcess()  {
         List<PicOperationRule> rules = new LinkedList<>();
-        rules.add(new PicOperationRule("/test.png", "imageView2/format/png"));
-        PicOperations picOperations = new PicOperations(false, rules);
+        rules.add(new PicOperationRule("imageProcess/test.jpg", "imageView2/format/jpg"));
+        PicOperations picOperations = new PicOperations(true, rules);
         ImageProcessRequest imageProcessRequest = new ImageProcessRequest(TestConst.PERSIST_BUCKET,
                 TestConst.PERSIST_BUCKET_PIC_PATH, picOperations);
         ImageProcessResult imageProcessResult = null;

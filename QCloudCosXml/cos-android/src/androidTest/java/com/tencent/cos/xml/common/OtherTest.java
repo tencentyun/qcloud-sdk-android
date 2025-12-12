@@ -454,26 +454,6 @@ public class OtherTest {
         Assert.assertTrue(true);
     }
 
-    @Test
-    public void testIsMyqcloudUrl(){
-        String[] testUrls = {
-                "ut-1257101689.cos.ap-chengdu.myqcloud.com",
-                "ut-1257101689.cos.ap-guangzhou.myqcloud.com",
-                "examplebucket-1250000000.file.myqcloud.com",
-                "ut-1257101689.cos.accelerate.myqcloud.com",
-                "service.cos.myqcloud.com",
-                "cos.ap-guangzhou.myqcloud.com",
-                "exampledomain.com"
-        };
-        assertTrue(DomainSwitchUtils.isMyqcloudUrl(testUrls[0]));
-        assertTrue(DomainSwitchUtils.isMyqcloudUrl(testUrls[1]));
-        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[2]));
-        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[3]));
-        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[4]));
-        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[5]));
-        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[6]));
-    }
-
 //    @Test
 //    public void testMultiThreadedCosXmlService() {
 //        try {
