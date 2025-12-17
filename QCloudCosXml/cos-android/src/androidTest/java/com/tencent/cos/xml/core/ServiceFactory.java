@@ -266,6 +266,7 @@ public class ServiceFactory {
                 .setRegion(TestConst.RETRY_REGION)
                 .setDomainSwitch(domainSwitch)
                 .setSocketTimeout(5000)
+                .setRedirectEnable(true)
                 .builder();
         return newService(cosXmlServiceConfig);
     }
@@ -278,6 +279,7 @@ public class ServiceFactory {
                 .setHostFormat("${bucket}.cos.${region}.tencentcos.cn")
                 .setDomainSwitch(domainSwitch)
                 .setSocketTimeout(5000)
+                .setRedirectEnable(true)
                 .builder();
         return newService(cosXmlServiceConfig);
     }

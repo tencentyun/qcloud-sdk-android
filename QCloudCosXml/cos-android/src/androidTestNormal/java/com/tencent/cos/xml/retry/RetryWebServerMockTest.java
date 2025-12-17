@@ -1,8 +1,5 @@
 package com.tencent.cos.xml.retry;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import android.util.Base64;
 import android.util.Log;
 
@@ -20,20 +17,23 @@ import com.tencent.cos.xml.model.ci.DescribeDocProcessBucketsRequest;
 import com.tencent.cos.xml.model.ci.DescribeDocProcessBucketsResult;
 import com.tencent.cos.xml.model.ci.audit.PostTextAuditRequest;
 import com.tencent.cos.xml.model.ci.audit.TextAuditResult;
-import com.tencent.cos.xml.model.ci.media.TemplateConcatResult;
 import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetRequest;
 import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectResult;
 import com.tencent.cos.xml.model.tag.audit.post.PostTextAudit;
-import com.tencent.qcloud.core.util.DomainSwitchUtils;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
+
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
 
 /**
  * <p>
@@ -41,161 +41,98 @@ import java.nio.charset.Charset;
  * Copyright 2010-2021 Tencent Cloud. All Rights Reserved.
  */
 @RunWith(AndroidJUnit4.class)
-public class RetryTest {
-    private static final String HOST_MYQCLOUD = "cos-sdk-err-retry-1253960454.cos.ap-chengdu.myqcloud.com";
+public class RetryWebServerMockTest {
     private static final String HOST_TENCENTCOS = "cos-sdk-err-retry-1253960454.cos.ap-chengdu.tencentcos.cn";
-
-//    private static final String CI_HOST_MYQCLOUD = "cos-sdk-citest-1253960454.ci.ap-beijing.myqcloud.com";
-//    private static final String CI_HOST_TENCENTCI = "cos-sdk-citest-1253960454.ci.ap-beijing.tencentci.cn";
-    private static final String CI_HOST_MYQCLOUD = "1253960454.ci.ap-beijing.myqcloud.com";
     private static final String CI_HOST_TENCENTCI = "1253960454.ci.ap-beijing.tencentci.cn";
 
-    private CosXmlSimpleService serviceMyqcloud;
     private CosXmlSimpleService serviceTencentCos;
-    private CosXmlSimpleService serviceMyqcloudNoSwitch;
     private CosXmlSimpleService serviceTencentCosNoSwitch;
 
-    private CIService ciServiceMyqcloud;
     private CIService ciServiceTencentCI;
-    private CIService ciServiceMyqcloudNoSwitch;
     private CIService ciServiceTencentCINoSwitch;
     @Before
     public void init() {
-        serviceMyqcloud = ServiceFactory.INSTANCE.newRetryServiceMyqcloud(true);
         serviceTencentCos = ServiceFactory.INSTANCE.newRetryServiceTencentCos(true);
-        serviceMyqcloudNoSwitch = ServiceFactory.INSTANCE.newRetryServiceMyqcloud(false);
         serviceTencentCosNoSwitch = ServiceFactory.INSTANCE.newRetryServiceTencentCos(false);
 
-        ciServiceMyqcloud = NormalServiceFactory.INSTANCE.newRetryCIAuditServiceMyqcloud(true);
         ciServiceTencentCI = NormalServiceFactory.INSTANCE.newRetryCIAuditServiceTencentCI(true);
-        ciServiceMyqcloudNoSwitch = NormalServiceFactory.INSTANCE.newRetryCIAuditServiceMyqcloud(false);
         ciServiceTencentCINoSwitch = NormalServiceFactory.INSTANCE.newRetryCIAuditServiceTencentCI(false);
     }
 
     @Test
-    public void testIsMyqcloudUrl(){
-        String[] testUrls = {
-                "ut-1257101689.cos.ap-chengdu.myqcloud.com",
-                "ut-1257101689.cos.ap-guangzhou.myqcloud.com",
-                "examplebucket-1250000000.file.myqcloud.com",
-                "ut-1257101689.cos.accelerate.myqcloud.com",
-                "service.cos.myqcloud.com",
-                "cos.ap-guangzhou.myqcloud.com",
-                "exampledomain.com",
-                "bucket-1250000000.ci.ap-beijing.myqcloud.com",
-                "ci.ap-beijing.myqcloud.com",
-                "ap-beijing.ci.myqcloud.com"
-        };
-        assertTrue(DomainSwitchUtils.isMyqcloudUrl(testUrls[0]));
-        assertTrue(DomainSwitchUtils.isMyqcloudUrl(testUrls[1]));
-        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[2]));
-        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[3]));
-        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[4]));
-        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[5]));
-        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[6]));
-        assertTrue(DomainSwitchUtils.isMyqcloudUrl(testUrls[7]));
-        assertTrue(DomainSwitchUtils.isMyqcloudUrl(testUrls[8]));
-        assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[9]));
-    }
-
-    @Test
     public void testNoSwitch2xx() {
-        getObject(serviceMyqcloudNoSwitch, "200r", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "200r", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "200", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "200", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "204r", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "204r", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "204", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "204", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "206r", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "206r", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "206", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "206", HOST_TENCENTCOS, 0);
     }
 
     @Test
     public void testNoSwitch3xx() {
-        getObject(serviceMyqcloudNoSwitch, "301r", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "301r", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "301", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "301", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "302r", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "302r", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "302", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "302", HOST_TENCENTCOS, 0);
     }
 
     @Test
     public void testNoSwitch4xx() {
-        getObject(serviceMyqcloudNoSwitch, "400r", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "400r", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "400", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "400", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "403r", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "403r", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "403", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "403", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "404r", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "404r", HOST_TENCENTCOS, 0);
 
-        getObject(serviceMyqcloudNoSwitch, "404", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCosNoSwitch, "404", HOST_TENCENTCOS, 0);
     }
 
     @Test
     public void testNoSwitch500() {
         // 为什么重试1次  是因为测试服务器带重试header 响应的就是400了  不再重试
-        getObject(serviceMyqcloudNoSwitch, "500r", HOST_MYQCLOUD, 1);
         getObject(serviceTencentCosNoSwitch, "500r", HOST_TENCENTCOS, 1);
 
-        getObject(serviceMyqcloudNoSwitch, "500", HOST_MYQCLOUD, 1);
         getObject(serviceTencentCosNoSwitch, "500", HOST_TENCENTCOS, 1);
     }
 
     @Test
     public void testNoSwitch503() {
         // 为什么重试1次  是因为测试服务器带重试header 响应的就是400了  不再重试
-        getObject(serviceMyqcloudNoSwitch, "503r", HOST_MYQCLOUD, 1);
         getObject(serviceTencentCosNoSwitch, "503r", HOST_TENCENTCOS, 1);
 
-        getObject(serviceMyqcloudNoSwitch, "503", HOST_MYQCLOUD, 1);
         getObject(serviceTencentCosNoSwitch, "503", HOST_TENCENTCOS, 1);
     }
 
     @Test
     public void testNoSwitch504() {
         // 为什么重试1次  是因为测试服务器带重试header 响应的就是400了  不再重试
-        getObject(serviceMyqcloudNoSwitch, "504r", HOST_MYQCLOUD, 1);
         getObject(serviceTencentCosNoSwitch, "504r", HOST_TENCENTCOS, 1);
 
-        getObject(serviceMyqcloudNoSwitch, "504", HOST_MYQCLOUD, 1);
         getObject(serviceTencentCosNoSwitch, "504", HOST_TENCENTCOS, 1);
     }
 
     @Test
     public void testNoSwitchTimeout() {
         // 为什么重试1次  是因为测试服务器带重试header 响应的就是400了  不再重试
-        getObject(serviceMyqcloudNoSwitch, "timeout", HOST_MYQCLOUD, 1);
         getObject(serviceTencentCosNoSwitch, "timeout", HOST_TENCENTCOS, 1);
     }
 
     @Test
     public void testNoSwitchShutdown() {
         // 为什么重试1次  是因为测试服务器带重试header 响应的就是400了  不再重试
-        getObject(serviceMyqcloudNoSwitch, "shutdown", HOST_MYQCLOUD, 1);
         getObject(serviceTencentCosNoSwitch, "shutdown", HOST_TENCENTCOS, 1);
     }
 
@@ -238,77 +175,127 @@ public class RetryTest {
     }
 
     @Test
-    public void testRedirect() {
-        describeDataset(ciServiceTencentCINoSwitch, "200r", CI_HOST_TENCENTCI, 0);
-        describeDocProcessBuckets(ciServiceTencentCINoSwitch, "200r", CI_HOST_TENCENTCI, 0);
-        templateConcat(ciServiceTencentCINoSwitch, "200r", CI_HOST_TENCENTCI, 0);
-    }
-
-    @Test
     public void testCiNoSwitch2xx() {
-        describeDataset(ciServiceMyqcloudNoSwitch, "200r", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "200", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "204r", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "204", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "206r", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "206", CI_HOST_MYQCLOUD, 0);
+        describeDataset(ciServiceTencentCINoSwitch, "200r", CI_HOST_TENCENTCI, 0, 200, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "200", CI_HOST_TENCENTCI, 0, 200, false);
+
+        describeDataset(ciServiceTencentCINoSwitch, "204r", CI_HOST_TENCENTCI, 0, 204, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "204", CI_HOST_TENCENTCI, 0, 204, false);
+
+        describeDataset(ciServiceTencentCINoSwitch, "206r", CI_HOST_TENCENTCI, 0, 206, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "206", CI_HOST_TENCENTCI, 0, 206, false);
     }
 
     @Test
     public void testCiNoSwitch3xx() {
-        describeDataset(ciServiceMyqcloudNoSwitch, "301r", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "301", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "302r", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "302", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "307r", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "307", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "308r", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "308", CI_HOST_MYQCLOUD, 0);
+        describeDataset(ciServiceTencentCINoSwitch, "301r", CI_HOST_TENCENTCI, 0, 301, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "301", CI_HOST_TENCENTCI, 0, 301, false);
+
+        describeDataset(ciServiceTencentCINoSwitch, "302r", CI_HOST_TENCENTCI, 0, 302, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "302", CI_HOST_TENCENTCI, 0, 302, false);
+
+        describeDataset(ciServiceTencentCINoSwitch, "307r", CI_HOST_TENCENTCI, 0, 307, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "307", CI_HOST_TENCENTCI, 0, 307, false);
+
+        describeDataset(ciServiceTencentCINoSwitch, "308r", CI_HOST_TENCENTCI, 0, 308, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "308", CI_HOST_TENCENTCI, 0, 308, false);
     }
 
     @Test
     public void testCiNoSwitch4xx() {
-        describeDataset(ciServiceMyqcloudNoSwitch, "400r", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "400", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "403r", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "403", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "404r", CI_HOST_MYQCLOUD, 0);
-        describeDataset(ciServiceMyqcloudNoSwitch, "404", CI_HOST_MYQCLOUD, 0);
+        describeDataset(ciServiceTencentCINoSwitch, "400r", CI_HOST_TENCENTCI, 0, 400, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "400", CI_HOST_TENCENTCI, 0, 400, false);
+
+        describeDataset(ciServiceTencentCINoSwitch, "403r", CI_HOST_TENCENTCI, 0, 403, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "403", CI_HOST_TENCENTCI, 0, 403, false);
+
+        describeDataset(ciServiceTencentCINoSwitch, "404r", CI_HOST_TENCENTCI, 0, 404, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "404", CI_HOST_TENCENTCI, 0, 404, false);
     }
 
     @Test
     public void testCiNoSwitch500() {
-        describeDataset(ciServiceMyqcloudNoSwitch, "500r", CI_HOST_MYQCLOUD, 2);
-        describeDataset(ciServiceMyqcloudNoSwitch, "500", CI_HOST_MYQCLOUD, 2);
+        describeDataset(ciServiceTencentCINoSwitch, "500r", CI_HOST_TENCENTCI, 2, 500, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "500", CI_HOST_TENCENTCI, 2, 500, false);
     }
 
     @Test
     public void testCiNoSwitch503() {
         // 为什么重试1次  是因为测试服务器带重试header 响应的就是400了  不再重试
-        getObject(ciServiceMyqcloudNoSwitch, "503r", HOST_MYQCLOUD, 1);
-        getObject(ciServiceMyqcloudNoSwitch, "503", HOST_MYQCLOUD, 1);
+        describeDataset(ciServiceTencentCINoSwitch, "503r", HOST_TENCENTCOS, 1, 503, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "503", HOST_TENCENTCOS, 1, 503, false);
     }
 
     @Test
     public void testCiNoSwitch504() {
         // 为什么重试1次  是因为测试服务器带重试header 响应的就是400了  不再重试
-        getObject(ciServiceMyqcloudNoSwitch, "504r", HOST_MYQCLOUD, 1);
-        getObject(ciServiceMyqcloudNoSwitch, "504", HOST_MYQCLOUD, 1);
+        describeDataset(ciServiceTencentCINoSwitch, "504r", HOST_TENCENTCOS, 1, 504, true);
+
+        describeDataset(ciServiceTencentCINoSwitch, "504", HOST_TENCENTCOS, 1, 504, false);
     }
 
     @Test
     public void testCiNoSwitchTimeout() {
         // 为什么重试1次  是因为测试服务器带重试header 响应的就是400了  不再重试
-        getObject(ciServiceMyqcloudNoSwitch, "timeout", HOST_MYQCLOUD, 1);
+        describeDataset(ciServiceTencentCINoSwitch, "timeout", HOST_TENCENTCOS, 1, 1000, false);
     }
 
     @Test
     public void testCiNoSwitchShutdown() {
         // 为什么重试1次  是因为测试服务器带重试header 响应的就是400了  不再重试
-        getObject(ciServiceMyqcloudNoSwitch, "shutdown", HOST_MYQCLOUD, 1);
+        describeDataset(ciServiceTencentCINoSwitch, "shutdown", HOST_TENCENTCOS, 1, 2000, false);
     }
 
-    public void describeDataset(CIService ciService, String xCiCode, String hostParam, int retryCountParam) {
+    public void describeDataset(CIService ciService, String xCiCode, String hostParam, int retryCountParam,
+                                int mockCode, boolean mockHasRetryId) {
+        MockWebServer server = new MockWebServer();
+        // 设置 mock 响应
+        MockResponse.Builder builder = new MockResponse.Builder();
+        if (mockHasRetryId) {
+            builder.addHeader("x-ci-request-id", "x-ci-request-id-xxxxx");
+            builder.addHeader("x-cos-request-id", "x-cos-request-id-xxxxx");
+        }
+        // 超时
+        if(mockCode == 1000){
+            builder.headersDelay(10, TimeUnit.SECONDS);
+        }
+        // shutdown
+        if(mockCode == 2000){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(3000);
+                        server.close();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+        builder.code(mockCode);
+//        builder.body("hello, world!");
+        server.enqueue(builder.build());
+
+        try {
+            server.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
+
         DescribeDatasetRequest request = new DescribeDatasetRequest(TestConst.CI_BUCKET_APPID);
         request.datasetname = "datasetnametestqjd";// 设置数据集名称，同一个账户下唯一。
         request.statistics = false;// 设置是否需要实时统计数据集中文件相关信息。有效值： false：不统计，返回的文件的总大小、数量信息可能不正确也可能都为0。 true：需要统计，返回数据集中当前的文件的总大小、数量信息。 默认值为false。
@@ -343,7 +330,7 @@ public class RetryTest {
             Log.d("RetryTest_"+xCiCode, "host: " + host + "--- hostParam: " + hostParam);
             Assert.assertEquals(host, hostParam);
         }
-
+        server.close();
         // 由于流水线的wetest真机无法配置代理，因此这里在流水线上不判断用例是否正确，只在本地开发专项测试时使用
     }
     public void describeDocProcessBuckets(CIService ciService, String xCiCode, String hostParam, int retryCountParam) {

@@ -122,6 +122,7 @@ public class NormalServiceFactory {
                 .setRegion(TestConst.CI_BUCKET_REGION)
                 .setDomainSwitch(domainSwitch)
                 .setSocketTimeout(5000)
+                .setRedirectEnable(true)
                 .builder();
         return new CIService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
@@ -132,9 +133,10 @@ public class NormalServiceFactory {
                 .isHttps(false)
                 .setDebuggable(true)
                 .setRegion(TestConst.CI_BUCKET_REGION)
-                .setHostFormat("${bucket}.ci.${region}.tencentci.cn")
+                .setHost("1253960454.ci.ap-beijing.tencentci.cn")
                 .setDomainSwitch(domainSwitch)
                 .setSocketTimeout(5000)
+                .setRedirectEnable(true)
                 .builder();
         return new CIService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );

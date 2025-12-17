@@ -262,20 +262,13 @@ public class RetryInterceptor implements Interceptor {
                 break;
             }
 
-            // 3xx：已经在RedirectInterceptor中处理，这里收到3xx说明重定向已完成
-            // 如果需要域名切换，RedirectInterceptor会抛出DomainSwitchException
+            // 3xx：已经在RedirectInterceptor中处理，重定向已完成，不需要重试
             if (statusCode >= 300 && statusCode < 400) {
-                // 重定向已完成，检查是否需要继续重试
-                if (task.hasSwitchedDomain() && shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled()) {
-                    // 已切换域名，继续按RetryStrategy重试
-                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s 3xx retry after domain switch, attempts is %d", request, attempts);
-                    retryStrategy.onTaskEnd(false, new IOException("3xx redirect with domain switch"));
-                    continue;
-                } else {
-                    // 不需要重试或不满足重试条件
-                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s 3xx ends, attempts is %d, code is %d", request, attempts, statusCode);
-                    break;
-                }
+                COSLogger.iNetwork(HTTP_LOG_TAG, "%s 3xx ends, attempts is %d, code is %d", request, attempts, statusCode);
+                // access success
+                increaseHostReliable(request.url().host());
+                retryStrategy.onTaskEnd(true, null);
+                break;
             }
 
             // 4xx：不重试
