@@ -115,7 +115,7 @@ public class NormalServiceFactory {
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
-    public CIService newRetryCIAuditServiceMyqcloud(boolean domainSwitch) {
+    public CIService newRetryCIServiceMyqcloud(boolean domainSwitch) {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(false)
                 .setDebuggable(true)
@@ -128,7 +128,7 @@ public class NormalServiceFactory {
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
-    public CIService newRetryCIAuditServiceTencentCI(boolean domainSwitch) {
+    public CIService newRetryCIServiceTencentCI(boolean domainSwitch) {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(false)
                 .setDebuggable(true)

@@ -204,6 +204,9 @@ public class QCloudRetryInterceptor {
                 }
             } catch (IOException exception) {
                 e = exception;
+                if(e.getCause() instanceof QCloudServiceException) {
+                    statusCode = ((QCloudServiceException) e.getCause()).getStatusCode();
+                }
             } catch (IllegalStateException exception){
                 // 再次处理 okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
                 if(exception.getMessage().startsWith("cannot make a new request because the previous response is still open: please call response.close()")){
@@ -469,6 +472,11 @@ public class QCloudRetryInterceptor {
         // 中断异常：只有超时异常可恢复
         if (e instanceof InterruptedIOException) {
             return e instanceof SocketTimeoutException;
+        }
+
+        if(e.getCause() instanceof QCloudServiceException) {
+            QCloudServiceException qCloudServiceException = (QCloudServiceException) e.getCause();
+            return qCloudServiceException.getStatusCode() >= 500 && qCloudServiceException.getStatusCode() < 600;
         }
 
         // 其他网络异常都值得重试（如连接失败、连接重置、SSL异常等）

@@ -320,7 +320,12 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
                 // 标记已经切换过域名
                 hasSwitchedDomain = true;
                 // 切换域名
-                String urlString = httpRequest.url.toString().replace(DomainSwitchUtils.DOMAIN_MYQCLOUD, DomainSwitchUtils.DOMAIN_TENCENTCOS);
+                String urlString = httpRequest.url.toString();
+                if(DomainSwitchUtils.isMyqcloudCosUrl(httpRequest.url.getHost())){
+                    urlString = httpRequest.url.toString().replace(DomainSwitchUtils.DOMAIN_MYQCLOUD, DomainSwitchUtils.DOMAIN_TENCENTCOS);
+                } else if(DomainSwitchUtils.isMyqcloudCiUrl(httpRequest.url.getHost())) {
+                    urlString = httpRequest.url.toString().replace(DomainSwitchUtils.DOMAIN_MYQCLOUD, DomainSwitchUtils.DOMAIN_TENCENTCI);
+                }
                 httpRequest.setUrl(urlString);
                 try {
                     URL url = new URL(urlString);
