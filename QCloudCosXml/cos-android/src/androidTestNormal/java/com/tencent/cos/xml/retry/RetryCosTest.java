@@ -51,10 +51,10 @@ public class RetryCosTest {
 
     @Before
     public void init() {
-        serviceMyqcloud = ServiceFactory.INSTANCE.newRetryServiceMyqcloud(true);
-        serviceTencentCos = ServiceFactory.INSTANCE.newRetryServiceTencentCos(true);
-        serviceMyqcloudNoSwitch = ServiceFactory.INSTANCE.newRetryServiceMyqcloud(false);
-        serviceTencentCosNoSwitch = ServiceFactory.INSTANCE.newRetryServiceTencentCos(false);
+        serviceMyqcloud = ServiceFactory.INSTANCE.newRetryServiceMyqcloud(true, 80);
+        serviceTencentCos = ServiceFactory.INSTANCE.newRetryServiceTencentCos(true, 80);
+        serviceMyqcloudNoSwitch = ServiceFactory.INSTANCE.newRetryServiceMyqcloud(false, 80);
+        serviceTencentCosNoSwitch = ServiceFactory.INSTANCE.newRetryServiceTencentCos(false, 80);
     }
 
     @Test
@@ -125,35 +125,38 @@ public class RetryCosTest {
         getObject(serviceTencentCos, "206", HOST_TENCENTCOS, 0);
     }
 
-//    @Test
-//    public void testNoSwitch3xx() {
-//        getObject(serviceMyqcloudNoSwitch, "301r", HOST_MYQCLOUD, 0);
-//        getObject(serviceTencentCosNoSwitch, "301r", HOST_TENCENTCOS, 0);
+    @Test
+    public void testNoSwitch3xx() {
+        // 测试服务器重定向到cloud.tencent.com
+        getObject(serviceMyqcloudNoSwitch, "301r", "cloud.tencent.com", 0);
+        getObject(serviceTencentCosNoSwitch, "301r", "cloud.tencent.com", 0);
+
+        getObject(serviceMyqcloudNoSwitch, "301", "cloud.tencent.com", 0);
+        getObject(serviceTencentCosNoSwitch, "301", "cloud.tencent.com", 0);
+
+        getObject(serviceMyqcloudNoSwitch, "302r", "cloud.tencent.com", 0);
+        getObject(serviceTencentCosNoSwitch, "302r", "cloud.tencent.com", 0);
+
+        getObject(serviceMyqcloudNoSwitch, "302", "cloud.tencent.com", 0);
+        getObject(serviceTencentCosNoSwitch, "302", "cloud.tencent.com", 0);
+    }
+
+    @Test
+    public void testSwitch3xx() {
+        getObject(serviceMyqcloud, "301r", "cloud.tencent.com", 0);
+        getObject(serviceTencentCos, "301r", "cloud.tencent.com", 0);
+
+        // 第一次就切换域名，说明重试次数为0
+        // 是因为测试服务器带重试header 响应的就是200了 不再重定向 所以host不是cloud.tencent.com
+        getObject(serviceMyqcloud, "301", HOST_TENCENTCOS, 0);
+        getObject(serviceTencentCos, "301", "cloud.tencent.com", 0);
+
+        getObject(serviceMyqcloud, "302r", "cloud.tencent.com", 0);
+        getObject(serviceTencentCos, "302r", "cloud.tencent.com", 0);
 //
-//        getObject(serviceMyqcloudNoSwitch, "301", HOST_MYQCLOUD, 0);
-//        getObject(serviceTencentCosNoSwitch, "301", HOST_TENCENTCOS, 0);
-//
-//        getObject(serviceMyqcloudNoSwitch, "302r", HOST_MYQCLOUD, 0);
-//        getObject(serviceTencentCosNoSwitch, "302r", HOST_TENCENTCOS, 0);
-//
-//        getObject(serviceMyqcloudNoSwitch, "302", HOST_MYQCLOUD, 0);
-//        getObject(serviceTencentCosNoSwitch, "302", HOST_TENCENTCOS, 0);
-//    }
-//
-//    @Test
-//    public void testSwitch3xx() {
-//        getObject(serviceMyqcloud, "301r", HOST_MYQCLOUD, 0);
-//        getObject(serviceTencentCos, "301r", HOST_TENCENTCOS, 0);
-//
-//        getObject(serviceMyqcloud, "301", HOST_TENCENTCOS, 2);
-//        getObject(serviceTencentCos, "301", HOST_TENCENTCOS, 0);
-//
-//        getObject(serviceMyqcloud, "302r", HOST_MYQCLOUD, 0);
-//        getObject(serviceTencentCos, "302r", HOST_TENCENTCOS, 0);
-//
-//        getObject(serviceMyqcloud, "302", HOST_TENCENTCOS, 2);
-//        getObject(serviceTencentCos, "302", HOST_TENCENTCOS, 0);
-//    }
+        getObject(serviceMyqcloud, "302", HOST_TENCENTCOS, 0);
+        getObject(serviceTencentCos, "302", "cloud.tencent.com", 0);
+    }
 
     @Test
     public void testNoSwitch4xx() {
@@ -227,7 +230,7 @@ public class RetryCosTest {
         // 为什么域名没有切换，因为测试服务器带重试header 响应的就是200了  不再重试
         getObject(serviceMyqcloud, "500", HOST_MYQCLOUD, 1);
         getObject(serviceTencentCos, "500", HOST_TENCENTCOS, 1);
-
+//
         getObject(serviceMyqcloud, "503r", HOST_MYQCLOUD, 1);
         getObject(serviceTencentCos, "503r", HOST_TENCENTCOS, 1);
 
@@ -260,8 +263,7 @@ public class RetryCosTest {
     public void testNoSwitchShutdown() {
         // 为什么重试1次  是因为测试服务器带重试header 响应的就是200了  不再重试
         getObject(serviceMyqcloudNoSwitch, "shutdown", HOST_MYQCLOUD, 1);
-
-//        getObject(serviceTencentCosNoSwitch, "shutdown", HOST_TENCENTCOS, 2);
+        getObject(serviceTencentCosNoSwitch, "shutdown", HOST_TENCENTCOS, 1);
     }
 
     @Test

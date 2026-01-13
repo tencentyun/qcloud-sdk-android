@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml.transfer;
 
+import android.text.TextUtils;
+
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
@@ -71,7 +73,9 @@ public class ResponseBytesConverter<T> extends ResponseBodyConverter<T> {
                 BaseXmlSlimParser.parseError(inputStream, cosError);
                 cosXmlServiceException.setErrorCode(cosError.code);
                 cosXmlServiceException.setErrorMessage(cosError.message);
-                cosXmlServiceException.setRequestId(cosError.requestId);
+                if(!TextUtils.isEmpty(cosError.requestId)){
+                    cosXmlServiceException.setRequestId(cosError.requestId);
+                }
                 cosXmlServiceException.setServiceName(cosError.resource);
             } catch (XmlPullParserException e) {
                 throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);

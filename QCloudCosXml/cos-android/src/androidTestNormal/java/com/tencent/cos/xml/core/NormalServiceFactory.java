@@ -115,11 +115,13 @@ public class NormalServiceFactory {
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
-    public CIService newRetryCIServiceMyqcloud(boolean domainSwitch) {
+    public CIService newRetryCIServiceMyqcloud(boolean domainSwitch, int port) {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(false)
                 .setDebuggable(true)
                 .setRegion(TestConst.CI_BUCKET_REGION)
+                .setHost("1253960454.ci.ap-beijing.myqcloud.com")
+                .setPort(port)
                 .setDomainSwitch(domainSwitch)
                 .setSocketTimeout(5000)
                 .setRedirectEnable(true)
@@ -128,12 +130,13 @@ public class NormalServiceFactory {
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
 
-    public CIService newRetryCIServiceTencentCI(boolean domainSwitch) {
+    public CIService newRetryCIServiceTencentCI(boolean domainSwitch, int port) {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(false)
                 .setDebuggable(true)
                 .setRegion(TestConst.CI_BUCKET_REGION)
                 .setHost("1253960454.ci.ap-beijing.tencentci.cn")
+                .setPort(port)
                 .setDomainSwitch(domainSwitch)
                 .setSocketTimeout(5000)
                 .setRedirectEnable(true)

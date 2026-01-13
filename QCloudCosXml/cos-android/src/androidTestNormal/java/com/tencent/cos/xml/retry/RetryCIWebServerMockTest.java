@@ -1,17 +1,12 @@
 package com.tencent.cos.xml.retry;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import android.util.Base64;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.tencent.cos.xml.CIService;
-import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.core.NormalServiceFactory;
-import com.tencent.cos.xml.core.ServiceFactory;
 import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -22,17 +17,21 @@ import com.tencent.cos.xml.model.ci.audit.PostTextAuditRequest;
 import com.tencent.cos.xml.model.ci.audit.TextAuditResult;
 import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetRequest;
 import com.tencent.cos.xml.model.ci.metainsight.DescribeDatasetResult;
-import com.tencent.cos.xml.model.object.GetObjectRequest;
-import com.tencent.cos.xml.model.object.GetObjectResult;
 import com.tencent.cos.xml.model.tag.audit.post.PostTextAudit;
-import com.tencent.qcloud.core.util.DomainSwitchUtils;
+import com.tencent.qcloud.core.http.interceptor.RetryInterceptor;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 
 /**
  * <p>
@@ -40,9 +39,7 @@ import java.nio.charset.Charset;
  * Copyright 2010-2021 Tencent Cloud. All Rights Reserved.
  */
 @RunWith(AndroidJUnit4.class)
-public class RetryCiTest {
-//    private static final String CI_HOST_MYQCLOUD = "cos-sdk-citest-1253960454.ci.ap-beijing.myqcloud.com";
-//    private static final String CI_HOST_TENCENTCI = "cos-sdk-citest-1253960454.ci.ap-beijing.tencentci.cn";
+public class RetryCIWebServerMockTest {
     private static final String CI_HOST_MYQCLOUD = "1253960454.ci.ap-beijing.myqcloud.com";
     private static final String CI_HOST_TENCENTCI = "1253960454.ci.ap-beijing.tencentci.cn";
 
@@ -50,12 +47,23 @@ public class RetryCiTest {
     private CIService ciServiceMyqcloudNoSwitch;
     private CIService ciServiceTencentCI;
     private CIService ciServiceTencentCINoSwitch;
+
     @Before
     public void init() {
-        ciServiceMyqcloud = NormalServiceFactory.INSTANCE.newRetryCIServiceMyqcloud(true, 80);
-        ciServiceMyqcloudNoSwitch = NormalServiceFactory.INSTANCE.newRetryCIServiceMyqcloud(false, 80);
-        ciServiceTencentCI = NormalServiceFactory.INSTANCE.newRetryCIServiceTencentCI(true, 80);
-        ciServiceTencentCINoSwitch = NormalServiceFactory.INSTANCE.newRetryCIServiceTencentCI(false, 80);
+        ciServiceMyqcloud = NormalServiceFactory.INSTANCE.newRetryCIServiceMyqcloud(true, 8080);
+        ciServiceMyqcloudNoSwitch = NormalServiceFactory.INSTANCE.newRetryCIServiceMyqcloud(false, 8080);
+        ciServiceTencentCI = NormalServiceFactory.INSTANCE.newRetryCIServiceTencentCI(true, 8080);
+        ciServiceTencentCINoSwitch = NormalServiceFactory.INSTANCE.newRetryCIServiceTencentCI(false, 8080);
+        try {
+            ciServiceMyqcloud.addCustomerDNS("1253960454.ci.ap-beijing.myqcloud.com", new String[]{"127.0.0.1"});
+            ciServiceMyqcloud.addCustomerDNS("1253960454.ci.ap-beijing.tencentci.cn", new String[]{"127.0.0.1"});
+            ciServiceMyqcloudNoSwitch.addCustomerDNS("1253960454.ci.ap-beijing.myqcloud.com", new String[]{"127.0.0.1"});
+            ciServiceMyqcloudNoSwitch.addCustomerDNS("1253960454.ci.ap-beijing.tencentci.cn", new String[]{"127.0.0.1"});
+            ciServiceTencentCI.addCustomerDNS("1253960454.ci.ap-beijing.tencentci.cn", new String[]{"127.0.0.1"});
+            ciServiceTencentCINoSwitch.addCustomerDNS("1253960454.ci.ap-beijing.tencentci.cn", new String[]{"127.0.0.1"});
+        } catch (CosXmlClientException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -116,7 +124,6 @@ public class RetryCiTest {
     @Test
     public void testCi3xx() {
         describeDataset(ciServiceMyqcloud, "301r", CI_HOST_MYQCLOUD, 0);
-        // 第一次就切换域名，说明重试次数为0
         describeDataset(ciServiceMyqcloud, "301", CI_HOST_TENCENTCI, 0);
         describeDataset(ciServiceMyqcloud, "302r", CI_HOST_MYQCLOUD, 0);
         describeDataset(ciServiceMyqcloud, "302", CI_HOST_TENCENTCI, 0);
@@ -190,11 +197,12 @@ public class RetryCiTest {
     @Test
     public void testCi5xx() {
         describeDataset(ciServiceMyqcloud, "500r", CI_HOST_MYQCLOUD, 2);
-        describeDataset(ciServiceMyqcloud, "500", CI_HOST_TENCENTCI, 2);
+        // 切换域名后重试次数重置为0，但其实重试了3次
+        describeDataset(ciServiceMyqcloud, "500", CI_HOST_TENCENTCI, 0);
         describeDataset(ciServiceMyqcloud, "503r", CI_HOST_MYQCLOUD, 2);
-        describeDataset(ciServiceMyqcloud, "503", CI_HOST_TENCENTCI, 2);
+        describeDataset(ciServiceMyqcloud, "503", CI_HOST_TENCENTCI, 0);
         describeDataset(ciServiceMyqcloud, "504r", CI_HOST_MYQCLOUD, 2);
-        describeDataset(ciServiceMyqcloud, "504", CI_HOST_TENCENTCI, 2);
+        describeDataset(ciServiceMyqcloud, "504", CI_HOST_TENCENTCI, 0);
 
         describeDataset(ciServiceTencentCI, "500r", CI_HOST_TENCENTCI, 2);
         describeDataset(ciServiceTencentCI, "500", CI_HOST_TENCENTCI, 2);
@@ -212,7 +220,9 @@ public class RetryCiTest {
 
     @Test
     public void testCiTimeout() {
-        describeDataset(ciServiceMyqcloud, "timeout", CI_HOST_TENCENTCI, 2);
+        // 切换域名后重试次数重置为0，但其实重试了3次
+        // 由于最终是timeout，并没有成功，所以域名看起来没有切换，但其实已经切换了
+        describeDataset(ciServiceMyqcloud, "timeout", CI_HOST_MYQCLOUD, 0);
         describeDataset(ciServiceTencentCI, "timeout", CI_HOST_TENCENTCI, 2);
     }
 
@@ -224,11 +234,61 @@ public class RetryCiTest {
 
     @Test
     public void testCiShutdown() {
-        describeDataset(ciServiceMyqcloud, "shutdown", CI_HOST_TENCENTCI, 2);
+        // 切换域名后重试次数重置为0，但其实重试了3次
+        // 由于最终是shutdown，并没有成功，所以域名看起来没有切换，但其实已经切换了
+        describeDataset(ciServiceMyqcloud, "shutdown", CI_HOST_MYQCLOUD, 0);
         describeDataset(ciServiceTencentCI, "shutdown", CI_HOST_TENCENTCI, 2);
     }
 
+    private void mockResponse(MockWebServer server, String xCiCode) {
+        try {
+            server.start(InetAddress.getByName("127.0.0.1"), 8080);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // 设置 mock 响应
+        MockResponse mockResponse = new MockResponse();
+        if (xCiCode.endsWith("r")) {
+            mockResponse.addHeader("x-ci-request-id", "x-ci-request-id-xxxxx");
+            mockResponse.addHeader("x-cos-request-id", "x-cos-request-id-xxxxx");
+            xCiCode = xCiCode.substring(0, xCiCode.length() - 1);
+        }
+        // 超时
+        if(xCiCode.equals("timeout")){
+            mockResponse.setHeadersDelay(10, TimeUnit.SECONDS);
+        }
+        // shutdown
+        if(xCiCode.equals("shutdown")){
+            mockResponse.setHeadersDelay(3, TimeUnit.SECONDS);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(2000);
+                        server.close();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }).start();
+        }
+        try {
+            int mockCode = Integer.parseInt(xCiCode);
+            mockResponse.setResponseCode(mockCode);
+        } catch (NumberFormatException e){
+        }
+        for (int i = 0; i < 10; i++){
+            server.enqueue(mockResponse);
+        }
+    }
+
     public void describeDataset(CIService ciService, String xCiCode, String hostParam, int retryCountParam) {
+        MockWebServer server = new MockWebServer();
+        mockResponse(server, xCiCode);
+
         DescribeDatasetRequest request = new DescribeDatasetRequest(TestConst.CI_BUCKET_APPID);
         request.datasetname = "datasetnametestqjd";// 设置数据集名称，同一个账户下唯一。
         request.statistics = false;// 设置是否需要实时统计数据集中文件相关信息。有效值： false：不统计，返回的文件的总大小、数量信息可能不正确也可能都为0。 true：需要统计，返回数据集中当前的文件的总大小、数量信息。 默认值为false。
@@ -251,7 +311,7 @@ public class RetryCiTest {
             int retryCount = request.getMetrics().getRetryCount();
             Log.d("RetryTest_"+xCiCode, "retryCount: " + retryCount + "--- retryCountParam: " + retryCountParam);
             Assert.assertEquals(retryCount, retryCountParam);
-            String host = request.getHttpTask().request().header("Host");
+            String host = request.getHttpTask().request().host();
             Log.d("RetryTest_"+xCiCode, "host: " + host + "--- hostParam: " + hostParam);
             Assert.assertEquals(host, hostParam);
         } catch (CosXmlServiceException e) {
@@ -263,10 +323,18 @@ public class RetryCiTest {
             Log.d("RetryTest_"+xCiCode, "host: " + host + "--- hostParam: " + hostParam);
             Assert.assertEquals(host, hostParam);
         }
-
-        // 由于流水线的wetest真机无法配置代理，因此这里在流水线上不判断用例是否正确，只在本地开发专项测试时使用
+        RetryInterceptor.resetHostReliable(CI_HOST_MYQCLOUD);
+        RetryInterceptor.resetHostReliable(CI_HOST_TENCENTCI);
+        try {
+            server.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     public void describeDocProcessBuckets(CIService ciService, String xCiCode, String hostParam, int retryCountParam) {
+        MockWebServer server = new MockWebServer();
+        mockResponse(server, xCiCode);
+
         DescribeDocProcessBucketsRequest request = new DescribeDocProcessBucketsRequest();
         request.setPageNumber(1);
         request.setPageSize(20);
@@ -289,7 +357,7 @@ public class RetryCiTest {
             int retryCount = request.getMetrics().getRetryCount();
             Log.d("RetryTest_"+xCiCode, "retryCount: " + retryCount + "--- retryCountParam: " + retryCountParam);
             Assert.assertEquals(retryCount, retryCountParam);
-            String host = request.getHttpTask().request().header("Host");
+            String host = request.getHttpTask().request().host();
             Log.d("RetryTest_"+xCiCode, "host: " + host + "--- hostParam: " + hostParam);
             Assert.assertEquals(host, hostParam);
         } catch (CosXmlServiceException e) {
@@ -305,6 +373,9 @@ public class RetryCiTest {
         // 由于流水线的wetest真机无法配置代理，因此这里在流水线上不判断用例是否正确，只在本地开发专项测试时使用
     }
     public void templateConcat(CIService ciService, String xCiCode, String hostParam, int retryCountParam) {
+        MockWebServer server = new MockWebServer();
+        mockResponse(server, xCiCode);
+
         PostTextAuditRequest postRequest = new PostTextAuditRequest(TestConst.CI_BUCKET);
 //        postRequest.setObject(TestConst.AUDIT_BUCKET_TEXT);
         postRequest.setContent(Base64.encodeToString("测试文本 很黄很暴力".getBytes(Charset.forName("UTF-8")), Base64.NO_WRAP));
@@ -333,7 +404,7 @@ public class RetryCiTest {
             int retryCount = postRequest.getMetrics().getRetryCount();
             Log.d("RetryTest_"+xCiCode, "retryCount: " + retryCount + "--- retryCountParam: " + retryCountParam);
             Assert.assertEquals(retryCount, retryCountParam);
-            String host = postRequest.getHttpTask().request().header("Host");
+            String host = postRequest.getHttpTask().request().host();
             Log.d("RetryTest_"+xCiCode, "host: " + host + "--- hostParam: " + hostParam);
             Assert.assertEquals(host, hostParam);
         } catch (CosXmlServiceException e) {

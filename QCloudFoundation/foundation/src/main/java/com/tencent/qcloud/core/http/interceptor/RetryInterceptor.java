@@ -239,7 +239,7 @@ public class RetryInterceptor implements Interceptor {
             }
 
             // 判断是否满足域名切换条件
-            boolean meetDomainSwitchCondition = checkDomainSwitchCondition(task, request, response, statusCode);
+            boolean meetDomainSwitchCondition = checkDomainSwitchCondition(task, request, response, statusCode, e);
 
             // 2xx：成功，不重试
             if (e == null && statusCode >= 200 && statusCode < 300) {
@@ -286,7 +286,7 @@ public class RetryInterceptor implements Interceptor {
                 // 判断是否应该继续重试
                 boolean shouldContinueRetry = shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled();
                 
-                if (shouldContinueRetry) {
+                if (shouldContinueRetry && !task.hasSwitchedDomain()) {
                     // 继续重试（使用原域名）
                     COSLogger.iNetwork(HTTP_LOG_TAG, "%s 5xx/error retry with original domain, attempts is %d, error is %s, code is %d", 
                             request, attempts, e, statusCode);
@@ -432,6 +432,12 @@ public class RetryInterceptor implements Interceptor {
         }
     }
 
+    public static void resetHostReliable(String host) {
+        HostReliable hostReliable = hostReliables.get(host);
+        if (hostReliable != null) {
+            hostReliable.resetReliable();
+        }
+    }
 
     private boolean shouldRetry(Request request, Response response, int attempts, int weight, long startTime, IOException e, int statusCode) {
         if (isUserCancelled(e)) {
@@ -464,12 +470,18 @@ public class RetryInterceptor implements Interceptor {
      * 检查是否满足域名切换条件
      * 条件：域名匹配myqcloud.com & 响应不含requestid & 开启域名切换开关 & 签名是SDK自己生成
      */
-    private boolean checkDomainSwitchCondition(HttpTask task, Request request, Response response, int statusCode) {
+    private boolean checkDomainSwitchCondition(HttpTask task, Request request, Response response, int statusCode, IOException e) {
         if (task == null || !task.isDomainSwitch() || task.isSelfSigner()) {
             return false;
         }
         
         if (!DomainSwitchUtils.isMyqcloudUrl(request.url().host())) {
+            return false;
+        }
+
+        if(e != null && e.getCause() != null && e.getCause() instanceof QCloudServiceException &&
+                !TextUtils.isEmpty(((QCloudServiceException) e.getCause()).getRequestId())
+        ){
             return false;
         }
         

@@ -164,7 +164,8 @@ dependencies {
 
     androidTestImplementation 'org.dhatim:fastexcel:0.18.4'
 
-    androidTestImplementation 'com.squareup.okhttp3:mockwebserver3:5.3.2'
+//     'com.squareup.okhttp3:mockwebserver3:5.3.2'
+    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:3.12.6'
 
 //    if (compileQuic() && false) {
 //        api project(path: ':quic')
