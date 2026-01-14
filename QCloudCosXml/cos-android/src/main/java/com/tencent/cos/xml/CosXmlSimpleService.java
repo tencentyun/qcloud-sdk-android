@@ -44,6 +44,8 @@ import com.tencent.cos.xml.model.object.DeleteObjectRequest;
 import com.tencent.cos.xml.model.object.DeleteObjectResult;
 import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.cos.xml.model.object.HeadObjectResult;
+import com.tencent.cos.xml.model.object.ImageProcessRequest;
+import com.tencent.cos.xml.model.object.ImageProcessResult;
 import com.tencent.cos.xml.model.object.InitMultipartUploadRequest;
 import com.tencent.cos.xml.model.object.InitMultipartUploadResult;
 import com.tencent.cos.xml.model.object.ListPartsRequest;
@@ -138,6 +140,28 @@ public class CosXmlSimpleService extends CosXmlBaseService implements SimpleCosX
         PutObjectResult putObjectResult = new PutObjectResult();
         putObjectResult.accessUrl = getAccessUrl(request);
         schedule(request, putObjectResult, cosXmlResultListener, true);
+    }
+
+    /**
+     * <p>
+     * 云上图片处理的同步方法.
+     * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#imageProcess(ImageProcessRequest)}
+     */
+    @Override
+    public ImageProcessResult imageProcess(ImageProcessRequest request) throws CosXmlClientException, CosXmlServiceException {
+        return execute(request, new ImageProcessResult());
+    }
+
+    /**
+     * <p>
+     * 云上图片处理的异步方法.
+     * </p>
+     * 详细介绍，请查看:{@link  SimpleCosXml#imageProcessAsync(ImageProcessRequest, CosXmlResultListener)}
+     */
+    @Override
+    public void imageProcessAsync(ImageProcessRequest request, final CosXmlResultListener cosXmlResultListener) {
+        schedule(request, new ImageProcessResult(), cosXmlResultListener);
     }
 
     /**

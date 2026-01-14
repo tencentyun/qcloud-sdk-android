@@ -259,25 +259,29 @@ public class ServiceFactory {
         return newService(cosXmlServiceConfig);
     }
 
-    public CosXmlSimpleService newRetryServiceMyqcloud(boolean domainSwitch) {
+    public CosXmlSimpleService newRetryServiceMyqcloud(boolean domainSwitch, int port) {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(false)
                 .setDebuggable(true)
                 .setRegion(TestConst.RETRY_REGION)
+                .setPort(port)
                 .setDomainSwitch(domainSwitch)
                 .setSocketTimeout(5000)
+                .setRedirectEnable(true)
                 .builder();
         return newService(cosXmlServiceConfig);
     }
 
-    public CosXmlSimpleService newRetryServiceTencentCos(boolean domainSwitch) {
+    public CosXmlSimpleService newRetryServiceTencentCos(boolean domainSwitch, int port) {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .isHttps(false)
                 .setDebuggable(true)
                 .setRegion(TestConst.RETRY_REGION)
                 .setHostFormat("${bucket}.cos.${region}.tencentcos.cn")
+                .setPort(port)
                 .setDomainSwitch(domainSwitch)
                 .setSocketTimeout(5000)
+                .setRedirectEnable(true)
                 .builder();
         return newService(cosXmlServiceConfig);
     }

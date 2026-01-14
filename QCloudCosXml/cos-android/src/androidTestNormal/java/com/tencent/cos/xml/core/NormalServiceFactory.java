@@ -5,6 +5,7 @@ import static com.tencent.cos.xml.core.TestUtils.getContext;
 import com.tencent.cos.xml.CIService;
 import com.tencent.cos.xml.CosXmlService;
 import com.tencent.cos.xml.CosXmlServiceConfig;
+import com.tencent.cos.xml.CosXmlSimpleService;
 import com.tencent.cos.xml.transfer.TransferConfig;
 import com.tencent.cos.xml.transfer.TransferManager;
 import com.tencent.qcloud.core.auth.ShortTimeCredentialProvider;
@@ -110,6 +111,36 @@ public class NormalServiceFactory {
                 .setRegion(TestConst.CI_BUCKET_REGION)
                 .builder();
 
+        return new CIService(getContext(), cosXmlServiceConfig,
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
+    }
+
+    public CIService newRetryCIServiceMyqcloud(boolean domainSwitch, int port) {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(false)
+                .setDebuggable(true)
+                .setRegion(TestConst.CI_BUCKET_REGION)
+                .setHost("1253960454.ci.ap-beijing.myqcloud.com")
+                .setPort(port)
+                .setDomainSwitch(domainSwitch)
+                .setSocketTimeout(5000)
+                .setRedirectEnable(true)
+                .builder();
+        return new CIService(getContext(), cosXmlServiceConfig,
+                new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
+    }
+
+    public CIService newRetryCIServiceTencentCI(boolean domainSwitch, int port) {
+        CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
+                .isHttps(false)
+                .setDebuggable(true)
+                .setRegion(TestConst.CI_BUCKET_REGION)
+                .setHost("1253960454.ci.ap-beijing.tencentci.cn")
+                .setPort(port)
+                .setDomainSwitch(domainSwitch)
+                .setSocketTimeout(5000)
+                .setRedirectEnable(true)
+                .builder();
         return new CIService(getContext(), cosXmlServiceConfig,
                 new ShortTimeCredentialProvider(TestConst.SECRET_ID, TestConst.SECRET_KEY,60000) );
     }
