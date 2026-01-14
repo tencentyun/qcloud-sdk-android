@@ -1,8 +1,5 @@
 package com.tencent.cos.xml.retry;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -13,10 +10,11 @@ import com.tencent.cos.xml.core.TestConst;
 import com.tencent.cos.xml.core.TestUtils;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.model.object.CopyObjectRequest;
+import com.tencent.cos.xml.model.object.CopyObjectResult;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.GetObjectResult;
 import com.tencent.qcloud.core.http.interceptor.RetryInterceptor;
-import com.tencent.qcloud.core.util.DomainSwitchUtils;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -104,6 +102,52 @@ public class RetryCosWebServerMockTest {
 
         getObject(serviceMyqcloud, "206", HOST_MYQCLOUD, 0);
         getObject(serviceTencentCos, "206", HOST_TENCENTCOS, 0);
+    }
+
+    @Test
+    public void testNoSwitch207CopyObject() {
+        copyObject(serviceMyqcloudNoSwitch, "null_207r", HOST_MYQCLOUD, 0);
+        copyObject(serviceTencentCosNoSwitch, "null_207r", HOST_TENCENTCOS, 0);
+        copyObject(serviceMyqcloudNoSwitch, "null_207", HOST_MYQCLOUD, 0);
+        copyObject(serviceTencentCosNoSwitch, "null_207", HOST_TENCENTCOS, 0);
+
+        copyObject(serviceMyqcloudNoSwitch, "InternalError_207r", null, 2);
+        copyObject(serviceTencentCosNoSwitch, "InternalError_207r", null, 2);
+        copyObject(serviceMyqcloudNoSwitch, "InternalError_207", null, 2);
+        copyObject(serviceTencentCosNoSwitch, "InternalError_207", null, 2);
+
+        copyObject(serviceMyqcloudNoSwitch, "SlowDown_207r", null, 2);
+        copyObject(serviceTencentCosNoSwitch, "SlowDown_207r", null, 2);
+        copyObject(serviceMyqcloudNoSwitch, "SlowDown_207", null, 2);
+        copyObject(serviceTencentCosNoSwitch, "SlowDown_207", null, 2);
+
+        copyObject(serviceMyqcloudNoSwitch, "ServiceUnavailable_207r", null, 2);
+        copyObject(serviceTencentCosNoSwitch, "ServiceUnavailable_207r", null, 2);
+        copyObject(serviceMyqcloudNoSwitch, "ServiceUnavailable_207", null, 2);
+        copyObject(serviceTencentCosNoSwitch, "ServiceUnavailable_207", null, 2);
+    }
+
+    @Test
+    public void testSwitch207CopyObject() {
+        copyObject(serviceMyqcloud, "null_207r", HOST_MYQCLOUD, 0);
+        copyObject(serviceTencentCos, "null_207r", HOST_TENCENTCOS, 0);
+        copyObject(serviceMyqcloud, "null_207", HOST_MYQCLOUD, 0);
+        copyObject(serviceTencentCos, "null_207", HOST_TENCENTCOS, 0);
+
+        copyObject(serviceMyqcloud, "InternalError_207r", null, 2);
+        copyObject(serviceTencentCos, "InternalError_207r", null, 2);
+        copyObject(serviceMyqcloud, "InternalError_207", null, 2);
+        copyObject(serviceTencentCos, "InternalError_207", null, 2);
+
+        copyObject(serviceMyqcloud, "SlowDown_207r", null, 2);
+        copyObject(serviceTencentCos, "SlowDown_207r", null, 2);
+        copyObject(serviceMyqcloud, "SlowDown_207", null, 2);
+        copyObject(serviceTencentCos, "SlowDown_207", null, 2);
+
+        copyObject(serviceMyqcloud, "ServiceUnavailable_207r", null, 2);
+        copyObject(serviceTencentCos, "ServiceUnavailable_207r", null, 2);
+        copyObject(serviceMyqcloud, "ServiceUnavailable_207", null, 2);
+        copyObject(serviceTencentCos, "ServiceUnavailable_207", null, 2);
     }
 
     @Test
@@ -278,6 +322,42 @@ public class RetryCosWebServerMockTest {
                 }
             }).start();
         }
+        // 207为copy
+        if(xCiCode.contains("_207")){
+            String errorCode = xCiCode.split("_")[0];
+            if(errorCode.equals("InternalError")){
+                mockResponse.setBody("<Error>\n" +
+                        "            <Code>InternalError</Code>\n" +
+                        "            <Message>InternalError</Message>\n" +
+                        "            <Resource>string</Resource>\n" +
+                        "            <RequestId>NWU5MGI4ZWVfNzljMDBiMDlfMWM3MjlfMWQ1****</RequestId>\n" +
+                        "            <TraceId>string</TraceId>\n" +
+                        "</Error>");
+            } else if(errorCode.equals("SlowDown")){
+                mockResponse.setBody("<Error>\n" +
+                        "            <Code>SlowDown</Code>\n" +
+                        "            <Message>SlowDown</Message>\n" +
+                        "            <Resource>string</Resource>\n" +
+                        "            <RequestId>NWU5MGI4ZWVfNzljMDBiMDlfMWM3MjlfMWQ1****</RequestId>\n" +
+                        "            <TraceId>string</TraceId>\n" +
+                        "</Error>");
+            } else if(errorCode.equals("ServiceUnavailable")){
+                mockResponse.setBody("<Error>\n" +
+                        "            <Code>ServiceUnavailable</Code>\n" +
+                        "            <Message>ServiceUnavailable</Message>\n" +
+                        "            <Resource>string</Resource>\n" +
+                        "            <RequestId>NWU5MGI4ZWVfNzljMDBiMDlfMWM3MjlfMWQ1****</RequestId>\n" +
+                        "            <TraceId>string</TraceId>\n" +
+                        "</Error>");
+            } else {
+                mockResponse.setBody("<CopyObjectResult>\n" +
+                        "            <ETag>\"ee8de918d05640145b18f70f4c3aa602\"</ETag>\n" +
+                        "            <CRC64>16749565679157681890</CRC64>\n" +
+                        "            <LastModified>2020-04-10T18:20:30Z</LastModified>\n" +
+                        "</CopyObjectResult>");
+            }
+            xCiCode = "207";
+        }
         try {
             int mockCode = Integer.parseInt(xCiCode);
             mockResponse.setResponseCode(mockCode);
@@ -295,6 +375,49 @@ public class RetryCosWebServerMockTest {
         GetObjectRequest request = new GetObjectRequest(TestConst.RETRY_BUCKET, cosKey, TestUtils.localParentPath());
         try {
             GetObjectResult result = cosXmlSimpleService.getObject(request);
+            int retryCount = request.getMetrics().getRetryCount();
+            Log.d("RetryTest_"+cosKey, "retryCount: " + retryCount + "--- retryCountParam: " + retryCountParam);
+            Assert.assertEquals(retryCount, retryCountParam);
+            String host = result.host;
+            Log.d("RetryTest_"+cosKey, "host: " + host + "--- hostParam: " + hostParam);
+            Assert.assertEquals(host, hostParam);
+        } catch (CosXmlClientException e) {
+            e.printStackTrace();
+            int retryCount = request.getMetrics().getRetryCount();
+            Log.d("RetryTest_"+cosKey, "retryCount: " + retryCount + "--- retryCountParam: " + retryCountParam);
+            Assert.assertEquals(retryCount, retryCountParam);
+            String host = request.getHttpTask().request().header("Host");
+            Log.d("RetryTest_"+cosKey, "host: " + host + "--- hostParam: " + hostParam);
+            Assert.assertEquals(host, hostParam);
+        } catch (CosXmlServiceException e) {
+            e.printStackTrace();
+            int retryCount = request.getMetrics().getRetryCount();
+            Log.d("RetryTest_"+cosKey, "retryCount: " + retryCount + "--- retryCountParam: " + retryCountParam);
+            Assert.assertEquals(retryCount, retryCountParam);
+            String host = e.getHost();
+            Log.d("RetryTest_"+cosKey, "host: " + host + "--- hostParam: " + hostParam);
+            Assert.assertEquals(host, hostParam);
+        }
+        RetryInterceptor.resetHostReliable(HOST_MYQCLOUD);
+        RetryInterceptor.resetHostReliable(HOST_TENCENTCOS);
+        try {
+            server.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void copyObject(CosXmlSimpleService cosXmlSimpleService, String cosKey, String hostParam, int retryCountParam)   {
+        MockWebServer server = new MockWebServer();
+        mockResponse(server, cosKey);
+
+        CopyObjectRequest.CopySourceStruct copySourceStruct = new CopyObjectRequest.CopySourceStruct(
+                TestConst.PERSIST_BUCKET, TestConst.PERSIST_BUCKET_REGION, TestConst.PERSIST_BUCKET_SMALL_OBJECT_PATH);
+        CopyObjectRequest request = new CopyObjectRequest(TestConst.RETRY_BUCKET,
+                cosKey, copySourceStruct);
+
+        try {
+            CopyObjectResult result = cosXmlSimpleService.copyObject(request);
             int retryCount = request.getMetrics().getRetryCount();
             Log.d("RetryTest_"+cosKey, "retryCount: " + retryCount + "--- retryCountParam: " + retryCountParam);
             Assert.assertEquals(retryCount, retryCountParam);

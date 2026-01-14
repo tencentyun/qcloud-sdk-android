@@ -244,6 +244,56 @@ public class QCloudRetryInterceptor {
 
             // 2xx：成功，不重试
             if (e == null && statusCode >= 200 && statusCode < 300) {
+                // copy object 特殊处理：2xx响应中可能包含错误信息
+                if(!TextUtils.isEmpty(request.header("x-cos-copy-source"))){
+                    ResponseBody body = response.body();
+                    if (body != null) {
+                        try {
+                            BufferedSource source = body.source();
+                            source.request(Long.MAX_VALUE);
+                            Buffer buffer = source.buffer();
+                            String bodyString = buffer.clone().readString(Charset.forName("UTF-8"));
+
+                            // 解析 Code
+                            String errorCode = parseXmlTag(bodyString, "Code");
+                            if (errorCode != null && isCopyObjectRetryableError(errorCode)) {
+                                // 解析 Message 和 RequestId
+                                String errorMessage = parseXmlTag(bodyString, "Message");
+                                String requestId = parseXmlTag(bodyString, "RequestId");
+
+                                // 需要重试的错误码，转换为IOException继续重试流程
+                                COSLogger.iNetwork(HTTP_LOG_TAG, "%s copy object 2xx but error code is %s, message is %s, requestId is %s, will retry",
+                                        request, errorCode, errorMessage, requestId);
+
+                                QCloudServiceException qCloudServiceException = new QCloudServiceException(errorMessage != null ? errorMessage : errorCode);
+                                qCloudServiceException.setStatusCode(statusCode);
+                                qCloudServiceException.setErrorCode(errorCode);
+                                qCloudServiceException.setRequestId(requestId);
+                                e = new IOException(qCloudServiceException);
+
+                                // 关闭当前response，准备重试
+                                response.close();
+
+                                // 判断是否应该继续重试
+                                boolean shouldContinueRetry = shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled();
+                                if (shouldContinueRetry) {
+                                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s copy object error retry, attempts is %d, error code is %s", request, attempts, errorCode);
+                                    retryStrategy.onTaskEnd(false, e);
+                                    continue;
+                                } else {
+                                    // 不再重试，抛出异常
+                                    decreaseHostAccess(request.url().host());
+                                    retryStrategy.onTaskEnd(false, e);
+                                    throw e;
+                                }
+                            }
+                        } catch (Exception ex) {
+                            // 解析失败，忽略，按正常成功处理
+                            COSLogger.iNetwork(HTTP_LOG_TAG, "parse copy object response failed: %s", ex.getMessage());
+                        }
+                    }
+                }
+
                 if (serverDate != null) {
                     HttpConfiguration.calculateGlobalTimeOffset(serverDate, new Date(), MIN_CLOCK_SKEWED_OFFSET);
                 }
@@ -457,7 +507,7 @@ public class QCloudRetryInterceptor {
         }
 
         // 判断是否是可恢复的异常（未收到回包：reset、超时等）
-        if (e != null && isRecoverable(e)) {
+        if (e != null && isRecoverable(e, request)) {
             return true;
         }
 
@@ -469,7 +519,7 @@ public class QCloudRetryInterceptor {
      * 判断异常是否可恢复（是否值得重试）
      * 用于判断"未收到回包"的场景（reset、超时等网络异常）
      */
-    private boolean isRecoverable(IOException e) {
+    private boolean isRecoverable(IOException e, Request request) {
         // 协议异常不可恢复
         if (e instanceof ProtocolException) {
             return false;
@@ -482,7 +532,11 @@ public class QCloudRetryInterceptor {
 
         if(e.getCause() instanceof QCloudServiceException) {
             QCloudServiceException qCloudServiceException = (QCloudServiceException) e.getCause();
-            return qCloudServiceException.getStatusCode() >= 500 && qCloudServiceException.getStatusCode() < 600;
+            if(!TextUtils.isEmpty(request.header("x-cos-copy-source"))){
+                return isCopyObjectRetryableError(qCloudServiceException.getErrorCode());
+            } else {
+                return qCloudServiceException.getStatusCode() >= 500 && qCloudServiceException.getStatusCode() < 600;
+            }
         }
 
         // 其他网络异常都值得重试（如连接失败、连接重置、SSL异常等）
@@ -516,6 +570,46 @@ public class QCloudRetryInterceptor {
         
         // 收到响应但没有 x-cos-request-id和 x-ci-request-id
         return TextUtils.isEmpty(response.header("x-cos-request-id")) && TextUtils.isEmpty(response.header("x-ci-request-id"));
+    }
+
+    /**
+     * 判断CopyObject的错误码是否需要重试
+     * 需要重试的错误码：InternalError、SlowDown、ServiceUnavailable
+     *
+     * @param errorCode 错误码
+     * @return 是否需要重试
+     */
+    private boolean isCopyObjectRetryableError(String errorCode) {
+        if (TextUtils.isEmpty(errorCode)) {
+            return false;
+        }
+        return "InternalError".equals(errorCode)
+                || "SlowDown".equals(errorCode)
+                || "ServiceUnavailable".equals(errorCode);
+    }
+
+    /**
+     * 从XML字符串中解析指定标签的内容
+     * 例如：parseXmlTag("<Code>InternalError</Code>", "Code") 返回 "InternalError"
+     *
+     * @param xmlString XML字符串
+     * @param tagName 标签名称
+     * @return 标签内容，如果解析失败返回null
+     */
+    private String parseXmlTag(String xmlString, String tagName) {
+        if (TextUtils.isEmpty(xmlString) || TextUtils.isEmpty(tagName)) {
+            return null;
+        }
+        try {
+            Pattern pattern = Pattern.compile("<" + tagName + ">([^<]*)</" + tagName + ">");
+            Matcher matcher = pattern.matcher(xmlString);
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+        } catch (Exception e) {
+            COSLogger.iNetwork(HTTP_LOG_TAG, "parseXmlTag failed for tag %s: %s", tagName, e.getMessage());
+        }
+        return null;
     }
 
     /**
