@@ -61,6 +61,7 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
     protected HttpTaskMetrics metrics;
 
     private NetworkProxy<T> networkProxy;
+    private boolean hasSwitchedDomain = false; // 标记是否已经切换过域名
 
     private QCloudProgressListener mProgressListener = new QCloudProgressListener() {
         @Override
@@ -176,6 +177,13 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
      */
     public boolean isSelfSigner(){
         return httpRequest.getQCloudSelfSigner() != null;
+    }
+
+    /**
+     * 是否已经切换过域名
+     */
+    public boolean hasSwitchedDomain() {
+        return hasSwitchedDomain;
     }
 
     /**
@@ -309,7 +317,15 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
             }
         } catch (QCloudClientException clientException) {
             if (clientException.getCause() instanceof DomainSwitchException && isDomainSwitch() && (signer != null && selfSigner == null)) {
-                String urlString = httpRequest.url.toString().replace(DomainSwitchUtils.DOMAIN_MYQCLOUD, DomainSwitchUtils.DOMAIN_TENCENTCOS);
+                // 标记已经切换过域名
+                hasSwitchedDomain = true;
+                // 切换域名
+                String urlString = httpRequest.url.toString();
+                if(DomainSwitchUtils.isMyqcloudCosUrl(httpRequest.url.getHost())){
+                    urlString = httpRequest.url.toString().replace(DomainSwitchUtils.DOMAIN_MYQCLOUD, DomainSwitchUtils.DOMAIN_TENCENTCOS);
+                } else if(DomainSwitchUtils.isMyqcloudCiUrl(httpRequest.url.getHost())) {
+                    urlString = httpRequest.url.toString().replace(DomainSwitchUtils.DOMAIN_MYQCLOUD, DomainSwitchUtils.DOMAIN_TENCENTCI);
+                }
                 httpRequest.setUrl(urlString);
                 try {
                     URL url = new URL(urlString);

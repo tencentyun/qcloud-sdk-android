@@ -49,7 +49,6 @@ import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
-import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -59,9 +58,6 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLPeerUnverifiedException;
 
 import okhttp3.Headers;
 import okhttp3.Interceptor;
@@ -150,24 +146,6 @@ public class RetryInterceptor implements Interceptor {
             throw new IOException("CANCELED");
         }
 
-        if(task.isDomainSwitch() && !task.isSelfSigner() && DomainSwitchUtils.isMyqcloudUrl(request.url().host())){
-            try {
-                response = executeTaskOnce(chain, request, task);
-                // 判断响应 状态码非2XX，且没有x-cos-request-id头部
-                if (!response.isSuccessful() && TextUtils.isEmpty(response.header("x-cos-request-id"))) {
-                    throw new DomainSwitchException();
-                }
-            } catch (Exception exception){
-                // 下载convertResponse可能会产生服务端异常，这时候不用切
-                if(exception.getCause() instanceof QCloudServiceException &&
-                        !TextUtils.isEmpty(((QCloudServiceException) exception.getCause()).getRequestId())){
-                } else {
-                    // 没有收到响应
-                    throw new DomainSwitchException();
-                }
-            }
-        }
-
         int attempts = 0;
         long startTime = System.nanoTime();
 
@@ -194,7 +172,7 @@ public class RetryInterceptor implements Interceptor {
                 }
             }
 
-            COSLogger.iNetwork(HTTP_LOG_TAG, "%s start to execute, attempts is %d", request, attempts);
+            COSLogger.iNetwork(HTTP_LOG_TAG, "%s start to execute, attempts is %d, hasSwitchedDomain is %b", request, attempts, task.hasSwitchedDomain());
 
             //记录重试次数
             HttpTaskMetrics metrics = task.metrics();
@@ -205,22 +183,28 @@ public class RetryInterceptor implements Interceptor {
             attempts++;
             int statusCode = -1;
             try {
-                if(attempts == 1 && response != null){
-                    // 第一次执行 且response已经有值了，说明尝试成功，则不再重复执行
-                } else {
-                    //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
-                    if (response != null && response.body() != null) {
-                        response.close();
-                    }
-                    response = executeTaskOnce(chain, request, task);
+                //解决okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
+                if (response != null && response.body() != null) {
+                    response.close();
                 }
+                response = executeTaskOnce(chain, request, task);
                 statusCode = response.code();
                 e = null;
-            } catch (IOException exception) {
-                if(exception instanceof DomainSwitchException){
+            } catch (DomainSwitchException exception) {
+                // 捕获域名切换异常（来自RedirectInterceptor的3xx处理）
+                if (!task.hasSwitchedDomain()) {
+                    // 还未切换过域名，抛出异常让HttpTask切换域名
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s 3xx from RedirectInterceptor, switch domain, attempts is %d", request, attempts);
                     throw exception;
                 } else {
-                    e = exception;
+                    // 已经切换过域名，不应该再收到DomainSwitchException，转换为普通IOException
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s 3xx after domain switch, should not happen, attempts is %d", request, attempts);
+                    e = new IOException(exception);
+                }
+            } catch (IOException exception) {
+                e = exception;
+                if(e.getCause() instanceof QCloudServiceException) {
+                    statusCode = ((QCloudServiceException) e.getCause()).getStatusCode();
                 }
             } catch (IllegalStateException exception){
                 // 再次处理 okhttp 3.14 以上版本报错 cannot make a new request because the previous response is still open: please call response.close()
@@ -254,7 +238,61 @@ public class RetryInterceptor implements Interceptor {
                 }
             }
 
-            if ((e == null && response.isSuccessful())) {
+            // 判断是否满足域名切换条件
+            boolean meetDomainSwitchCondition = checkDomainSwitchCondition(task, request, response, statusCode, e);
+
+            // 2xx：成功，不重试
+            if (e == null && statusCode >= 200 && statusCode < 300) {
+                // copy object 特殊处理：2xx响应中可能包含错误信息
+                if(!TextUtils.isEmpty(request.header("x-cos-copy-source"))){
+                    ResponseBody body = response.body();
+                    if (body != null) {
+                        try {
+                            BufferedSource source = body.source();
+                            source.request(Long.MAX_VALUE);
+                            Buffer buffer = source.buffer();
+                            String bodyString = buffer.clone().readString(Charset.forName("UTF-8"));
+                            
+                            // 解析 Code
+                            String errorCode = parseXmlTag(bodyString, "Code");
+                            if (errorCode != null && isCopyObjectRetryableError(errorCode)) {
+                                // 解析 Message 和 RequestId
+                                String errorMessage = parseXmlTag(bodyString, "Message");
+                                String requestId = parseXmlTag(bodyString, "RequestId");
+                                
+                                // 需要重试的错误码，转换为IOException继续重试流程
+                                COSLogger.iNetwork(HTTP_LOG_TAG, "%s copy object 2xx but error code is %s, message is %s, requestId is %s, will retry", 
+                                        request, errorCode, errorMessage, requestId);
+                                
+                                QCloudServiceException qCloudServiceException = new QCloudServiceException(errorMessage != null ? errorMessage : errorCode);
+                                qCloudServiceException.setStatusCode(statusCode);
+                                qCloudServiceException.setErrorCode(errorCode);
+                                qCloudServiceException.setRequestId(requestId);
+                                e = new IOException(qCloudServiceException);
+                                
+                                // 关闭当前response，准备重试
+                                response.close();
+                                
+                                // 判断是否应该继续重试
+                                boolean shouldContinueRetry = shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled();
+                                if (shouldContinueRetry) {
+                                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s copy object error retry, attempts is %d, error code is %s", request, attempts, errorCode);
+                                    retryStrategy.onTaskEnd(false, e);
+                                    continue;
+                                } else {
+                                    // 不再重试，抛出异常
+                                    decreaseHostAccess(request.url().host());
+                                    retryStrategy.onTaskEnd(false, e);
+                                    throw e;
+                                }
+                            }
+                        } catch (Exception ex) {
+                            // 解析失败，忽略，按正常成功处理
+                            COSLogger.iNetwork(HTTP_LOG_TAG, "parse copy object response failed: %s", ex.getMessage());
+                        }
+                    }
+                }
+
                 if (serverDate != null) {
                     HttpConfiguration.calculateGlobalTimeOffset(serverDate, new Date(), MIN_CLOCK_SKEWED_OFFSET);
                 }
@@ -264,6 +302,7 @@ public class RetryInterceptor implements Interceptor {
                 break;
             }
 
+            // 时钟偏移错误特殊处理
             String clockSkewError = getClockSkewError(response, statusCode);
             if (clockSkewError != null) {
                 COSLogger.iNetwork(HTTP_LOG_TAG, "%s failed for %s", request, clockSkewError);
@@ -274,13 +313,51 @@ public class RetryInterceptor implements Interceptor {
                     e = new IOException(new QCloudServiceException("client clock skewed").setErrorCode(clockSkewError));
                 }
                 break;
-            } else if (shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled()) {
-                COSLogger.iNetwork(HTTP_LOG_TAG, "%s failed for %s, code is %d", request, e, statusCode);
-                retryStrategy.onTaskEnd(false, e);
-            } else {
-                COSLogger.iNetwork(HTTP_LOG_TAG, "%s ends for %s, code is %d", request, e, statusCode);
+            }
+
+            // 3xx：已经在RedirectInterceptor中处理，重定向已完成，不需要重试
+            if (statusCode >= 300 && statusCode < 400) {
+                COSLogger.iNetwork(HTTP_LOG_TAG, "%s 3xx ends, attempts is %d, code is %d", request, attempts, statusCode);
+                // access success
+                increaseHostReliable(request.url().host());
+                retryStrategy.onTaskEnd(true, null);
                 break;
             }
+
+            // 4xx：不重试
+            if (statusCode >= 400 && statusCode < 500) {
+                COSLogger.iNetwork(HTTP_LOG_TAG, "%s 4xx ends without retry, code is %d", request, statusCode);
+                break;
+            }
+
+            // 5xx 或 未收到回包：按RetryStrategy重试，最后一次重试时切换域名
+            boolean is5xxOrNoResponse = (statusCode >= 500 && statusCode < 600) || e != null;
+            if (is5xxOrNoResponse) {
+                // 判断是否应该继续重试
+                boolean shouldContinueRetry = shouldRetry(request, response, attempts, task.getWeight(), startTime, e, statusCode) && !task.isCanceled();
+                
+                if (shouldContinueRetry && !task.hasSwitchedDomain()) {
+                    // 继续重试（使用原域名）
+                    COSLogger.iNetwork(HTTP_LOG_TAG, "%s 5xx/error retry with original domain, attempts is %d, error is %s, code is %d", 
+                            request, attempts, e, statusCode);
+                    retryStrategy.onTaskEnd(false, e);
+                    continue;
+                } else {
+                    // 这是最后一次机会，判断是否需要切换域名
+                    if (meetDomainSwitchCondition && !task.hasSwitchedDomain()) {
+                        COSLogger.iNetwork(HTTP_LOG_TAG, "%s last retry with domain switch, attempts is %d", request, attempts);
+                        throw new DomainSwitchException();
+                    } else {
+                        // 不满足切换条件或已切换过，结束重试
+                        COSLogger.iNetwork(HTTP_LOG_TAG, "%s ends after retries, attempts is %d, code is %d", request, attempts, statusCode);
+                        break;
+                    }
+                }
+            }
+
+            // 其他情况，结束重试
+            COSLogger.iNetwork(HTTP_LOG_TAG, "%s ends, code is %d", request, statusCode);
+            break;
         }
         if (e != null) {
             // access failed
@@ -305,6 +382,9 @@ public class RetryInterceptor implements Interceptor {
                 }
                 return processSingleRequest(chain, request);
             }
+        } catch (DomainSwitchException exception) {
+            // 域名切换异常直接向上抛出
+            throw exception;
         } catch (ProtocolException exception) {
             // OkHttp在Http code为204时，不允许body不为空，这里为了阻止抛出异常，对response进行修改
             if (exception.getMessage() != null && exception.getMessage().contains(
@@ -402,6 +482,12 @@ public class RetryInterceptor implements Interceptor {
         }
     }
 
+    public static void resetHostReliable(String host) {
+        HostReliable hostReliable = hostReliables.get(host);
+        if (hostReliable != null) {
+            hostReliable.resetReliable();
+        }
+    }
 
     private boolean shouldRetry(Request request, Response response, int attempts, int weight, long startTime, IOException e, int statusCode) {
         if (isUserCancelled(e)) {
@@ -422,50 +508,109 @@ public class RetryInterceptor implements Interceptor {
             return false;
         }
 
-        if (e != null && isRecoverable(e)) {
+        if (e != null && isRecoverable(e, request)) {
             return true;
         }
 
-        return statusCode == HttpURLConnection.HTTP_INTERNAL_ERROR ||
-                statusCode == HttpURLConnection.HTTP_BAD_GATEWAY ||
-                statusCode == HttpURLConnection.HTTP_UNAVAILABLE ||
-                statusCode == HttpURLConnection.HTTP_GATEWAY_TIMEOUT;
+        // 判断是否是5xx状态码（覆盖所有5xx）
+        return statusCode >= 500 && statusCode < 600;
     }
 
-    private boolean isRecoverable(IOException e) {
-        // If there was a protocol problem, don't recover.
+    /**
+     * 检查是否满足域名切换条件
+     * 条件：域名匹配myqcloud.com & 响应不含requestid & 开启域名切换开关 & 签名是SDK自己生成
+     */
+    private boolean checkDomainSwitchCondition(HttpTask task, Request request, Response response, int statusCode, IOException e) {
+        if (task == null || !task.isDomainSwitch() || task.isSelfSigner()) {
+            return false;
+        }
+        
+        if (!DomainSwitchUtils.isMyqcloudUrl(request.url().host())) {
+            return false;
+        }
+
+        if(e != null && e.getCause() != null && e.getCause() instanceof QCloudServiceException &&
+                !TextUtils.isEmpty(((QCloudServiceException) e.getCause()).getRequestId())
+        ){
+            return false;
+        }
+        
+        // 未收到响应
+        if (response == null) {
+            return true;
+        }
+        
+        // 收到响应但没有 x-cos-request-id和 x-ci-request-id
+        return TextUtils.isEmpty(response.header("x-cos-request-id")) && TextUtils.isEmpty(response.header("x-ci-request-id"));
+    }
+
+    /**
+     * 判断异常是否可恢复（是否值得重试）
+     * 用于判断"未收到回包"的场景（reset、超时等网络异常）
+     */
+    private boolean isRecoverable(IOException e, Request request) {
+        // 协议异常不可恢复
         if (e instanceof ProtocolException) {
             return false;
         }
 
-        // If there was an interruption don't recover, but if there was a timeout connecting to a route
-        // we should try the next route (if there is one).
+        // 中断异常：只有超时异常可恢复
         if (e instanceof InterruptedIOException) {
             return e instanceof SocketTimeoutException;
         }
 
-        // Look for known client-side or negotiation errors that are unlikely to be fixed by trying
-        // again with a different route.
-        if (e instanceof SSLHandshakeException) {
-            // If the problem was a CertificateException from the X509TrustManager,
-            // do not retry.
-            if (e.getCause() instanceof CertificateException) {
-                return false;
+        if(e.getCause() instanceof QCloudServiceException) {
+            QCloudServiceException qCloudServiceException = (QCloudServiceException) e.getCause();
+            if(!TextUtils.isEmpty(request.header("x-cos-copy-source"))){
+                return isCopyObjectRetryableError(qCloudServiceException.getErrorCode());
+            } else {
+                return qCloudServiceException.getStatusCode() >= 500 && qCloudServiceException.getStatusCode() < 600;
             }
         }
-        if (e instanceof SSLPeerUnverifiedException) {
-            // e.g. a certificate pinning error.
+
+        // 其他网络异常都值得重试（如连接失败、连接重置、SSL异常等）
+        // 切换域名后可能成功
+        return true;
+    }
+
+    /**
+     * 判断CopyObject的错误码是否需要重试
+     * 需要重试的错误码：InternalError、SlowDown、ServiceUnavailable
+     * 
+     * @param errorCode 错误码
+     * @return 是否需要重试
+     */
+    private boolean isCopyObjectRetryableError(String errorCode) {
+        if (TextUtils.isEmpty(errorCode)) {
             return false;
         }
+        return "InternalError".equals(errorCode) 
+                || "SlowDown".equals(errorCode) 
+                || "ServiceUnavailable".equals(errorCode);
+    }
 
-        if(e.getCause() instanceof QCloudServiceException) {
-            return ((QCloudServiceException) e.getCause()).getStatusCode() >= 500;
+    /**
+     * 从XML字符串中解析指定标签的内容
+     * 例如：parseXmlTag("<Code>InternalError</Code>", "Code") 返回 "InternalError"
+     * 
+     * @param xmlString XML字符串
+     * @param tagName 标签名称
+     * @return 标签内容，如果解析失败返回null
+     */
+    private String parseXmlTag(String xmlString, String tagName) {
+        if (TextUtils.isEmpty(xmlString) || TextUtils.isEmpty(tagName)) {
+            return null;
         }
-
-        // An example of one we might want to retry with a different route is a problem connecting to a
-        // proxy and would manifest as a standard IOException. Unless it is one we know we should not
-        // retry, we return true and try a new route.
-        return true;
+        try {
+            Pattern pattern = Pattern.compile("<" + tagName + ">([^<]*)</" + tagName + ">");
+            Matcher matcher = pattern.matcher(xmlString);
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+        } catch (Exception e) {
+            COSLogger.iNetwork(HTTP_LOG_TAG, "parseXmlTag failed for tag %s: %s", tagName, e.getMessage());
+        }
+        return null;
     }
 
     /**

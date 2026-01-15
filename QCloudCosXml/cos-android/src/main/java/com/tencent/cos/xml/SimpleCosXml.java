@@ -39,6 +39,8 @@ import com.tencent.cos.xml.model.object.DeleteObjectRequest;
 import com.tencent.cos.xml.model.object.DeleteObjectResult;
 import com.tencent.cos.xml.model.object.HeadObjectRequest;
 import com.tencent.cos.xml.model.object.HeadObjectResult;
+import com.tencent.cos.xml.model.object.ImageProcessRequest;
+import com.tencent.cos.xml.model.object.ImageProcessResult;
 import com.tencent.cos.xml.model.object.InitMultipartUploadRequest;
 import com.tencent.cos.xml.model.object.InitMultipartUploadResult;
 import com.tencent.cos.xml.model.object.ListPartsRequest;
@@ -110,6 +112,34 @@ public interface SimpleCosXml extends BaseCosXml {
      * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
      */
     void putObjectAsync(PutObjectRequest request, final CosXmlResultListener cosXmlResultListener);
+
+    /**
+     * <p>
+     * 云上图片处理的同步方法.&nbsp;
+     * <p>
+     * 云上图片处理
+     * <p>
+     * 功能描述：<a href="https://cloud.tencent.com/document/product/436/115609#.E4.BA.91.E4.B8.8A.E6.95.B0.E6.8D.AE.E5.A4.84.E7.90.86">https://cloud.tencent.com/document/product/436/115609#.E4.BA.91.E4.B8.8A.E6.95.B0.E6.8D.AE.E5.A4.84.E7.90.86</a>
+     * <br>
+     * @param request 云上图片处理请求 {@link ImageProcessRequest}
+     * @return 云上图片处理的结果 {@link ImageProcessResult}
+     * @throws CosXmlClientException 客户端异常
+     * @throws CosXmlServiceException 服务端异常
+     */
+    ImageProcessResult imageProcess(ImageProcessRequest request) throws CosXmlClientException, CosXmlServiceException;
+
+    /**
+     * <p>
+     * 云上图片处理的异步方法.&nbsp;
+     * <p>
+     * 云上图片处理
+     * <p>
+     * 功能描述：<a href="https://cloud.tencent.com/document/product/436/115609#.E4.BA.91.E4.B8.8A.E6.95.B0.E6.8D.AE.E5.A4.84.E7.90.86">https://cloud.tencent.com/document/product/436/115609#.E4.BA.91.E4.B8.8A.E6.95.B0.E6.8D.AE.E5.A4.84.E7.90.86</a>
+     * <br>
+     * @param request 云上图片处理请求 {@link ImageProcessRequest}
+     * @param cosXmlResultListener 请求回调结果 {@link CosXmlResultListener}
+     */
+    void imageProcessAsync(ImageProcessRequest request, final CosXmlResultListener cosXmlResultListener);
 
     /**
      * <p>

@@ -24,6 +24,7 @@ package com.tencent.cos.xml.transfer;
 
 import android.content.ContentResolver;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
@@ -81,7 +82,9 @@ public class ResponseFileBodySerializer<T2> extends ResponseFileConverter<T2> {
                 BaseXmlSlimParser.parseError(inputStream, cosError);
                 cosXmlServiceException.setErrorCode(cosError.code);
                 cosXmlServiceException.setErrorMessage(cosError.message);
-                cosXmlServiceException.setRequestId(cosError.requestId);
+                if(!TextUtils.isEmpty(cosError.requestId)){
+                    cosXmlServiceException.setRequestId(cosError.requestId);
+                }
                 cosXmlServiceException.setServiceName(cosError.resource);
             } catch (XmlPullParserException e) {
                 // throw new CosXmlClientException(ClientErrorCode.SERVERERROR.getCode(), e);

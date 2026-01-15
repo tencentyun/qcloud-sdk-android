@@ -164,6 +164,9 @@ dependencies {
 
     androidTestImplementation 'org.dhatim:fastexcel:0.18.4'
 
+//     'com.squareup.okhttp3:mockwebserver3:5.3.2'
+    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:3.12.6'
+
 //    if (compileQuic() && false) {
 //        api project(path: ':quic')
 //    }
@@ -316,6 +319,9 @@ android.libraryVariants.all { variant ->
 
 // 在文件末尾添加
 afterEvaluate {
+       
+
+       
     tasks.withType(Javadoc) {
         options.addStringOption('Xdoclint:none', '-quiet')
         options.encoding = 'UTF-8'

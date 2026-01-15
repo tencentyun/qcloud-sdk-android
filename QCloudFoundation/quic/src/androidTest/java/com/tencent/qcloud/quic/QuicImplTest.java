@@ -50,7 +50,7 @@ public class QuicImplTest {
 
         context = InstrumentationRegistry.getTargetContext();
 
-        quicManager = new QuicManager(true);
+        quicManager = new QuicManager();
     }
 
     @Test
