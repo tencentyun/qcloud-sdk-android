@@ -45,7 +45,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.X509TrustManager;
 
 import okhttp3.Call;
 import okhttp3.Dns;
@@ -352,6 +354,9 @@ public final class QCloudHttpClient {
         byte[] clientCertificateBytes;
         char[] clientCertificatePassword;
 
+        SSLContext customSSLContext;
+        X509TrustManager customX509TrustManager;
+
         public Builder() {
         }
 
@@ -414,6 +419,18 @@ public final class QCloudHttpClient {
         public Builder setClientCertificate(byte[] certificateBytes, char[] password) {
             this.clientCertificateBytes = certificateBytes;
             this.clientCertificatePassword = password;
+            return this;
+        }
+
+        /**
+         * 设置自定义SSLContext（用于完全自定义SSL配置，包括客户端证书和服务端证书验证）
+         * 注意：设置此参数后，将忽略 setClientCertificate 和 setVerifySSLEnable 的配置
+         * @param sslContext 自定义的SSLContext
+         * @param trustManager 与SSLContext配套的X509TrustManager，用于OkHttp设置
+         */
+        public Builder setCustomSSLContext(SSLContext sslContext, X509TrustManager trustManager) {
+            this.customSSLContext = sslContext;
+            this.customX509TrustManager = trustManager;
             return this;
         }
 

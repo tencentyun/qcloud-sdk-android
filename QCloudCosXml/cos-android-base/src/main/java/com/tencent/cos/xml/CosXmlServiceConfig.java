@@ -33,6 +33,9 @@ import com.tencent.qcloud.core.http.QCloudHttpRetryHandler;
 import com.tencent.qcloud.core.task.RetryStrategy;
 import com.tencent.qcloud.core.task.TaskExecutors;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -119,6 +122,9 @@ public class CosXmlServiceConfig implements Parcelable {
     private final byte[] clientCertificateBytes;
     private final char[] clientCertificatePassword;
 
+    private final SSLContext customSSLContext;
+    private final X509TrustManager customX509TrustManager;
+
     private final NetworkClient customizeNetworkClient;
 
     public CosXmlServiceConfig(Builder builder) {
@@ -162,6 +168,8 @@ public class CosXmlServiceConfig implements Parcelable {
         this.verifySSLEnable = builder.verifySSLEnable;
         this.clientCertificateBytes = builder.clientCertificateBytes;
         this.clientCertificatePassword = builder.clientCertificatePassword;
+        this.customSSLContext = builder.customSSLContext;
+        this.customX509TrustManager = builder.customX509TrustManager;
         this.redirectEnable = builder.redirectEnable;
         this.customizeNetworkClient = builder.customizeNetworkClient;
     }
@@ -465,6 +473,14 @@ public class CosXmlServiceConfig implements Parcelable {
         return clientCertificatePassword;
     }
 
+    public SSLContext getCustomSSLContext() {
+        return customSSLContext;
+    }
+
+    public X509TrustManager getCustomX509TrustManager() {
+        return customX509TrustManager;
+    }
+
     public NetworkClient getCustomizeNetworkClient() {
         return customizeNetworkClient;
     }
@@ -700,6 +716,9 @@ public class CosXmlServiceConfig implements Parcelable {
         private byte[] clientCertificateBytes;
         private char[] clientCertificatePassword;
 
+        private SSLContext customSSLContext;
+        private X509TrustManager customX509TrustManager;
+
         private NetworkClient customizeNetworkClient;
 
         public Builder() {
@@ -713,6 +732,8 @@ public class CosXmlServiceConfig implements Parcelable {
             verifySSLEnable = true;
             clientCertificateBytes = null;
             clientCertificatePassword = null;
+            customSSLContext = null;
+            customX509TrustManager = null;
             redirectEnable = false;
             customizeNetworkClient = null;
         }
@@ -758,6 +779,8 @@ public class CosXmlServiceConfig implements Parcelable {
             verifySSLEnable = config.verifySSLEnable;
             clientCertificateBytes = config.clientCertificateBytes;
             clientCertificatePassword = config.clientCertificatePassword;
+            customSSLContext = config.customSSLContext;
+            customX509TrustManager = config.customX509TrustManager;
             redirectEnable = config.redirectEnable;
             customizeNetworkClient = config.customizeNetworkClient;
         }
@@ -832,6 +855,19 @@ public class CosXmlServiceConfig implements Parcelable {
         public Builder setClientCertificate(byte[] certificateBytes, String password) {
             this.clientCertificateBytes = certificateBytes;
             this.clientCertificatePassword = password.toCharArray();
+            return this;
+        }
+
+        /**
+         * 设置自定义SSLContext（用于完全自定义SSL配置，包括客户端证书和服务端证书验证）
+         * trustManager 与SSLContext配套，用于OkHttp设置，一般用(X509TrustManager)trustManagerFactory.getTrustManagers()[0]即可
+         * 注意：设置此参数后，将忽略 setClientCertificate 和 setVerifySSLEnable 的配置
+         * @param sslContext 自定义的SSLContext
+         * @param trustManager 与SSLContext配套的X509TrustManager，用于OkHttp设置
+         */
+        public Builder setCustomSSLContext(SSLContext sslContext, X509TrustManager trustManager) {
+            this.customSSLContext = sslContext;
+            this.customX509TrustManager = trustManager;
             return this;
         }
 

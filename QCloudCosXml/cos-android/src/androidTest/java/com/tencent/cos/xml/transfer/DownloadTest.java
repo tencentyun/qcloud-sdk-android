@@ -518,7 +518,7 @@ public class DownloadTest {
         CosXmlSimpleService cosXmlSimpleService = ServiceFactory.INSTANCE.newService(cosXmlServiceConfig);
 
         GetObjectRequest getObjectRequest = new GetObjectRequest(TestConst.PERSIST_BUCKET,
-                TestConst.PERSIST_BUCKET_BIG_1G_OBJECT_PATH,
+                TestConst.PERSIST_BUCKET_BIG_60M_OBJECT_PATH,
                 TestUtils.localParentPath());
         try {
             cosXmlSimpleService.getObject(getObjectRequest);

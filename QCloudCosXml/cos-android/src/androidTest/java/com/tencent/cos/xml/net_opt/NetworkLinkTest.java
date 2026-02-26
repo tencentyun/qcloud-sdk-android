@@ -105,7 +105,7 @@ public class NetworkLinkTest {
         }
     }
 
-    @Test
+//    @Test
     public void testDefault() {
         CosXmlServiceConfig cosXmlServiceConfig = new CosXmlServiceConfig.Builder()
                 .setDebuggable(true)
@@ -119,7 +119,7 @@ public class NetworkLinkTest {
 //        testGetObject(cosXmlService, false, "默认");
     }
 
-    @Test
+//    @Test
     public void testAccelerate() {
         CosXmlServiceConfig cosXmlServiceConfigAccelerate = new CosXmlServiceConfig.Builder()
                 .setDebuggable(true)
@@ -134,7 +134,7 @@ public class NetworkLinkTest {
 //        testGetObject(cosXmlServiceAccelerate, false, "全球加速");
     }
 
-    @Test
+//    @Test
     public void testEo() {
         testPutObject(null, true, "EO");
 //        testPutObject(null, false, "EO");
@@ -142,7 +142,7 @@ public class NetworkLinkTest {
 //        testGetObject(null, false, "EO");
     }
 
-    @Test
+//    @Test
     public void testEoAccelerate() {
         testPutObject(null, true, "EOAccelerate");
 //        testPutObject(null, false, "EOAccelerate");

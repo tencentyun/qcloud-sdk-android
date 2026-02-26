@@ -86,6 +86,7 @@ public class OkHttpClientImpl extends NetworkClient {
             if(b.redirectEnable){
                 builder.addInterceptor(redirectInterceptor);
             }
+
             // 绕过ssl
             if(!b.verifySSLEnable){
                 try {
@@ -119,9 +120,12 @@ public class OkHttpClientImpl extends NetworkClient {
                     e.printStackTrace();
                 }
             }
-
+            // 设置自定义SSLContext（优先级最高，设置后会忽略其他SSL相关配置）
+            else if(b.customSSLContext != null && b.customX509TrustManager != null) {
+                builder.sslSocketFactory(b.customSSLContext.getSocketFactory(), b.customX509TrustManager);
+            }
             // 设置客户端证书
-            if(b.clientCertificateBytes != null) {
+            else if(b.clientCertificateBytes != null) {
                 try {
                     // 加载客户端证书
                     KeyStore clientKeyStore = KeyStore.getInstance("BKS");
@@ -144,6 +148,20 @@ public class OkHttpClientImpl extends NetworkClient {
                     // 创建一个SSLContext，并设置KeyManager和TrustManager
                     SSLContext sslContext = SSLContext.getInstance("TLS");
                     sslContext.init(keyManagers, trustManagers, new SecureRandom());
+                    builder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustManagers[0]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            // 重置为系统默认的SSL配置，避免受前一个Service的SSL配置污染
+            else {
+                try {
+                    TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                    trustManagerFactory.init((KeyStore) null);
+                    TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
+                    
+                    SSLContext sslContext = SSLContext.getInstance("TLS");
+                    sslContext.init(null, trustManagers, new SecureRandom());
                     builder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustManagers[0]);
                 } catch (Exception e) {
                     e.printStackTrace();

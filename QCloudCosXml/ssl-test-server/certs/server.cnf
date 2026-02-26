@@ -1,0 +1,25 @@
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+C = CN
+ST = Shanghai
+L = Shanghai
+O = TestOrg
+OU = IT
+CN = localhost
+
+[v3_req]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = localhost
+DNS.2 = *.cos.ap-shanghai.myqcloud.com
+DNS.3 = cos.ap-shanghai.myqcloud.com
+DNS.4 = *.myqcloud.com
+IP.1 = 127.0.0.1
+IP.2 = 10.0.2.2
