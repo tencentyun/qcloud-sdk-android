@@ -56,6 +56,7 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
     private Uri uri;
     private String srcPath;
     private URL url;
+    private java.util.Map<String, String> urlHeaders;
     private byte[] data;
     private InputStream inputStream;
     private long fileOffset = -1L;
@@ -245,9 +246,9 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
             return RequestBodySerializer.uri(getContentType(), uri, ContextHolder.getAppContext(), fileOffset, fileContentLength);
         } else if (url != null) {
             if(fileOffset != -1) {
-                return RequestBodySerializer.url(getContentType(), url, fileOffset, fileContentLength);
+                return RequestBodySerializer.url(getContentType(), url, urlHeaders, fileOffset, fileContentLength);
             } else {
-                return RequestBodySerializer.url(getContentType(), url);
+                return RequestBodySerializer.url(getContentType(), url, urlHeaders, 0L, -1L);
             }
         }
         return null;
@@ -326,6 +327,14 @@ final public class UploadPartRequest extends BaseMultipartUploadRequest implemen
 
     public Uri getUri() {
         return uri;
+    }
+
+    public java.util.Map<String, String> getUrlHeaders() {
+        return urlHeaders;
+    }
+
+    public void setUrlHeaders(java.util.Map<String, String> headers) {
+        this.urlHeaders = headers;
     }
 
     /**

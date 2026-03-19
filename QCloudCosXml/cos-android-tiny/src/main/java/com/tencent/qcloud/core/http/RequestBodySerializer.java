@@ -117,15 +117,20 @@ public abstract class RequestBodySerializer{
     }
 
     public static RequestBodySerializer url(String contentType, URL url) {
-        return url(contentType, url,  0L, -1);
+        return url(contentType, url, null,  0L, -1);
     }
 
     public static RequestBodySerializer url(String contentType, URL url, long offset, long length) {
+        return url(contentType, url, null, offset, length);
+    }
+
+    public static RequestBodySerializer url(String contentType, URL url, java.util.Map<String, String> headers,
+                                            long offset, long length) {
         if (TextUtils.isEmpty(contentType)) {
             String extension = MimeTypeMap.getFileExtensionFromUrl(url.toString());
             contentType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         }
-        StreamingRequestBody fileRequestBody = StreamingRequestBody.url(url, contentType, offset, length);
+        StreamingRequestBody fileRequestBody = StreamingRequestBody.url(url, contentType, headers, offset, length);
 
         return new BaseRequestBodyWrapper(fileRequestBody);
     }

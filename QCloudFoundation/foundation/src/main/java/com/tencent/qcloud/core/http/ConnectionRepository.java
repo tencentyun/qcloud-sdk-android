@@ -237,11 +237,16 @@ public class ConnectionRepository {
             this.hosts.add(host);
         }
 
-        synchronized Map<String, List<InetAddress>> fetchAll()  {
+        Map<String, List<InetAddress>> fetchAll()  {
+
+            // 在 synchronized 块中仅做快照复制，避免长时间持锁导致 addHosts 阻塞（ANR）
+            List<String> hostsSnapshot;
+            synchronized (this) {
+                hostsSnapshot = new LinkedList<>(hosts);
+            }
 
             Map<String, List<InetAddress>> dnsRecords = new HashMap<>();
-
-            for (String host : new LinkedList<>(hosts)) {
+            for (String host : hostsSnapshot) {
 
                 List<InetAddress> ips;
                 if (!TextUtils.isEmpty(host) && ((ips = fetch(host, maxRetry)) != null)) {

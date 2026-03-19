@@ -44,6 +44,7 @@ import com.tencent.cos.xml.model.PresignedUrlRequest;
 import com.tencent.cos.xml.model.object.GetObjectRequest;
 import com.tencent.cos.xml.model.object.PutObjectRequest;
 import com.tencent.cos.xml.utils.DigestUtils;
+import com.tencent.qcloud.core.http.ConnectionRepository;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
 import com.tencent.qcloud.core.logger.QCloudLogger;
 import com.tencent.qcloud.core.util.Base64Utils;
@@ -484,4 +485,52 @@ public class OtherTest {
 //            Assert.fail(e.getMessage());
 //        }
 //    }
+
+    /**
+     * 验证 ConnectionRepository.addPrefetchHosts() 不会被 init()（内部 fetchAll）长时间阻塞（ANR 修复验证）
+     *
+     * 修复前：DnsFetcher.fetchAll() 持有 synchronized(this) 锁进行耗时 DNS 解析，
+     * 导致主线程调用 addPrefetchHosts() -> addHosts() 时被阻塞，引发 ANR。
+     *
+     * 修复后：fetchAll() 仅在 synchronized 块中快照复制 hosts 列表，
+     * 耗时 DNS 解析在锁外执行，addPrefetchHosts() 不会被阻塞。
+     */
+    @Test
+    public void testAddPrefetchHostsNotBlockedByInit() throws InterruptedException {
+        ConnectionRepository connectionRepository = ConnectionRepository.getInstance();
+
+        // 先添加一些需要解析的 host
+        java.util.ArrayList<String> hosts = new java.util.ArrayList<>();
+        hosts.add("cos.ap-guangzhou.myqcloud.com");
+        hosts.add("cos.ap-beijing.myqcloud.com");
+        hosts.add("cos.ap-shanghai.myqcloud.com");
+        hosts.add("cos.ap-chengdu.myqcloud.com");
+        hosts.add("cos.ap-nanjing.myqcloud.com");
+        connectionRepository.addPrefetchHosts(hosts);
+
+        // 记录 addPrefetchHosts 是否在合理时间内完成
+        final long[] addHostsDuration = {-1};
+        final boolean[] addHostsCompleted = {false};
+
+        // 执行 init()，内部会通过 singleExecutor 异步调用 fetchAll() 进行耗时 DNS 解析
+        connectionRepository.init();
+
+        // 等待 init 中的异步任务开始执行（fetchAll 开始 DNS 解析）
+        Thread.sleep(200);
+
+        // 在 fetchAll 执行期间调用 addPrefetchHosts，验证不会被阻塞
+        long start = System.currentTimeMillis();
+        java.util.ArrayList<String> newHosts = new java.util.ArrayList<>();
+        newHosts.add("cos.ap-hongkong.myqcloud.com");
+        connectionRepository.addPrefetchHosts(newHosts);
+        addHostsDuration[0] = System.currentTimeMillis() - start;
+        addHostsCompleted[0] = true;
+
+        // 验证 addPrefetchHosts 已完成
+        assertTrue("addPrefetchHosts 应该已完成", addHostsCompleted[0]);
+        // 验证 addPrefetchHosts 耗时不超过 2 秒（修复前可能超过 10 秒）
+        Log.i("QCloudTest", "addPrefetchHosts duration: " + addHostsDuration[0] + "ms");
+        assertTrue("addPrefetchHosts 不应被 init 中的 fetchAll 阻塞超过 10 毫秒，实际耗时: " + addHostsDuration[0] + "ms",
+                addHostsDuration[0] < 10);
+    }
 }

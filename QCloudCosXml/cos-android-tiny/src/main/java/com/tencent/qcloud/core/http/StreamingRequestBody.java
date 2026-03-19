@@ -32,15 +32,21 @@ import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 import com.tencent.qcloud.core.util.QCloudUtils;
 
 import java.io.ByteArrayInputStream;
+import java.io.FilterInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -49,10 +55,27 @@ import okio.BufferedSource;
 import okio.Okio;
 public class StreamingRequestBody extends RequestBody implements ProgressBody, QCloudDigistListener {
 
+    // 用于 URL 数据源请求的 OkHttpClient 单例，禁用自动重定向
+    private static volatile OkHttpClient sUrlOkHttpClient;
+
+    private static OkHttpClient getUrlOkHttpClient() {
+        if (sUrlOkHttpClient == null) {
+            synchronized (StreamingRequestBody.class) {
+                if (sUrlOkHttpClient == null) {
+                    sUrlOkHttpClient = new OkHttpClient.Builder()
+                            .followRedirects(false)
+                            .build();
+                }
+            }
+        }
+        return sUrlOkHttpClient;
+    }
+
     protected File file;
     protected byte[] bytes;
     protected InputStream stream;
     protected URL url;
+    protected Map<String, String> urlHeaders;
     protected Uri uri;
     protected ContentResolver contentResolver;
 
@@ -122,9 +145,15 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
 
     static StreamingRequestBody url(URL url, String contentType,
                                     long offset, long length) {
+        return url(url, contentType, null, offset, length);
+    }
+
+    static StreamingRequestBody url(URL url, String contentType, Map<String, String> headers,
+                                    long offset, long length) {
         StreamingRequestBody requestBody = new StreamingRequestBody();
         requestBody.url = url;
         requestBody.contentType = contentType;
+        requestBody.urlHeaders = headers;
         requestBody.offset = offset < 0 ? 0 : offset;
         requestBody.requiredLength = length;
         return requestBody;
@@ -198,11 +227,7 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
         } else if (file != null) {
             inputStream = new FileInputStream(file);
         } else if (url != null) {
-            URLConnection conn = url.openConnection();
-            if(offset > 0) {
-                conn.setRequestProperty("Range", "bytes=" + offset + "-" + offset + requiredLength);
-            }
-            inputStream = url.openStream();
+            inputStream = openUrlStreamWithHeaders();
         } else if (uri != null) {
             inputStream = contentResolver.openInputStream(uri);
 
@@ -215,6 +240,89 @@ public class StreamingRequestBody extends RequestBody implements ProgressBody, Q
             }
         }
         return inputStream;
+    }
+
+    private InputStream openUrlStreamWithHeaders() throws IOException {
+        OkHttpClient client = getUrlOkHttpClient();
+        IOException lastException = null;
+
+        for (int attempt = 0; attempt < 3; attempt++) {
+            try {
+                String currentUrl = url.toString();
+                int redirectCount = 0;
+                while (true) {
+                    Request.Builder requestBuilder = new Request.Builder().url(currentUrl);
+                    if (urlHeaders != null) {
+                        for (Map.Entry<String, String> entry : urlHeaders.entrySet()) {
+                            requestBuilder.header(entry.getKey(), entry.getValue());
+                        }
+                    }
+                    if (offset > 0) {
+                        String rangeHeader = buildRangeHeader();
+                        requestBuilder.header("Range", rangeHeader);
+                    }
+                    Response response = client.newCall(requestBuilder.build()).execute();
+                    int code = response.code();
+                    if (code >= 300 && code < 400) {
+                        if (redirectCount >= 3) {
+                            response.close();
+                            throw new IOException("too many redirects");
+                        }
+                        String location = response.header("Location");
+                        response.close();
+                        if (location == null || location.isEmpty()) {
+                            throw new IOException("redirect location missing");
+                        }
+                        HttpUrl resolved = response.request().url().resolve(location);
+                        if (resolved == null) {
+                            throw new IOException("invalid redirect url");
+                        }
+                        currentUrl = resolved.toString();
+                        redirectCount++;
+                        continue;
+                    }
+                    if (!response.isSuccessful()) {
+                        response.close();
+                        throw new IOException("url response code " + code);
+                    }
+                    return new ResponseInputStream(response);
+                }
+            } catch (IOException e) {
+                lastException = e;
+            }
+        }
+
+        throw lastException != null ? lastException : new IOException("open url failed");
+    }
+
+    private String buildRangeHeader() {
+        if (requiredLength > 0) {
+            long end = offset + requiredLength - 1;
+            return "bytes=" + offset + "-" + end;
+        }
+        return "bytes=" + offset + "-";
+    }
+
+    private static class ResponseInputStream extends FilterInputStream {
+        private final Response response;
+
+        ResponseInputStream(Response response) throws IOException {
+            super(response.body() != null ? response.body().byteStream() : null);
+            this.response = response;
+            if (in == null) {
+                response.close();
+                throw new IOException("empty response body");
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            try {
+                super.close();
+            } finally {
+                response.close();
+            }
+        }
     }
 
     protected void saveInputStreamToTmpFile(InputStream stream, File file) throws IOException {

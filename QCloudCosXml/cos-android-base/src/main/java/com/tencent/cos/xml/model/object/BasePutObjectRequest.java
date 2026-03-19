@@ -56,6 +56,7 @@ public class BasePutObjectRequest extends UploadRequest implements TransferReque
     protected InputStream inputStream;
     protected String strData;
     protected URL url;
+    protected java.util.Map<String, String> urlHeaders;
     protected UrlUploadPolicy urlUploadPolicy;
     protected long fileLength;
     protected Uri uri;
@@ -129,6 +130,11 @@ public class BasePutObjectRequest extends UploadRequest implements TransferReque
         setNeedMD5(false);
     }
 
+    public BasePutObjectRequest(String bucket, String cosPath, URL url, java.util.Map<String, String> headers) {
+        this(bucket, cosPath, url);
+        this.urlHeaders = headers;
+    }
+
     @Override
     public String getMethod() {
         return RequestMethod.PUT;
@@ -157,7 +163,7 @@ public class BasePutObjectRequest extends UploadRequest implements TransferReque
         } else if (strData != null) {
             return RequestBodySerializer.bytes(getContentType(), strData.getBytes());
         } else if (url != null) {
-            return RequestBodySerializer.url(getContentType(), url);
+            return RequestBodySerializer.url(getContentType(), url, urlHeaders, 0L, -1L);
         } else if (uri != null && ContextHolder.getAppContext() != null) {
             return RequestBodySerializer.uri(getContentType(), uri, ContextHolder.getAppContext());
         }
@@ -242,12 +248,20 @@ public class BasePutObjectRequest extends UploadRequest implements TransferReque
         return url;
     }
 
+    public java.util.Map<String, String> getUrlHeaders() {
+        return urlHeaders;
+    }
+
     public UrlUploadPolicy getUrlUploadPolicy() {
         return urlUploadPolicy;
     }
 
     public void setUrl(URL url) {
         this.url = url;
+    }
+
+    public void setUrlHeaders(java.util.Map<String, String> headers) {
+        this.urlHeaders = headers;
     }
 
     public void setUri(Uri uri) {
