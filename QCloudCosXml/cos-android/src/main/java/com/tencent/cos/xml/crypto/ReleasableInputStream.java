@@ -18,6 +18,8 @@
 
 package com.tencent.cos.xml.crypto;
 
+import com.tencent.qcloud.core.logger.COSLogger;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 
@@ -72,7 +74,7 @@ public class ReleasableInputStream extends SdkFilterInputStream implements Relea
         try {
             in.close();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            COSLogger.dProcess("ReleasableInputStream", ex.getMessage(), ex);
         }
         if (in instanceof Releasable) {
             // This allows any underlying stream that has the close operation

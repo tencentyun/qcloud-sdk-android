@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 
 import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,7 +52,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 
 public class DigestUtils {
-
+    private static final String TAG = "DigestUtils";
     public static String getMD5(String filePath) throws CosXmlClientException {
         if(filePath == null) throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "file Path is null");
         File file = new File(filePath);
@@ -105,7 +106,7 @@ public class DigestUtils {
             try {
                 fileInputStream.close();
             } catch (IOException ioException) {
-                ioException.printStackTrace();
+                COSLogger.dProcess(TAG, ioException.getMessage(), ioException);
             }
         }
     }
@@ -120,7 +121,7 @@ public class DigestUtils {
             }
             return crc64.getValue();
         } catch (IOException e) {
-            e.printStackTrace();
+            COSLogger.dProcess(TAG, e.getMessage(), e);
         }
         return -1;
     }
@@ -144,7 +145,7 @@ public class DigestUtils {
             }
             return crc64.getValue();
         } catch (IOException e) {
-            e.printStackTrace();
+            COSLogger.dProcess(TAG, e.getMessage(), e);
         }
         return -1;
     }

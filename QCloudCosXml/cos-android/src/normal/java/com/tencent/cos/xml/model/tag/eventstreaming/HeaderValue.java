@@ -24,6 +24,7 @@ package com.tencent.cos.xml.model.tag.eventstreaming;
 
 import com.tencent.cos.xml.s3.Base64;
 import com.tencent.cos.xml.s3.Base64Codec;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -166,7 +167,7 @@ public abstract class HeaderValue {
                 try {
                     return fromString(Utils.readString(buf));
                 } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                    COSLogger.dProcess("HeaderValue", e.getMessage(), e);
                     throw new IllegalStateException();
                 }
             case TIMESTAMP:

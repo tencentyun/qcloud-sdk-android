@@ -34,6 +34,7 @@ import com.tencent.cos.xml.model.tag.UrlUploadPolicy;
 import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.util.ContextHolder;
 import com.tencent.qcloud.core.util.QCloudUtils;
 
@@ -717,7 +718,7 @@ public class COSUploadTask extends COSTransferTask {
             try {
                 return dateFormat.parse(date).getTime();
             } catch (ParseException e) {
-                e.printStackTrace();
+                COSLogger.dProcess(TAG, e.getMessage(), e);
             }
             return 0;
         }

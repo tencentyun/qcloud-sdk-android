@@ -162,6 +162,12 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
     private WeightStrategy weightStrategy = new WeightStrategy();
 
+    /**
+     * 上传轮次标识，每次 upload() 时递增。
+     * 用于区分不同轮次的上传，防止旧请求的异步回调（如暂停导致的 CANCELED）影响新轮次。
+     */
+    private final AtomicInteger uploadGeneration = new AtomicInteger(0);
+
     private MultiUploadsStateListener multiUploadsStateListenerHandler = new MultiUploadsStateListener() {
         @Override
         public void onInit() {
@@ -309,6 +315,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         if(!checkParameter()) return;
         startTime = System.nanoTime();
         this.clientTraceId = UUID.randomUUID().toString();
+        uploadGeneration.incrementAndGet();
         startUpload();
     }
 
@@ -384,6 +391,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
             putObjectRequest.setPriorityLow();
         }
         putObjectRequest.setClientTraceId(this.clientTraceId);
+        final int currentGeneration = uploadGeneration.get();
 
         cosXmlService.internalPutObjectAsync(putObjectRequest, new CosXmlResultListener() {
             @Override
@@ -391,6 +399,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 if(request != putObjectRequest){
                     return;
                 }
+                // 轮次不匹配，说明是旧请求的回调，直接忽略
+                if(currentGeneration != uploadGeneration.get()) return;
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
                 //BeaconService.getInstance().reportUpload(region, simpleAlreadySendDataLen, TimeUtils.getTookTime(startTime));
@@ -404,6 +414,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 if(request != putObjectRequest){
                     return;
                 }
+                // 轮次不匹配，说明是旧请求的回调（如暂停导致的CANCELED），直接忽略
+                if(currentGeneration != uploadGeneration.get()) return;
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
                 multiUploadsStateListenerHandler.onFailed(request, clientException, serviceException);
@@ -471,19 +483,14 @@ public final class COSXMLUploadTask extends COSXMLTask {
 
         getHttpMetrics(initMultipartUploadRequest, "InitMultipartUploadRequest");
 
-//        initMultipartUploadRequest.setTaskStateListener(new QCloudTaskStateListener() {
-//            @Override
-//            public void onStateChanged(String taskId, int state) {
-//                if(IS_EXIT.get())return;
-//                updateState(TransferState.WAITING, null, null, false);
-//            }
-//        });
+        final int currentGeneration = uploadGeneration.get();
         cosXmlService.initMultipartUploadAsync(initMultipartUploadRequest, new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                 if(request != initMultipartUploadRequest){
                     return;
                 }
+                if(currentGeneration != uploadGeneration.get()) return;
                 // notify -> upload part
                 if(IS_EXIT.get())return;
                 onUpdateInProgress();
@@ -499,6 +506,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 if(request != initMultipartUploadRequest){
                     return;
                 }
+                if(currentGeneration != uploadGeneration.get()) return;
                 // notify -> exit caused by failed
                 if(IS_EXIT.get())return;
                 IS_EXIT.set(true);
@@ -576,6 +584,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
             }
         });
         listPartsRequest.setClientTraceId(this.clientTraceId);
+        final int currentGeneration = uploadGeneration.get();
 
         listAllPartsAsync(cosXmlService, new CosXmlResultListener() {
             @Override
@@ -583,6 +592,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 if(request != listPartsRequest){
                     return;
                 }
+                if(currentGeneration != uploadGeneration.get()) return;
                 //update list part, then upload part.
                 if(IS_EXIT.get())return;
 
@@ -603,14 +613,14 @@ public final class COSXMLUploadTask extends COSXMLTask {
                                 uploadFileStream = openUploadFileStream();
                                 verifySuccess = verifyUploadParts(((ListPartsResult)result).listParts, uploadFileStream);
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                COSLogger.dProcess(TAG, e.getMessage(), e);
                                 verifySuccess = false;
                             } finally {
                                 if (uploadFileStream != null) {
                                     try {
                                         CloseUtil.closeQuietly(uploadFileStream);
                                     } catch (CosXmlClientException e) {
-                                        e.printStackTrace();
+                                        COSLogger.dProcess(TAG, e.getMessage(), e);
                                     }
                                 }
                             }
@@ -631,6 +641,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 if(request != listPartsRequest){
                     return;
                 }
+                if(currentGeneration != uploadGeneration.get()) return;
                 if(IS_EXIT.get())return;
 
 
@@ -738,7 +749,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 return headObjectResult;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            COSLogger.dProcess(TAG, e.getMessage(), e);
         }
         return null;
     }
@@ -819,12 +830,15 @@ public final class COSXMLUploadTask extends COSXMLTask {
                     });
                     uploadPartRequest.setClientTraceId(this.clientTraceId);
                     final UploadPartRequest finalUploadPartRequest1 = uploadPartRequest;
+                    final int partGeneration = uploadGeneration.get();
                     cosXmlService.uploadPartAsync(uploadPartRequest, new CosXmlResultListener() {
                         @Override
                         public void onSuccess(CosXmlRequest request, CosXmlResult result) {
                             if (request != finalUploadPartRequest1) {
                                 return;
                             }
+                            // 轮次不匹配，说明是旧请求的回调，直接忽略
+                            if (partGeneration != uploadGeneration.get()) return;
                             httpTaskMetrics.merge(request.getMetrics());
                             if (IS_EXIT.get()) return;
                             slicePartStruct.eTag = ((UploadPartResult) result).eTag;
@@ -842,6 +856,8 @@ public final class COSXMLUploadTask extends COSXMLTask {
                             if (request != finalUploadPartRequest1) {
                                 return;
                             }
+                            // 轮次不匹配，说明是旧请求的回调（如暂停导致的CANCELED），直接忽略
+                            if (partGeneration != uploadGeneration.get()) return;
                             if (IS_EXIT.get()) return;//已经上报失败了
                             IS_EXIT.set(true);
                             multiUploadsStateListenerHandler.onFailed(request, exception, serviceException);
@@ -881,6 +897,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
         completeMultiUploadRequest.setClientTraceId(this.clientTraceId);
 
         getHttpMetrics(completeMultiUploadRequest, "CompleteMultiUploadRequest");
+        final int currentGeneration = uploadGeneration.get();
 
         cosXmlService.completeMultiUploadAsync(completeMultiUploadRequest, new CosXmlResultListener() {
             @Override
@@ -888,6 +905,7 @@ public final class COSXMLUploadTask extends COSXMLTask {
                 if(request != completeMultiUploadRequest){
                     return;
                 }
+                if(currentGeneration != uploadGeneration.get()) return;
                 sendingCompleteRequest.set(false);
                 onTransferComplete(request, result);
             }
@@ -895,6 +913,10 @@ public final class COSXMLUploadTask extends COSXMLTask {
             @Override
             public void onFail(final CosXmlRequest request, final CosXmlClientException clientException, final CosXmlServiceException serviceException) {
                 if(request != completeMultiUploadRequest){
+                    return;
+                }
+                if(currentGeneration != uploadGeneration.get()) {
+                    sendingCompleteRequest.set(false);
                     return;
                 }
 

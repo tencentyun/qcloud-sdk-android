@@ -23,6 +23,7 @@
 package com.tencent.cos.xml.model.tag.pic;
 
 import com.tencent.cos.xml.CosTrackService;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,7 +70,7 @@ public class PicOperations {
             return operations.toString();
         } catch (JSONException e) {
             CosTrackService.getInstance().reportError(TAG, e);
-            e.printStackTrace();
+            COSLogger.dProcess(TAG, e.getMessage(), e);
         }
 
         return "{}";

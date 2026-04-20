@@ -147,7 +147,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
             try {
                 File file = new File("/" + cosPath);
                 normalizedPath = file.getCanonicalPath();
-            } catch (IOException e) {e.printStackTrace();}
+            } catch (IOException e) {COSLogger.dProcess(TAG, e.getMessage(), e);}
             if ("/".equals(normalizedPath)) {
                 updateState(TransferState.FAILED, new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "The key in the getobject is illegal"), null, false);
                 return false;
@@ -718,7 +718,7 @@ public final class COSXMLDownloadTask extends COSXMLTask{
                 }
                 if(IS_EXIT.get())return;
                 Exception causeException = clientException == null ? serviceException : clientException;
-                causeException.printStackTrace();
+                COSLogger.dProcess(TAG, causeException.getMessage(), causeException);
                 updateState(TransferState.FAILED, causeException, null, false);
                 COSLogger.iProcess(TAG, "head " + cosPath + "failed !, exception is " + causeException.getMessage(), causeException);
             }

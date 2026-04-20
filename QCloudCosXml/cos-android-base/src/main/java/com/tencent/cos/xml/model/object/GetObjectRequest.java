@@ -33,6 +33,7 @@ import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.listener.CosXmlProgressListener;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -430,7 +431,8 @@ public class GetObjectRequest extends ObjectRequest implements SaveLocalRequest,
             try {
                 File file = new File("/" + cosPath);
                 normalizedPath = file.getCanonicalPath();
-            } catch (IOException e) {e.printStackTrace();}
+            } catch (IOException e) {
+                COSLogger.dProcess("GetObjectRequest", e.getMessage(), e);}
             if ("/".equals(normalizedPath)) {
                 throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "The key in the getobject is illegal");
             }

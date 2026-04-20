@@ -168,7 +168,7 @@ public class CosTrackSonarService {
             });
         } catch (Exception e) {
             if(BuildConfig.DEBUG) {
-                e.printStackTrace();
+                COSLogger.dProcess(TAG, e.getMessage(), e);
             }
         }
     }

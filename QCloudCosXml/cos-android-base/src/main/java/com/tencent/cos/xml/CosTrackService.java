@@ -46,6 +46,7 @@ import com.tencent.qcloud.core.http.HttpConstants;
 import com.tencent.qcloud.core.http.HttpRequest;
 import com.tencent.qcloud.core.http.HttpTask;
 import com.tencent.qcloud.core.http.HttpTaskMetrics;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.track.Constants;
 import com.tencent.qcloud.track.QCloudTrackService;
 import com.tencent.qcloud.track.cls.ClsLifecycleCredentialProvider;
@@ -223,7 +224,7 @@ public class CosTrackService {
             QCloudTrackService.getInstance().reportSimpleData(Constants.SIMPLE_DATA_EVENT_CODE_START, params);
         } catch (Exception e){
             if(IS_DEBUG) {
-                e.printStackTrace();
+                COSLogger.dProcess(TAG, e.getMessage(), e);
             }
         }
     }
@@ -248,7 +249,7 @@ public class CosTrackService {
             QCloudTrackService.getInstance().reportSimpleData(Constants.SIMPLE_DATA_EVENT_CODE_ERROR, params);
         } catch (Exception eee){
             if(IS_DEBUG) {
-                eee.printStackTrace();
+                COSLogger.dProcess(TAG, eee.getMessage(), eee);
             }
         }
     }
@@ -278,7 +279,7 @@ public class CosTrackService {
             QCloudTrackService.getInstance().report(EVENT_CODE_TRACK_COS_SDK_HTTP, params);
         } catch (Exception e) {
             if(IS_DEBUG) {
-                e.printStackTrace();
+                COSLogger.dProcess(TAG, e.getMessage(), e);
             }
         }
     }
@@ -467,7 +468,7 @@ public class CosTrackService {
             );
         } catch (Exception e) {
             if(IS_DEBUG) {
-                e.printStackTrace();
+                COSLogger.dProcess(TAG, e.getMessage(), e);
             }
         }
     }
@@ -520,7 +521,7 @@ public class CosTrackService {
             }
         } catch (Exception e) {
             if(IS_DEBUG) {
-                e.printStackTrace();
+                COSLogger.dProcess(TAG, e.getMessage(), e);
             }
         }
         return returnClientException.exception;
@@ -572,7 +573,7 @@ public class CosTrackService {
             }
         } catch (Exception e){
             if(IS_DEBUG) {
-                e.printStackTrace();
+                COSLogger.dProcess(TAG, e.getMessage(), e);
             }
         }
         return returnServiceException.exception;
@@ -971,7 +972,7 @@ public class CosTrackService {
             QCloudTrackService.getInstance().report(EVENT_CODE_NEW_TRANSFER, params);
         } catch (Exception e) {
             if(IS_DEBUG) {
-                e.printStackTrace();
+                COSLogger.dProcess(TAG, e.getMessage(), e);
             }
         }
     }

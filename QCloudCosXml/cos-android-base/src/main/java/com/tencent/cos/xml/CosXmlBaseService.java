@@ -666,7 +666,7 @@ public class CosXmlBaseService implements BaseCosXml {
             host = getRequestHost(cosXmlRequest);
         } catch (CosXmlClientException e) {
             CosTrackService.getInstance().reportError(TAG, e);
-            e.printStackTrace();
+            COSLogger.dProcess(TAG, e.getMessage(), e);
         }
         httpUrlBuilder.host(host);
 

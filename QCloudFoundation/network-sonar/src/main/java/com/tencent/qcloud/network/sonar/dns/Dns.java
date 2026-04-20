@@ -2,6 +2,8 @@ package com.tencent.qcloud.network.sonar.dns;
 
 import android.annotation.SuppressLint;
 
+import com.tencent.qcloud.network.sonar.utils.SonarLog;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -21,7 +23,9 @@ public class Dns {
             }
             reader.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(SonarLog.openLog) {
+                e.printStackTrace();
+            }
         }
         return list;
     }

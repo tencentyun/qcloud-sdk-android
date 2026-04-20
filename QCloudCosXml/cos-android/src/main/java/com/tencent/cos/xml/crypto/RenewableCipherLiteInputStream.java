@@ -19,6 +19,7 @@
 package com.tencent.cos.xml.crypto;
 
 import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -97,7 +98,7 @@ public final class RenewableCipherLiteInputStream extends CipherLiteInputStream 
         try {
             renewCipherLite();
         } catch (CosXmlClientException clientException) {
-            clientException.printStackTrace();
+            COSLogger.dProcess("RenewableCipherLiteInputStream", clientException.getMessage(), clientException);
             throw new IOException(clientException);
         }
         resetInternal();

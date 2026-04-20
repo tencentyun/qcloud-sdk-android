@@ -22,6 +22,7 @@
 
 package com.tencent.qcloud.core.task;
 
+import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
 import static com.tencent.qcloud.core.task.TaskManager.TASK_LOG_TAG;
 
 import androidx.annotation.NonNull;
@@ -148,7 +149,7 @@ public abstract class QCloudTask<T> implements Callable<T> {
                         try {
                             onFailure();
                         }catch (Exception e){ // 用户处理回调时引起的异常，直接 error 掉, 不走回调了
-                            e.printStackTrace();
+                            COSLogger.dProcess(HTTP_LOG_TAG, e.getMessage(), e);
                             throw new Error(e);
                         }
                         return null;
@@ -159,7 +160,7 @@ public abstract class QCloudTask<T> implements Callable<T> {
                                 try {
                                     onFailure();
                                 }catch (Exception e){ // 用户处理回调时引起的异常，直接 error 掉, 不走回调了
-                                    e.printStackTrace();
+                                    COSLogger.dProcess(HTTP_LOG_TAG, e.getMessage(), e);
                                     throw new Error(e);
                                 }
                                 return null;
@@ -171,7 +172,7 @@ public abstract class QCloudTask<T> implements Callable<T> {
                         try {
                             onSuccess();
                         } catch (Exception e) {// 用户处理回调时引起的异常，直接 error 掉, 不走回调了
-                            e.printStackTrace();
+                            COSLogger.dProcess(HTTP_LOG_TAG, e.getMessage(), e);
                             throw new Error(e);
                         }
                         return null;
@@ -182,7 +183,7 @@ public abstract class QCloudTask<T> implements Callable<T> {
                                 try {
                                     onSuccess();
                                 } catch (Exception e) {// 用户处理回调时引起的异常，直接 error 掉, 不走回调了
-                                    e.printStackTrace();
+                                    COSLogger.dProcess(HTTP_LOG_TAG, e.getMessage(), e);
                                     throw new Error(e);
                                 }
                                 return null;

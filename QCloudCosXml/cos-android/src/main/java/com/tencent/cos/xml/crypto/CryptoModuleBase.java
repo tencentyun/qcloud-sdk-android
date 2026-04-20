@@ -43,6 +43,7 @@ import com.tencent.cos.xml.model.object.UploadPartResult;
 import com.tencent.cos.xml.s3.Base64;
 import com.tencent.cos.xml.utils.DigestUtils;
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.util.ContextHolder;
 import com.tencent.qcloud.core.util.QCloudUtils;
 import com.tencentcloudapi.kms.v20190118.models.GenerateDataKeyRequest;
@@ -494,7 +495,7 @@ public abstract class CryptoModuleBase implements CryptoModule {
                     md5 = DigestUtils.getCOSMd5(inputStream, 0, -1);
                 }
             } catch (IOException ioException) {
-                ioException.printStackTrace();
+                COSLogger.dProcess("CryptoModuleBase", ioException.getMessage(), ioException);
             }
         }
         if (md5 != null) {

@@ -1999,4 +1999,79 @@ public class UploadTest {
         }
         return null;
     }
+
+    /**
+     * 测试快速多次暂停/恢复上传的竞态条件
+     *
+     * 覆盖 uploadGeneration 机制：快速连续暂停恢复，验证旧轮次的异步回调
+     * （如暂停导致的 CANCELED）不会影响新轮次的上传，最终上传能成功完成。
+     */
+    @Test
+    public void testRapidPauseResumeRaceCondition() throws Exception {
+        TransferManager transferManager = ServiceFactory.INSTANCE.newDefaultTransferManager();
+
+        final TestLocker uploadLocker = new TestLocker();
+        String cosPath = UPLOAD_FOLDER + "uploadTask_rapid_pause_resume_" + System.currentTimeMillis();
+        final String srcPath = big60mFilePath();
+        final COSXMLUploadTask uploadTask = transferManager.upload(
+                TestConst.PERSIST_BUCKET, cosPath, srcPath, null);
+
+        final AtomicInteger pauseResumeCount = new AtomicInteger(0);
+        final int maxPauseResumeTimes = 3;
+
+        uploadTask.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                QCloudLogger.i(TestConst.UT_TAG, "rapid pause/resume test state: " + state);
+            }
+        });
+
+        uploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                QCloudLogger.i(TestConst.UT_TAG, "rapid pause/resume progress: " + complete + "/" + target);
+            }
+        });
+
+        uploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                QCloudLogger.i(TestConst.UT_TAG, "rapid pause/resume upload success");
+                uploadLocker.release();
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request, CosXmlClientException clientException, CosXmlServiceException serviceException) {
+                TestUtils.printError(TestUtils.getCosExceptionMessage(clientException, serviceException));
+                uploadLocker.release();
+            }
+        });
+
+        // 等待上传开始
+        Thread.sleep(3000);
+
+        // 快速多次暂停/恢复，模拟竞态条件
+        for (int i = 0; i < maxPauseResumeTimes; i++) {
+            if (uploadTask.getTaskState() == TransferState.COMPLETED) {
+                QCloudLogger.i(TestConst.UT_TAG, "upload already completed before pause #" + i);
+                break;
+            }
+            if (uploadTask.getTaskState() == TransferState.IN_PROGRESS) {
+                QCloudLogger.i(TestConst.UT_TAG, "pause #" + i);
+                uploadTask.pauseSafely();
+                // 短暂等待后立即恢复，制造旧回调和新轮次并发的竞态窗口
+                Thread.sleep(500);
+                QCloudLogger.i(TestConst.UT_TAG, "resume #" + i);
+                uploadTask.resume();
+                pauseResumeCount.incrementAndGet();
+                // 等待一段时间让上传推进
+                Thread.sleep(2000);
+            }
+        }
+
+        QCloudLogger.i(TestConst.UT_TAG, "total pause/resume cycles: " + pauseResumeCount.get());
+
+        uploadLocker.lock();
+        TestUtils.assertCOSXMLTaskSuccess(uploadTask);
+    }
 }

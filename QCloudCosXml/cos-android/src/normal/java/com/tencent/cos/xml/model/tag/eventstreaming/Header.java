@@ -22,6 +22,8 @@
 
 package com.tencent.cos.xml.model.tag.eventstreaming;
 
+import com.tencent.qcloud.core.logger.COSLogger;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -57,7 +59,7 @@ class Header {
         try {
             name = Utils.readShortString(buf);
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            COSLogger.dProcess("Header", e.getMessage(), e);
         }
         return new Header(name, HeaderValue.decode(buf));
     }

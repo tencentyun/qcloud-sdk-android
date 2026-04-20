@@ -34,6 +34,8 @@ import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 
+import com.tencent.qcloud.core.logger.COSLogger;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -91,10 +93,10 @@ public class QCloudUtils {
             fileDescriptor.close();
             return true;
         } catch (FileNotFoundException fileNotFoundException) {
-            fileNotFoundException.printStackTrace();
+            COSLogger.dProcess("QCloudUtils", fileNotFoundException.getMessage(), fileNotFoundException);
             return false;
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            COSLogger.dProcess("QCloudUtils", ioException.getMessage(), ioException);
             return true;
         }
     }
@@ -113,14 +115,14 @@ public class QCloudUtils {
 
             return length;
         } catch (Exception e) {
-            e.printStackTrace();
+            COSLogger.dProcess("QCloudUtils", e.getMessage(), e);
             return -1L;
         } finally {
             if (inputStream != null) {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    COSLogger.dProcess("QCloudUtils", e.getMessage(), e);
                 }
             }
         }
@@ -140,14 +142,14 @@ public class QCloudUtils {
 
             return length;
         } catch (Exception e) {
-            e.printStackTrace();
+            COSLogger.dProcess("QCloudUtils", e.getMessage(), e);
             return -1L;
         } finally {
             if (inputStream != null) {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    COSLogger.dProcess("QCloudUtils", e.getMessage(), e);
                 }
             }
         }
@@ -164,7 +166,7 @@ public class QCloudUtils {
             oos.close();
             bos.close();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            COSLogger.dProcess("QCloudUtils", ex.getMessage(), ex);
         }
         return bytes;
     }
@@ -178,9 +180,9 @@ public class QCloudUtils {
             ois.close();
             bis.close();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            COSLogger.dProcess("QCloudUtils", ex.getMessage(), ex);
         } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
+            COSLogger.dProcess("QCloudUtils", ex.getMessage(), ex);
         }
         return obj;
     }
@@ -192,13 +194,13 @@ public class QCloudUtils {
             fileOutputStream = new FileOutputStream(fileName);
             fileOutputStream.write(bytes);
         } catch (IOException e) {
-            e.printStackTrace();
+            COSLogger.dProcess("QCloudUtils", e.getMessage(), e);
         } finally {
             if (fileOutputStream != null) {
                 try {
                     fileOutputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    COSLogger.dProcess("QCloudUtils", e.getMessage(), e);
                 }
             }
         }
@@ -214,7 +216,7 @@ public class QCloudUtils {
             fileInputStream = new FileInputStream(file);
             fileInputStream.read(data);
         } catch (IOException e) {
-            e.printStackTrace();
+            COSLogger.dProcess("QCloudUtils", e.getMessage(), e);
         }
         return data;
     }

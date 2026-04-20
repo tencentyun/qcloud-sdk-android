@@ -28,6 +28,7 @@ import android.os.Message;
 import android.os.MessageQueue;
 
 import com.tencent.cos.xml.model.CosXmlResult;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -94,7 +95,7 @@ final class TaskStateMonitor implements Runnable{
         try {
             setMessageQueue();
         } catch (NoSuchFieldException | IllegalAccessException | InvocationTargetException | InstantiationException | ClassNotFoundException e) {
-            e.printStackTrace();
+            COSLogger.dProcess(TAG, e.getMessage(), e);
         }
         taskHandler = new Handler(getLooper()){
             @Override

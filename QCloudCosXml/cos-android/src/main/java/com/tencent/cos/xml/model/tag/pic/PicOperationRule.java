@@ -25,6 +25,7 @@ package com.tencent.cos.xml.model.tag.pic;
 import android.text.TextUtils;
 
 import com.tencent.cos.xml.CosTrackService;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -95,7 +96,7 @@ public class PicOperationRule {
             ruleJson.put("rule", rule);
         } catch (JSONException e) {
             CosTrackService.getInstance().reportError(TAG, e);
-            e.printStackTrace();
+            COSLogger.dProcess(TAG, e.getMessage(), e);
         }
         return ruleJson;
     }

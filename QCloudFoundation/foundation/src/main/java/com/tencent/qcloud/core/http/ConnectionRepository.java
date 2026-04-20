@@ -27,6 +27,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.util.ContextHolder;
 import com.tencent.qcloud.core.util.QCloudUtils;
 
@@ -266,7 +267,7 @@ public class ConnectionRepository {
             try {
                 return Dns.SYSTEM.lookup(host);
             } catch (UnknownHostException e) {
-                e.printStackTrace();
+                COSLogger.dProcess("ConnectionRepository", e.getMessage(), e);
                 return fetch(host, maxRetry - 1);
             }
         }

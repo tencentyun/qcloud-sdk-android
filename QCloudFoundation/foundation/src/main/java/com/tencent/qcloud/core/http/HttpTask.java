@@ -36,6 +36,7 @@ import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudDigistListener;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.common.QCloudServiceException;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.task.QCloudTask;
 import com.tencent.qcloud.core.task.TaskExecutors;
 import com.tencent.qcloud.core.util.DomainSwitchUtils;
@@ -352,7 +353,7 @@ public final class HttpTask<T> extends QCloudTask<HttpResult<T>> {
                 try {
                     ((ReactiveBody) httpRequest.getRequestBody()).end(httpResult);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    COSLogger.dProcess("HttpTask", e.getMessage(), e);
                 }
             }
 

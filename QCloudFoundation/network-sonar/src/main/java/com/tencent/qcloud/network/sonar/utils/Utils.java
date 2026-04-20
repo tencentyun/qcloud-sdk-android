@@ -25,7 +25,9 @@ public class Utils {
                 try {
                     closeable.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    if(SonarLog.openLog) {
+                        e.printStackTrace();
+                    }
                 }
         }
     }

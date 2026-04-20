@@ -22,6 +22,9 @@ import java.util.Map;
  * Copyright 2010-2023 Tencent Cloud. All Rights Reserved.
  */
 public class BeaconTrackService extends ATrackService {
+    // 是否彻底关闭灯塔(包括灯塔的初始化)
+    public static boolean CLOSE_BEACON = false;
+
     private static final String TAG = "BeaconTrackService";
     private Context context;
     private String beaconKey;
@@ -102,6 +105,8 @@ public class BeaconTrackService extends ATrackService {
      * @return 是否包含灯塔模块
      */
     public static boolean isInclude() {
+        if(CLOSE_BEACON) return false;
+
         try {
             Class.forName("com.tencent.beacon.event.open.BeaconReport");
             return true;

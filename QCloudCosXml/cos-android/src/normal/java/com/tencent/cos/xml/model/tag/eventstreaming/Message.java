@@ -24,6 +24,7 @@ package com.tencent.cos.xml.model.tag.eventstreaming;
 
 import com.tencent.cos.xml.exception.CosXmlServiceException;
 import com.tencent.cos.xml.s3.Base64;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -226,7 +227,7 @@ public class Message {
             try {
                 ret.append(new String(payload, "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                COSLogger.dProcess("Message", e.getMessage(), e);
             }
         } else {
             ret.append(Base64.encodeAsString(payload));

@@ -22,6 +22,7 @@
 
 package com.tencent.qcloud.core.auth;
 
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.util.QCloudStringUtils;
 
 import java.math.BigInteger;
@@ -116,9 +117,9 @@ public class Utils {
             hmacSha1 = mac.doFinal(QCloudStringUtils.getBytesUTF8(source));
 
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            COSLogger.dProcess("Utils", e.getMessage(), e);
         } catch (InvalidKeyException e) {
-            e.printStackTrace();
+            COSLogger.dProcess("Utils", e.getMessage(), e);
         }
         return hmacSha1;
     }

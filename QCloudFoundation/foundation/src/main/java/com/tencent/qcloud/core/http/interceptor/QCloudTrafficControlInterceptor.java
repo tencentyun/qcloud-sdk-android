@@ -121,7 +121,7 @@ public class QCloudTrafficControlInterceptor {
                 }
                 controller.acquire();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                COSLogger.dProcess(HTTP_LOG_TAG, e.getMessage(), e);
             }
         }
 

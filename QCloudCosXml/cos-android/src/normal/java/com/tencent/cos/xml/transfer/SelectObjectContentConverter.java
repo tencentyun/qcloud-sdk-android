@@ -39,6 +39,7 @@ import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudServiceException;
 import com.tencent.qcloud.core.http.HttpResponse;
 import com.tencent.qcloud.core.http.ResponseBodyConverter;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -114,7 +115,7 @@ public class SelectObjectContentConverter<T> extends ResponseBodyConverter<T> {
             closeFileOutputStream(fileOutputStream);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            COSLogger.dProcess("SelectObjectContentConverter", e.getMessage(), e);
             throw new QCloudClientException(e);
         }
 
@@ -144,7 +145,7 @@ public class SelectObjectContentConverter<T> extends ResponseBodyConverter<T> {
                 return new FileOutputStream(file);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            COSLogger.dProcess("SelectObjectContentConverter", e.getMessage(), e);
             throw new QCloudClientException(e);
         }
         return null;
@@ -156,7 +157,7 @@ public class SelectObjectContentConverter<T> extends ResponseBodyConverter<T> {
             try {
                 fileOutputStream.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                COSLogger.dProcess("SelectObjectContentConverter", e.getMessage(), e);
                 throw new QCloudClientException(e);
             }
         }

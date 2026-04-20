@@ -390,12 +390,12 @@ public class QCloudRetryInterceptor {
                         .protocol(Protocol.HTTP_1_1)
                         .build();
             } else {
-                exception.printStackTrace();
+                COSLogger.dProcess(HTTP_LOG_TAG, exception.getMessage(), exception);
                 throw exception;
             }
 
         } catch (IOException exception) {
-            exception.printStackTrace();
+            COSLogger.dProcess(HTTP_LOG_TAG, exception.getMessage(), exception);
             throw exception;
         }
     }
@@ -630,14 +630,14 @@ public class QCloudRetryInterceptor {
                 try {
                     start = Long.parseLong(start_end[0]);
                 } catch (NumberFormatException e){
-                    e.printStackTrace();
+                    COSLogger.dProcess(HTTP_LOG_TAG, e.getMessage(), e);
                 }
             }
             if(start_end.length > 1){
                 try {
                     end = Long.parseLong(start_end[1]);
                 } catch (NumberFormatException e){
-                    e.printStackTrace();
+                    COSLogger.dProcess(HTTP_LOG_TAG, e.getMessage(), e);
                 }
             }
         }

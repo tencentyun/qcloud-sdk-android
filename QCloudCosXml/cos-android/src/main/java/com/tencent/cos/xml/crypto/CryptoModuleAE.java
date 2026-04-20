@@ -28,6 +28,7 @@ import com.tencent.cos.xml.model.object.InitMultipartUploadRequest;
 import com.tencent.cos.xml.model.object.UploadPartRequest;
 import com.tencent.cos.xml.utils.FileUtils;
 import com.tencent.qcloud.core.auth.QCloudCredentialProvider;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import org.json.JSONException;
 
@@ -88,7 +89,7 @@ public class CryptoModuleAE extends CryptoModuleBase {
             }
 
         } catch (JSONException | IOException e) {
-            e.printStackTrace();
+            COSLogger.dProcess("CryptoModuleAE", e.getMessage(), e);
             throw CosXmlClientException.internalException(e.getMessage());
         }
 

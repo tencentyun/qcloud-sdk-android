@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import com.tencent.qcloud.core.common.QCloudClientException;
 import com.tencent.qcloud.core.common.QCloudProgressListener;
 import com.tencent.qcloud.core.common.QCloudServiceException;
+import com.tencent.qcloud.core.logger.COSLogger;
 import com.tencent.qcloud.core.util.OkhttpInternalUtils;
 import com.tencent.qcloud.core.util.QCloudHttpUtils;
 
@@ -129,7 +130,7 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
             }
             return null;
         } catch (IOException e) {
-            e.printStackTrace();
+            COSLogger.dProcess("ResponseFileConverter", e.getMessage(), e);
             throw new QCloudClientException("write local uri error for " + e.toString(), e);
         } finally {
             if(output != null) {
@@ -155,7 +156,7 @@ public class ResponseFileConverter<T> extends ResponseBodyConverter<T> implement
             writeRandomAccessFile(downloadFilePath, response.byteStream(), contentLength);
             return null;
         } catch (IOException e) {
-            e.printStackTrace();
+            COSLogger.dProcess("ResponseFileConverter", e.getMessage(), e);
             throw new QCloudClientException("write local file error for " + e.toString(), e);
         }
     }

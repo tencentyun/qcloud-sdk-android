@@ -26,6 +26,7 @@ import com.tencent.qcloud.core.BuildConfig;
 import com.tencent.qcloud.core.http.interceptor.RedirectInterceptor;
 import com.tencent.qcloud.core.http.interceptor.RetryInterceptor;
 import com.tencent.qcloud.core.http.interceptor.TrafficControlInterceptor;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
@@ -117,7 +118,7 @@ public class OkHttpClientImpl extends NetworkClient {
                     sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
                     builder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager)trustAllCerts[0]);
                 } catch (Exception e){
-                    e.printStackTrace();
+                    COSLogger.dProcess("OkHttpClientImpl", e.getMessage(), e);
                 }
             }
             // 设置自定义SSLContext（优先级最高，设置后会忽略其他SSL相关配置）
@@ -150,7 +151,7 @@ public class OkHttpClientImpl extends NetworkClient {
                     sslContext.init(keyManagers, trustManagers, new SecureRandom());
                     builder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustManagers[0]);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    COSLogger.dProcess("OkHttpClientImpl", e.getMessage(), e);
                 }
             }
             // 重置为系统默认的SSL配置，避免受前一个Service的SSL配置污染
@@ -164,7 +165,7 @@ public class OkHttpClientImpl extends NetworkClient {
                     sslContext.init(null, trustManagers, new SecureRandom());
                     builder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustManagers[0]);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    COSLogger.dProcess("OkHttpClientImpl", e.getMessage(), e);
                 }
             }
 

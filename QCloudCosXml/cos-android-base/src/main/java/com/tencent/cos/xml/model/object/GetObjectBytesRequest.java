@@ -29,6 +29,7 @@ import com.tencent.cos.xml.common.ClientErrorCode;
 import com.tencent.cos.xml.common.RequestMethod;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.qcloud.core.http.RequestBodySerializer;
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -73,7 +74,8 @@ final public class GetObjectBytesRequest extends ObjectRequest {
             try {
                 File file = new File("/" + cosPath);
                 normalizedPath = file.getCanonicalPath();
-            } catch (IOException e) {e.printStackTrace();}
+            } catch (IOException e) {
+                COSLogger.dProcess("GetObjectBytesRequest", e.getMessage(), e);}
             if ("/".equals(normalizedPath)) {
                 throw new CosXmlClientException(ClientErrorCode.INVALID_ARGUMENT.getCode(), "The key in the getobject is illegal");
             }

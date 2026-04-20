@@ -22,7 +22,11 @@
 
 package com.tencent.qcloud.core.util;
 
+import static com.tencent.qcloud.core.http.QCloudHttpClient.HTTP_LOG_TAG;
+
 import android.text.TextUtils;
+
+import com.tencent.qcloud.core.logger.COSLogger;
 
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
@@ -149,7 +153,7 @@ public class QCloudHttpUtils {
             // cos 后台需要对 * 做转义，而标准的 Java encode 不需要
             return encoded.toString().replaceAll("\\*", "%2A");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            COSLogger.dProcess("QCloudHttpUtils", e.getMessage(), e);
         }
 
         return null;
@@ -159,7 +163,7 @@ public class QCloudHttpUtils {
         try {
             return URLDecoder.decode(source, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            COSLogger.dProcess("QCloudHttpUtils", e.getMessage(), e);
         }
 
         return null;

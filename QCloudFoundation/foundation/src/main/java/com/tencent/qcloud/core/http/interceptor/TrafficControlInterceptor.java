@@ -122,7 +122,7 @@ public class TrafficControlInterceptor implements Interceptor {
                 }
                 controller.acquire();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                COSLogger.dProcess(HTTP_LOG_TAG, e.getMessage(), e);
             }
         }
 
