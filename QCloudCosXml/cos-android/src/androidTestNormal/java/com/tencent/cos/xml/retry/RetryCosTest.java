@@ -1,5 +1,6 @@
 package com.tencent.cos.xml.retry;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -81,6 +82,19 @@ public class RetryCosTest {
         assertTrue(DomainSwitchUtils.isMyqcloudUrl(testUrls[7]));
         assertTrue(DomainSwitchUtils.isMyqcloudUrl(testUrls[8]));
         assertFalse(DomainSwitchUtils.isMyqcloudUrl(testUrls[9]));
+    }
+
+    @Test
+    public void domainConstants_shouldDecodeToPlainText() {
+        assertEquals("myqcloud.com", DomainSwitchUtils.DOMAIN_MYQCLOUD);
+        assertEquals("tencentcos.cn", DomainSwitchUtils.DOMAIN_TENCENTCOS);
+        assertEquals("tencentci.cn", DomainSwitchUtils.DOMAIN_TENCENTCI);
+    }
+
+    @Test
+    public void isMyqcloudCosUrl_stillWorksAfterDecoding() {
+        assertEquals(true, DomainSwitchUtils.isMyqcloudCosUrl("examplebucket-1250000000.cos.ap-guangzhou.myqcloud.com"));
+        assertEquals(false, DomainSwitchUtils.isMyqcloudCosUrl("cos.ap-guangzhou.myqcloud.com"));
     }
 
     @Test

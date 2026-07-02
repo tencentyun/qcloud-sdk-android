@@ -1,7 +1,9 @@
 package com.tencent.qcloud.core.util;
 
 import android.text.TextUtils;
+import android.util.Base64;
 
+import java.nio.charset.Charset;
 import java.util.regex.Pattern;
 
 /**
@@ -10,9 +12,13 @@ import java.util.regex.Pattern;
  * Copyright 2010-2020 Tencent Cloud. All Rights Reserved.
  */
 public class DomainSwitchUtils {
-    public static String DOMAIN_MYQCLOUD = "myqcloud.com";
-    public static String DOMAIN_TENCENTCOS = "tencentcos.cn";
-    public static String DOMAIN_TENCENTCI = "tencentci.cn";
+    public static String DOMAIN_MYQCLOUD = decode("bXlxY2xvdWQuY29t");
+    public static String DOMAIN_TENCENTCOS = decode("dGVuY2VudGNvcy5jbg==");
+    public static String DOMAIN_TENCENTCI = decode("dGVuY2VudGNpLmNu");
+
+    private static String decode(String base64) {
+        return new String(Base64.decode(base64, Base64.NO_WRAP), Charset.forName("UTF-8"));
+    }
 
     public static boolean isMyqcloudUrl(String url) {
         return isMyqcloudCosUrl(url) || isMyqcloudCiUrl(url);
